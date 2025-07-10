@@ -1,0 +1,7 @@
+packages:
+  - apps/*
+  - packages/*
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - esbuild
+  - svelte-preprocess

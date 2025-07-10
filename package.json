@@ -1,0 +1,37 @@
+{
+  "name": "poetryclub",
+  "version": "1.0.0",
+  "description": "Poetry Club - Monorepo with NestJS backend and SvelteKit frontend",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "clean": "turbo run clean",
+    "test": "turbo run test",
+    "api:dev": "turbo run dev --filter=api",
+    "web:dev": "turbo run dev --filter=web",
+    "api:build": "turbo run build --filter=api",
+    "web:build": "turbo run build --filter=web"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "prettier": "^3.2.5",
+    "turbo": "^2.5.4",
+    "typescript": "^5.3.3"
+  },
+  "keywords": [
+    "monorepo",
+    "nestjs",
+    "sveltekit",
+    "turborepo"
+  ],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.10.0"
+}
