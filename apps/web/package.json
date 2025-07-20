@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "SvelteKit frontend for Poetry Club",
   "private": true,
-  "type": "module",
   "scripts": {
     "build": "vite build",
     "dev": "vite dev",
@@ -26,5 +25,6 @@
   },
   "dependencies": {
     "@types/node": "^20.10.6"
-  }
-} 
+  },
+  "type": "module"
+}

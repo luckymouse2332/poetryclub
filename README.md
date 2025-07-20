@@ -1,123 +1,176 @@
 # Poetry Club - Monorepo
 
-这是一个基于 Turborepo 的 monorepo 项目，包含 NestJS 后端和 SvelteKit 前端应用。
+**Read this in other languages: [English](./README.md), [简体中文](./README_zh.md)**
 
-## 🏗️ 项目结构
+This is a Turborepo-based monorepo project containing a **NestJS backend** and a **SvelteKit frontend**.
+
+## 🏗️ Project Structure
 
 ```
 poetryclub/
 ├── apps/
-│   ├── api/          # NestJS 后端应用
-│   └── web/          # SvelteKit 前端应用
+│   ├── api/          # NestJS backend application
+│   └── web/          # SvelteKit frontend application
 ├── packages/
-│   └── shared/       # 共享工具和类型
-├── package.json      # 根目录配置
-├── turbo.json        # Turborepo 配置
-├── pnpm-workspace.yaml # pnpm 工作区配置
+│   └── shared/       # Shared utilities and types
+├── package.json      # Root-level configuration
+├── turbo.json        # Turborepo configuration
+├── pnpm-workspace.yaml # pnpm workspace configuration
 └── README.md
 ```
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 安装依赖
+### Install dependencies
 
 ```bash
 pnpm install
 ```
 
-### 开发模式
+### Start the database
 
-启动所有应用：
+```bash
+# Start PostgreSQL and Redis
+pnpm db:up
+
+# Stop the database
+pnpm db:down
+
+# Reset the database (delete all data)
+pnpm db:reset
+```
+
+### Database setup
+
+```bash
+# Navigate to the API directory
+cd apps/api
+
+# Copy the example environment file
+cp env.example .env
+
+# Generate Prisma client
+pnpm db:generate
+
+# Push database schema
+pnpm db:push
+
+# Open Prisma Studio
+pnpm db:studio
+```
+
+### Development mode
+
+Start all apps:
+
 ```bash
 pnpm dev
 ```
 
-仅启动后端：
+Start backend only:
+
 ```bash
 pnpm api:dev
 ```
 
-仅启动前端：
+Start frontend only:
+
 ```bash
 pnpm web:dev
 ```
 
-### 构建
+### Build
 
-构建所有应用：
+Build all apps:
+
 ```bash
 pnpm build
 ```
 
-构建特定应用：
+Build specific app:
+
 ```bash
 pnpm api:build
 pnpm web:build
 ```
 
-### 代码检查
+### Code quality checks
 
 ```bash
 pnpm lint
 pnpm type-check
 ```
 
-## 📦 应用详情
+## 📦 Application Details
 
-### API (后端)
-- **技术栈**: NestJS, TypeScript
-- **端口**: 3000
-- **文档**: http://localhost:3000/api/docs
-- **健康检查**: http://localhost:3000/health
+### API (Backend)
 
-### Web (前端)
-- **技术栈**: SvelteKit, TypeScript
-- **端口**: 5173
-- **开发服务器**: http://localhost:5173
+- **Tech Stack**: NestJS, TypeScript, Prisma
+- **Port**: 3000
+- **Docs**: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
+- **Health Check**: [http://localhost:3000/health](http://localhost:3000/health)
+- **Database**: PostgreSQL + Redis
 
-## 🔧 技术特性
+### Web (Frontend)
 
-- ✅ Monorepo 架构 (Turborepo)
-- ✅ 统一代码规范 (ESLint + Prettier)
-- ✅ TypeScript 支持
-- ✅ 前后端通信
-- ✅ 现代化 UI 设计
-- ✅ 开发环境热重载
-- ✅ 生产环境优化
+- **Tech Stack**: SvelteKit, TypeScript
+- **Port**: 5173
+- **Dev Server**: [http://localhost:5173](http://localhost:5173)
 
-## 📝 开发指南
+### Database
 
-### 添加新依赖
+- **PostgreSQL**: localhost:5432
+- **Redis**: localhost:6379
+- **Prisma Studio**: [http://localhost:5555](http://localhost:5555)
 
-根目录依赖：
+## 🔧 Features
+
+- ✅ Monorepo architecture (Turborepo)
+- ✅ Unified code style (ESLint + Prettier)
+- ✅ TypeScript support
+- ✅ Frontend-backend integration
+- ✅ Database integration (PostgreSQL + Prisma)
+- ✅ Caching support (Redis)
+- ✅ Modern UI design
+- ✅ Hot reload in development
+- ✅ Production-ready optimizations
+
+## 📝 Development Guide
+
+### Adding dependencies
+
+Root-level dependency:
+
 ```bash
 pnpm add -w <package-name>
 ```
 
-应用特定依赖：
+App-specific dependency:
+
 ```bash
 pnpm add <package-name> --filter api
 pnpm add <package-name> --filter web
 ```
 
-### 共享包使用
+### Using shared packages
 
-在应用中使用共享包：
+Example usage in an app:
+
 ```typescript
 import { formatDate, API_CONFIG } from '@poetryclub/shared';
 ```
 
-## 🛠️ 脚本命令
+## 🛠️ Script Commands
 
-| 命令 | 描述 |
-|------|------|
-| `pnpm dev` | 启动所有应用开发服务器 |
-| `pnpm build` | 构建所有应用 |
-| `pnpm lint` | 运行代码检查 |
-| `pnpm type-check` | 运行类型检查 |
-| `pnpm clean` | 清理构建文件 |
-| `pnpm test` | 运行测试 |
+| Command           | Description                   |
+| ----------------- | ----------------------------- |
+| `pnpm dev`        | Start all development servers |
+| `pnpm build`      | Build all applications        |
+| `pnpm lint`       | Run lint checks               |
+| `pnpm type-check` | Run TypeScript type checks    |
+| `pnpm clean`      | Clean build files             |
+| `pnpm test`       | Run tests                     |
 
-## 📄 许可证
+## 📄 License
 
-ISC 
+ISC

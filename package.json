@@ -13,17 +13,22 @@
     "api:dev": "turbo run dev --filter=api",
     "web:dev": "turbo run dev --filter=web",
     "api:build": "turbo run build --filter=api",
-    "web:build": "turbo run build --filter=web"
+    "web:build": "turbo run build --filter=web",
+    "db:up": "docker-compose up -d",
+    "db:down": "docker-compose down",
+    "db:reset": "docker-compose down -v && docker-compose up -d"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^7.0.0",
-    "@typescript-eslint/parser": "^7.0.0",
-    "eslint": "^8.57.0",
+    "@eslint/js": "^9.30.1",
+    "@typescript-eslint/eslint-plugin": "^8.36.0",
+    "@typescript-eslint/parser": "^8.36.0",
+    "eslint": "^9.30.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
     "prettier": "^3.2.5",
     "turbo": "^2.5.4",
-    "typescript": "^5.3.3"
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.36.0"
   },
   "keywords": [
     "monorepo",
@@ -33,5 +38,5 @@
   ],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.10.0"
+  "packageManager": "pnpm@10.13.1"
 }

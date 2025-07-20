@@ -13,4 +13,4 @@ export class HealthController {
       service: 'poetry-club-api',
     };
   }
-} 
+}

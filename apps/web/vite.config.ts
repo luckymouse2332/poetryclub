@@ -11,4 +11,4 @@ export default defineConfig({
     port: 4173,
     host: true,
   },
-}); 
+});

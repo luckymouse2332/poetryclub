@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: poetryclub-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: poetryclub
+      POSTGRES_USER: poetryclub
+      POSTGRES_PASSWORD: poetryclub123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - poetryclub-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: poetryclub-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - poetryclub-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  poetryclub-network:
+    driver: bridge 
