@@ -1,3 +1,4 @@
+import path from 'path';
 import rootConfig from '../../eslint.config.mjs';
 
 export default [
@@ -6,7 +7,7 @@ export default [
     files: ["**/*.ts"],
     languageOptions: {
       parserOptions: {
-        project: './tsconfig.json',
+        project: path.join(__dirname, "tsconfig.json")
       },
     },
     rules: {

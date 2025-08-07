@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { err, ok, PromiseResult } from '@poetryclub/types';
-import { User } from '@prisma/client';
 import { UserService } from 'src/modules/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { HASH_ROUNDS } from 'src/common/constants/password.const';
 import { JwtService } from '@nestjs/jwt';
+import { UserDto } from '../user/dto/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -28,7 +28,7 @@ export class AuthService {
   async validateUser(
     username: string,
     password: string
-  ): PromiseResult<Omit<User, 'passwordHash'>> {
+  ): PromiseResult<UserDto> {
     const queryResult = await this.userService.findOneByName(username);
 
     if (!queryResult) {
@@ -60,7 +60,7 @@ export class AuthService {
     email: string,
     password: string,
     username?: string
-  ): PromiseResult<Omit<User, 'passwordHash'>> {
+  ): PromiseResult<UserDto> {
     const queryResult = await this.userService.findOneByName(email);
 
     if (queryResult) {
@@ -78,10 +78,49 @@ export class AuthService {
     return ok(results);
   }
 
-  async signIn(userDto: Omit<User, 'passwordHash'>): Promise<string> {
+  /**
+   * Generates token string
+   *
+   * @param userDto - The user's information to be encoded in token
+   * @returns token string whose payload is the user's information
+   */
+  async signIn(userDto: UserDto): Promise<string> {
     return await this.jwtService.signAsync({
       sub: userDto.id,
       username: userDto.username,
     });
+  }
+
+  /**
+   * Validates and changes user's password
+   *
+   * @param id - The user's identifier
+   * @param oldPassword - The user's old password, should equal to the user's password
+   * @param newPassword - The user's new password, at least 6 characters long
+   *
+   * @returns
+   */
+  async changePassword(
+    id: string,
+    oldPassword: string,
+    newPassword: string
+  ): PromiseResult<string> {
+    const user = await this.userService.findOneById(id);
+
+    if (!user) {
+      return err('Current user does not exist');
+    }
+
+    const result = await bcrypt.compare(oldPassword, user.passwordHash);
+
+    if (!result) {
+      return err('Old password is incorrect');
+    }
+
+    user.passwordHash = await bcrypt.hash(newPassword, HASH_ROUNDS);
+
+    await this.userService.update(id, user);
+
+    return ok('Updated successfully');
   }
 }

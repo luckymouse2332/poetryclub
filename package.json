@@ -20,15 +20,14 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
-    "@typescript-eslint/eslint-plugin": "^8.36.0",
-    "@typescript-eslint/parser": "^8.36.0",
+    "@typescript-eslint/eslint-plugin": "^8.39.0",
+    "@typescript-eslint/parser": "^8.39.0",
     "eslint": "^9.30.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
     "prettier": "^3.2.5",
     "turbo": "^2.5.4",
-    "typescript": "^5.5.4",
-    "typescript-eslint": "^8.36.0"
+    "typescript": "^5.5.4"
   },
   "keywords": [
     "monorepo",
@@ -38,5 +37,8 @@
   ],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.13.1"
+  "packageManager": "pnpm@10.14.0",
+  "dependencies": {
+    "zod": "^4.0.14"
+  }
 }

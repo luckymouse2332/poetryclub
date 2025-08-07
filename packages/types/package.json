@@ -2,11 +2,9 @@
   "name": "@poetryclub/types",
   "version": "1.0.0",
   "description": "Typescript utilities for poetryclub",
-  "types": "./dist/index.d.ts",
-  "main": "./dist/index.js",
-  "license": "ISC",
-  "packageManager": "pnpm@10.10.0",
   "private": true,
+  "main": "./dist/index.js",
+  "packageManager": "pnpm@10.10.0",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",

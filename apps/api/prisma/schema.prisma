@@ -16,7 +16,7 @@ model User {
   email        String   @unique
   passwordHash String   @map("password_hash")
   avatarUrl    String?  @map("avatar_url")
-  bio          String?
+  bio          String? // User-provided short personal biography.
   role         UserRole @default(User)
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")

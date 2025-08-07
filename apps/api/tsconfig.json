@@ -1,15 +1,17 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "module": "commonjs",
     "declaration": true,
+    "declarationMap": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "target": "ES2021",
     "sourceMap": true,
-    "outDir": "./dist",
     "baseUrl": "./",
+    "outDir": "./dist",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,
@@ -17,7 +19,15 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "paths": {
+      "@shared/*": [
+        "packages/shared/src/*"
+      ],
+      "@types/*": [
+        "packages/types/src/*"
+      ]
+    }
   },
   "include": [
     "src/**/*"

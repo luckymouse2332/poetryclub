@@ -1,9 +1,10 @@
 {
   "name": "@poetryclub/shared",
   "version": "1.0.0",
-  "description": "Shared utilities and types for Poetry Club",
+  "description": "Shared types for Poetry Club",
   "private": true,
-  "main": "./src/index.ts",
+  "main": "./dist/index.js",
+  "packageManager": "pnpm@10.10.0",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
@@ -11,8 +12,12 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "typescript": "^5.5.4",
+    "@types/node": "^20.10.6",
     "rimraf": "^5.0.5",
-    "@types/node": "^20.10.6"
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^8.1.0",
+    "zod": "^4.0.14"
   }
 }

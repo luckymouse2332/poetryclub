@@ -5,6 +5,9 @@ import { UserService } from '../user/user.service';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Request } from 'express';
 
+/**
+ * Implements authentication and authorization validation
+ */
 @Injectable()
 export class RolesGuard extends JwtAuthGuard {
   constructor(
@@ -20,10 +23,13 @@ export class RolesGuard extends JwtAuthGuard {
       context.getHandler(),
     ]);
 
-    if (roles?.length === 0) {
+    if (roles?.length === 0 || !roles) {
+      // The API endpoint doesn't need authentication
       return true;
     }
 
+    // Ensures that the user is logged in.
+    // It can also inject jwt payloads into `req.user` by calling jwt strategy
     const result = await super.canActivate(context);
 
     if (!result) {

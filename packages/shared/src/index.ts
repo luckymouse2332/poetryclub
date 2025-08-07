@@ -1,15 +1,14 @@
-// 共享类型定义
-export interface ApiResponse<T = any> {
-  data: T;
-  message: string;
-  success: boolean;
-}
+// 导出所有DTO schemas和类型
+export * from './dto/login.dto';
+export * from './dto/passwords.dto';
+export * from './dto/profile.dto';
+export * from './dto/register.dto';
+export * from './dto/poem.dto';
+export * from './dto/user.dto';
+export * from './dto/common.dto';
 
-export interface HealthCheckResponse {
-  status: string;
-  timestamp: string;
-  service: string;
-}
+// 导出zod实例
+export { z } from './z';
 
 // 共享工具函数
 export function formatDate(date: Date): string {
@@ -36,5 +35,3 @@ export const API_CONFIG = {
   baseUrl: process.env.API_BASE_URL || 'http://localhost:3000',
   timeout: 10000,
 } as const;
-
-export * from './requests/login.request';
