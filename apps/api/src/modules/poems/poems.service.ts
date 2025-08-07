@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
-import { CreatePoemDto, UpdatePoemDto } from './dto';
 
 @Injectable()
 export class PoemsService {
@@ -39,19 +38,6 @@ export class PoemsService {
           },
         },
       },
-    });
-  }
-
-  async create(createPoemDto: CreatePoemDto) {
-    return this.prisma.poem.create({
-      data: createPoemDto,
-    });
-  }
-
-  async update(id: string, updatePoemDto: UpdatePoemDto) {
-    return this.prisma.poem.update({
-      where: { id },
-      data: updatePoemDto,
     });
   }
 

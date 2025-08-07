@@ -116,7 +116,6 @@ export class PoemsController {
     @ZodBody(CreatePoemDtoSchema, { schemaName: 'CreatePoemDto' }) createPoemDto: any,
   ) {
     // TODO: 将用户ID添加到创建数据中
-    return this.poemsService.create({ ...createPoemDto, authorId: req.user.id });
   }
 
   @ApiRoute({
@@ -170,7 +169,6 @@ export class PoemsController {
     @ZodBody(UpdatePoemDtoSchema, { schemaName: 'UpdatePoemDto' }) updatePoemDto: any
   ) {
     // TODO: 添加权限检查，确保只有作者可以更新
-    return this.poemsService.update(id, updatePoemDto);
   }
 
   @ApiRoute({
