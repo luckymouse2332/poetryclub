@@ -1,5 +1,6 @@
 import adapter from '@sveltejs/adapter-auto';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import { preprocessMeltUI } from '@melt-ui/pp';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -9,7 +10,7 @@ const config = {
       $lib: './src/lib',
     },
   },
-  preprocess: vitePreprocess(),
+  preprocess: [vitePreprocess(), preprocessMeltUI()],
 };
 
 export default config;

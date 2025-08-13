@@ -6,6 +6,7 @@ export * from './dto/register.dto';
 export * from './dto/poem.dto';
 export * from './dto/user.dto';
 export * from './dto/common.dto';
+export * from './dto/comment.dto';
 
 // 导出zod实例
 export { z } from './z';

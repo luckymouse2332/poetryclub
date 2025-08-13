@@ -1,17 +1,269 @@
-/* 全局样式 */
-* {
-  box-sizing: border-box;
+/* Import Tailwind CSS */
+@import 'tailwindcss';
+
+@import '@skeletonlabs/skeleton';
+@import '@skeletonlabs/skeleton/optional/presets';
+
+@source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
+
+/* 诗社主题CSS变量 */
+:root {
+  /* 字体 */
+  --font-kai: 'KaiTi', '楷体', serif;
+  
+  /* 过渡动画 */
+  --transition-theme: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  --transition-hover: all 0.3s ease;
+  
+  /* 默认浅色主题变量 */
+  --poetry-primary: rgb(217 119 6);
+  --poetry-secondary: rgb(234 88 12);
+  --poetry-accent: rgb(220 38 38);
+  --poetry-surface: rgb(255 251 235);
+  --poetry-surface-100: rgb(254 243 199);
+  --poetry-surface-200: rgb(253 230 138);
+  --poetry-surface-300: rgb(252 211 77);
+  --poetry-text-primary: rgb(146 64 14);
+  --poetry-text-secondary: rgb(180 83 9);
+  --poetry-text-muted: rgb(217 119 6);
+  --poetry-border: rgb(251 191 36);
+  --poetry-border-light: rgb(253 230 138);
+  --poetry-card-bg: rgb(254 243 199);
+  --poetry-card-hover: rgb(253 230 138);
+  --poetry-btn-primary: rgb(217 119 6);
+  --poetry-btn-primary-hover: rgb(180 83 9);
+  --poetry-btn-secondary: rgb(253 230 138);
+  --poetry-btn-secondary-hover: rgb(252 211 77);
+  --poetry-header-bg: rgb(251 191 36);
+  --poetry-navbar-bg: rgb(254 243 199);
+  --poetry-input-bg: rgb(253 230 138);
 }
 
-html, body {
+/* 初始主题样式 - 确保页面加载时就有正确的颜色 */
+.poetry-theme-init {
+  background-color: rgb(255 251 235); /* poetry-surface */
+  color: rgb(146 64 14); /* poetry-text-primary */
+}
+
+.poetry-theme-init .poetry-navbar {
+  background-color: rgb(254 243 199) !important; /* poetry-navbar-bg */
+}
+
+/* Custom global styles */
+html,
+body {
   margin: 0;
   padding: 0;
-  height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
+  font-family: var(--font-kai);
 }
 
-#svelte {
-  min-height: 100vh;
-} 
+/* 诗社主题类 */
+.poetry-card {
+  background-color: var(--poetry-card-bg);
+  border-color: var(--poetry-border-light);
+  color: var(--poetry-text-primary);
+  transition: var(--transition-hover);
+}
+
+.poetry-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.poetry-surface {
+  background-color: var(--poetry-surface);
+  color: var(--poetry-text-primary);
+}
+
+.poetry-surface-100 {
+  background-color: var(--poetry-surface-100);
+  color: var(--poetry-text-primary);
+}
+
+.poetry-surface-200 {
+  background-color: var(--poetry-surface-200);
+  color: var(--poetry-text-primary);
+}
+
+.poetry-text-primary {
+  color: var(--poetry-text-primary);
+}
+
+.poetry-text-secondary {
+  color: var(--poetry-text-secondary);
+}
+
+.poetry-text-muted {
+  color: var(--poetry-text-muted);
+}
+
+.poetry-border {
+  border-color: var(--poetry-border);
+}
+
+.poetry-btn-primary {
+  background-color: var(--poetry-btn-primary);
+  color: white;
+  transition: var(--transition-hover);
+}
+
+.poetry-btn-primary:hover {
+  background-color: var(--poetry-btn-primary-hover);
+  transform: scale(1.05);
+}
+
+.poetry-btn-secondary {
+  background-color: var(--poetry-btn-secondary);
+  color: var(--poetry-text-primary);
+  transition: var(--transition-hover);
+}
+
+.poetry-btn-secondary:hover {
+  background-color: var(--poetry-btn-secondary-hover);
+  transform: scale(1.05);
+}
+
+/* 悬停效果类 */
+.hover\:poetry-surface-200:hover {
+  background-color: var(--poetry-surface-200);
+}
+
+.poetry-btn-primary-hover {
+  background-color: var(--poetry-btn-primary-hover);
+  color: white;
+}
+
+.poetry-header {
+  background-color: var(--poetry-header-bg);
+  color: white;
+}
+
+.poetry-navbar {
+	background-color: var(--poetry-navbar-bg, rgb(254 243 199)) !important;
+	transition: background-color 0.2s ease;
+}
+
+/* 确保navbar在所有状态下都有正确的背景色 */
+header.poetry-navbar {
+	background-color: var(--poetry-navbar-bg, rgb(254 243 199)) !important;
+}
+
+.poetry-text-primary {
+	color: var(--poetry-text-primary);
+}
+
+.poetry-text-secondary {
+	color: var(--poetry-text-secondary);
+}
+
+.poetry-btn-primary {
+	background-color: var(--poetry-btn-primary);
+}
+
+.poetry-btn-secondary {
+	background-color: var(--poetry-btn-secondary);
+}
+
+.poetry-border {
+	border-color: var(--poetry-border);
+}
+
+.poetry-surface-100 {
+	background-color: var(--poetry-surface-100);
+}
+
+.poetry-surface-200 {
+	background-color: var(--poetry-surface-200);
+}
+
+.poetry-input-bg {
+	background-color: var(--poetry-input-bg);
+}
+
+/* 输入框样式 */
+.textarea {
+	padding: 12px;
+	border-radius: 8px;
+	font-size: 16px;
+	line-height: 1.5;
+	transition: all 0.2s ease;
+}
+
+.textarea::placeholder {
+	color: var(--poetry-text-muted);
+	opacity: 0.7;
+}
+
+/* Hover效果类 */
+.hover\:poetry-text-primary:hover {
+	color: var(--poetry-text-primary);
+}
+
+.hover\:poetry-surface-200:hover {
+	background-color: var(--poetry-surface-200);
+}
+
+/* 楷体字体回退 */
+.font-kai {
+  font-family: var(--font-kai);
+}
+
+/* 深色模式平滑过渡 */
+* {
+  transition: var(--transition-theme);
+}
+
+/* 自定义滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--poetry-surface-200);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--poetry-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--poetry-text-muted);
+}
+
+/* 改进的卡片阴影效果 */
+.card-enhanced {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: var(--transition-hover);
+}
+
+.card-enhanced:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+
+.dark .card-enhanced {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+/* 诗词内容特殊样式 */
+.poem-content {
+  line-height: 2;
+  letter-spacing: 0.05em;
+  font-family: var(--font-kai);
+}
+
+/* 渐变文字效果 */
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .gradient-text {
+  background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

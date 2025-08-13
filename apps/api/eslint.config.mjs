@@ -1,20 +1,19 @@
-import path from 'path';
-import rootConfig from '../../eslint.config.mjs';
+import config from "../../eslint.config.mjs";
 
 export default [
-  ...rootConfig,
+  ...config,
   {
     files: ["**/*.ts"],
     languageOptions: {
       parserOptions: {
-        project: path.join(__dirname, "tsconfig.json")
+        project: "./tsconfig.json",
+        tsconfigRootDir: import.meta.dirname,
       },
     },
     rules: {
-      '@typescript-eslint/interface-name-prefix': 'off',
-      '@typescript-eslint/explicit-function-return-type': 'off',
-      '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/explicit-function-return-type": "warn",
+      "@typescript-eslint/explicit-module-boundary-types": "warn",
     },
   },
 ];
