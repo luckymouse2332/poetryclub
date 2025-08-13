@@ -14,6 +14,7 @@
     "clean": "rimraf build .svelte-kit"
   },
   "devDependencies": {
+    "@iconify-json/mdi": "^1.2.3",
     "@melt-ui/pp": "^0.3.2",
     "@poetryclub/shared": "workspace:*",
     "@skeletonlabs/skeleton": "^3.1.7",
@@ -26,15 +27,14 @@
     "svelte-check": "^3.6.0",
     "tailwindcss": "4.0.0",
     "typescript": "^5.0.0",
+    "unplugin-icons": "^22.2.0",
     "vite": "^6.3.5"
   },
   "dependencies": {
-    "@lucide/svelte": "^0.539.0",
     "@melt-ui/svelte": "^0.86.6",
     "@tailwindcss/vite": "^4.1.11",
     "@types/node": "^20.10.6",
     "autoprefixer": "^10.4.21",
-
     "svelte-sonner": "^1.0.5"
   },
   "type": "module"

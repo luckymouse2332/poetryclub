@@ -1,7 +1,12 @@
 <script lang="ts">
 	import { createPopover, melt } from '@melt-ui/svelte';
-	import { User, Settings, LogOut, BookOpen, Heart, Pencil } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
+	import MdiUser from 'virtual:icons/mdi/user';
+	import MdiBook from 'virtual:icons/mdi/book';
+	import MdiHeart from 'virtual:icons/mdi/heart';
+	import MdiPencil from 'virtual:icons/mdi/pencil';
+	import MdiLogout from 'virtual:icons/mdi/logout';
+	import MdiSettingsOutline from 'virtual:icons/mdi/settings-outline';
 
 	interface Props {
 		user?: {
@@ -84,7 +89,7 @@
 		<span class="text-sm font-medium text-gray-700 hidden md:block">{user.name}</span>
 	{:else}
 		<!-- 未登录用户图标 -->
-		<User class="w-6 h-6 text-gray-600" />
+		<MdiUser class="w-6 h-6 text-gray-600" />
 		<span class="text-sm font-medium text-gray-700 hidden md:block">登录</span>
 	{/if}
 </button>
@@ -121,7 +126,7 @@
 					onclick={() => handleMenuClick('profile')}
 					class="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
 				>
-					<User class="w-4 h-4" />
+					<MdiUser class="w-4 h-4" />
 					个人资料
 				</button>
 
@@ -129,7 +134,7 @@
 					onclick={() => handleMenuClick('my-poems')}
 					class="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
 				>
-					<BookOpen class="w-4 h-4" />
+					<MdiBook class="w-4 h-4" />
 					我的诗歌
 				</button>
 
@@ -137,7 +142,7 @@
 					onclick={() => handleMenuClick('favorites')}
 					class="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
 				>
-					<Heart class="w-4 h-4" />
+					<MdiHeart class="w-4 h-4" />
 					我的收藏
 				</button>
 
@@ -145,7 +150,7 @@
 					onclick={() => handleMenuClick('write')}
 					class="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
 				>
-					<Pencil class="w-4 h-4" />
+					<MdiPencil class="w-4 h-4" />
 					创作诗歌
 				</button>
 
@@ -155,7 +160,7 @@
 					onclick={() => handleMenuClick('settings')}
 					class="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
 				>
-					<Settings class="w-4 h-4" />
+					<MdiSettingsOutline class="w-4 h-4" />
 					设置
 				</button>
 
@@ -163,7 +168,7 @@
 					onclick={() => handleMenuClick('logout')}
 					class="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
 				>
-					<LogOut class="w-4 h-4" />
+					<MdiLogout class="w-4 h-4" />
 					退出登录
 				</button>
 			</div>
@@ -174,7 +179,7 @@
 					onclick={() => handleMenuClick('login')}
 					class="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
 				>
-					<User class="w-4 h-4" />
+					<MdiUser class="w-4 h-4" />
 					登录
 				</button>
 
@@ -182,7 +187,7 @@
 					onclick={() => handleMenuClick('register')}
 					class="w-full flex items-center gap-3 px-3 py-2 text-sm text-green-600 hover:bg-green-50 rounded-md transition-colors"
 				>
-					<Pencil class="w-4 h-4" />
+					<MdiPencil class="w-4 h-4" />
 					注册
 				</button>
 			</div>

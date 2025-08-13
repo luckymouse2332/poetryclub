@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createCheckbox, melt } from '@melt-ui/svelte';
-  import checkSvg from '$lib/assets/icons/check.svg';
-  
+  import MdiCheckBold from 'virtual:icons/mdi/check-bold';
+
   export let checked = false;
   export let disabled = false;
   export let label = '';
@@ -9,7 +9,7 @@
   export let size: 'sm' | 'md' | 'lg' = 'md';
   export let onchange: ((event: { checked: boolean }) => void) | undefined =
     undefined;
-    
+
   // 创建 melt checkbox
   const {
     elements: { root, input },
@@ -18,10 +18,10 @@
     defaultChecked: checked,
     disabled,
   });
-  
+
   // 同步 checked 状态
   $: meltChecked.set(checked);
-  
+
   // 同步 melt 状态到组件状态
   $: if ($meltChecked !== checked) {
     checked = $meltChecked === true;
@@ -57,12 +57,7 @@
   use:melt={$root}
 >
   <div class="relative">
-    <input
-      {id}
-      type="checkbox"
-      class="sr-only"
-      use:melt={$input}
-    />
+    <input {id} type="checkbox" class="sr-only" use:melt={$input} />
     <div
       class="border-2 rounded-md transition-all duration-200 flex items-center justify-center {currentSize.box}
 				{$meltChecked
@@ -72,11 +67,7 @@
 			"
     >
       {#if $meltChecked}
-        <img
-          src={checkSvg}
-          alt="Checked"
-          class="{currentSize.icon} text-white"
-        />
+        <MdiCheckBold />
       {/if}
     </div>
   </div>

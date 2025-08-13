@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import PoemListCard from '$lib/components/PoemListCard.svelte';
   import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
   import { onMount } from 'svelte';
 
   // 获取用户ID
-  let userId = $derived($page.params.id);
+  let userId = $derived(page.params.id);
 
   // 模拟当前登录用户ID
   let currentUserId = '1';
@@ -44,7 +44,7 @@
 
       // 模拟用户数据
       userData = {
-        id: userId,
+        id: userId!,
         username:
           userId === '1'
             ? '诗韵墨客'
