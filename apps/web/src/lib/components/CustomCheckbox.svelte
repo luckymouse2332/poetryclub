@@ -79,6 +79,6 @@
 <style>
   /* 深色模式 hover 效果 */
   .group:hover .bg-white {
-    background-color: rgb(255 251 235); /* amber-50 */
+    background-color: var(--poetry-surface, rgb(255 251 235)); /* amber-50 */
   }
 </style>

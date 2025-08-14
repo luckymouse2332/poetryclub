@@ -6,7 +6,7 @@
 
 @source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
 
-/* 诗社主题CSS变量 */
+/* 诗社主题基础样式 - 主题变量由TypeScript动态管理 */
 :root {
   /* 字体 */
   --font-kai: 'KaiTi', '楷体', serif;
@@ -15,39 +15,32 @@
   --transition-theme: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   --transition-hover: all 0.2s ease;
   --transition-fast: all 0.1s ease;
-  
-  /* 默认浅色主题变量 */
-  --poetry-primary: rgb(217 119 6);
-  --poetry-secondary: rgb(234 88 12);
-  --poetry-accent: rgb(220 38 38);
-  --poetry-surface: rgb(255 251 235);
-  --poetry-surface-100: rgb(254 243 199);
-  --poetry-surface-200: rgb(253 230 138);
-  --poetry-surface-300: rgb(252 211 77);
-  --poetry-text-primary: rgb(146 64 14);
-  --poetry-text-secondary: rgb(180 83 9);
-  --poetry-text-muted: rgb(217 119 6);
-  --poetry-border: rgb(251 191 36);
-  --poetry-border-light: rgb(253 230 138);
-  --poetry-card-bg: rgb(254 243 199);
-  --poetry-card-hover: rgb(253 230 138);
-  --poetry-btn-primary: rgb(217 119 6);
-  --poetry-btn-primary-hover: rgb(180 83 9);
-  --poetry-btn-secondary: rgb(253 230 138);
-  --poetry-btn-secondary-hover: rgb(252 211 77);
-  --poetry-header-bg: rgb(251 191 36);
-  --poetry-navbar-bg: rgb(254 243 199);
-  --poetry-input-bg: rgb(253 230 138);
 }
 
-/* 初始主题样式 - 确保页面加载时就有正确的颜色 */
-.poetry-theme-init {
-  background-color: rgb(255 251 235); /* poetry-surface */
-  color: rgb(146 64 14); /* poetry-text-primary */
+/* 主题加载状态样式 */
+.theme-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--poetry-surface, rgb(255 251 235));
+  color: var(--poetry-text-primary, rgb(146 64 14));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.3s ease;
 }
 
-.poetry-theme-init .poetry-navbar {
-  background-color: rgb(254 243 199) !important; /* poetry-navbar-bg */
+.theme-loading.dark {
+  background-color: var(--poetry-surface, rgb(15 23 42));
+  color: var(--poetry-text-primary, rgb(226 232 240));
+}
+
+.theme-loading.fade-out {
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* Custom global styles */
@@ -229,24 +222,19 @@ header.poetry-navbar {
   transition: var(--transition-theme);
 }
 
-/* 防止页面加载时的闪烁 */
-.poetry-theme-init * {
-  transition: none !important;
-}
-
-/* 页面加载完成后启用过渡动画 */
-body.loaded .poetry-surface,
-body.loaded .poetry-surface-100,
-body.loaded .poetry-surface-200,
-body.loaded .poetry-card,
-body.loaded .poetry-navbar,
-body.loaded .poetry-btn-primary,
-body.loaded .poetry-btn-secondary,
-body.loaded .poetry-text-primary,
-body.loaded .poetry-text-secondary,
-body.loaded .poetry-text-muted,
-body.loaded .poetry-border,
-body.loaded .theme-transition {
+/* 主题加载完成后启用过渡动画 */
+body.theme-loaded .poetry-surface,
+body.theme-loaded .poetry-surface-100,
+body.theme-loaded .poetry-surface-200,
+body.theme-loaded .poetry-card,
+body.theme-loaded .poetry-navbar,
+body.theme-loaded .poetry-btn-primary,
+body.theme-loaded .poetry-btn-secondary,
+body.theme-loaded .poetry-text-primary,
+body.theme-loaded .poetry-text-secondary,
+body.theme-loaded .poetry-text-muted,
+body.theme-loaded .poetry-border,
+body.theme-loaded .theme-transition {
   transition: var(--transition-theme);
 }
 

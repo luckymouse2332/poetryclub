@@ -1,38 +1,34 @@
 <!doctype html>
-<html lang="zh-CN" data-theme="poetry-theme" class="poetry-theme-init">
+<html lang="zh-CN" data-theme="poetry-theme">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script>
-      // 预设主题，避免页面闪烁
+      // 预设基础主题，避免页面闪烁 - 简化版本
       (function() {
         try {
-          const saved = localStorage.getItem('poetry-theme');
-          const theme = saved === 'dark' || saved === 'light' ? saved : 
-            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          let saved = localStorage.getItem('poetry-theme');
+          let theme;
+          
+          if (saved === 'dark' || saved === 'light') {
+            theme = saved;
+          } else {
+            // 如果没有保存的主题，默认使用浅色模式
+            theme = 'light';
+            // 保存默认主题到localStorage
+            localStorage.setItem('poetry-theme', theme);
+          }
           
           const root = document.documentElement;
           
+          // 设置基础主题类和属性
           if (theme === 'dark') {
             root.classList.add('dark');
-            // 立即设置深色主题CSS变量
-            root.style.setProperty('--poetry-surface', 'rgb(15 23 42)');
-            root.style.setProperty('--poetry-text-primary', 'rgb(226 232 240)');
-            root.style.setProperty('--poetry-navbar-bg', 'rgb(30 41 59)');
           } else {
             root.classList.remove('dark');
-            // 确保浅色主题CSS变量
-            root.style.setProperty('--poetry-surface', 'rgb(255 251 235)');
-            root.style.setProperty('--poetry-text-primary', 'rgb(146 64 14)');
-            root.style.setProperty('--poetry-navbar-bg', 'rgb(254 243 199)');
           }
           
           root.setAttribute('data-theme', 'poetry-theme');
-          
-          // 页面加载完成后启用过渡动画
-          window.addEventListener('load', function() {
-            document.body.classList.add('loaded');
-          });
         } catch (e) {
           // 忽略错误，使用默认主题
         }

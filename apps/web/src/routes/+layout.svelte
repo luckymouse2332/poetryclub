@@ -5,12 +5,13 @@
     initTheme,
     toggleTheme as switchTheme,
     getCurrentTheme,
+    themeReady,
     type ThemeMode,
   } from '$lib/theme';
   import { createMenubar, melt } from '@melt-ui/svelte';
   import { createToggle } from '@melt-ui/svelte';
   import { createCollapsible } from '@melt-ui/svelte';
-  import { UserMenu, ToastProvider } from '$lib/components';
+  import { UserMenu, ToastProvider, ThemeLoader } from '$lib/components';
   import MdiWhiteBalanceSunny from 'virtual:icons/mdi/white-balance-sunny';
   import MdiMoonWaningCrescent from 'virtual:icons/mdi/moon-waning-crescent';
   import MdiMenu from 'virtual:icons/mdi/menu';
@@ -31,7 +32,6 @@
   // 创建 melt-ui 组件
   const {
     elements: { menubar },
-    builders: { createMenu },
   } = createMenubar();
 
   const {
@@ -52,15 +52,15 @@
     defaultOpen: false,
   });
 
-  // 初始化主题 - 只在 onMount 中执行，避免竞态条件
-  onMount(() => {
+  // 初始化主题 - 使用异步版本以支持加载状态
+  onMount(async () => {
     // 获取保存的主题或系统偏好
     const savedTheme = getCurrentTheme();
     currentTheme = savedTheme;
-    
-    // 应用主题到DOM
-    initTheme();
-    
+
+    // 异步应用主题到DOM
+    await initTheme();
+
     // 同步 melt-ui toggle 状态
     themePressed.set(currentTheme === 'dark');
   });
@@ -79,13 +79,11 @@
     mobileMenuState.set(isMobileMenuOpen);
   }
 
-  // 监听 melt-ui 状态变化
+  // 监听主题变化，单向同步到 melt-ui 状态
+  // 移除双向绑定，避免自动回滚问题
   $effect(() => {
-    // 只有当 melt-ui 状态与当前主题状态不一致时才切换
-    // 避免初始化时的无限循环
-    if ($themePressed !== (currentTheme === 'dark')) {
-      currentTheme = switchTheme();
-    }
+    // 只同步主题状态到 melt-ui，不反向触发主题切换
+    themePressed.set(currentTheme === 'dark');
   });
 
   $effect(() => {
@@ -99,9 +97,12 @@
 </script>
 
 <!-- 使用语义化 HTML 和 Tailwind CSS 创建布局 -->
+
 <div class="min-h-screen flex flex-col theme-transition">
   <!-- Header Navigation -->
-  <header class="poetry-navbar shadow-lg border-b poetry-border theme-transition">
+  <header
+    class="poetry-navbar shadow-lg border-b poetry-border theme-transition"
+  >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-18">
         <!-- Logo/Brand -->
@@ -138,6 +139,7 @@
           <!-- Theme Toggle Button -->
           <button
             use:melt={$themeToggle}
+            onclick={toggleTheme}
             class="p-2 rounded-lg poetry-btn-secondary poetry-text-primary theme-transition"
             title={isDarkMode ? '切换到浅色模式' : '切换到深色模式'}
           >
@@ -159,6 +161,7 @@
           <!-- Mobile Theme Toggle -->
           <button
             use:melt={$themeToggle}
+            onclick={toggleTheme}
             class="p-2 rounded-lg poetry-btn-secondary poetry-text-primary theme-transition"
           >
             {#if isDarkMode}
@@ -240,7 +243,6 @@
             分享诗词之美
           </p>
         </div>
-
         <!-- 快速链接 -->
         <div class="text-center">
           <h3 class="text-lg font-bold poetry-text-primary mb-3 font-kai">
@@ -341,8 +343,14 @@
         </div>
       </div>
     </div>
+    ``` ````
   </footer>
 </div>
 
 <!-- Toast Provider -->
+
 <ToastProvider />
+
+<!-- 主题加载组件 -->
+
+<ThemeLoader />

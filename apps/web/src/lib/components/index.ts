@@ -6,6 +6,7 @@ export { default as CommentItem } from './CommentItem.svelte';
 export { default as CustomCheckbox } from './CustomCheckbox.svelte';
 export { default as Pagination } from './Pagination.svelte';
 export { default as LoadingSpinner } from './LoadingSpinner.svelte';
+export { default as ThemeLoader } from './ThemeLoader.svelte';
 export { default as PoemCardSkeleton } from './PoemCardSkeleton.svelte';
 export { default as ShareDialog } from './ShareDialog.svelte';
 export { default as UserMenu } from './UserMenu.svelte';
