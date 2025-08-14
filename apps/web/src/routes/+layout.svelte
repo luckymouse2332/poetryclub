@@ -52,16 +52,17 @@
     defaultOpen: false,
   });
 
-  // 在组件更新前就尝试获取主题
-  $effect.pre(() => {
-    if (typeof window !== 'undefined') {
-      currentTheme = getCurrentTheme();
-    }
-  });
-
-  // 初始化主题
+  // 初始化主题 - 只在 onMount 中执行，避免竞态条件
   onMount(() => {
-    currentTheme = initTheme();
+    // 获取保存的主题或系统偏好
+    const savedTheme = getCurrentTheme();
+    currentTheme = savedTheme;
+    
+    // 应用主题到DOM
+    initTheme();
+    
+    // 同步 melt-ui toggle 状态
+    themePressed.set(currentTheme === 'dark');
   });
 
   // 切换主题
@@ -80,8 +81,10 @@
 
   // 监听 melt-ui 状态变化
   $effect(() => {
+    // 只有当 melt-ui 状态与当前主题状态不一致时才切换
+    // 避免初始化时的无限循环
     if ($themePressed !== (currentTheme === 'dark')) {
-      toggleTheme();
+      currentTheme = switchTheme();
     }
   });
 
@@ -96,9 +99,9 @@
 </script>
 
 <!-- 使用语义化 HTML 和 Tailwind CSS 创建布局 -->
-<div class="min-h-screen flex flex-col">
+<div class="min-h-screen flex flex-col theme-transition">
   <!-- Header Navigation -->
-  <header class="poetry-navbar shadow-lg border-b poetry-border">
+  <header class="poetry-navbar shadow-lg border-b poetry-border theme-transition">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-18">
         <!-- Logo/Brand -->
@@ -135,7 +138,7 @@
           <!-- Theme Toggle Button -->
           <button
             use:melt={$themeToggle}
-            class="p-2 rounded-lg poetry-btn-secondary poetry-text-primary"
+            class="p-2 rounded-lg poetry-btn-secondary poetry-text-primary theme-transition"
             title={isDarkMode ? '切换到浅色模式' : '切换到深色模式'}
           >
             {#if isDarkMode}
@@ -156,7 +159,7 @@
           <!-- Mobile Theme Toggle -->
           <button
             use:melt={$themeToggle}
-            class="p-2 rounded-lg poetry-btn-secondary poetry-text-primary"
+            class="p-2 rounded-lg poetry-btn-secondary poetry-text-primary theme-transition"
           >
             {#if isDarkMode}
               <MdiWhiteBalanceSunny />
@@ -168,7 +171,7 @@
           <button
             use:melt={$mobileMenuTrigger}
             type="button"
-            class="p-2 rounded-lg poetry-btn-secondary poetry-text-primary"
+            class="p-2 rounded-lg poetry-btn-secondary poetry-text-primary theme-transition"
             aria-controls="mobile-menu"
             aria-expanded={isMobileMenuOpen}
           >
@@ -184,7 +187,7 @@
     {#if $mobileMenuState}
       <div class="md:hidden" id="mobile-menu" use:melt={$mobileMenuContent}>
         <div
-          class="px-4 pt-2 pb-3 space-y-2 poetry-surface-100 border-t poetry-border"
+          class="px-4 pt-2 pb-3 space-y-2 poetry-surface-100 border-t poetry-border theme-transition"
         >
           <a
             href="/"
@@ -199,13 +202,13 @@
           <div class="pt-4 pb-3 border-t poetry-border">
             <div class="flex flex-col space-y-3 px-4">
               <a
-                class="poetry-btn-secondary poetry-text-primary px-6 py-3 rounded-lg font-medium border poetry-border"
+                class="poetry-btn-secondary poetry-text-primary px-6 py-3 rounded-lg font-medium border poetry-border theme-transition"
                 href="/login"
               >
                 登录
               </a>
               <a
-                class="poetry-btn-primary text-white px-6 py-3 rounded-lg font-medium"
+                class="poetry-btn-primary text-white px-6 py-3 rounded-lg font-medium theme-transition"
                 href="/register"
               >
                 注册
@@ -218,12 +221,12 @@
   </header>
 
   <!-- Main Content Area -->
-  <main class="poetry-surface flex-1">
+  <main class="poetry-surface flex-1 theme-transition">
     {@render children()}
   </main>
 
   <!-- Footer -->
-  <footer class="poetry-surface-100 border-t poetry-border">
+  <footer class="poetry-surface-100 border-t poetry-border theme-transition">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- 主要页脚内容 -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">

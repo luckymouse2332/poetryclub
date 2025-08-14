@@ -167,7 +167,7 @@
   />
 </svelte:head>
 
-<div class="min-h-screen poetry-bg">
+<div class="min-h-screen poetry-surface theme-transition">
   {#if loading}
     <!-- 加载状态 -->
     <div class="flex justify-center items-center min-h-[60vh]">
@@ -192,8 +192,8 @@
     <!-- 用户详情内容 -->
     <div class="container mx-auto px-4 py-8 max-w-6xl">
       <!-- 用户基本信息 -->
-      <div class="card-enhanced poetry-border mb-8 overflow-hidden">
-        <div class="poetry-surface p-8">
+      <div class="poetry-card mb-8 overflow-hidden theme-transition">
+        <div class="p-8">
           <div class="flex flex-col lg:flex-row gap-8">
             <!-- 头像和基本信息 -->
             <div
@@ -217,14 +217,14 @@
                     <button
                       class="{isFollowing
                         ? 'poetry-btn-secondary'
-                        : 'poetry-btn-primary'} px-6 py-2 rounded-lg transition-all hover:scale-105"
+                        : 'poetry-btn-primary'} px-6 py-2 rounded-lg theme-transition hover:scale-105"
                       onclick={toggleFollow}
                     >
                       {isFollowing ? '已关注' : '关注'}
                     </button>
                   {:else}
                     <button
-                      class="poetry-btn-primary px-6 py-2 rounded-lg transition-all hover:scale-105"
+                      class="poetry-btn-primary px-6 py-2 rounded-lg theme-transition hover:scale-105"
                       onclick={editProfile}
                     >
                       编辑资料
@@ -249,7 +249,7 @@
               <!-- 统计信息 -->
               <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
                 <div
-                  class="text-center p-4 poetry-surface-secondary rounded-lg"
+                  class="text-center p-4 poetry-surface-100 rounded-lg theme-transition"
                 >
                   <div class="text-2xl font-bold poetry-text-primary">
                     {userData.poemsCount}
@@ -257,7 +257,7 @@
                   <div class="text-sm poetry-text-muted">发布诗歌</div>
                 </div>
                 <div
-                  class="text-center p-4 poetry-surface-secondary rounded-lg"
+                  class="text-center p-4 poetry-surface-100 rounded-lg theme-transition"
                 >
                   <div class="text-2xl font-bold poetry-text-primary">
                     {userData.likesCount}
@@ -265,7 +265,7 @@
                   <div class="text-sm poetry-text-muted">获得点赞</div>
                 </div>
                 <div
-                  class="text-center p-4 poetry-surface-secondary rounded-lg"
+                  class="text-center p-4 poetry-surface-100 rounded-lg theme-transition"
                 >
                   <div class="text-2xl font-bold poetry-text-primary">
                     {userData.viewsCount}
@@ -273,7 +273,7 @@
                   <div class="text-sm poetry-text-muted">阅读量</div>
                 </div>
                 <div
-                  class="text-center p-4 poetry-surface-secondary rounded-lg"
+                  class="text-center p-4 poetry-surface-100 rounded-lg theme-transition"
                 >
                   <div class="text-2xl font-bold poetry-text-primary">
                     {userData.followersCount}
@@ -281,7 +281,7 @@
                   <div class="text-sm poetry-text-muted">粉丝</div>
                 </div>
                 <div
-                  class="text-center p-4 poetry-surface-secondary rounded-lg"
+                  class="text-center p-4 poetry-surface-100 rounded-lg theme-transition"
                 >
                   <div class="text-2xl font-bold poetry-text-primary">
                     {userData.followingCount}
@@ -299,18 +299,18 @@
         <div class="border-b poetry-border">
           <nav class="flex space-x-8">
             <button
-              class="py-4 px-2 border-b-2 font-medium text-sm transition-colors {activeTab ===
+              class="py-4 px-2 border-b-2 font-medium text-sm theme-transition {activeTab ===
               'poems'
-                ? 'border-blue-500 poetry-text-primary'
+                ? 'border-amber-500 poetry-text-primary'
                 : 'border-transparent poetry-text-muted hover:poetry-text-secondary'}"
               onclick={() => switchTab('poems')}
             >
               发布的诗歌 ({userPoems.length})
             </button>
             <button
-              class="py-4 px-2 border-b-2 font-medium text-sm transition-colors {activeTab ===
+              class="py-4 px-2 border-b-2 font-medium text-sm theme-transition {activeTab ===
               'favorites'
-                ? 'border-blue-500 poetry-text-primary'
+                ? 'border-amber-500 poetry-text-primary'
                 : 'border-transparent poetry-text-muted hover:poetry-text-secondary'}"
               onclick={() => switchTab('favorites')}
             >
@@ -357,52 +357,7 @@
 </div>
 
 <style>
-  @reference '../../../app.css';
-
-  /* 诗词主题样式 */
-  .poetry-bg {
-    @apply bg-gradient-to-br from-amber-50 via-orange-50 to-red-50;
-  }
-
-  .poetry-surface {
-    @apply bg-white/80 backdrop-blur-sm;
-  }
-
-  .poetry-surface-secondary {
-    @apply bg-amber-50/50;
-  }
-
-  .poetry-border {
-    @apply border-amber-200;
-  }
-
-  .poetry-text-primary {
-    @apply text-amber-900;
-  }
-
-  .poetry-text-secondary {
-    @apply text-amber-700;
-  }
-
-  .poetry-text-muted {
-    @apply text-amber-600;
-  }
-
-  .poetry-btn-primary {
-    @apply bg-gradient-to-r from-amber-600 to-orange-600 text-white font-medium;
-    @apply hover:from-amber-700 hover:to-orange-700 transition-all duration-200;
-    @apply shadow-md hover:shadow-lg;
-  }
-
-  .poetry-btn-secondary {
-    @apply bg-amber-100 text-amber-800 border border-amber-300 font-medium;
-    @apply hover:bg-amber-200 transition-all duration-200;
-  }
-
-  .card-enhanced {
-    @apply bg-white/90 backdrop-blur-sm rounded-xl shadow-lg;
-    @apply border border-amber-200/50;
-  }
+  @reference '../../../app.css'
 
   /* 响应式调整 */
   @media (max-width: 640px) {

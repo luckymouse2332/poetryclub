@@ -112,12 +112,10 @@
 
   // 处理记住我复选框变化
   function handleRememberMeChange(event: { checked: boolean }) {
-    rememberMe = event.checked;
     console.log('记住我状态:', rememberMe);
   }
 
   onMount(() => {
-    // 检查是否有记住的登录信息
     const remembered = localStorage.getItem('rememberMe');
     if (remembered) {
       rememberMe = true;
@@ -223,7 +221,6 @@
             disabled={isLoading}
             label="记住我"
             id="remember-me"
-            onchange={handleRememberMeChange}
           />
           <button
             type="button"

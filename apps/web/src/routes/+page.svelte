@@ -177,10 +177,10 @@
 <div class="container mx-auto px-4 py-8 max-w-7xl">
   <!-- 页面标题 -->
   <header class="text-center mb-12">
-    <h1 class="text-4xl font-bold font-kai poetry-text-primary mb-4">
+    <h1 class="text-4xl font-bold font-kai poetry-text-primary mb-4 theme-transition">
       推荐诗作
     </h1>
-    <p class="text-lg poetry-text-secondary">
+    <p class="text-lg poetry-text-secondary theme-transition">
       发现经典诗词之美，感受千年文化传承
     </p>
   </header>

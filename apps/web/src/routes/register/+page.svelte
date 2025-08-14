@@ -81,12 +81,6 @@
         return '';
     }
   }
-
-  // 处理用户协议复选框变化
-  function handleTermsChange(event: { checked: boolean }) {
-    acceptTerms = event.checked;
-    console.log('用户协议同意状态:', acceptTerms);
-  }
 </script>
 
 <svelte:head>
@@ -216,7 +210,6 @@
             bind:checked={acceptTerms}
             disabled={isLoading}
             id="accept-terms"
-            onchange={handleTermsChange}
           >
             我已阅读并同意
             <a

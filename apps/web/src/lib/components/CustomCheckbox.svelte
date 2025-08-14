@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createCheckbox, melt } from '@melt-ui/svelte';
+  import { createCheckbox } from '@melt-ui/svelte';
   import MdiCheckBold from 'virtual:icons/mdi/check-bold';
 
   export let checked = false;
@@ -7,26 +7,14 @@
   export let label = '';
   export let id = '';
   export let size: 'sm' | 'md' | 'lg' = 'md';
-  export let onchange: ((event: { checked: boolean }) => void) | undefined =
-    undefined;
 
   // 创建 melt checkbox
   const {
-    elements: { root, input },
-    states: { checked: meltChecked },
+    elements: { root, input }
   } = createCheckbox({
     defaultChecked: checked,
     disabled,
   });
-
-  // 同步 checked 状态
-  $: meltChecked.set(checked);
-
-  // 同步 melt 状态到组件状态
-  $: if ($meltChecked !== checked) {
-    checked = $meltChecked === true;
-    onchange?.({ checked });
-  }
 
   // 尺寸配置
   const sizeClasses = {
@@ -54,20 +42,20 @@
   class="flex items-center group {disabled
     ? 'opacity-50 cursor-not-allowed'
     : ''}"
-  use:melt={$root}
+  use:root
 >
   <div class="relative">
-    <input {id} type="checkbox" class="sr-only" use:melt={$input} />
+    <input {id} type="checkbox" class="sr-only" use:input bind:checked />
     <div
       class="border-2 rounded-md transition-all duration-200 flex items-center justify-center {currentSize.box}
-				{$meltChecked
+        {checked
         ? 'bg-amber-500 border-amber-500 shadow-sm'
         : 'border-gray-300 bg-white hover:border-amber-400 group-hover:bg-amber-50'}
-				{disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-			"
+        {disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+      "
     >
-      {#if $meltChecked}
-        <MdiCheckBold />
+      {#if checked}
+        <MdiCheckBold class="{currentSize.icon} text-white" />
       {/if}
     </div>
   </div>
@@ -89,7 +77,7 @@
 </label>
 
 <style>
-  /* 确保在深色模式下也能正常显示 */
+  /* 深色模式 hover 效果 */
   .group:hover .bg-white {
     background-color: rgb(255 251 235); /* amber-50 */
   }
