@@ -2,12 +2,12 @@
   // Skeleton UI v3.0 doesn't have Card, Button, Input, Label components
   // Using native HTML elements with Tailwind styling instead
   import {
-    PoemListCard,
-    FeaturedPoems,
     Pagination,
     LoadingSpinner,
-    PoemCardSkeleton,
   } from '$lib/components';
+  import PoemListCard from './components/PoemListCard.svelte';
+  import FeaturedPoems from './components/FeaturedPoems.svelte';
+  import PoemCardSkeleton from './components/PoemCardSkeleton.svelte';
   import { onMount } from 'svelte';
 
   // 示例诗作数据

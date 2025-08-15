@@ -72,13 +72,6 @@
     themePressed.set(currentTheme === 'dark');
   }
 
-  // 切换移动端菜单
-  function toggleMobileMenu() {
-    isMobileMenuOpen = !isMobileMenuOpen;
-    // 同步 melt-ui collapsible 状态
-    mobileMenuState.set(isMobileMenuOpen);
-  }
-
   // 监听主题变化，单向同步到 melt-ui 状态
   // 移除双向绑定，避免自动回滚问题
   $effect(() => {

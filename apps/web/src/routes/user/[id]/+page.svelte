@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import PoemListCard from '$lib/components/PoemListCard.svelte';
-  import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
+  import PoemListCard from '../../components/PoemListCard.svelte';
+import { LoadingSpinner } from '$lib/components';
   import { onMount } from 'svelte';
 
   // 获取用户ID

@@ -3,14 +3,11 @@
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   import {
-    CommentSection,
-    FeaturedPoems,
     LoadingSpinner,
-    ShareDialog,
   } from '$lib/components';
-  import MdiEye from 'virtual:icons/mdi/eye';
-  import MdiCardsHeartOutline from 'virtual:icons/mdi/cards-heart-outline';
-  import MdiCardsHeart from 'virtual:icons/mdi/cards-heart';
+  import CommentSection from '../components/CommentSection.svelte';
+  import FeaturedPoems from '../../components/FeaturedPoems.svelte';
+  import PoemDetailCard from '../components/PoemDetailCard.svelte';
   import { writable } from 'svelte/store';
 
   // UUID 校验函数
@@ -177,63 +174,7 @@
       <!-- 主要内容区域 -->
       <div class="lg:col-span-3">
         <!-- 诗歌详情卡片 -->
-        <div class="poetry-card p-8 mb-8 rounded-xl border-2 poetry-border">
-          <!-- 诗歌标题和作者 -->
-          <div class="mb-6">
-            <h1 class="text-3xl font-bold poetry-text-primary mb-2 font-kai">
-              {$poem.title}
-            </h1>
-            <p class="text-lg poetry-text-secondary">
-              <span class="font-medium">{$poem.author}</span>
-              <span class="mx-2">·</span>
-              <span>{$poem.createdAt}</span>
-            </p>
-          </div>
-
-          <!-- 诗歌内容 -->
-          <div class="mb-6">
-            <div
-              class="text-lg leading-relaxed poetry-text-primary whitespace-pre-line poem-content"
-            >
-              {$poem.content}
-            </div>
-          </div>
-
-          <!-- 标签 -->
-          <div class="mb-6">
-            <div class="flex flex-wrap gap-2">
-              {#each $poem.tags as tag}
-                <span
-                  class="px-3 py-1 poetry-surface-200 poetry-text-primary rounded-full text-sm font-medium transition-all duration-300 hover:scale-105"
-                >
-                  {tag}
-                </span>
-              {/each}
-            </div>
-          </div>
-
-          <!-- 互动按钮 -->
-          <div class="flex items-center gap-6 pt-4 border-t poetry-border">
-            <button
-              class="flex items-center gap-2 poetry-text-secondary hover:text-red-600 transition-colors"
-              onclick={changeLiked}
-            >
-              {#if isLiked}
-                <MdiCardsHeart />
-              {:else}
-                <MdiCardsHeartOutline />
-              {/if}
-              <span>{$poem.likes}</span>
-            </button>
-            <button
-              class="flex items-center gap-2 poetry-text-secondary hover:poetry-text-primary transition-colors"
-            >
-              <MdiEye />
-              <span>{$poem.views}</span>
-            </button>
-            <ShareDialog poem={$poem} />
-          </div>
-        </div>
+        <PoemDetailCard poem={$poem} {isLiked} onLikeToggle={changeLiked} />
 
         <!-- 评论区域 -->
         <CommentSection {comments} handleAddComment={addComment} />

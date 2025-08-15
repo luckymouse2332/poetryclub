@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { FeatureGrid } from '$lib/components';
 
   let mounted = false;
 
@@ -65,38 +66,35 @@
         <span class="text-3xl mr-3">✨</span>
         功能特色
       </h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="flex items-start space-x-4">
-          <div class="text-2xl">📖</div>
-          <div>
-            <h3 class="font-bold poetry-text-primary mb-2">诗词欣赏</h3>
-            <p class="poetry-text-secondary">
-              精选古今诗词名篇，配以详细注释和赏析
-            </p>
-          </div>
-        </div>
-        <div class="flex items-start space-x-4">
-          <div class="text-2xl">💬</div>
-          <div>
-            <h3 class="font-bold poetry-text-primary mb-2">互动交流</h3>
-            <p class="poetry-text-secondary">与诗友分享感悟，交流创作心得</p>
-          </div>
-        </div>
-        <div class="flex items-start space-x-4">
-          <div class="text-2xl">🎨</div>
-          <div>
-            <h3 class="font-bold poetry-text-primary mb-2">优雅设计</h3>
-            <p class="poetry-text-secondary">古典美学与现代设计的完美融合</p>
-          </div>
-        </div>
-        <div class="flex items-start space-x-4">
-          <div class="text-2xl">🌙</div>
-          <div>
-            <h3 class="font-bold poetry-text-primary mb-2">主题切换</h3>
-            <p class="poetry-text-secondary">支持明暗主题，适应不同阅读习惯</p>
-          </div>
-        </div>
-      </div>
+      <FeatureGrid
+        columns="grid-cols-1 md:grid-cols-2"
+        bgColor="bg-transparent"
+        borderColor="border-transparent"
+        titleColor="poetry-text-primary"
+        descColor="poetry-text-secondary"
+        features={[
+          {
+            icon: '📖',
+            title: '诗词欣赏',
+            description: '精选古今诗词名篇，配以详细注释和赏析',
+          },
+          {
+            icon: '💬',
+            title: '互动交流',
+            description: '与诗友分享感悟，交流创作心得',
+          },
+          {
+            icon: '🎨',
+            title: '优雅设计',
+            description: '古典美学与现代设计的完美融合',
+          },
+          {
+            icon: '🌙',
+            title: '主题切换',
+            description: '支持明暗主题，适应不同阅读习惯',
+          },
+        ]}
+      />
     </section>
 
     <!-- 文化使命 -->
@@ -111,7 +109,9 @@
         文化使命
       </h2>
       <div class="space-y-4 poetry-text-primary font-kai leading-relaxed">
-        <blockquote class="border-l-4 border-amber-400 pl-6 italic text-lg">
+        <blockquote
+          class="border-l-4 poetry-border pl-6 italic text-lg poetry-text-secondary"
+        >
           "诗言志，歌咏言。"
         </blockquote>
         <p class="text-lg">
@@ -272,9 +272,6 @@
 
         <!-- 未来版本规划分隔线 -->
         <div class="relative flex items-center mb-8">
-          <div
-            class="absolute left-8 w-0.5 h-8 bg-gradient-to-b from-amber-400 to-amber-500"
-          ></div>
           <div class="ml-20 flex-1 flex items-center">
             <div
               class="flex-1 h-px bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500"
@@ -293,51 +290,43 @@
         <!-- V4.0 未来版本 -->
         <div class="relative flex items-start mb-8">
           <div
-            class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-700 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg"
+            class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-700 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg"
           >
             V4
           </div>
           <div class="ml-6 flex-1">
             <div
-              class="poetry-surface p-6 rounded-lg border-l-4 border-purple-500 shadow-sm"
+              class="poetry-surface p-6 rounded-lg border-l-4 poetry-border shadow-sm"
             >
               <div class="flex items-center justify-between mb-3">
-                <h3
-                  class="text-lg font-bold poetry-text-primary font-kai"
-                >
-                  V4.0 - AI智能时代
+                <h3 class="text-lg font-bold poetry-text-primary font-kai">
+                  V4.0 - AI与创作增强
                 </h3>
                 <span
-                  class="text-sm text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-800 px-3 py-1 rounded-full"
+                  class="text-sm poetry-text-secondary poetry-surface-200 px-3 py-1 rounded-full"
                   >规划中</span
                 >
               </div>
               <p class="poetry-text-secondary mb-3 text-sm">
-                预计2025年 - AI辅助创作，智能推荐
+                未来版本 - AI辅助创作，海报生成，活动系统
               </p>
               <div class="space-y-2">
                 <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">🤖</span>
+                  <span class="poetry-text-accent mr-2">🤖</span>
                   <span class="poetry-text-primary"
-                    >AI辅助创作：自动生成诗题、下一句灵感</span
+                    >AI辅助创作：诗题生成、灵感联想、润色建议</span
                   >
                 </div>
                 <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">✨</span>
+                  <span class="poetry-text-accent mr-2">🎨</span>
                   <span class="poetry-text-primary"
-                    >智能润色工具，评估语感、节奏建议</span
+                    >海报生成与分享：精美图片，社交平台分享</span
                   >
                 </div>
                 <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">🎨</span>
+                  <span class="poetry-text-accent mr-2">🏆</span>
                   <span class="poetry-text-primary"
-                    >海报生成与分享，一键生成精美图片</span
-                  >
-                </div>
-                <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">🏆</span>
-                  <span class="poetry-text-primary"
-                    >活动系统：征文比赛、主题创作活动</span
+                    >活动系统：征文比赛，主题创作活动</span
                   >
                 </div>
               </div>
@@ -345,107 +334,50 @@
           </div>
         </div>
 
-        <!-- V3.5 中期版本 -->
+        <!-- V3.0 搜索与发现 -->
         <div class="relative flex items-start mb-8">
           <div
-            class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-700 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg"
+            class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-700 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg"
           >
-            V3.5
+            V3
           </div>
           <div class="ml-6 flex-1">
             <div
-              class="poetry-surface p-6 rounded-lg border-l-4 border-indigo-500 shadow-sm"
+              class="poetry-surface p-6 rounded-lg border-l-4 poetry-border shadow-sm"
             >
               <div class="flex items-center justify-between mb-3">
-                <h3
-                  class="text-lg font-bold poetry-text-primary font-kai"
-                >
-                  V3.5 - 社区互动增强
+                <h3 class="text-lg font-bold poetry-text-primary font-kai">
+                  V3.0 - 搜索与内容发现
                 </h3>
                 <span
-                  class="text-sm text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-800 px-3 py-1 rounded-full"
-                  >开发中</span
+                  class="text-sm poetry-text-secondary poetry-surface-200 px-3 py-1 rounded-full"
+                  >计划中</span
                 >
               </div>
               <p class="poetry-text-secondary mb-3 text-sm">
-                预计2024年底 - 完善社区功能，增强用户互动
+                第三阶段 - 搜索分类，标签榜单
               </p>
               <div class="space-y-2">
                 <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">💬</span>
-                  <span class="poetry-text-primary"
-                    >点赞与评论系统，支持楼层结构回复</span
-                  >
-                </div>
-                <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">🔔</span>
-                  <span class="poetry-text-primary"
-                    >消息与通知中心，实时互动提醒</span
-                  >
-                </div>
-                <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">⭐</span>
-                  <span class="poetry-text-primary"
-                    >收藏与关注功能，建立诗友圈</span
-                  >
-                </div>
-                <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">🚨</span>
-                  <span class="poetry-text-primary"
-                    >举报系统，维护社区环境</span
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- V3.2 近期版本 -->
-        <div class="relative flex items-start mb-8">
-          <div
-            class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-700 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg"
-          >
-            V3.2
-          </div>
-          <div class="ml-6 flex-1">
-            <div
-              class="poetry-surface p-6 rounded-lg border-l-4 border-teal-500 shadow-sm"
-            >
-              <div class="flex items-center justify-between mb-3">
-                <h3
-                  class="text-lg font-bold poetry-text-primary font-kai"
-                >
-                  V3.2 - 内容发现优化
-                </h3>
-                <span
-                  class="text-sm text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-800 px-3 py-1 rounded-full"
-                  >即将发布</span
-                >
-              </div>
-              <p class="poetry-text-secondary mb-3 text-sm">
-                预计2024年中 - 搜索分类，内容发现
-              </p>
-              <div class="space-y-2">
-                <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">🔍</span>
+                  <span class="poetry-text-accent mr-2">🔍</span>
                   <span class="poetry-text-primary"
                     >全文搜索功能，按标题、作者、内容搜索</span
                   >
                 </div>
                 <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">🏷️</span>
+                  <span class="poetry-text-accent mr-2">🏷️</span>
                   <span class="poetry-text-primary"
                     >分类与标签系统，主题化内容组织</span
                   >
                 </div>
                 <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">📊</span>
+                  <span class="poetry-text-accent mr-2">📊</span>
                   <span class="poetry-text-primary"
                     >热门榜单：每日/每周/每月优秀作品</span
                   >
                 </div>
                 <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">🎯</span>
+                  <span class="poetry-text-accent mr-2">🎯</span>
                   <span class="poetry-text-primary"
                     >智能推荐算法，个性化内容推送</span
                   >
@@ -455,19 +387,67 @@
           </div>
         </div>
 
-        <!-- 当前版本分隔线 -->
-        <div class="relative flex items-center my-8">
+        <!-- V2.0 社区互动 -->
+        <div class="relative flex items-start mb-8">
           <div
-            class="absolute left-8 w-0.5 h-8 bg-gradient-to-b from-teal-600 to-amber-400"
-          ></div>
+            class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg"
+          >
+            V2
+          </div>
+          <div class="ml-6 flex-1">
+            <div
+              class="poetry-surface p-6 rounded-lg border-l-4 poetry-border shadow-sm"
+            >
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-bold poetry-text-primary font-kai">
+                  V2.0 - 社区互动扩展
+                </h3>
+                <span
+                  class="text-sm poetry-text-secondary poetry-surface-200 px-3 py-1 rounded-full"
+                  >计划中</span
+                >
+              </div>
+              <p class="poetry-text-secondary mb-3 text-sm">
+                第二阶段 - 点赞评论，消息用户互动
+              </p>
+              <div class="space-y-2">
+                <div class="flex items-center text-sm">
+                  <span class="poetry-text-accent mr-2">❤️</span>
+                  <span class="poetry-text-primary"
+                    >点赞与评论系统，支持楼层结构回复</span
+                  >
+                </div>
+                <div class="flex items-center text-sm">
+                  <span class="poetry-text-accent mr-2">🔔</span>
+                  <span class="poetry-text-primary"
+                    >消息与通知中心，实时互动提醒</span
+                  >
+                </div>
+                <div class="flex items-center text-sm">
+                  <span class="poetry-text-accent mr-2">👥</span>
+                  <span class="poetry-text-primary"
+                    >收藏与关注功能，建立诗友圈</span
+                  >
+                </div>
+                <div class="flex items-center text-sm">
+                  <span class="poetry-text-accent mr-2">📱</span>
+                  <span class="poetry-text-primary">关注流与个性化推荐</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 开发中版本分隔线 -->
+        <div class="relative flex items-center my-8">
           <div class="ml-20 flex-1 flex items-center">
             <div
               class="flex-1 h-px bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500"
             ></div>
             <div
-              class="px-6 py-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white rounded-full text-sm font-kai font-bold shadow-lg"
+              class="px-6 py-2 bg-gradient-to-r from-orange-400 to-orange-500 text-white rounded-full text-sm font-kai font-bold shadow-lg"
             >
-              ✨ 当前版本
+              🚧 开发中版本
             </div>
             <div
               class="flex-1 h-px bg-gradient-to-r from-amber-500 via-amber-400 to-amber-300"
@@ -475,49 +455,53 @@
           </div>
         </div>
 
-        <!-- V3.0 当前版本 -->
+        <!-- MVP V1.0 当前开发版本 -->
         <div class="relative flex items-start mb-8">
           <div
             class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-700 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg"
           >
-            V3
+            MVP
           </div>
           <div class="ml-6 flex-1">
             <div
-              class="poetry-surface p-6 rounded-lg border-l-4 border-amber-500 shadow-sm"
+              class="poetry-surface p-6 rounded-lg border-l-4 poetry-border shadow-sm"
             >
               <div class="flex items-center justify-between mb-3">
-                <h3
-                  class="text-lg font-bold poetry-text-primary font-kai"
-                >
-                  V3.0 - 现代化重构
+                <h3 class="text-lg font-bold poetry-text-primary font-kai">
+                  MVP V1.0 - 现代化重构版
                 </h3>
                 <span
-                  class="text-sm text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-800 px-3 py-1 rounded-full"
-                  >当前版本</span
+                  class="text-sm poetry-text-secondary poetry-surface-200 px-3 py-1 rounded-full"
+                  >开发中</span
                 >
               </div>
               <p class="poetry-text-secondary mb-3 text-sm">
-                2024年 - 全面现代化，前后端分离架构
+                2025年8月14日 - 现代化重构版开发中，尚未上线
               </p>
               <div class="space-y-2">
                 <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">🎨</span>
+                  <span class="poetry-text-accent mr-2">🔐</span>
                   <span class="poetry-text-primary"
-                    >全新UI设计，诗意美学界面</span
+                    >用户注册与登录系统，权限管理</span
                   >
                 </div>
                 <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">🌙</span>
-                  <span class="poetry-text-primary">深色模式支持</span>
+                  <span class="poetry-text-accent mr-2">📝</span>
+                  <span class="poetry-text-primary"
+                    >诗歌创作与编辑，富文本支持</span
+                  >
                 </div>
                 <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">📝</span>
-                  <span class="poetry-text-primary">富文本编辑器</span>
+                  <span class="poetry-text-accent mr-2">📖</span>
+                  <span class="poetry-text-primary"
+                    >诗作浏览与阅读，分页展示</span
+                  >
                 </div>
                 <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">👤</span>
-                  <span class="poetry-text-primary">用户系统与个人主页</span>
+                  <span class="poetry-text-accent mr-2">✅</span>
+                  <span class="poetry-text-primary"
+                    >内容审核系统，管理员功能</span
+                  >
                 </div>
               </div>
             </div>
@@ -526,15 +510,12 @@
 
         <!-- 历史版本分隔线 -->
         <div class="relative flex items-center my-8">
-          <div
-            class="absolute left-8 w-0.5 h-8 bg-gradient-to-b from-amber-600 to-blue-400"
-          ></div>
           <div class="ml-20 flex-1 flex items-center">
             <div
               class="flex-1 h-px bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500"
             ></div>
             <div
-              class="px-6 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-full text-sm font-kai font-bold shadow-lg"
+              class="px-6 py-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-full text-sm font-kai font-bold shadow-lg"
             >
               📚 历史版本
             </div>
@@ -544,21 +525,19 @@
           </div>
         </div>
 
-        <!-- V2.0 -->
+        <!-- V2.0 历史版本 -->
         <div class="relative flex items-start mb-8">
           <div
-            class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-700 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg"
+            class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-gray-500 to-gray-700 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg"
           >
             V2
           </div>
           <div class="ml-6 flex-1">
             <div
-              class="poetry-surface p-6 rounded-lg border-l-4 border-blue-500 shadow-sm"
+              class="poetry-surface p-6 rounded-lg border-l-4 poetry-border shadow-sm"
             >
               <div class="flex items-center justify-between mb-3">
-                <h3
-                  class="text-lg font-bold poetry-text-primary font-kai"
-                >
+                <h3 class="text-lg font-bold poetry-text-primary font-kai">
                   V2.0 - .NET时代
                 </h3>
                 <span
@@ -571,25 +550,25 @@
               </p>
               <div class="space-y-2">
                 <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">•</span>
+                  <span class="poetry-text-accent mr-2">•</span>
                   <span class="poetry-text-primary"
                     >ASP.NET Core + Blazor Server</span
                   >
                 </div>
                 <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">•</span>
+                  <span class="poetry-text-accent mr-2">•</span>
                   <span class="poetry-text-primary"
                     >前后端不分离，服务端渲染</span
                   >
                 </div>
                 <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">•</span>
+                  <span class="poetry-text-accent mr-2">•</span>
                   <span class="poetry-text-primary"
                     >Entity Framework Core + PostgreSQL</span
                   >
                 </div>
                 <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">•</span>
+                  <span class="poetry-text-accent mr-2">•</span>
                   <span class="poetry-text-primary"
                     >组件化开发，实时交互体验</span
                   >
@@ -599,21 +578,19 @@
           </div>
         </div>
 
-        <!-- V1.0 -->
+        <!-- V1.0 历史版本 -->
         <div class="relative flex items-start">
           <div
-            class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-700 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg"
+            class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-gray-500 to-gray-700 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg"
           >
             V1
           </div>
           <div class="ml-6 flex-1">
             <div
-              class="poetry-surface p-6 rounded-lg border-l-4 border-green-500 shadow-sm"
+              class="poetry-surface p-6 rounded-lg border-l-4 poetry-border shadow-sm"
             >
               <div class="flex items-center justify-between mb-3">
-                <h3
-                  class="text-lg font-bold poetry-text-primary font-kai"
-                >
+                <h3 class="text-lg font-bold poetry-text-primary font-kai">
                   V1.0 - 初创版本
                 </h3>
                 <span
@@ -626,25 +603,23 @@
               </p>
               <div class="space-y-2">
                 <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">•</span>
-                  <span class="poetry-text-primary"
-                    >Node.js + Express.js</span
-                  >
+                  <span class="poetry-text-accent mr-2">•</span>
+                  <span class="poetry-text-primary">Node.js + Express.js</span>
                 </div>
                 <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">•</span>
+                  <span class="poetry-text-accent mr-2">•</span>
                   <span class="poetry-text-primary"
                     >传统MVC架构，服务端渲染</span
                   >
                 </div>
                 <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">•</span>
+                  <span class="poetry-text-accent mr-2">•</span>
                   <span class="poetry-text-primary"
                     >MongoDB数据库，简单CRUD</span
                   >
                 </div>
                 <div class="flex items-center text-sm">
-                  <span class="text-amber-500 mr-2">•</span>
+                  <span class="poetry-text-accent mr-2">•</span>
                   <span class="poetry-text-primary"
                     >基础功能实现，奠定项目基础</span
                   >
