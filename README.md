@@ -1,22 +1,45 @@
-# Poetry Club - Monorepo
+# 📝 Poetry Club - Youth Poetry Creation Platform
 
-**Read this in other languages: [English](./README.md), [简体中文](./README_zh.md)**
+**Read this in other languages: [English](./README.md) | [简体中文](./README_zh.md)**
 
-This is a Turborepo-based monorepo project containing a **NestJS backend** and a **SvelteKit frontend**.
+> 🌟 **A Modern Poetry Creation and Sharing Platform for Middle School Students**
 
-## 🏗️ Project Structure
+Poetry Club is an online poetry creation platform specifically designed for middle school students, aiming to provide young poetry enthusiasts with a warm community to showcase their talents and exchange creative works. The platform adopts a modern technical architecture and provides a simple and elegant user experience, making poetry creation more interesting and convenient.
+
+## ✨ Platform Features
+
+- 🎯 **Designed for Middle School Students** - Clean and friendly interface that matches young users' habits
+- 📝 **Free Creation** - Supports various poetry forms including modern poetry, classical poetry, and humorous verses
+- 🌙 **Eye Protection Mode** - Built-in dark theme to protect vision health
+- 📱 **Mobile First** - Perfect adaptation for mobile phones, tablets and other mobile devices
+- 🔒 **Safe and Reliable** - Complete user authentication and content moderation mechanisms
+- 🎨 **Modern Design** - Elegant interface design based on Skeleton UI
+
+## 🏗️ Project Architecture
 
 ```
 poetryclub/
 ├── apps/
-│   ├── api/          # NestJS backend application
-│   └── web/          # SvelteKit frontend application
+│   ├── api/                    # NestJS backend service
+│   │   ├── src/
+│   │   │   ├── auth/          # User authentication module
+│   │   │   ├── users/         # User management module
+│   │   │   ├── poems/         # Poetry management module
+│   │   │   └── admin/         # Admin functionality module
+│   │   └── prisma/            # Database models and migrations
+│   └── web/                   # SvelteKit frontend application
+│       ├── src/
+│       │   ├── routes/        # Page routes
+│       │   ├── lib/           # Component library and utilities
+│       │   └── app.html       # Application template
+│       └── static/            # Static assets
 ├── packages/
-│   └── shared/       # Shared utilities and types
-├── package.json      # Root-level configuration
-├── turbo.json        # Turborepo configuration
-├── pnpm-workspace.yaml # pnpm workspace configuration
-└── README.md
+│   ├── shared/                # Shared utility functions
+│   └── types/                 # TypeScript type definitions
+├── docker/                    # Docker configuration files
+├── package.json               # Project dependency configuration
+├── turbo.json                 # Turborepo build configuration
+└── pnpm-workspace.yaml        # pnpm workspace configuration
 ```
 
 ## 🚀 Quick Start
@@ -40,22 +63,34 @@ pnpm db:down
 pnpm db:reset
 ```
 
-### Database setup
+### Environment Configuration
 
+1. **Copy Environment Configuration File**
 ```bash
-# Navigate to the API directory
+# Navigate to the backend directory
 cd apps/api
 
-# Copy the example environment file
-cp env.example .env
+# Copy environment configuration template
+cp .env.example .env
+```
 
+2. **Configure Database Connection**
+Edit the `apps/api/.env` file and set the database connection information:
+```env
+DATABASE_URL="postgresql://username:password@localhost:5432/poetryclub"
+JWT_SECRET="your-jwt-secret-key"
+JWT_EXPIRES_IN="7d"
+```
+
+3. **Initialize Database**
+```bash
 # Generate Prisma client
 pnpm db:generate
 
 # Push database schema
 pnpm db:push
 
-# Open Prisma Studio
+# (Optional) Open database management interface
 pnpm db:studio
 ```
 
@@ -101,76 +136,190 @@ pnpm lint
 pnpm type-check
 ```
 
-## 📦 Application Details
+## 🛠️ Tech Stack
 
-### API (Backend)
+### Frontend Application (Web)
+- **Framework**: SvelteKit 2.x + Svelte 5.x
+- **UI Components**: Skeleton UI v3.0 + Melt UI
+- **Styling**: Tailwind CSS v4.0
+- **Icons**: Iconify (MDI)
+- **Build Tool**: Vite 6.x
+- **Development Port**: http://localhost:5173
 
-- **Tech Stack**: NestJS, TypeScript, Prisma
-- **Port**: 3000
-- **Docs**: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
-- **Health Check**: [http://localhost:3000/health](http://localhost:3000/health)
-- **Database**: PostgreSQL + Redis
+### Backend Service (API)
+- **Framework**: NestJS 10.x + TypeScript
+- **Database**: PostgreSQL + Prisma ORM
+- **Authentication**: JWT + Passport
+- **Documentation**: Swagger/OpenAPI
+- **Security**: Helmet + CORS + bcrypt
+- **Development Port**: http://localhost:3000
+- **API Documentation**: http://localhost:3000/api/docs
 
-### Web (Frontend)
+### Development Tools
+- **Package Manager**: pnpm 10.x
+- **Build System**: Turborepo 2.x
+- **Code Standards**: ESLint + Prettier
+- **Type Checking**: TypeScript 5.x
+- **Containerization**: Docker + Docker Compose
 
-- **Tech Stack**: SvelteKit, TypeScript
-- **Port**: 5173
-- **Dev Server**: [http://localhost:5173](http://localhost:5173)
+## 🎯 Core Features
 
-### Database
+### 👥 User System
+- ✅ User registration and login (email + password)
+- ✅ Personal profile management (avatar, nickname, bio)
+- ✅ Role-based access control (student, admin)
+- ✅ Secure authentication (JWT + password encryption)
 
-- **PostgreSQL**: localhost:5432
-- **Redis**: localhost:6379
-- **Prisma Studio**: [http://localhost:5555](http://localhost:5555)
+### 📝 Poetry Creation
+- ✅ Rich text editor (supports Markdown)
+- ✅ Draft saving functionality
+- ✅ Multiple poetry categories (modern poetry, classical poetry, humorous verses)
+- ✅ Work publishing and review mechanism
 
-## 🔧 Features
+### 🌐 Community Interaction
+- ✅ Poetry browsing and search
+- ✅ Like and comment system
+- ✅ User following functionality
+- ✅ Popular work recommendations
 
-- ✅ Monorepo architecture (Turborepo)
-- ✅ Unified code style (ESLint + Prettier)
-- ✅ TypeScript support
-- ✅ Frontend-backend integration
-- ✅ Database integration (PostgreSQL + Prisma)
-- ✅ Caching support (Redis)
-- ✅ Modern UI design
-- ✅ Hot reload in development
-- ✅ Production-ready optimizations
+### 🎨 User Experience
+- ✅ Responsive design (perfect mobile adaptation)
+- ✅ Dark/light theme switching
+- ✅ Elegant animation transitions
+- ✅ Accessibility support
 
-## 📝 Development Guide
+## 👨‍💻 Development Guide
 
-### Adding dependencies
+### Project Structure Overview
 
-Root-level dependency:
+- **apps/web**: Frontend SvelteKit application containing all user interfaces
+- **apps/api**: Backend NestJS service providing RESTful APIs
+- **packages/shared**: Shared utility functions for frontend and backend
+- **packages/types**: TypeScript type definitions
 
+### Adding New Features
+
+1. **Frontend Component Development**
 ```bash
-pnpm add -w <package-name>
-```
-
-App-specific dependency:
-
-```bash
-pnpm add <package-name> --filter api
+# Add new dependency to web application
 pnpm add <package-name> --filter web
+
+# Create new page
+# Create new +page.svelte file in apps/web/src/routes/
 ```
 
-### Using shared packages
+2. **Backend API Development**
+```bash
+# Add new dependency to api application
+pnpm add <package-name> --filter api
 
-Example usage in an app:
+# Generate new module
+cd apps/api
+npx nest generate module <module-name>
+npx nest generate controller <controller-name>
+npx nest generate service <service-name>
+```
+
+3. **Database Model Updates**
+```bash
+# After modifying apps/api/prisma/schema.prisma
+cd apps/api
+pnpm db:generate  # Generate client
+pnpm db:push      # Push to database
+```
+
+### Using Shared Code
 
 ```typescript
-import { formatDate, API_CONFIG } from '@poetryclub/shared';
+// Use shared utilities in frontend or backend
+import { formatDate, validateEmail } from '@poetryclub/shared';
+import type { User, Poem } from '@poetryclub/types';
 ```
 
-## 🛠️ Script Commands
+## 🛠️ Available Commands
 
-| Command           | Description                   |
-| ----------------- | ----------------------------- |
-| `pnpm dev`        | Start all development servers |
-| `pnpm build`      | Build all applications        |
-| `pnpm lint`       | Run lint checks               |
-| `pnpm type-check` | Run TypeScript type checks    |
-| `pnpm clean`      | Clean build files             |
-| `pnpm test`       | Run tests                     |
+### Development Commands
+| Command             | Description                        |
+| ------------------- | ---------------------------------- |
+| `pnpm dev`          | Start all application dev servers  |
+| `pnpm web:dev`      | Start frontend dev server only     |
+| `pnpm api:dev`      | Start backend dev server only      |
+
+### Build Commands
+| Command             | Description                        |
+| ------------------- | ---------------------------------- |
+| `pnpm build`        | Build all applications             |
+| `pnpm web:build`    | Build frontend application only    |
+| `pnpm api:build`    | Build backend application only     |
+
+### Code Quality
+| Command             | Description                        |
+| ------------------- | ---------------------------------- |
+| `pnpm lint`         | Run ESLint code checks             |
+| `pnpm type-check`   | Run TypeScript type checks         |
+| `pnpm test`         | Run unit tests                     |
+| `pnpm clean`        | Clean build files                  |
+
+### Database Commands
+| Command             | Description                        |
+| ------------------- | ---------------------------------- |
+| `pnpm db:up`        | Start database containers          |
+| `pnpm db:down`      | Stop database containers           |
+| `pnpm db:reset`     | Reset database (clear all data)    |
+| `pnpm db:generate`  | Generate Prisma client             |
+| `pnpm db:push`      | Push database schema changes       |
+| `pnpm db:studio`    | Open database management interface |
+
+## 🚀 Deployment Guide
+
+### Production Deployment
+
+1. **Build Applications**
+```bash
+pnpm build
+```
+
+2. **Docker Deployment**
+```bash
+# Build and start all services
+docker-compose up -d
+```
+
+3. **Environment Variables Configuration**
+Ensure the following environment variables are properly configured in production:
+- `DATABASE_URL`: Production database connection string
+- `JWT_SECRET`: JWT secret key (recommend using strong random string)
+- `NODE_ENV=production`
+
+## 🤝 Contributing
+
+We welcome all forms of contributions! Whether it's:
+
+- 🐛 Bug reports
+- 💡 Feature suggestions
+- 📝 Documentation improvements
+- 🔧 Code fixes
+
+### Development Workflow
+
+1. Fork this repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Create a Pull Request
+
+## 📞 Contact Us
+
+If you encounter any issues during use or have any suggestions, please feel free to contact us through:
+
+- 📧 Email: [Contact Email]
+- 🐛 Issue Reports: [GitHub Issues](https://github.com/your-repo/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/your-repo/discussions)
 
 ## 📄 License
 
-ISC
+This project is licensed under the [ISC](LICENSE) license.
+
+---
+
+**🌟 Let's create a better creative platform for young poets together!**
