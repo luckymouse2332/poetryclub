@@ -70,10 +70,10 @@
 	}
 </script>
 
-<nav class="flex justify-center items-center space-x-2 py-8" aria-label="分页导航">
+<div class="join flex justify-center py-8" aria-label="分页导航">
 	<!-- 上一页按钮 -->
 	<button
-		class="flex items-center px-4 py-2 rounded-lg border poetry-border poetry-surface hover:poetry-surface-100 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+		class="join-item btn btn-outline"
 		disabled={currentPage <= 1}
 		onclick={goToPrevious}
 		aria-label="上一页"
@@ -83,28 +83,24 @@
 	</button>
 	
 	<!-- 页码按钮 -->
-	<div class="flex items-center space-x-1">
-		{#each pageNumbers as page}
-			{#if page === '...'}
-				<span class="px-3 py-2 poetry-text-muted">...</span>
-			{:else}
-				<button
-					class="w-10 h-10 rounded-lg border poetry-border transition-all duration-200 {currentPage === page
-						? 'poetry-btn-primary poetry-text-primary-contrast font-semibold'
-						: 'poetry-surface hover:poetry-surface-100 poetry-text-primary'}"
-					onclick={() => handlePageClick(page)}
-					aria-label="第 {page} 页"
-					aria-current={currentPage === page ? 'page' : undefined}
-				>
-					{page}
-				</button>
-			{/if}
-		{/each}
-	</div>
+	{#each pageNumbers as page}
+		{#if page === '...'}
+			<button class="join-item btn btn-disabled">...</button>
+		{:else}
+			<button
+				class="join-item btn {currentPage === page ? 'btn-active' : 'btn-outline'}"
+				onclick={() => handlePageClick(page)}
+				aria-label="第 {page} 页"
+				aria-current={currentPage === page ? 'page' : undefined}
+			>
+				{page}
+			</button>
+		{/if}
+	{/each}
 	
 	<!-- 下一页按钮 -->
 	<button
-		class="flex items-center px-4 py-2 rounded-lg border poetry-border poetry-surface hover:poetry-surface-100 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+		class="join-item btn btn-outline"
 		disabled={currentPage >= totalPages}
 		onclick={goToNext}
 		aria-label="下一页"
@@ -112,9 +108,9 @@
 		<span class="hidden sm:inline">下一页</span>
 		<span class="ml-2">→</span>
 	</button>
-</nav>
+</div>
 
 <!-- 页面信息 -->
-<div class="text-center poetry-text-muted text-sm">
+<div class="text-center text-base-content/70 text-sm">
 	第 {currentPage} 页，共 {totalPages} 页
 </div>

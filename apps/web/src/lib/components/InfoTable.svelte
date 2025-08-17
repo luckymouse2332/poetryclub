@@ -4,11 +4,11 @@
 </script>
 
 <div class="overflow-x-auto">
-	<table class="w-full border-collapse border poetry-border text-sm">
+	<table class="w-full border-collapse border border-base-300 text-sm">
 		<thead>
-			<tr class="poetry-surface-200">
+			<tr class="bg-base-200">
 				{#each headers as header}
-					<th class="border poetry-border px-4 py-2 text-left poetry-text-primary">{header}</th>
+					<th class="border border-base-300 px-4 py-2 text-left text-base-content">{header}</th>
 				{/each}
 			</tr>
 		</thead>
@@ -16,7 +16,7 @@
 			{#each rows as row, index}
 				<tr>
 					{#each row as cell}
-						<td class="border poetry-border px-4 py-2 poetry-text-secondary">{cell}</td>
+						<td class="border border-base-300 px-4 py-2 text-base-content/80">{cell}</td>
 					{/each}
 				</tr>
 			{/each}

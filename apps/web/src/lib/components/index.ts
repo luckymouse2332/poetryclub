@@ -2,7 +2,6 @@
 export { default as CustomCheckbox } from './CustomCheckbox.svelte';
 export { default as Pagination } from './Pagination.svelte';
 export { default as LoadingSpinner } from './LoadingSpinner.svelte';
-export { default as ThemeLoader } from './ThemeLoader.svelte';
 export { default as ShareDialog } from './ShareDialog.svelte';
 export { default as UserMenu } from './UserMenu.svelte';
 export { default as ToastProvider } from './ToastProvider.svelte';

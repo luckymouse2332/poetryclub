@@ -1,13 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { CustomCheckbox } from '$lib/components';
-  import { ProgressRing } from '@skeletonlabs/skeleton-svelte';
   import MdiEyeOutline from 'virtual:icons/mdi/eye-outline';
   import MdiEyeOffOutline from 'virtual:icons/mdi/eye-off-outline';
-
-  // Skeleton UI v3.0 doesn't have Card, Button, Input, Label components
-  // Using native HTML elements with Tailwind styling instead
 
   // 表单数据
   let email = '';
@@ -129,22 +124,23 @@
 </svelte:head>
 
 <div
-  class="min-h-screen poetry-surface flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+  class="min-h-screen bg-base-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
 >
   <div class="max-w-md w-full space-y-8">
     <!-- 头部 -->
     <div class="text-center">
-      <h1 class="text-4xl font-bold poetry-text-primary font-kai mb-2">
+      <h1
+        class="text-4xl font-bold mb-2"
+        style="font-family: 'KaiTi', '楷体', serif;"
+      >
         回中诗社
       </h1>
-      <h2 class="text-2xl font-semibold poetry-text-secondary mb-6">
-        欢迎回到诗社
-      </h2>
-      <p class="poetry-text-muted">登录您的账户，继续诗词之旅</p>
+      <h2 class="text-2xl font-semibold mb-6">欢迎回到诗社</h2>
+      <p class="opacity-70">登录您的账户，继续诗词之旅</p>
     </div>
 
     <!-- 登录表单 -->
-    <div class="poetry-card p-8 rounded-xl shadow-lg">
+    <div class="card bg-base-100 shadow-xl p-8">
       {#if generalError}
         <div
           class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm"
@@ -155,35 +151,31 @@
 
       <form onsubmit={handleLogin} class="space-y-6">
         <!-- 邮箱输入 -->
-        <div>
-          <label
-            for="email"
-            class="block text-sm font-medium poetry-text-primary mb-2"
-          >
-            邮箱地址
+        <div class="form-control">
+          <label class="label" for="email">
+            <span class="label-text font-medium">邮箱地址</span>
           </label>
           <input
             id="email"
             type="email"
             bind:value={email}
             onkeydown={handleKeydown}
-            class="w-full px-4 py-3 poetry-input-bg border poetry-border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 poetry-text-primary"
-            class:border-red-500={emailError}
+            class="input input-bordered w-full"
+            class:input-error={emailError}
             placeholder="请输入您的邮箱"
             disabled={isLoading}
           />
           {#if emailError}
-            <p class="mt-1 text-sm text-red-600">{emailError}</p>
+            <label class="label" for="email">
+              <span class="label-text-alt text-error">{emailError}</span>
+            </label>
           {/if}
         </div>
 
         <!-- 密码输入 -->
-        <div>
-          <label
-            for="password"
-            class="block text-sm font-medium poetry-text-primary mb-2"
-          >
-            密码
+        <div class="form-control">
+          <label class="label" for="password">
+            <span class="label-text font-medium">密码</span>
           </label>
           <div class="relative">
             <input
@@ -191,15 +183,15 @@
               type={showPassword ? 'text' : 'password'}
               bind:value={password}
               onkeydown={handleKeydown}
-              class="w-full px-4 py-3 pr-12 poetry-input-bg border poetry-border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 poetry-text-primary"
-              class:border-red-500={passwordError}
+              class="input input-bordered w-full pr-12"
+              class:input-error={passwordError}
               placeholder="请输入您的密码"
               disabled={isLoading}
             />
             <button
               type="button"
               onclick={() => (showPassword = !showPassword)}
-              class="absolute inset-y-0 right-0 pr-3 flex items-center poetry-text-muted hover:poetry-text-secondary transition-colors"
+              class="btn btn-ghost btn-sm absolute inset-y-0 right-0 rounded-l-none"
               disabled={isLoading}
             >
               {#if showPassword}
@@ -210,22 +202,27 @@
             </button>
           </div>
           {#if passwordError}
-            <p class="mt-1 text-sm text-red-600">{passwordError}</p>
+            <label class="label" for="password">
+              <span class="label-text-alt text-error">{passwordError}</span>
+            </label>
           {/if}
         </div>
 
         <!-- 记住我和忘记密码 -->
         <div class="flex items-center justify-between">
-          <CustomCheckbox
-            bind:checked={rememberMe}
-            disabled={isLoading}
-            label="记住我"
-            id="remember-me"
-          />
+          <label class="label cursor-pointer">
+            <input
+              type="checkbox"
+              bind:checked={rememberMe}
+              disabled={isLoading}
+              class="checkbox checkbox-primary checkbox-sm mr-2"
+            />
+            <span class="label-text">记住我</span>
+          </label>
           <button
             type="button"
             onclick={handleForgotPassword}
-            class="text-sm poetry-text-primary hover:poetry-text-secondary transition-colors"
+            class="link link-primary text-sm"
             disabled={isLoading}
           >
             忘记密码？
@@ -236,31 +233,18 @@
         <button
           type="submit"
           disabled={isLoading}
-          class="w-full py-3 px-4 poetry-btn-primary text-white font-medium rounded-lg hover:poetry-btn-primary-hover focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="btn btn-primary w-full"
         >
           {#if isLoading}
-            <span class="flex items-center justify-center">
-              <ProgressRing
-                value={null}
-                size="size-14"
-                meterStroke="stroke-tertiary-600-400"
-                trackStroke="stroke-tertiary-50-950"
-              /> 登录中...
-            </span>
+            <span class="loading loading-spinner loading-sm"></span>
+            登录中...
           {:else}
             登录
           {/if}
         </button>
 
         <!-- 分割线 -->
-        <div class="relative my-6">
-          <div class="absolute inset-0 flex items-center">
-            <div class="w-full border-t poetry-border"></div>
-          </div>
-          <div class="relative flex justify-center text-sm">
-            <span class="px-2 poetry-surface poetry-text-muted">或者</span>
-          </div>
-        </div>
+        <div class="divider">或者</div>
 
         <!-- 第三方登录 -->
         <div class="space-y-3">
@@ -268,7 +252,7 @@
             type="button"
             onclick={() => handleThirdPartyLogin('GitHub')}
             disabled={isLoading}
-            class="w-full flex justify-center items-center px-4 py-3 border poetry-border rounded-lg poetry-btn-secondary hover:poetry-btn-secondary-hover transition-all duration-200 disabled:opacity-50"
+            class="btn btn-outline w-full"
           >
             <span class="mr-2">🐙</span>
             使用 GitHub 登录
@@ -277,7 +261,7 @@
             type="button"
             onclick={() => handleThirdPartyLogin('微信')}
             disabled={isLoading}
-            class="w-full flex justify-center items-center px-4 py-3 border poetry-border rounded-lg poetry-btn-secondary hover:poetry-btn-secondary-hover transition-all duration-200 disabled:opacity-50"
+            class="btn btn-outline w-full"
           >
             <span class="mr-2">💬</span>
             使用微信登录
@@ -287,33 +271,20 @@
     </div>
 
     <!-- 注册链接 -->
-    <div class="text-center">
-      <p class="poetry-text-secondary">
-        还没有账户？
-        <a
-          href="/register"
-          class="font-medium poetry-text-primary hover:poetry-text-secondary transition-colors"
-        >
-          立即注册
-        </a>
+    <div class="text-center mt-6">
+      <p class="text-base-content/70">
+        还没有账号？
+        <a href="/register" class="link link-primary font-medium"> 立即注册 </a>
       </p>
     </div>
 
-    <!-- 底部提示 -->
-    <div class="text-center">
-      <p class="text-xs poetry-text-muted">
+    <!-- 用户协议 -->
+    <div class="text-center mt-4">
+      <p class="text-xs text-base-content/60">
         登录即表示您同意我们的
-        <a
-          href="/terms"
-          class="poetry-text-primary hover:poetry-text-secondary transition-colors"
-          >用户协议</a
-        >
+        <a href="/terms" class="link link-primary"> 用户协议 </a>
         和
-        <a
-          href="/privacy"
-          class="poetry-text-primary hover:poetry-text-secondary transition-colors"
-          >隐私政策</a
-        >
+        <a href="/privacy" class="link link-primary"> 隐私政策 </a>
       </p>
     </div>
   </div>

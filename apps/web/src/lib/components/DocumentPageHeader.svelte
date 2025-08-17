@@ -5,7 +5,7 @@
 </script>
 
 <header class="text-center mb-8">
-	<h1 class="text-4xl font-bold poetry-text-primary font-kai mb-4">{title}</h1>
-	<p class="poetry-text-secondary text-lg">最后更新时间：{lastUpdated}</p>
-	<p class="poetry-text-muted mt-2">生效时间：{effectiveDate}</p>
+	<h1 class="text-4xl font-bold text-base-content font-kai mb-4">{title}</h1>
+<p class="text-base-content/80 text-lg">最后更新时间：{lastUpdated}</p>
+<p class="text-base-content/60 mt-2">生效时间：{effectiveDate}</p>
 </header>

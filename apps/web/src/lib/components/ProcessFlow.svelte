@@ -5,8 +5,8 @@
 		description: string;
 	}>;
 	export let columns: string = 'grid-cols-1 md:grid-cols-4';
-	export let titleColor: string = 'poetry-text-primary';
-	export let descColor: string = 'poetry-text-secondary';
+	export let titleColor: string = 'text-base-content';
+export let descColor: string = 'text-base-content/80';
 </script>
 
 <div class="grid {columns} gap-4 text-center">

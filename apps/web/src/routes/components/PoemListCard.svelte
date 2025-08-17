@@ -1,9 +1,7 @@
 <script lang="ts">
   import MdiMessageOutline from 'virtual:icons/mdi/message-outline';
   import MdiCardsHeartOutline from 'virtual:icons/mdi/cards-heart-outline';
-  // Skeleton UI v3.0 doesn't have Card component
-  // Using native div element with Tailwind styling instead
-
+  
   let {
     poem,
   }: {
@@ -26,81 +24,59 @@
   );
 </script>
 
-<div
-  class="poetry-card card-enhanced overflow-hidden border poetry-border hover:shadow-lg transition-all duration-300 flex flex-col"
->
-  <!-- 诗词主要内容区域 -->
-  <div class="flex-1">
+<!-- DaisyUI Card Component -->
+<div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 border border-base-300">
+  <div class="card-body">
     <!-- 诗词头部 -->
-    <header class="poetry-header p-6">
-      <div class="space-y-2">
-        <h2 class="text-2xl font-bold font-kai poetry-text-primary">
-          <a href="/poem/{poem.id}" class="hover:opacity-80 transition-opacity">
-            {poem.title}
-          </a>
-        </h2>
-        <p class="text-lg opacity-90 font-kai poetry-text-secondary">
-          {poem.dynasty} · {poem.author}
-        </p>
-        <p class="text-sm poetry-text-muted">{poem.publishedAt}</p>
-      </div>
-    </header>
+    <div class="space-y-2 mb-4">
+      <h2 class="card-title text-2xl font-bold" style="font-family: 'KaiTi', '楷体', serif;">
+        <a href="/poem/{poem.id}" class="hover:text-primary transition-colors">
+          {poem.title}
+        </a>
+      </h2>
+      <p class="text-lg opacity-80" style="font-family: 'KaiTi', '楷体', serif;">
+        {poem.dynasty} · {poem.author}
+      </p>
+      <p class="text-sm opacity-60">{poem.publishedAt}</p>
+    </div>
 
     <!-- 诗词内容预览 -->
-    <section class="px-6 pb-4">
-      <div class="space-y-2">
-        {#each contentPreview.split('\n') as line}
-          <p class="text-lg poem-content poetry-text-primary opacity-90">
-            {line}
-          </p>
-        {/each}
-        {#if poem.content.split('\n').length > 2}
-          <p class="text-sm poetry-text-muted italic">...</p>
-        {/if}
-      </div>
-    </section>
+    <div class="space-y-2 mb-4">
+      {#each contentPreview.split('\n') as line}
+        <p class="text-lg opacity-90" style="font-family: 'KaiTi', '楷体', serif;">
+          {line}
+        </p>
+      {/each}
+      {#if poem.content.split('\n').length > 2}
+        <p class="text-sm opacity-60 italic">...</p>
+      {/if}
+    </div>
 
     <!-- 标签 -->
-    <section class="px-6 pb-4">
-      <div class="flex flex-wrap gap-2">
-        {#each poem.tags.slice(0, 3) as tag}
-          <span
-            class="poetry-btn-secondary px-3 py-1 rounded-full text-xs font-medium"
-            >{tag}</span
-          >
-        {/each}
-        {#if poem.tags.length > 3}
-          <span class="poetry-text-muted text-xs px-3 py-1"
-            >+{poem.tags.length - 3}</span
-          >
-        {/if}
-      </div>
-    </section>
-  </div>
+    <div class="flex flex-wrap gap-2 mb-4">
+      {#each poem.tags.slice(0, 3) as tag}
+        <div class="badge badge-outline badge-sm">{tag}</div>
+      {/each}
+      {#if poem.tags.length > 3}
+        <div class="badge badge-ghost badge-sm">+{poem.tags.length - 3}</div>
+      {/if}
+    </div>
 
-  <!-- 诗词底部操作 -->
-  <footer class="border-t poetry-border p-4 poetry-surface">
-    <div class="flex justify-between items-center">
-      <div class="flex items-center space-x-4">
-        <span class="poetry-text-muted flex items-center space-x-1 text-sm">
-          <span>
-            <MdiCardsHeartOutline />
-          </span>
+    <!-- 诗词底部操作 -->
+    <div class="card-actions justify-between items-center pt-4 border-t border-base-300">
+      <div class="flex items-center gap-4 h-8">
+        <div class="flex items-center gap-1 text-sm opacity-70 h-full">
+          <MdiCardsHeartOutline class="w-4 h-4" />
           <span>{poem.likes}</span>
-        </span>
-        <span class="poetry-text-muted flex items-center space-x-1 text-sm">
-          <span>
-            <MdiMessageOutline />
-          </span>
+        </div>
+        <div class="flex items-center gap-1 text-sm opacity-70 h-full">
+          <MdiMessageOutline class="w-4 h-4" />
           <span>{poem.comments}</span>
-        </span>
+        </div>
       </div>
-      <a
-        href="/poem/{poem.id}"
-        class="poetry-btn-primary px-4 py-2 rounded-lg text-sm hover:scale-105 transition-transform"
-      >
+      <a href="/poem/{poem.id}" class="btn btn-primary btn-sm">
         阅读全文
       </a>
     </div>
-  </footer>
+  </div>
 </div>

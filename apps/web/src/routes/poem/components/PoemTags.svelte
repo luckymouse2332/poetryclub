@@ -6,7 +6,7 @@
 <div class="flex flex-wrap gap-2">
   {#each tags as tag}
     <span
-      class="px-3 py-1 poetry-surface-200 poetry-text-primary rounded-full text-sm font-medium transition-all duration-300 hover:scale-105"
+      class="px-3 py-1 bg-base-200 text-base-content rounded-full text-sm font-medium transition-all duration-300 hover:scale-105"
     >
       {tag}
     </span>

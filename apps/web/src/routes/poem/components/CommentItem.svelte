@@ -27,26 +27,26 @@
   }
 </script>
 
-<div class="flex space-x-4 p-4 border-b poetry-border">
+<div class="flex space-x-4 p-4 border-b border-base-300">
   <div
-    class="w-10 h-10 rounded-full poetry-surface-200 flex items-center justify-center poetry-text-primary font-bold text-sm"
+    class="w-10 h-10 rounded-full bg-base-200 flex items-center justify-center text-base-content font-bold text-sm"
   >
     {comment.author.charAt(0).toUpperCase()}
   </div>
   <div class="flex-1">
     <div class="flex items-center space-x-2 mb-1">
-      <span class="font-semibold poetry-text-primary font-kai"
+      <span class="font-semibold text-base-content font-kai"
         >{comment.author}</span
       >
-      <span class="text-xs poetry-text-muted">{comment.time}</span>
+      <span class="text-xs text-base-content/60">{comment.time}</span>
     </div>
-    <p class="poetry-text-primary mb-3 font-kai leading-relaxed">
+    <p class="text-base-content mb-3 font-kai leading-relaxed">
       {comment.content}
     </p>
     <div class="flex items-center space-x-4">
       <button
         onclick={toggleLike}
-        class="flex items-center space-x-1 text-sm poetry-text-secondary hover:poetry-text-primary transition-colors duration-200"
+        class="flex items-center space-x-1 text-sm text-base-content/70 hover:text-base-content transition-colors duration-200"
       >
         <span class="text-base">
           {#if isLiked}
@@ -58,7 +58,7 @@
         <span>{comment.likes}</span>
       </button>
       <button
-        class="text-sm poetry-text-secondary hover:poetry-text-primary transition-colors duration-200"
+        class="text-sm text-base-content/70 hover:text-base-content transition-colors duration-200"
       >
         回复
       </button>

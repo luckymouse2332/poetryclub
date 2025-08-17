@@ -62,14 +62,14 @@
   {#if label}
     <span
       id="{id}-label"
-      class="ml-3 {currentSize.text} poetry-text-secondary group-hover:poetry-text-primary transition-colors select-none"
+      class="ml-3 {currentSize.text} text-base-content/70 group-hover:text-base-content transition-colors select-none"
     >
       {label}
     </span>
   {/if}
   {#if $$slots.default}
     <span
-      class="ml-3 {currentSize.text} poetry-text-secondary group-hover:poetry-text-primary transition-colors select-none"
+      class="ml-3 {currentSize.text} text-base-content/70 group-hover:text-base-content transition-colors select-none"
     >
       <slot />
     </span>
@@ -79,6 +79,6 @@
 <style>
   /* 深色模式 hover 效果 */
   .group:hover .bg-white {
-    background-color: var(--poetry-surface, rgb(255 251 235)); /* amber-50 */
+    background-color: hsl(var(--b2)); /* DaisyUI base-200 */
   }
 </style>

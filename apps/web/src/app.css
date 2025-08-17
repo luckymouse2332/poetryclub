@@ -1,41 +1,19 @@
-/* Import Tailwind CSS */
 @import 'tailwindcss';
 
-@import '@skeletonlabs/skeleton';
-@import '@skeletonlabs/skeleton/optional/presets';
+/* DaisyUI Configuration - Using built-in themes */
+@plugin 'daisyui' {
+  themes: cupcake, night;
+}
 
-@source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
-
-/* 诗社主题基础样式 - 主题变量由TypeScript动态管理 */
-:root {
-  /* 字体 */
+/* Tailwind CSS 4 Theme Configuration */
+@theme {
+  /* 字体配置 */
   --font-kai: 'KaiTi', '楷体', serif;
   
-  /* 过渡动画 */
+  /* 过渡动画配置 */
   --transition-theme: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   --transition-hover: all 0.2s ease;
   --transition-fast: all 0.1s ease;
-}
-
-/* 主题加载状态样式 */
-.theme-loading {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--poetry-surface, rgb(255 251 235));
-  color: var(--poetry-text-primary, rgb(146 64 14));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  transition: opacity 0.3s ease;
-}
-
-.theme-loading.dark {
-  background-color: var(--poetry-surface, rgb(15 23 42));
-  color: var(--poetry-text-primary, rgb(226 232 240));
 }
 
 .theme-loading.fade-out {
@@ -51,170 +29,23 @@ body {
   font-family: var(--font-kai);
 }
 
-/* 诗社主题类 */
-.poetry-card {
-  background-color: var(--poetry-card-bg);
-  border-color: var(--poetry-border-light);
-  color: var(--poetry-text-primary);
-  transition: var(--transition-hover);
-}
-
-.poetry-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-.poetry-surface {
-  background-color: var(--poetry-surface);
-  color: var(--poetry-text-primary);
-}
-
-.poetry-surface-100 {
-  background-color: var(--poetry-surface-100);
-  color: var(--poetry-text-primary);
-}
-
-.poetry-surface-200 {
-  background-color: var(--poetry-surface-200);
-  color: var(--poetry-text-primary);
-}
-
-.poetry-text-primary {
-  color: var(--poetry-text-primary);
-}
-
-.poetry-text-secondary {
-  color: var(--poetry-text-secondary);
-}
-
-.poetry-text-muted {
-  color: var(--poetry-text-muted);
-}
-
-.poetry-border {
-  border-color: var(--poetry-border);
-}
-
-.poetry-btn-primary {
-  background-color: var(--poetry-btn-primary);
-  color: white;
-  transition: var(--transition-hover);
-}
-
-.poetry-btn-primary:hover {
-  background-color: var(--poetry-btn-primary-hover);
-  transform: scale(1.05);
-}
-
-.poetry-btn-secondary {
-  background-color: var(--poetry-btn-secondary);
-  color: var(--poetry-text-primary);
-  transition: var(--transition-hover);
-}
-
-.poetry-btn-secondary:hover {
-  background-color: var(--poetry-btn-secondary-hover);
-  transform: scale(1.05);
-}
-
-/* 悬停效果类 */
-.hover\:poetry-surface-200:hover {
-  background-color: var(--poetry-surface-200);
-}
-
-.poetry-btn-primary-hover {
-  background-color: var(--poetry-btn-primary-hover);
-  color: white;
-}
-
-.poetry-header {
-  background-color: var(--poetry-header-bg);
-  color: white;
-}
-
-.poetry-navbar {
-	background-color: var(--poetry-navbar-bg, rgb(254 243 199)) !important;
-	transition: background-color 0.2s ease;
-}
-
-/* 确保navbar在所有状态下都有正确的背景色 */
-header.poetry-navbar {
-	background-color: var(--poetry-navbar-bg, rgb(254 243 199)) !important;
-}
-
-.poetry-text-primary {
-	color: var(--poetry-text-primary);
-}
-
-.poetry-text-secondary {
-	color: var(--poetry-text-secondary);
-}
-
-.poetry-btn-primary {
-	background-color: var(--poetry-btn-primary);
-}
-
-.poetry-btn-secondary {
-	background-color: var(--poetry-btn-secondary);
-}
-
-.poetry-border {
-	border-color: var(--poetry-border);
-}
-
-.poetry-surface-100 {
-	background-color: var(--poetry-surface-100);
-}
-
-.poetry-surface-200 {
-	background-color: var(--poetry-surface-200);
-}
-
-.poetry-input-bg {
-	background-color: var(--poetry-input-bg);
-}
-
 /* 输入框样式 */
 .textarea {
-	padding: 12px;
-	border-radius: 8px;
-	font-size: 16px;
-	line-height: 1.5;
-	transition: all 0.2s ease;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 1.5;
+  transition: all 0.2s ease;
 }
 
 .textarea::placeholder {
-	color: var(--poetry-text-muted);
-	opacity: 0.7;
-}
-
-/* Hover效果类 */
-.hover\:poetry-text-primary:hover {
-	color: var(--poetry-text-primary);
-}
-
-.hover\:poetry-surface-200:hover {
-	background-color: var(--poetry-surface-200);
+  color: hsl(var(--bc) / 0.6);
+  opacity: 0.7;
 }
 
 /* 楷体字体回退 */
 .font-kai {
   font-family: var(--font-kai);
-}
-
-/* 深色模式平滑过渡 - 只对特定元素应用过渡 */
-.poetry-surface,
-.poetry-surface-100,
-.poetry-surface-200,
-.poetry-card,
-.poetry-navbar,
-.poetry-btn-primary,
-.poetry-btn-secondary,
-.poetry-text-primary,
-.poetry-text-secondary,
-.poetry-text-muted,
-.poetry-border {
-  transition: var(--transition-theme);
 }
 
 /* 主题切换时的平滑过渡 */
@@ -223,17 +54,6 @@ header.poetry-navbar {
 }
 
 /* 主题加载完成后启用过渡动画 */
-body.theme-loaded .poetry-surface,
-body.theme-loaded .poetry-surface-100,
-body.theme-loaded .poetry-surface-200,
-body.theme-loaded .poetry-card,
-body.theme-loaded .poetry-navbar,
-body.theme-loaded .poetry-btn-primary,
-body.theme-loaded .poetry-btn-secondary,
-body.theme-loaded .poetry-text-primary,
-body.theme-loaded .poetry-text-secondary,
-body.theme-loaded .poetry-text-muted,
-body.theme-loaded .poetry-border,
 body.theme-loaded .theme-transition {
   transition: var(--transition-theme);
 }
@@ -244,31 +64,37 @@ body.theme-loaded .theme-transition {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--poetry-surface-200);
+  background: hsl(var(--b2));
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--poetry-border);
+  background: hsl(var(--bc) / 0.3);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--poetry-text-muted);
+  background: hsl(var(--bc) / 0.5);
 }
 
 /* 改进的卡片阴影效果 */
 .card-enhanced {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
   transition: var(--transition-hover);
 }
 
 .card-enhanced:hover {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
   transform: translateY(-2px);
 }
 
 .dark .card-enhanced {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 2px 4px -1px rgba(0, 0, 0, 0.2);
 }
 
 /* 诗词内容特殊样式 */

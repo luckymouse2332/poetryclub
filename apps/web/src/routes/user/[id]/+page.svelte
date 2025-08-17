@@ -167,7 +167,7 @@ import { LoadingSpinner } from '$lib/components';
   />
 </svelte:head>
 
-<div class="min-h-screen poetry-surface theme-transition">
+<div class="min-h-screen bg-base-100 theme-transition">
   {#if loading}
     <!-- 加载状态 -->
     <div class="flex justify-center items-center min-h-[60vh]">
@@ -178,10 +178,10 @@ import { LoadingSpinner } from '$lib/components';
     <div class="container mx-auto px-4 py-8">
       <div class="text-center">
         <div class="text-6xl mb-4">😔</div>
-        <h2 class="text-2xl font-bold poetry-text-primary mb-2">加载失败</h2>
-        <p class="poetry-text-muted mb-4">{error}</p>
+        <h2 class="text-2xl font-bold text-base-content mb-2">加载失败</h2>
+        <p class="text-base-content/70 mb-4">{error}</p>
         <button
-          class="poetry-btn-primary px-6 py-2 rounded-lg"
+          class="btn btn-primary"
           onclick={() => location.reload()}
         >
           重新加载
@@ -192,7 +192,7 @@ import { LoadingSpinner } from '$lib/components';
     <!-- 用户详情内容 -->
     <div class="container mx-auto px-4 py-8 max-w-6xl">
       <!-- 用户基本信息 -->
-      <div class="poetry-card mb-8 overflow-hidden theme-transition">
+      <div class="card bg-base-200 shadow-xl mb-8 overflow-hidden theme-transition">
         <div class="p-8">
           <div class="flex flex-col lg:flex-row gap-8">
             <!-- 头像和基本信息 -->
@@ -203,28 +203,26 @@ import { LoadingSpinner } from '$lib/components';
                 <img
                   src={userData.avatar}
                   alt={userData.username}
-                  class="w-32 h-32 rounded-full object-cover border-4 poetry-border shadow-lg"
+                  class="w-32 h-32 rounded-full object-cover border-4 border-base-300 shadow-lg"
                 />
               </div>
               <div class="text-center lg:text-center">
-                <h1 class="text-3xl font-bold poetry-text-primary mb-2">
+                <h1 class="text-3xl font-bold text-base-content mb-2">
                   {userData.username}
                 </h1>
-                <p class="poetry-text-muted mb-4">加入于 {userData.joinDate}</p>
+                <p class="text-base-content/70 mb-4">加入于 {userData.joinDate}</p>
                 <!-- 操作按钮 -->
                 <div class="flex gap-3 justify-center">
                   {#if userId !== currentUserId}
                     <button
-                      class="{isFollowing
-                        ? 'poetry-btn-secondary'
-                        : 'poetry-btn-primary'} px-6 py-2 rounded-lg theme-transition hover:scale-105"
+                      class="btn {isFollowing ? 'btn-secondary' : 'btn-primary'} theme-transition hover:scale-105"
                       onclick={toggleFollow}
                     >
                       {isFollowing ? '已关注' : '关注'}
                     </button>
                   {:else}
                     <button
-                      class="poetry-btn-primary px-6 py-2 rounded-lg theme-transition hover:scale-105"
+                      class="btn btn-primary theme-transition hover:scale-105"
                       onclick={editProfile}
                     >
                       编辑资料
@@ -238,10 +236,10 @@ import { LoadingSpinner } from '$lib/components';
             <div class="flex-1">
               <!-- 简介 -->
               <div class="mb-6">
-                <h3 class="text-lg font-semibold poetry-text-primary mb-3">
+                <h3 class="text-lg font-semibold text-base-content mb-3">
                   个人简介
                 </h3>
-                <p class="poetry-text-secondary leading-relaxed">
+                <p class="text-base-content/80 leading-relaxed">
                   {userData.bio}
                 </p>
               </div>
@@ -249,44 +247,44 @@ import { LoadingSpinner } from '$lib/components';
               <!-- 统计信息 -->
               <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
                 <div
-                  class="text-center p-4 poetry-surface-100 rounded-lg theme-transition"
+                  class="text-center p-4 bg-base-300 rounded-lg theme-transition"
                 >
-                  <div class="text-2xl font-bold poetry-text-primary">
+                  <div class="text-2xl font-bold text-base-content">
                     {userData.poemsCount}
                   </div>
-                  <div class="text-sm poetry-text-muted">发布诗歌</div>
+                  <div class="text-sm text-base-content/70">发布诗歌</div>
                 </div>
                 <div
-                  class="text-center p-4 poetry-surface-100 rounded-lg theme-transition"
+                  class="text-center p-4 bg-base-300 rounded-lg theme-transition"
                 >
-                  <div class="text-2xl font-bold poetry-text-primary">
+                  <div class="text-2xl font-bold text-base-content">
                     {userData.likesCount}
                   </div>
-                  <div class="text-sm poetry-text-muted">获得点赞</div>
+                  <div class="text-sm text-base-content/70">获得点赞</div>
                 </div>
                 <div
-                  class="text-center p-4 poetry-surface-100 rounded-lg theme-transition"
+                  class="text-center p-4 bg-base-300 rounded-lg theme-transition"
                 >
-                  <div class="text-2xl font-bold poetry-text-primary">
+                  <div class="text-2xl font-bold text-base-content">
                     {userData.viewsCount}
                   </div>
-                  <div class="text-sm poetry-text-muted">阅读量</div>
+                  <div class="text-sm text-base-content/70">阅读量</div>
                 </div>
                 <div
-                  class="text-center p-4 poetry-surface-100 rounded-lg theme-transition"
+                  class="text-center p-4 bg-base-300 rounded-lg theme-transition"
                 >
-                  <div class="text-2xl font-bold poetry-text-primary">
+                  <div class="text-2xl font-bold text-base-content">
                     {userData.followersCount}
                   </div>
-                  <div class="text-sm poetry-text-muted">粉丝</div>
+                  <div class="text-sm text-base-content/70">粉丝</div>
                 </div>
                 <div
-                  class="text-center p-4 poetry-surface-100 rounded-lg theme-transition"
+                  class="text-center p-4 bg-base-300 rounded-lg theme-transition"
                 >
-                  <div class="text-2xl font-bold poetry-text-primary">
+                  <div class="text-2xl font-bold text-base-content">
                     {userData.followingCount}
                   </div>
-                  <div class="text-sm poetry-text-muted">关注</div>
+                  <div class="text-sm text-base-content/70">关注</div>
                 </div>
               </div>
             </div>
@@ -296,13 +294,13 @@ import { LoadingSpinner } from '$lib/components';
 
       <!-- 标签页导航 -->
       <div class="mb-6">
-        <div class="border-b poetry-border">
+        <div class="border-b border-base-300">
           <nav class="flex space-x-8">
             <button
               class="py-4 px-2 border-b-2 font-medium text-sm theme-transition {activeTab ===
               'poems'
-                ? 'border-amber-500 poetry-text-primary'
-                : 'border-transparent poetry-text-muted hover:poetry-text-secondary'}"
+                ? 'border-primary text-primary'
+                : 'border-transparent text-base-content/70 hover:text-base-content'}"
               onclick={() => switchTab('poems')}
             >
               发布的诗歌 ({userPoems.length})
@@ -310,8 +308,8 @@ import { LoadingSpinner } from '$lib/components';
             <button
               class="py-4 px-2 border-b-2 font-medium text-sm theme-transition {activeTab ===
               'favorites'
-                ? 'border-amber-500 poetry-text-primary'
-                : 'border-transparent poetry-text-muted hover:poetry-text-secondary'}"
+                ? 'border-primary text-primary'
+                : 'border-transparent text-base-content/70 hover:text-base-content'}"
               onclick={() => switchTab('favorites')}
             >
               收藏的诗歌 ({favoritePoems.length})
@@ -328,12 +326,14 @@ import { LoadingSpinner } from '$lib/components';
               <PoemListCard {poem} />
             {/each}
           {:else}
-            <div class="text-center py-12">
-              <div class="text-6xl mb-4">📝</div>
-              <h3 class="text-xl font-semibold poetry-text-primary mb-2">
-                还没有发布诗歌
-              </h3>
-              <p class="poetry-text-muted">期待TA的第一首作品</p>
+            <div class="card bg-base-200 shadow-xl">
+              <div class="card-body text-center py-12">
+                <div class="text-6xl mb-4">📝</div>
+                <h3 class="card-title text-xl justify-center mb-2">
+                  还没有发布诗歌
+                </h3>
+                <p class="text-base-content/70">期待TA的第一首作品</p>
+              </div>
             </div>
           {/if}
         {:else if activeTab === 'favorites'}
@@ -342,12 +342,14 @@ import { LoadingSpinner } from '$lib/components';
               <PoemListCard {poem} />
             {/each}
           {:else}
-            <div class="text-center py-12">
-              <div class="text-6xl mb-4">❤️</div>
-              <h3 class="text-xl font-semibold poetry-text-primary mb-2">
-                还没有收藏诗歌
-              </h3>
-              <p class="poetry-text-muted">收藏喜欢的诗歌，随时回味</p>
+            <div class="card bg-base-200 shadow-xl">
+              <div class="card-body text-center py-12">
+                <div class="text-6xl mb-4">❤️</div>
+                <h3 class="card-title text-xl justify-center mb-2">
+                  还没有收藏诗歌
+                </h3>
+                <p class="text-base-content/70">收藏喜欢的诗歌，随时回味</p>
+              </div>
             </div>
           {/if}
         {/if}

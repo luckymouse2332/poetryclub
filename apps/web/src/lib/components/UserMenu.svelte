@@ -1,8 +1,5 @@
 <script lang="ts">
-  import { createPopover, melt } from '@melt-ui/svelte';
   import { goto } from '$app/navigation';
-
-  import UserMenuButton from './UserMenuButton.svelte';
 
   import MdiUser from 'virtual:icons/mdi/user';
   import MdiBook from 'virtual:icons/mdi/book';
@@ -25,21 +22,9 @@
 
   let { user, isLoggedIn = false }: Props = $props();
 
-  const {
-    elements: { trigger, content, arrow },
-    states: { open },
-  } = createPopover({
-    forceVisible: true,
-    positioning: {
-      placement: 'bottom-end',
-    },
-  });
-
   // 菜单项点击处理
   function handleMenuClick(url: string) {
     goto(url);
-    // 关闭菜单
-    $open = false;
   }
 
   // 获取用户头像
@@ -52,120 +37,102 @@
   }
 </script>
 
-<!-- 触发按钮 -->
-<button
-  use:melt={$trigger}
-  class="flex items-center gap-2 p-2 rounded-lg poetry-btn-secondary poetry-text-primary transition-colors"
->
-  {#if isLoggedIn && user}
-    <!-- 已登录用户头像 -->
-    <img
-      src={getUserAvatar()}
-      alt={user.name}
-      class="w-8 h-8 rounded-full object-cover"
-    />
-    <span class="text-sm font-medium poetry-text-primary hidden md:block"
-      >{user.name}</span
-    >
-  {:else}
-    <!-- 未登录用户图标 -->
-    <MdiUser class="w-6 h-6 poetry-text-primary" />
-    <span class="text-sm font-medium poetry-text-primary hidden md:block"
-      >登录</span
-    >
-  {/if}
-</button>
-
-<!-- 弹出菜单 -->
-{#if $open}
-  <div
-    use:melt={$content}
-    class="z-50 min-w-[200px] rounded-lg border border-poetry-border poetry-surface-100 p-2 shadow-lg"
-  >
-    <!-- 箭头 -->
-    <div use:melt={$arrow} class="arrow"></div>
-
+<!-- DaisyUI Dropdown -->
+<div class="dropdown dropdown-end">
+  <!-- Dropdown trigger -->
+  <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
     {#if isLoggedIn && user}
-      <!-- 已登录用户菜单 -->
-      <!-- 用户信息 -->
-      <div class="px-3 py-2 border-b border-gray-100 mb-2">
-        <div class="flex items-center gap-3">
-          <img
-            src={getUserAvatar()}
-            alt={user.name}
-            class="w-10 h-10 rounded-full object-cover"
-          />
-          <div>
-            <p class="font-medium text-gray-900">{user.name}</p>
-            <p class="text-sm text-gray-500">{user.email}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- 菜单项 -->
-      <div class="space-y-1">
-        <UserMenuButton
-          handler={() => handleMenuClick('/profile')}
-          icon={MdiUser}
-          label="个人资料"
-        />
-        <UserMenuButton
-          handler={() => handleMenuClick('/my-poems')}
-          icon={MdiBook}
-          label="我的诗歌"
-        />
-
-        <UserMenuButton
-          handler={() => handleMenuClick('/favorites')}
-          icon={MdiHeart}
-          label="我的收藏"
-        />
-        <UserMenuButton
-          handler={() => handleMenuClick('/write')}
-          icon={MdiPencil}
-          label="创作诗歌"
-        />
-
-        <UserMenuButton
-          handler={() => handleMenuClick('/settings')}
-          icon={MdiSettingsOutline}
-          label="设置"
-        />
-        <hr class="my-2 border-gray-100" />
-
-        <UserMenuButton
-          handler={() => handleMenuClick('/logout')}
-          icon={MdiLogout}
-          label="退出登录"
+      <!-- 已登录用户头像 -->
+      <div class="w-8 rounded-full">
+        <img
+          src={getUserAvatar()}
+          alt={user.name}
+          class="rounded-full"
         />
       </div>
     {:else}
-      <!-- 未登录用户菜单 -->
-      <div class="space-y-1">
-        <UserMenuButton
-          handler={() => handleMenuClick('/login')}
-          icon={MdiLogin}
-          label="登录"
-        />
-        <UserMenuButton
-          handler={() => handleMenuClick('/register')}
-          icon={MdiAccountPlus}
-          label="注册"
-        />
-      </div>
+      <!-- 未登录用户图标 -->
+      <MdiUser class="w-5 h-5" />
     {/if}
   </div>
-{/if}
+  
+  <!-- Dropdown content -->
+  <ul class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+    {#if isLoggedIn && user}
+      <!-- 已登录用户菜单 -->
+      <!-- 用户信息 -->
+      <li class="menu-title">
+        <div class="flex items-center gap-3 px-2 py-2">
+          <img
+            src={getUserAvatar()}
+            alt={user.name}
+            class="w-8 h-8 rounded-full object-cover"
+          />
+          <div class="flex flex-col">
+            <span class="font-medium text-sm">{user.name}</span>
+            <span class="text-xs opacity-60">{user.email}</span>
+          </div>
+        </div>
+      </li>
+      
+      <div class="divider my-1"></div>
+      
+      <!-- 菜单项 -->
+      <li>
+        <button onclick={() => handleMenuClick('/profile')} class="flex items-center gap-2">
+          <MdiUser class="w-4 h-4" />
+          个人资料
+        </button>
+      </li>
+      <li>
+        <button onclick={() => handleMenuClick('/my-poems')} class="flex items-center gap-2">
+          <MdiBook class="w-4 h-4" />
+          我的诗歌
+        </button>
+      </li>
+      <li>
+        <button onclick={() => handleMenuClick('/favorites')} class="flex items-center gap-2">
+          <MdiHeart class="w-4 h-4" />
+          我的收藏
+        </button>
+      </li>
+      <li>
+        <button onclick={() => handleMenuClick('/write')} class="flex items-center gap-2">
+          <MdiPencil class="w-4 h-4" />
+          创作诗歌
+        </button>
+      </li>
+      <li>
+        <button onclick={() => handleMenuClick('/settings')} class="flex items-center gap-2">
+          <MdiSettingsOutline class="w-4 h-4" />
+          设置
+        </button>
+      </li>
+      
+      <div class="divider my-1"></div>
+      
+      <li>
+        <button onclick={() => handleMenuClick('/logout')} class="flex items-center gap-2 text-error">
+          <MdiLogout class="w-4 h-4" />
+          退出登录
+        </button>
+      </li>
+    {:else}
+      <!-- 未登录用户菜单 -->
+      <li>
+        <button onclick={() => handleMenuClick('/login')} class="flex items-center gap-2">
+          <MdiLogin class="w-4 h-4" />
+          登录
+        </button>
+      </li>
+      <li>
+        <button onclick={() => handleMenuClick('/register')} class="flex items-center gap-2">
+          <MdiAccountPlus class="w-4 h-4" />
+          注册
+        </button>
+      </li>
+    {/if}
+  </ul>
+</div>
 
-<style>
-  @reference '../../app.css';
-
-  .arrow {
-    @apply absolute bg-white border-l border-t border-gray-200;
-    width: 10px;
-    height: 10px;
-    transform: rotate(45deg);
-    top: -5px;
-    right: 20px;
-  }
-</style>
+<!-- No custom styles needed - using DaisyUI classes -->

@@ -1,10 +1,5 @@
 <script lang="ts">
-  // Skeleton UI v3.0 doesn't have Card, Button, Input, Label components
-  // Using native HTML elements with Tailwind styling instead
-  import {
-    Pagination,
-    LoadingSpinner,
-  } from '$lib/components';
+  import { Pagination, LoadingSpinner } from '$lib/components';
   import PoemListCard from './components/PoemListCard.svelte';
   import FeaturedPoems from './components/FeaturedPoems.svelte';
   import PoemCardSkeleton from './components/PoemCardSkeleton.svelte';
@@ -177,18 +172,19 @@
 <div class="container mx-auto px-4 py-8 max-w-7xl">
   <!-- 页面标题 -->
   <header class="text-center mb-12">
-    <h1 class="text-4xl font-bold font-kai poetry-text-primary mb-4 theme-transition">
+    <h1
+      class="text-4xl font-bold mb-4"
+      style="font-family: 'KaiTi', '楷体', serif;"
+    >
       推荐诗作
     </h1>
-    <p class="text-lg poetry-text-secondary theme-transition">
-      发现经典诗词之美，感受千年文化传承
-    </p>
+    <p class="text-lg opacity-80">发现经典诗词之美，感受千年文化传承</p>
   </header>
 
   {#if isLoading}
     <!-- 初始加载状态 -->
     <div class="text-center">
-      <LoadingSpinner size="w-12 h-12" text="正在加载诗作..." />
+      <LoadingSpinner text="正在加载诗作..." />
     </div>
   {:else}
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">

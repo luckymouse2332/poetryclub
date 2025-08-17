@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { createDialog, melt } from '@melt-ui/svelte';
   import { toast } from 'svelte-sonner';
   import MdiShareOutline from 'virtual:icons/mdi/share-outline';
   import MdiContentCopy from 'virtual:icons/mdi/content-copy';
   import MdiFacebook from 'virtual:icons/mdi/facebook';
   import MdiTwitter from 'virtual:icons/mdi/twitter';
   import MdiLink from 'virtual:icons/mdi/link';
-  import MdiAlphaX from 'virtual:icons/mdi/alpha-x';
+  import MdiClose from 'virtual:icons/mdi/close';
 
   interface Props {
     poem: {
@@ -19,18 +18,16 @@
 
   let { poem }: Props = $props();
 
-  const {
-    elements: {
-      trigger,
-      portalled,
-      overlay,
-      content,
-      title,
-      description,
-      close,
-    },
-    states: { open },
-  } = createDialog();
+  // DaisyUI modal state
+  let isOpen = $state(false);
+
+  function openModal() {
+    isOpen = true;
+  }
+
+  function closeModal() {
+    isOpen = false;
+  }
 
   // 生成分享链接
   const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/poem/${poem.id}`;
@@ -79,106 +76,100 @@
 
 <!-- 触发按钮 -->
 <button
-  use:melt={$trigger}
-  class="flex items-center gap-2 text-gray-600 hover:text-green-600 transition-colors"
+  onclick={openModal}
+  class="flex items-center gap-2 text-base-content/70 hover:text-primary transition-colors"
 >
   <MdiShareOutline />
   分享
 </button>
 
-<!-- 模态框 -->
-{#if $open}
-  <div use:melt={$portalled}>
-    <!-- 遮罩层 -->
-    <div
-      use:melt={$overlay}
-      class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
-    ></div>
+<!-- DaisyUI Modal -->
+<input type="checkbox" id="share-modal-{poem.id}" class="modal-toggle" bind:checked={isOpen} />
+<div class="modal" role="dialog">
+  <div class="modal-box">
+    <!-- 标题栏 -->
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-xl font-bold text-base-content">
+        分享诗歌
+      </h3>
+      <button
+        onclick={closeModal}
+        class="btn btn-sm btn-circle btn-ghost"
+      >
+        <MdiClose class="w-5 h-5" />
+      </button>
+    </div>
 
-    <!-- 对话框内容 -->
-    <div
-      use:melt={$content}
-      class="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 transform rounded-lg bg-white p-6 shadow-xl"
-    >
-      <!-- 标题栏 -->
-      <div class="flex items-center justify-between mb-4">
-        <h2 use:melt={$title} class="text-xl font-semibold text-gray-900">
-          分享诗歌
-        </h2>
-        <button
-          use:melt={$close}
-          class="rounded-full p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-        >
-          <MdiAlphaX class="w-5 h-5" />
-        </button>
-      </div>
+    <!-- 描述 -->
+    <p class="text-base-content/70 mb-6">
+      分享《{poem.title}》给更多人欣赏
+    </p>
 
-      <!-- 描述 -->
-      <p use:melt={$description} class="text-gray-600 mb-6">
-        分享《{poem.title}》给更多人欣赏
+    <!-- 诗歌预览 -->
+    <div class="card bg-base-200 p-4 mb-6">
+      <h4 class="font-medium text-base-content mb-1">{poem.title}</h4>
+      <p class="text-sm text-base-content/70 mb-2">作者：{poem.author}</p>
+      <p class="text-sm text-base-content/80 line-clamp-3 whitespace-pre-line">
+        {poem.content}
       </p>
+    </div>
 
-      <!-- 诗歌预览 -->
-      <div class="bg-gray-50 rounded-lg p-4 mb-6">
-        <h3 class="font-medium text-gray-900 mb-1">{poem.title}</h3>
-        <p class="text-sm text-gray-600 mb-2">作者：{poem.author}</p>
-        <p class="text-sm text-gray-700 line-clamp-3 whitespace-pre-line">
-          {poem.content}
-        </p>
-      </div>
-
-      <!-- 分享选项 -->
-      <div class="space-y-3">
-        <!-- 原生分享 -->
-        {#if typeof navigator !== 'undefined' && 'share' in navigator}
-          <button
-            onclick={nativeShare}
-            class="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-          >
-            <MdiShareOutline class="w-5 h-5 text-blue-600" />
-            <span class="text-gray-900">使用系统分享</span>
-          </button>
-        {/if}
-
-        <!-- 复制链接 -->
+    <!-- 分享选项 -->
+    <div class="space-y-3">
+      <!-- 原生分享 -->
+      {#if typeof navigator !== 'undefined' && 'share' in navigator}
         <button
-          onclick={copyToClipboard}
-          class="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+          onclick={nativeShare}
+          class="btn btn-outline w-full justify-start gap-3"
         >
-          <MdiContentCopy class="w-5 h-5 text-green-600" />
-          <span class="text-gray-900">复制链接</span>
+          <MdiShareOutline class="w-5 h-5" />
+          <span>使用系统分享</span>
+        </button>
+      {/if}
+
+      <!-- 复制链接 -->
+      <button
+        onclick={copyToClipboard}
+        class="btn btn-outline w-full justify-start gap-3"
+      >
+        <MdiContentCopy class="w-5 h-5" />
+        <span>复制链接</span>
+      </button>
+
+      <!-- 社交媒体分享 -->
+      <div class="grid grid-cols-2 gap-3">
+        <button
+          onclick={shareToTwitter}
+          class="btn btn-outline justify-start gap-2"
+        >
+          <MdiTwitter class="w-5 h-5" />
+          <span>Twitter</span>
         </button>
 
-        <!-- 社交媒体分享 -->
-        <div class="grid grid-cols-2 gap-3">
-          <button
-            onclick={shareToTwitter}
-            class="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-          >
-            <MdiTwitter class="w-5 h-5 text-blue-400" />
-            <span class="text-gray-900">Twitter</span>
-          </button>
+        <button
+          onclick={shareToFacebook}
+          class="btn btn-outline justify-start gap-2"
+        >
+          <MdiFacebook class="w-5 h-5" />
+          <span>Facebook</span>
+        </button>
+      </div>
 
-          <button
-            onclick={shareToFacebook}
-            class="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-          >
-            <MdiFacebook class="w-5 h-5 text-blue-600" />
-            <span class="text-gray-900">Facebook</span>
-          </button>
-        </div>
-
-        <!-- 链接显示 -->
-        <div class="bg-gray-50 rounded-lg p-3">
-          <div class="flex items-center gap-2 text-sm text-gray-600">
-            <MdiLink class="w-4 h-4" />
-            <span class="truncate">{shareUrl}</span>
-          </div>
+      <!-- 链接显示 -->
+      <div class="card bg-base-200 p-3">
+        <div class="flex items-center gap-2 text-sm text-base-content/70">
+          <MdiLink class="w-4 h-4" />
+          <span class="truncate">{shareUrl}</span>
         </div>
       </div>
     </div>
   </div>
-{/if}
+  
+  <!-- Modal backdrop -->
+  <label class="modal-backdrop" for="share-modal-{poem.id}">
+    <button onclick={closeModal}>Close</button>
+  </label>
+</div>
 
 <style>
   .line-clamp-3 {

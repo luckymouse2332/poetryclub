@@ -1,10 +1,15 @@
 <script lang="ts">
 	import { Toaster } from 'svelte-sonner';
 	import { onMount } from 'svelte';
-	import { getCurrentTheme } from '$lib/theme';
 
 	// 获取当前主题
 	let currentTheme = $state('light');
+
+	// 检测当前DaisyUI主题
+	function getCurrentTheme() {
+		const theme = document.documentElement.getAttribute('data-theme');
+		return theme === 'night' ? 'dark' : 'light';
+	}
 
 	onMount(() => {
 		currentTheme = getCurrentTheme();
@@ -16,7 +21,7 @@
 		
 		observer.observe(document.documentElement, {
 			attributes: true,
-			attributeFilter: ['class']
+			attributeFilter: ['data-theme']
 		});
 		
 		return () => observer.disconnect();
@@ -31,7 +36,7 @@
 	closeButton
 	toastOptions={{
 		style: 'font-family: system-ui, -apple-system, sans-serif;',
-		class: 'poetry-toast',
+		class: 'toast toast-top toast-end',
 		duration: 4000
 	}}
 />

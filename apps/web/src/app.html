@@ -1,42 +1,11 @@
 <!doctype html>
-<html lang="zh-CN" data-theme="poetry-theme">
+<html lang="zh-CN" data-theme="cupcake">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script>
-      // 预设基础主题，避免页面闪烁 - 简化版本
-      (function() {
-        try {
-          let saved = localStorage.getItem('poetry-theme');
-          let theme;
-          
-          if (saved === 'dark' || saved === 'light') {
-            theme = saved;
-          } else {
-            // 如果没有保存的主题，默认使用浅色模式
-            theme = 'light';
-            // 保存默认主题到localStorage
-            localStorage.setItem('poetry-theme', theme);
-          }
-          
-          const root = document.documentElement;
-          
-          // 设置基础主题类和属性
-          if (theme === 'dark') {
-            root.classList.add('dark');
-          } else {
-            root.classList.remove('dark');
-          }
-          
-          root.setAttribute('data-theme', 'poetry-theme');
-        } catch (e) {
-          // 忽略错误，使用默认主题
-        }
-      })();
-    </script>
     %sveltekit.head%
   </head>
-  <body class="poetry-surface">
+  <body class="bg-base-100 text-base-content">
     <div>%sveltekit.body%</div>
   </body>
 </html>

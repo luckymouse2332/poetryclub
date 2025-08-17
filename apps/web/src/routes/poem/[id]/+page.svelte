@@ -167,7 +167,7 @@
   {#if isLoading}
     <!-- 加载状态 -->
     <div class="text-center">
-      <LoadingSpinner size="w-12 h-12" text="正在加载诗歌详情..." />
+      <LoadingSpinner text="正在加载诗歌详情..." />
     </div>
   {:else if poem}
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -187,10 +187,12 @@
     </div>
   {:else}
     <!-- 错误状态 -->
-    <div class="text-center poetry-card p-8 rounded-xl border-2 poetry-border">
-      <div class="text-6xl mb-4">📖</div>
-      <h3 class="text-xl font-semibold poetry-text-primary mb-2">诗歌未找到</h3>
-      <p class="poetry-text-muted">抱歉，您访问的诗歌不存在或已被删除</p>
+    <div class="card bg-base-200 shadow-xl">
+      <div class="card-body text-center">
+        <div class="text-6xl mb-4">📖</div>
+        <h3 class="card-title text-xl justify-center mb-2">诗歌未找到</h3>
+        <p class="text-base-content/70">抱歉，您访问的诗歌不存在或已被删除</p>
+      </div>
     </div>
   {/if}
 </div>
