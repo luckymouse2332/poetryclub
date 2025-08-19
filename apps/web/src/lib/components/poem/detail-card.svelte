@@ -1,10 +1,11 @@
 <script lang="ts">
-  import PoemTags from './PoemTags.svelte';
+  import { ShareDialog } from '$lib/components';
+  import Tags from './tags.svelte';
+  
   import MdiEye from 'virtual:icons/mdi/eye';
   import MdiCardsHeartOutline from 'virtual:icons/mdi/cards-heart-outline';
   import MdiCardsHeart from 'virtual:icons/mdi/cards-heart';
-  import { ShareDialog } from '$lib/components';
-  
+
   export let poem: {
     id: string;
     title: string;
@@ -44,7 +45,7 @@
 
   <!-- 标签 -->
   <div class="mb-6">
-    <PoemTags tags={poem.tags} />
+    <Tags tags={poem.tags} />
   </div>
 
   <!-- 互动按钮 -->

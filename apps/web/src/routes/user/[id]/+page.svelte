@@ -1,7 +1,6 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import PoemListCard from '../../components/PoemListCard.svelte';
-import { LoadingSpinner } from '$lib/components';
+  import { Loading, Poem } from '$lib/components';
   import { onMount } from 'svelte';
 
   // 获取用户ID
@@ -171,7 +170,7 @@ import { LoadingSpinner } from '$lib/components';
   {#if loading}
     <!-- 加载状态 -->
     <div class="flex justify-center items-center min-h-[60vh]">
-      <LoadingSpinner />
+      <Loading />
     </div>
   {:else if error}
     <!-- 错误状态 -->
@@ -180,10 +179,7 @@ import { LoadingSpinner } from '$lib/components';
         <div class="text-6xl mb-4">😔</div>
         <h2 class="text-2xl font-bold text-base-content mb-2">加载失败</h2>
         <p class="text-base-content/70 mb-4">{error}</p>
-        <button
-          class="btn btn-primary"
-          onclick={() => location.reload()}
-        >
+        <button class="btn btn-primary" onclick={() => location.reload()}>
           重新加载
         </button>
       </div>
@@ -192,7 +188,9 @@ import { LoadingSpinner } from '$lib/components';
     <!-- 用户详情内容 -->
     <div class="container mx-auto px-4 py-8 max-w-6xl">
       <!-- 用户基本信息 -->
-      <div class="card bg-base-200 shadow-xl mb-8 overflow-hidden theme-transition">
+      <div
+        class="card bg-base-200 shadow-xl mb-8 overflow-hidden theme-transition"
+      >
         <div class="p-8">
           <div class="flex flex-col lg:flex-row gap-8">
             <!-- 头像和基本信息 -->
@@ -210,12 +208,16 @@ import { LoadingSpinner } from '$lib/components';
                 <h1 class="text-3xl font-bold text-base-content mb-2">
                   {userData.username}
                 </h1>
-                <p class="text-base-content/70 mb-4">加入于 {userData.joinDate}</p>
+                <p class="text-base-content/70 mb-4">
+                  加入于 {userData.joinDate}
+                </p>
                 <!-- 操作按钮 -->
                 <div class="flex gap-3 justify-center">
                   {#if userId !== currentUserId}
                     <button
-                      class="btn {isFollowing ? 'btn-secondary' : 'btn-primary'} theme-transition hover:scale-105"
+                      class="btn {isFollowing
+                        ? 'btn-secondary'
+                        : 'btn-primary'} theme-transition hover:scale-105"
                       onclick={toggleFollow}
                     >
                       {isFollowing ? '已关注' : '关注'}
@@ -323,7 +325,7 @@ import { LoadingSpinner } from '$lib/components';
         {#if activeTab === 'poems'}
           {#if userPoems.length > 0}
             {#each userPoems as poem}
-              <PoemListCard {poem} />
+              <Poem.ListCard {poem} />
             {/each}
           {:else}
             <div class="card bg-base-200 shadow-xl">
@@ -339,7 +341,7 @@ import { LoadingSpinner } from '$lib/components';
         {:else if activeTab === 'favorites'}
           {#if favoritePoems.length > 0}
             {#each favoritePoems as poem}
-              <PoemListCard {poem} />
+              <Poem.ListCard {poem} />
             {/each}
           {:else}
             <div class="card bg-base-200 shadow-xl">
@@ -357,14 +359,3 @@ import { LoadingSpinner } from '$lib/components';
     </div>
   {/if}
 </div>
-
-<style>
-  @reference '../../../app.css'
-
-  /* 响应式调整 */
-  @media (max-width: 640px) {
-    .container {
-      @apply px-2;
-    }
-  }
-</style>

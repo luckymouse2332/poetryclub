@@ -1,6 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+
+  import { Label, Checkbox, Button } from 'bits-ui';
+
   import MdiEyeOutline from 'virtual:icons/mdi/eye-outline';
   import MdiEyeOffOutline from 'virtual:icons/mdi/eye-off-outline';
 
@@ -105,11 +108,6 @@
     }
   }
 
-  // 处理记住我复选框变化
-  function handleRememberMeChange(event: { checked: boolean }) {
-    console.log('记住我状态:', rememberMe);
-  }
-
   onMount(() => {
     const remembered = localStorage.getItem('rememberMe');
     if (remembered) {
@@ -152,9 +150,9 @@
       <form onsubmit={handleLogin} class="space-y-6">
         <!-- 邮箱输入 -->
         <div class="form-control">
-          <label class="label" for="email">
+          <Label.Root class="label" for="email">
             <span class="label-text font-medium">邮箱地址</span>
-          </label>
+          </Label.Root>
           <input
             id="email"
             type="email"
@@ -166,9 +164,9 @@
             disabled={isLoading}
           />
           {#if emailError}
-            <label class="label" for="email">
+            <Label.Root class="label" for="email">
               <span class="label-text-alt text-error">{emailError}</span>
-            </label>
+            </Label.Root>
           {/if}
         </div>
 
@@ -188,7 +186,7 @@
               placeholder="请输入您的密码"
               disabled={isLoading}
             />
-            <button
+            <Button.Root
               type="button"
               onclick={() => (showPassword = !showPassword)}
               class="btn btn-ghost btn-sm absolute inset-y-0 right-0 rounded-l-none"
@@ -199,7 +197,7 @@
               {:else}
                 <MdiEyeOutline />
               {/if}
-            </button>
+            </Button.Root>
           </div>
           {#if passwordError}
             <label class="label" for="password">
@@ -210,27 +208,34 @@
 
         <!-- 记住我和忘记密码 -->
         <div class="flex items-center justify-between">
-          <label class="label cursor-pointer">
-            <input
-              type="checkbox"
+          <div class="label cursor-pointer">
+            <Checkbox.Root
+              id="remember-me"
+              aria-labelledby="remember-me-label"
+              class="checkbox checkbox-primary checkbox-sm mr-2"
               bind:checked={rememberMe}
               disabled={isLoading}
-              class="checkbox checkbox-primary checkbox-sm mr-2"
             />
-            <span class="label-text">记住我</span>
-          </label>
-          <button
+            <Label.Root
+              id="remember-me-label"
+              for="remember-me"
+              class="label-text"
+            >
+              记住我
+            </Label.Root>
+          </div>
+          <Button.Root
             type="button"
             onclick={handleForgotPassword}
             class="link link-primary text-sm"
             disabled={isLoading}
           >
             忘记密码？
-          </button>
+          </Button.Root>
         </div>
 
         <!-- 登录按钮 -->
-        <button
+        <Button.Root
           type="submit"
           disabled={isLoading}
           class="btn btn-primary w-full"
@@ -241,14 +246,14 @@
           {:else}
             登录
           {/if}
-        </button>
+        </Button.Root>
 
         <!-- 分割线 -->
         <div class="divider">或者</div>
 
         <!-- 第三方登录 -->
         <div class="space-y-3">
-          <button
+          <Button.Root
             type="button"
             onclick={() => handleThirdPartyLogin('GitHub')}
             disabled={isLoading}
@@ -256,8 +261,8 @@
           >
             <span class="mr-2">🐙</span>
             使用 GitHub 登录
-          </button>
-          <button
+          </Button.Root>
+          <Button.Root
             type="button"
             onclick={() => handleThirdPartyLogin('微信')}
             disabled={isLoading}
@@ -265,7 +270,7 @@
           >
             <span class="mr-2">💬</span>
             使用微信登录
-          </button>
+          </Button.Root>
         </div>
       </form>
     </div>
@@ -275,16 +280,6 @@
       <p class="text-base-content/70">
         还没有账号？
         <a href="/register" class="link link-primary font-medium"> 立即注册 </a>
-      </p>
-    </div>
-
-    <!-- 用户协议 -->
-    <div class="text-center mt-4">
-      <p class="text-xs text-base-content/60">
-        登录即表示您同意我们的
-        <a href="/terms" class="link link-primary"> 用户协议 </a>
-        和
-        <a href="/privacy" class="link link-primary"> 隐私政策 </a>
       </p>
     </div>
   </div>

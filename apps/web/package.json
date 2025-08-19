@@ -32,7 +32,10 @@
     "@tailwindcss/vite": "^4.1.11",
     "@types/node": "^20.10.6",
     "autoprefixer": "^10.4.21",
-    "svelte-sonner": "^1.0.5"
+    "bits-ui": "^2.9.4",
+    "clsx": "^2.1.1",
+    "svelte-sonner": "^1.0.5",
+    "tailwind-variants": "^2.1.0"
   },
   "type": "module"
 }

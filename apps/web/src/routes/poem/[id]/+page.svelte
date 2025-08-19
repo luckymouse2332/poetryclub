@@ -2,13 +2,8 @@
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
-  import {
-    LoadingSpinner,
-  } from '$lib/components';
-  import CommentSection from '../components/CommentSection.svelte';
-  import FeaturedPoems from '../../components/FeaturedPoems.svelte';
-  import PoemDetailCard from '../components/PoemDetailCard.svelte';
   import { writable } from 'svelte/store';
+  import { Poem, Loading, Comment } from '$lib/components';
 
   // UUID 校验函数
   function isValidUUID(uuid: string): boolean {
@@ -167,22 +162,22 @@
   {#if isLoading}
     <!-- 加载状态 -->
     <div class="text-center">
-      <LoadingSpinner text="正在加载诗歌详情..." />
+      <Loading text="正在加载诗歌详情..." />
     </div>
   {:else if poem}
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
       <!-- 主要内容区域 -->
       <div class="lg:col-span-3">
         <!-- 诗歌详情卡片 -->
-        <PoemDetailCard poem={$poem} {isLiked} onLikeToggle={changeLiked} />
+        <Poem.DetailCard poem={$poem} {isLiked} onLikeToggle={changeLiked} />
 
         <!-- 评论区域 -->
-        <CommentSection {comments} handleAddComment={addComment} />
+        <Comment.Section {comments} handleAddComment={addComment} />
       </div>
 
       <!-- 侧边栏 -->
       <div class="lg:col-span-1">
-        <FeaturedPoems {featuredPoems} />
+        <Poem.FeaturedList {featuredPoems} />
       </div>
     </div>
   {:else}

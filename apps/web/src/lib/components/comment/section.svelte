@@ -1,5 +1,5 @@
 <script lang="ts">
-	import CommentItem from './CommentItem.svelte';
+	import CommentItem from './item.svelte';
 	
 	let { comments, handleAddComment }: {
 		comments: Array<{

@@ -1,11 +1,13 @@
 <script lang="ts">
   import '../app.css';
-  // Removed Melt UI imports - now using DaisyUI components
-  import { UserMenu, ToastProvider } from '$lib/components';
+
+  import { UserMenu, ToastProvider, Footer } from '$lib/components';
+  import { SITE_NAME } from '$lib/constants';
+  import { onMount } from 'svelte';
+
   import MdiWhiteBalanceSunny from 'virtual:icons/mdi/white-balance-sunny';
   import MdiMoonWaningCrescent from 'virtual:icons/mdi/moon-waning-crescent';
   import MdiMenu from 'virtual:icons/mdi/menu';
-  import { onMount } from 'svelte';
 
   let { children } = $props();
 
@@ -60,7 +62,7 @@
             class="btn btn-ghost text-xl font-bold"
             style="font-family: 'KaiTi', '楷体', serif;"
           >
-            回中诗社
+            {SITE_NAME}
           </a>
         </div>
 
@@ -77,10 +79,10 @@
           <!-- Theme Toggle Button -->
           <label class="swap swap-rotate">
             <!-- this hidden checkbox controls the state -->
-            <input 
-              type="checkbox" 
-              class="theme-controller" 
-              value="night" 
+            <input
+              type="checkbox"
+              class="theme-controller"
+              value="night"
               bind:this={themeController}
             />
             <!-- sun icon -->
@@ -100,24 +102,7 @@
       </main>
 
       <!-- Footer -->
-      <footer
-        class="footer footer-center p-10 bg-base-200 text-base-content border-t border-base-300"
-      >
-        <div class="grid grid-flow-col gap-4">
-          <a href="/about" class="link link-hover">关于我们</a>
-          <a href="/terms" class="link link-hover">使用条款</a>
-          <a href="/privacy" class="link link-hover">隐私政策</a>
-        </div>
-        <div>
-          <p class="text-sm opacity-70">© 2024 回中诗社. 保留所有权利.</p>
-          <p class="text-xs opacity-50 mt-1">
-            ICP备案号: 京ICP备2024000000号-1
-          </p>
-        </div>
-        <div class="text-xs opacity-50">
-          <p>"诗言志，歌咏言"</p>
-        </div>
-      </footer>
+      <Footer siteName={SITE_NAME} icpNumber="京ICP备2022016960号-1" />
     </div>
 
     <!-- DaisyUI Drawer Side -->
@@ -130,7 +115,7 @@
             class="text-xl font-bold"
             style="font-family: 'KaiTi', '楷体', serif;"
           >
-            回中诗社
+            {SITE_NAME}
           </h2>
         </div>
 

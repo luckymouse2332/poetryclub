@@ -1,11 +1,12 @@
 <script lang="ts">
+  import { Button, Label } from 'bits-ui';
+
   let formData = {
     username: '',
     email: '',
     password: '',
     confirmPassword: '',
   };
-  let acceptTerms = false;
   let isLoading = false;
   let passwordStrength = 0;
 
@@ -26,11 +27,6 @@
     formData.confirmPassword !== '';
 
   function handleRegister() {
-    if (!acceptTerms) {
-      alert('请先同意用户协议和隐私政策');
-      return;
-    }
-
     if (!passwordsMatch) {
       alert('两次输入的密码不一致');
       return;
@@ -86,9 +82,7 @@
         <form onsubmit={handleRegister} class="space-y-6">
           <!-- 用户名输入 -->
           <div class="form-control">
-            <label class="label" for="username">
-              <span class="label-text">用户名</span>
-            </label>
+            <Label.Root class="label" for="username">用户名</Label.Root>
             <input
               id="username"
               type="text"
@@ -97,18 +91,19 @@
               class="input input-bordered w-full"
               placeholder="请输入用户名"
             />
-            <label class="label" for="username">
-              <span class="label-text-alt text-base-content/60">
-                用户名将作为您的诗词署名显示
-              </span>
-            </label>
+            <Label.Root
+              class="label label-text-alt text-base-content/60"
+              for="username"
+            >
+              用户名将作为您的诗词署名显示
+            </Label.Root>
           </div>
 
           <!-- 邮箱输入 -->
           <div class="form-control">
-            <label class="label" for="email">
-              <span class="label-text">邮箱地址</span>
-            </label>
+            <Label.Root class="label" for="email">
+              邮箱地址
+            </Label.Root>
             <input
               id="email"
               type="email"
@@ -121,9 +116,9 @@
 
           <!-- 密码输入 -->
           <div class="form-control">
-            <label class="label" for="password">
-              <span class="label-text">密码</span>
-            </label>
+            <Label.Root class="label" for="password">
+              密码输入
+            </Label.Root>
             <input
               id="password"
               type="password"
@@ -158,9 +153,9 @@
 
           <!-- 确认密码输入 -->
           <div class="form-control">
-            <label class="label" for="confirmPassword">
-              <span class="label-text">确认密码</span>
-            </label>
+            <Label.Root class="label" for="confirmPassword">
+              确认密码
+            </Label.Root>
             <input
               id="confirmPassword"
               type="password"
@@ -170,40 +165,20 @@
               placeholder="请再次输入密码"
             />
             {#if formData.confirmPassword && !passwordsMatch}
-              <label class="label" for="confirmPassword">
-                <span class="label-text-alt text-error"
-                  >两次输入的密码不一致</span
-                >
-              </label>
+              <Label.Root class="label label-text-alt text-error" for="confirmPassword">
+                两次输入的密码不一致
+              </Label.Root>
             {:else if formData.confirmPassword && passwordsMatch}
-              <label class="label" for="confirmPassword">
-                <span class="label-text-alt text-success">密码匹配 ✓</span>
-              </label>
+              <Label.Root class="label label-text-alt text-success" for="confirmPassword">
+                密码匹配 ✓
+              </Label.Root>
             {/if}
           </div>
 
-          <!-- 用户协议 -->
-          <div class="form-control">
-            <label class="label cursor-pointer justify-start">
-              <input
-                type="checkbox"
-                bind:checked={acceptTerms}
-                disabled={isLoading}
-                class="checkbox checkbox-primary checkbox-sm mr-3"
-              />
-              <span class="label-text">
-                我已阅读并同意
-                <a href="/terms" class="link link-primary">用户协议</a>
-                和
-                <a href="/privacy" class="link link-primary">隐私政策</a>
-              </span>
-            </label>
-          </div>
-
           <!-- 注册按钮 -->
-          <button
+          <Button.Root
             type="submit"
-            disabled={isLoading || !acceptTerms || !passwordsMatch}
+            disabled={isLoading || !passwordsMatch}
             class="btn btn-primary w-full"
           >
             {#if isLoading}
@@ -212,21 +187,21 @@
             {:else}
               创建账户
             {/if}
-          </button>
+          </Button.Root>
 
           <!-- 分割线 -->
           <div class="divider">或者</div>
 
           <!-- 第三方注册 -->
           <div class="space-y-3">
-            <button type="button" class="btn btn-outline w-full">
+            <Button.Root type="button" class="btn btn-outline w-full">
               <span class="mr-2">🐙</span>
               使用 GitHub 注册
-            </button>
-            <button type="button" class="btn btn-outline w-full">
+            </Button.Root>
+            <Button.Root type="button" class="btn btn-outline w-full">
               <span class="mr-2">📱</span>
               使用微信注册
-            </button>
+            </Button.Root>
           </div>
         </form>
       </div>

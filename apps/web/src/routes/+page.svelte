@@ -1,9 +1,7 @@
 <script lang="ts">
-  import { Pagination, LoadingSpinner } from '$lib/components';
-  import PoemListCard from './components/PoemListCard.svelte';
-  import FeaturedPoems from './components/FeaturedPoems.svelte';
-  import PoemCardSkeleton from './components/PoemCardSkeleton.svelte';
+  import { Pagination, Loading } from '$lib/components';
   import { onMount } from 'svelte';
+  import { Poem } from '$lib/components';
 
   // 示例诗作数据
   let allPoems = [
@@ -145,7 +143,6 @@
   // 分页相关
   let currentPage = 1;
   const poemsPerPage = 6;
-  $: totalPages = Math.ceil(allPoems.length / poemsPerPage);
   $: currentPoems = allPoems.slice(
     (currentPage - 1) * poemsPerPage,
     currentPage * poemsPerPage
@@ -184,7 +181,7 @@
   {#if isLoading}
     <!-- 初始加载状态 -->
     <div class="text-center">
-      <LoadingSpinner text="正在加载诗作..." />
+      <Loading text="正在加载诗作..." />
     </div>
   {:else}
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -195,26 +192,27 @@
           {#if isPageChanging}
             <!-- 页面切换时显示骨架屏 -->
             {#each Array(poemsPerPage) as _, i}
-              <PoemCardSkeleton />
+              <Poem.ListCardSkeleton />
             {/each}
           {:else}
             {#each currentPoems as poem (poem.id)}
-              <PoemListCard {poem} />
+              <Poem.ListCard {poem} />
             {/each}
           {/if}
         </div>
 
         <!-- 分页组件 -->
         <Pagination
-          {currentPage}
-          {totalPages}
+          perPage={poemsPerPage}
           onPageChange={handlePageChange}
+          count={allPoems.length}
+          {currentPage}
         />
       </div>
 
       <!-- 侧边栏 -->
       <div class="lg:col-span-1">
-        <FeaturedPoems {featuredPoems} />
+        <Poem.FeaturedList {featuredPoems} />
       </div>
     </div>
   {/if}
