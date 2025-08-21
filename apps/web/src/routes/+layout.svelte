@@ -4,6 +4,7 @@
   import { UserMenu, ToastProvider, Footer } from '$lib/components';
   import { SITE_NAME } from '$lib/constants';
   import { onMount } from 'svelte';
+  import { authStore, currentUser, isAuthenticated } from '$lib/stores/auth';
 
   import MdiWhiteBalanceSunny from 'virtual:icons/mdi/white-balance-sunny';
   import MdiMoonWaningCrescent from 'virtual:icons/mdi/moon-waning-crescent';
@@ -14,16 +15,12 @@
   let isMobileMenuOpen = $state(false);
   let themeController: HTMLInputElement;
 
-  // 模拟用户状态（实际项目中应该从认证服务获取）
-  let isLoggedIn = $state(false);
-  let currentUser = $state({
-    id: '1',
-    name: '诗词爱好者',
-    email: 'poet@example.com',
-  });
-
-  // 初始化主题状态
+  // 初始化认证状态和主题
   onMount(() => {
+    // 初始化认证状态
+    authStore.init();
+    
+    // 初始化主题状态
     const currentTheme = document.documentElement.getAttribute('data-theme');
     if (themeController) {
       themeController.checked = currentTheme === 'night';
@@ -92,7 +89,7 @@
           </label>
 
           <!-- User Menu -->
-          <UserMenu user={isLoggedIn ? currentUser : undefined} {isLoggedIn} />
+          <UserMenu user={$isAuthenticated && $currentUser ? $currentUser : undefined} isLoggedIn={$isAuthenticated} />
         </div>
       </div>
 
@@ -126,12 +123,21 @@
 
           <div class="divider"></div>
 
-          {#if isLoggedIn}
+          {#if $isAuthenticated}
             <li>
-              <a href="/user/profile" class="text-base font-medium">个人中心</a>
+              <a href="/profile" class="text-base font-medium">个人资料</a>
             </li>
             <li>
-              <a href="/user/poems" class="text-base font-medium">我的诗作</a>
+              <a href="/my-poems" class="text-base font-medium">我的诗歌</a>
+            </li>
+            <li>
+              <a href="/favorites" class="text-base font-medium">我的收藏</a>
+            </li>
+            <li>
+              <a href="/write" class="text-base font-medium">创作诗歌</a>
+            </li>
+            <li>
+              <a href="/settings" class="text-base font-medium">设置</a>
             </li>
           {:else}
             <li>

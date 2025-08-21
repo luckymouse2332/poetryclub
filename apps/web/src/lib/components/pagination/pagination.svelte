@@ -24,7 +24,7 @@
   class="flex justify-center py-8 gap-2"
   aria-label="分页导航"
 >
-  {#snippet children({ pages })}
+  {#snippet children({ pages }: { pages: Array<{ key: string; type: string; value: number }> })}
     <!-- 上一页 -->
     <Pagination.PrevButton class="btn btn-outline" aria-label="上一页">
       <MdiArrowLeft class="mr-2" />

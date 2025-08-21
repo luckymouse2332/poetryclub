@@ -3,9 +3,16 @@
   import { goto } from '$app/navigation';
 
   import { Label, Checkbox, Button } from 'bits-ui';
+  import { authStore } from '$lib/stores/auth';
 
   import MdiEyeOutline from 'virtual:icons/mdi/eye-outline';
   import MdiEyeOffOutline from 'virtual:icons/mdi/eye-off-outline';
+
+  // 虚假用户数据
+  const MOCK_USER = {
+    email: 'admin@example.com',
+    password: '123456'
+  };
 
   // 表单数据
   let email = '';
@@ -62,26 +69,28 @@
     generalError = '';
 
     try {
-      // 模拟API调用
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // TODO:这里应该调用实际的登录API
-      // const response = await fetch('/api/auth/login', {
-      //     method: 'POST',
-      //     headers: { 'Content-Type': 'application/json' },
-      //     body: JSON.stringify({ email, password, rememberMe })
-      // });
-
-      // 模拟登录成功
-      console.log('登录成功:', { email, rememberMe });
-
-      // 保存登录状态
-      if (rememberMe) {
-        localStorage.setItem('rememberMe', 'true');
+      // 验证虚假用户凭证
+      if (email !== MOCK_USER.email || password !== MOCK_USER.password) {
+        generalError = '用户名或密码错误';
+        return;
       }
 
-      // 跳转到首页
-      goto('/');
+      // 使用authStore进行登录
+      const result = await authStore.login({ email, password });
+      
+      if (result.success) {
+        console.log('登录成功:', { email, rememberMe });
+        
+        // 保存登录状态
+        if (rememberMe) {
+          localStorage.setItem('rememberMe', 'true');
+        }
+        
+        // 跳转到首页
+        goto('/');
+      } else {
+        generalError = result.error || '登录失败，请稍后重试';
+      }
     } catch (error) {
       generalError = '登录失败，请检查您的邮箱和密码';
       console.error('登录错误:', error);
@@ -107,13 +116,6 @@
       handleLogin();
     }
   }
-
-  onMount(() => {
-    const remembered = localStorage.getItem('rememberMe');
-    if (remembered) {
-      rememberMe = true;
-    }
-  });
 </script>
 
 <svelte:head>
@@ -172,9 +174,9 @@
 
         <!-- 密码输入 -->
         <div class="form-control">
-          <label class="label" for="password">
+          <Label.Root class="label" for="password">
             <span class="label-text font-medium">密码</span>
-          </label>
+          </Label.Root>
           <div class="relative">
             <input
               id="password"
@@ -200,9 +202,9 @@
             </Button.Root>
           </div>
           {#if passwordError}
-            <label class="label" for="password">
+            <Label.Root class="label" for="password">
               <span class="label-text-alt text-error">{passwordError}</span>
-            </label>
+            </Label.Root>
           {/if}
         </div>
 
@@ -225,7 +227,6 @@
             </Label.Root>
           </div>
           <Button.Root
-            type="button"
             onclick={handleForgotPassword}
             class="link link-primary text-sm"
             disabled={isLoading}
