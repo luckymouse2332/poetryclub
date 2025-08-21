@@ -324,10 +324,6 @@ If you encounter any issues during use or have any suggestions, please feel free
 - 🐛 Issue Reports: [GitHub Issues](https://github.com/your-repo/issues)
 - 💬 Discussions: [GitHub Discussions](https://github.com/your-repo/discussions)
 
-## 📄 License
-
-This project is licensed under the [ISC](LICENSE) license.
-
 ---
 
 **🌟 Let's create a better creative platform for young poets together!**

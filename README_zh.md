@@ -324,10 +324,6 @@ docker-compose up -d
 - 🐛 问题反馈：[GitHub Issues](https://github.com/your-repo/issues)
 - 💬 讨论交流：[GitHub Discussions](https://github.com/your-repo/discussions)
 
-## 📄 开源协议
-
-本项目采用 [ISC](LICENSE) 开源协议。
-
 ---
 
 **🌟 让我们一起为年轻的诗人们创造一个更美好的创作平台！**
