@@ -6,6 +6,11 @@
 
 Poetry Club is an online poetry creation platform specifically designed for middle school students, aiming to provide young poetry enthusiasts with a warm community to showcase their talents and exchange creative works. The platform adopts a modern technical architecture and provides a simple and elegant user experience, making poetry creation more interesting and convenient.
 
+## 📚 Complete Documentation
+
+- 📋 [Technical Architecture](./docs/技术架构文档.md) - System design and technology stack details
+- 📚 [API Documentation](./docs/API文档.md) - Complete API specifications and usage
+
 ## ✨ Platform Features
 
 - 🎯 **Designed for Middle School Students** - Clean and friendly interface that matches young users' habits
@@ -13,7 +18,7 @@ Poetry Club is an online poetry creation platform specifically designed for midd
 - 🌙 **Eye Protection Mode** - Built-in dark theme to protect vision health
 - 📱 **Mobile First** - Perfect adaptation for mobile phones, tablets and other mobile devices
 - 🔒 **Safe and Reliable** - Complete user authentication and content moderation mechanisms
-- 🎨 **Modern Design** - Elegant interface design based on Skeleton UI
+- 🎨 **Modern Design** - Elegant interface design based on Daisy UI
 
 ## 🏗️ Project Architecture
 
@@ -140,8 +145,9 @@ pnpm type-check
 
 ### Frontend Application (Web)
 - **Framework**: SvelteKit 2.x + Svelte 5.x
-- **UI Components**: Skeleton UI v3.0 + Melt UI
+- **UI Components**: DaisyUI v5.0 + Bits UI
 - **Styling**: Tailwind CSS v4.0
+- **Rich Text Editor**: Tiptap v2.x
 - **Icons**: Iconify (MDI)
 - **Build Tool**: Vite 6.x
 - **Development Port**: http://localhost:5173
@@ -171,10 +177,12 @@ pnpm type-check
 - ✅ Secure authentication (JWT + password encryption)
 
 ### 📝 Poetry Creation
-- ✅ Rich text editor (supports Markdown)
-- ✅ Draft saving functionality
-- ✅ Multiple poetry categories (modern poetry, classical poetry, humorous verses)
-- ✅ Work publishing and review mechanism
+- ✅ Modern rich text editor (Tiptap)
+- ✅ Auto-save and manual draft saving
+- ✅ Multiple text formats and styling support
+- ✅ Image insertion and link management
+- ✅ Tag system and work categorization
+- ✅ Work publishing and management features
 
 ### 🌐 Community Interaction
 - ✅ Poetry browsing and search
