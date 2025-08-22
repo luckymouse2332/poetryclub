@@ -11,17 +11,20 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  username     String   @unique
-  email        String   @unique
-  passwordHash String   @map("password_hash")
-  avatarUrl    String?  @map("avatar_url")
-  bio          String? // User-provided short personal biography.
-  role         UserRole @default(User)
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id           String     @id @default(uuid())
+  username     String     @unique
+  email        String     @unique
+  passwordHash String     @map("password_hash")
+  avatarUrl    String?    @map("avatar_url")
+  bio          String? // 用户简介，可选
+  role         UserRole   @default(User)
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  status       UserStatus @default(Active)
+  banReason    String?    @map("ban_reason") // 封禁原因，可选
 
   // Relations
+  poems    Poem[]
   comments Comment[]
   likes    Like[]
 
@@ -29,17 +32,22 @@ model User {
 }
 
 model Poem {
-  id        String   @id @default(uuid())
-  title     String
-  content   String
-  author    String
-  tags      String[]
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id              String     @id @default(uuid())
+  title           String
+  content         String
+  author          String
+  tags            String[]
+  status          PoemStatus @default(Pending)
+  isDraft         Boolean    @default(false) @map("is_draft")
+  rejectionReason String?    @map("rejection_reason")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
 
   // Relations
-  comments Comment[]
-  likes    Like[]
+  authorUser User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId   String    @map("author_id")
+  comments   Comment[]
+  likes      Like[]
 
   @@map("poems")
 }
@@ -74,6 +82,18 @@ model Like {
 }
 
 enum UserRole {
-  Admin
-  User
+  Admin // 管理员角色，拥有所有权限
+  User // 普通用户角色，拥有基本权限
+}
+
+enum PoemStatus {
+  Pending // 待审核状态
+  Approved // 审核通过状态
+  Rejected // 稿件退回状态
+}
+
+enum UserStatus {
+  Active // 正常状态
+  Locked // 因为某些安全问题（比如登录尝试次数过多）账户临时锁定
+  Banned // 永久封禁，通常是因为严重违规行为
 }

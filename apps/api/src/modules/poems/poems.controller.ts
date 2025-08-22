@@ -2,33 +2,39 @@ import {
   Controller,
   Get,
   Post,
-  Body,
   Patch,
-  Param,
   Delete,
   UseGuards,
-  Request,
-  Query,
+  ForbiddenException,
+  Req,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { RolesGuard } from '../auth/roles.guard';
 import { PoemsService } from './poems.service';
 import {
   CreatePoemDtoSchema,
   UpdatePoemDtoSchema,
   PoemQueryDtoSchema,
-  ReviewPoemDtoSchema,
   PoemResponseSchema,
   PoemListResponseSchema,
   IdParamDtoSchema,
   ErrorResponseSchema,
+  ReviewPoemDtoSchema,
+  IdParamDto,
+  PoemQueryDto,
+  UpdatePoemDto,
+  ReviewPoemDto,
+  CreatePoemDto,
 } from '@poetryclub/shared';
 import { ApiRoute } from 'src/common/decorators/api-route.decorator';
-import { ZodBody, ZodQuery, ZodParam } from 'src/common/decorators/zod-body.decorator';
+import {
+  ZodBody,
+  ZodQuery,
+  ZodParam,
+} from 'src/common/decorators/zod-body.decorator';
+import { Request } from 'express';
 
-@ApiTags('poems')
+@ApiTags('诗作')
 @Controller('poems')
 export class PoemsController {
   constructor(private readonly poemsService: PoemsService) {}
@@ -36,7 +42,6 @@ export class PoemsController {
   @ApiRoute({
     summary: '获取诗歌列表',
     description: '分页获取诗歌列表，支持筛选和排序',
-    tags: ['poems'],
     responses: {
       200: {
         description: '成功获取诗歌列表',
@@ -51,15 +56,16 @@ export class PoemsController {
     },
   })
   @Get()
-  findAll(@ZodQuery(PoemQueryDtoSchema, { schemaName: 'PoemQueryDto' }) query: any) {
-    // TODO: 实现分页和筛选逻辑
-    return this.poemsService.findAll();
+  findAll(
+    @ZodQuery(PoemQueryDtoSchema, { schemaName: 'PoemQueryDto' })
+    query: PoemQueryDto
+  ) {
+    return this.poemsService.findAll(query);
   }
 
   @ApiRoute({
     summary: '获取诗歌详情',
     description: '根据ID获取单个诗歌的详细信息',
-    tags: ['poems'],
     pathParams: {
       schema: IdParamDtoSchema,
       schemaName: 'IdParamDto',
@@ -77,14 +83,13 @@ export class PoemsController {
     },
   })
   @Get(':id')
-  findOne(@ZodParam(IdParamDtoSchema, 'id', { schemaName: 'IdParamDto' }) id: string) {
+  findOne(@ZodParam(IdParamDtoSchema, 'id') id: IdParamDto) {
     return this.poemsService.findOne(id);
   }
 
   @ApiRoute({
     summary: '创建诗歌',
     description: '创建新的诗歌作品',
-    tags: ['poems'],
     requestBody: {
       schema: CreatePoemDtoSchema,
       schemaName: 'CreatePoemDto',
@@ -112,16 +117,17 @@ export class PoemsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   create(
-    @Request() req: any,
-    @ZodBody(CreatePoemDtoSchema, { schemaName: 'CreatePoemDto' }) createPoemDto: any,
+    @Req() req: Request,
+    @ZodBody(CreatePoemDtoSchema, { schemaName: 'CreatePoemDto' })
+    createPoemDto: CreatePoemDto
   ) {
-    // TODO: 将用户ID添加到创建数据中
+    const userId = req.user.id;
+    return this.poemsService.create(createPoemDto, userId);
   }
 
   @ApiRoute({
     summary: '更新诗歌',
     description: '更新现有诗歌作品',
-    tags: ['poems'],
     pathParams: {
       schema: IdParamDtoSchema,
       schemaName: 'IdParamDto',
@@ -164,17 +170,18 @@ export class PoemsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   update(
-    @Request() req: any,
+    @Req() req: Request,
     @ZodParam(IdParamDtoSchema, 'id', { schemaName: 'IdParamDto' }) id: string,
-    @ZodBody(UpdatePoemDtoSchema, { schemaName: 'UpdatePoemDto' }) updatePoemDto: any
+    @ZodBody(UpdatePoemDtoSchema, { schemaName: 'UpdatePoemDto' })
+    updatePoemDto: UpdatePoemDto
   ) {
-    // TODO: 添加权限检查，确保只有作者可以更新
+    const userId = req.user.id;
+    return this.poemsService.update(id, updatePoemDto, userId);
   }
 
   @ApiRoute({
     summary: '删除诗歌',
     description: '删除指定的诗歌作品',
-    tags: ['poems'],
     pathParams: {
       schema: IdParamDtoSchema,
       schemaName: 'IdParamDto',
@@ -205,34 +212,104 @@ export class PoemsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   remove(
-    @Request() req: any,
+    @Req() req: Request,
     @ZodParam(IdParamDtoSchema, 'id', { schemaName: 'IdParamDto' }) id: string
   ) {
-    // TODO: 添加权限检查，确保只有作者可以删除
-    return this.poemsService.remove(id);
+    const userId = req.user.id;
+    return this.poemsService.remove(id, userId);
   }
 
-  // TODO: 实现审核功能
-  // @ApiRoute({
-  //   summary: '审核诗歌',
-  //   description: '管理员审核诗歌，批准或拒绝发布',
-  //   tags: ['poems'],
-  //   responses: {
-  //     200: {
-  //       description: '审核成功',
-  //       schema: PoemResponseSchema,
-  //       schemaName: 'PoemResponse',
-  //     },
-  //   },
-  // })
-  // @Post(':id/review')
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(['admin'])
-  // @ApiBearerAuth()
-  // review(
-  //   @ZodParam(IdParamDtoSchema, 'IdParamDto') id: string,
-  //   @ZodBody(ReviewPoemDtoSchema, 'ReviewPoemDto') reviewDto: any,
-  // ) {
-  //   return this.poemsService.review(id, reviewDto);
-  // }
+  @ApiRoute({
+    summary: '审核诗歌',
+    description: '管理员审核诗歌，批准或拒绝发布',
+    pathParams: {
+      schema: IdParamDtoSchema,
+      schemaName: 'IdParamDto',
+      description: '诗歌ID',
+    },
+    requestBody: {
+      schema: ReviewPoemDtoSchema,
+      schemaName: 'ReviewPoemDto',
+      description: '审核数据',
+    },
+    responses: {
+      200: {
+        description: '审核成功',
+        schema: PoemResponseSchema,
+        schemaName: 'PoemResponse',
+      },
+      400: {
+        description: '请求参数错误',
+        schema: ErrorResponseSchema,
+        schemaName: 'ErrorResponse',
+      },
+      401: {
+        description: '未授权访问',
+        schema: ErrorResponseSchema,
+        schemaName: 'ErrorResponse',
+      },
+      403: {
+        description: '权限不足',
+        schema: ErrorResponseSchema,
+        schemaName: 'ErrorResponse',
+      },
+      404: {
+        description: '诗歌不存在',
+        schema: ErrorResponseSchema,
+        schemaName: 'ErrorResponse',
+      },
+    },
+  })
+  @Post(':id/review')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  review(
+    @Req() req: Request,
+    @ZodParam(IdParamDtoSchema, 'id', { schemaName: 'IdParamDto' }) id: string,
+    @ZodBody(ReviewPoemDtoSchema, { schemaName: 'ReviewPoemDto' })
+    reviewDto: ReviewPoemDto
+  ) {
+    // 检查用户是否为管理员
+    if (req.user.role !== 'Admin') {
+      throw new ForbiddenException('权限不足，只有管理员可以审核诗作');
+    }
+    return this.poemsService.review(id, reviewDto);
+  }
+
+  @ApiRoute({
+    summary: '获取用户诗作',
+    description: '获取指定用户的所有诗作（包括草稿和各种状态）',
+    pathParams: {
+      schema: IdParamDtoSchema,
+      schemaName: 'IdParamDto',
+      description: '用户ID',
+    },
+    responses: {
+      200: {
+        description: '获取成功',
+        schema: PoemListResponseSchema,
+        schemaName: 'PoemListResponse',
+      },
+      401: {
+        description: '未授权访问',
+        schema: ErrorResponseSchema,
+        schemaName: 'ErrorResponse',
+      },
+    },
+  })
+  @Get('user/:userId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  findUserPoems(
+    @Req() req: Request,
+    @ZodParam(IdParamDtoSchema, 'userId', { schemaName: 'IdParamDto' })
+    userId: string,
+    @ZodQuery(PoemQueryDtoSchema, { schemaName: 'PoemQueryDto' }) query: any
+  ) {
+    // 只有用户本人或管理员可以查看用户的所有诗作
+    if (req.user.id !== userId && req.user.role !== 'Admin') {
+      throw new ForbiddenException('权限不足，只能查看自己的诗作');
+    }
+    return this.poemsService.findUserPoems(userId, query);
+  }
 }

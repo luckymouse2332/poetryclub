@@ -6,7 +6,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import { ZodOpenApiUtil } from './common/utils/zod-openapi.util';
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
   app.use(helmet());
@@ -54,7 +54,7 @@ async function bootstrap() {
   };
 
   // 设置API文档
-  SwaggerModule.setup('api/docs', app, mergedDocument as any, {
+  SwaggerModule.setup('api/docs', app, mergedDocument, {
     swaggerOptions: {
       persistAuthorization: true,
       displayRequestDuration: true,
@@ -63,7 +63,7 @@ async function bootstrap() {
       showRequestHeaders: true,
       tryItOutEnabled: true,
     },
-    customSiteTitle: 'Poetry Club API Documentation',
+    customSiteTitle: '诗社API文档',
     customfavIcon: '/favicon.ico',
     customJs: [
       'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.min.js',
@@ -74,21 +74,11 @@ async function bootstrap() {
     ],
   });
 
-  // 提供原始的zod生成的OpenAPI JSON
-  SwaggerModule.setup('api/docs/zod', app, zodDocument as any, {
-    swaggerOptions: {
-      displayRequestDuration: true,
-      docExpansion: 'none',
-    },
-    customSiteTitle: 'Poetry Club API - Zod Generated',
-  });
-
   const port = +process.env.PORT || 3000;
   await app.listen(port);
 
   Logger.log(`🚀 API服务运行在: http://localhost:${port}`);
   Logger.log(`📚 API文档地址: http://localhost:${port}/api/docs`);
-  Logger.log(`🔧 Zod生成的API文档: http://localhost:${port}/api/docs/zod`);
   Logger.log(`📊 已注册的Zod Schema: ${ZodOpenApiUtil.getSchemaNames().join(', ')}`);
 }
 

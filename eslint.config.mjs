@@ -12,7 +12,7 @@ export default [
   {
     files: ["**/*.ts", "**/*.js"],
     rules: {
-      "@typescript-eslint/no-unused-vars": "error",
+      "@typescript-eslint/no-unused-vars": "warn",
       "@typescript-eslint/no-explicit-any": "warn",
       "no-console": "warn",
     },

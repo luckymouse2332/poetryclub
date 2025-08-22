@@ -5,9 +5,6 @@ import { UserService } from '../user/user.service';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Request } from 'express';
 
-/**
- * Implements authentication and authorization validation
- */
 @Injectable()
 export class RolesGuard extends JwtAuthGuard {
   constructor(
@@ -24,12 +21,12 @@ export class RolesGuard extends JwtAuthGuard {
     ]);
 
     if (roles?.length === 0 || !roles) {
-      // The API endpoint doesn't need authentication
+      // 无需验证即可登录
       return true;
     }
 
-    // Ensures that the user is logged in.
-    // It can also inject jwt payloads into `req.user` by calling jwt strategy
+    // 确保用户已登录
+    // 向请求数据中注入用户登录信息
     const result = await super.canActivate(context);
 
     if (!result) {
@@ -37,7 +34,10 @@ export class RolesGuard extends JwtAuthGuard {
     }
 
     const request = context.switchToHttp().getRequest<Request>();
-    const currentUser = await this.userService.findOneById(request.user.id);
+    const currentUser = await this.userService.findOne(
+      { id: request.user.id },
+      false
+    );
 
     if (!roles.includes(currentUser.role)) {
       return false;

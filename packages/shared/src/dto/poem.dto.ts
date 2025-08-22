@@ -39,12 +39,12 @@ export const UpdatePoemDtoSchema = z
 // 诗歌查询参数DTO
 export const PoemQueryDtoSchema = z
   .object({
-    page: z.coerce.number().int().min(1).default(1),
-    limit: z.coerce.number().int().min(1).max(100).default(20),
-    sortBy: z.enum(['createdAt', 'updatedAt', 'title']).default('createdAt'),
-    sortOrder: z.enum(['asc', 'desc']).default('desc'),
+    page: z.coerce.number().int().min(1).default(1).optional(),
+    limit: z.coerce.number().int().min(1).max(100).default(20).optional(),
+    sortBy: z.enum(['createdAt', 'updatedAt', 'title']).default('createdAt').optional(),
+    sortOrder: z.enum(['asc', 'desc']).default('desc').optional(),
     status: PoemStatusSchema.optional(),
-    authorId: z.string().uuid().optional(),
+    authorId: z.uuid().optional(),
     search: z.string().max(100).optional(),
   })
   .openapi({
@@ -76,7 +76,7 @@ export const ReviewPoemDtoSchema = z
 // 诗歌响应DTO
 export const PoemResponseSchema = z
   .object({
-    id: z.string().uuid(),
+    id: z.uuid(),
     title: z.string(),
     content: z.string(),
     status: PoemStatusSchema,

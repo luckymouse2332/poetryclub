@@ -1,7 +1,6 @@
 // 导出所有DTO schemas和类型
 export * from './dto/login.dto';
 export * from './dto/passwords.dto';
-export * from './dto/profile.dto';
 export * from './dto/register.dto';
 export * from './dto/poem.dto';
 export * from './dto/user.dto';

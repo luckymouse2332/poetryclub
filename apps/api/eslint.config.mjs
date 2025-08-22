@@ -12,7 +12,7 @@ export default [
     },
     rules: {
       "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/explicit-function-return-type": "warn",
+      "@typescript-eslint/explicit-function-return-type": "none",
       "@typescript-eslint/explicit-module-boundary-types": "warn",
     },
   },

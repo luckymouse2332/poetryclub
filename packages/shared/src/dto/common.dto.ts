@@ -88,16 +88,11 @@ export const PaginatedResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =
     });
 
 // ID参数DTO
-export const IdParamDtoSchema = z
-  .object({
-    id: z.string().uuid('请提供有效的UUID'),
-  })
+export const IdParamDtoSchema = z.uuid('请提供有效的uuid')
   .openapi({
     title: 'IdParamDto',
     description: 'ID路径参数',
-    example: {
-      id: '123e4567-e89b-12d3-a456-426614174000',
-    },
+    example: '123e4567-e89b-12d3-a456-426614174000',
   });
 
 // 搜索参数DTO

@@ -13,26 +13,14 @@ export class AuthService {
     private readonly jwtService: JwtService
   ) {}
 
-  /**
-   * Validates a user's credentials.
-   *
-   * This method checks whether a user with the given username exists
-   * and whether the provided password matches the stored hash.
-   *
-   * @param username - The user's login username.
-   * @param password - The plain-text password to verify.
-   * @returns A result containing the user data (excluding the password hash)
-   *          if validation succeeds, or an error result if the user does not exist
-   *          or the password is incorrect.
-   */
   async validateUser(
     username: string,
     password: string
   ): PromiseResult<UserDto> {
-    const queryResult = await this.userService.findOneByName(username);
+    const queryResult = await this.userService.findOne({ username }, false); // 只查询用户基本信息，不包含其他关联数据
 
     if (!queryResult) {
-      return err('User with this username does not exist!');
+      return err('用户不存在！');
     }
 
     const { passwordHash, ...results } = queryResult;
@@ -40,35 +28,24 @@ export class AuthService {
     const compareResult = await bcrypt.compare(password, passwordHash);
 
     if (!compareResult) {
-      return err('Invalid password!');
+      return err('密码无效！');
     }
 
     return ok(results);
   }
 
-  /**
-   * Registers a new user
-   *
-   * @param email - The user's email address used for registration
-   * @param password - The user's register password, at least 6 characters long
-   * @param username - The user's username replaced by the email when it is null or undefined
-   *
-   * @returns A result containing the user data (excluding the password hash)
-   *          if registration succeeds, or an error result if the user with the given email already exists
-   */
   async registerUser(
     email: string,
     password: string,
     username?: string
   ): PromiseResult<UserDto> {
-    const queryResult = await this.userService.findOneByName(email);
+    const userExists = await this.userService.userExists({ email });
 
-    if (queryResult) {
-      return err('The user with given email already exists!');
+    if (userExists) {
+      return err('该邮箱已注册！');
     }
 
     const passwordHashed = await bcrypt.hash(password, HASH_ROUNDS);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash, ...results } = await this.userService.add({
       username: username ?? email,
       passwordHash: passwordHashed,
@@ -78,49 +55,11 @@ export class AuthService {
     return ok(results);
   }
 
-  /**
-   * Generates token string
-   *
-   * @param userDto - The user's information to be encoded in token
-   * @returns token string whose payload is the user's information
-   */
   async signIn(userDto: UserDto): Promise<string> {
     return await this.jwtService.signAsync({
       sub: userDto.id,
       username: userDto.username,
+      role: userDto.role as 'User' | 'Admin',
     });
-  }
-
-  /**
-   * Validates and changes user's password
-   *
-   * @param id - The user's identifier
-   * @param oldPassword - The user's old password, should equal to the user's password
-   * @param newPassword - The user's new password, at least 6 characters long
-   *
-   * @returns
-   */
-  async changePassword(
-    id: string,
-    oldPassword: string,
-    newPassword: string
-  ): PromiseResult<string> {
-    const user = await this.userService.findOneById(id);
-
-    if (!user) {
-      return err('Current user does not exist');
-    }
-
-    const result = await bcrypt.compare(oldPassword, user.passwordHash);
-
-    if (!result) {
-      return err('Old password is incorrect');
-    }
-
-    user.passwordHash = await bcrypt.hash(newPassword, HASH_ROUNDS);
-
-    await this.userService.update(id, user);
-
-    return ok('Updated successfully');
   }
 }

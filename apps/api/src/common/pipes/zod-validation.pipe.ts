@@ -10,7 +10,6 @@ import { ZodType } from 'zod';
 export class ZodValidationPipe implements PipeTransform {
   constructor(private readonly schema: ZodType) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async transform(value: unknown, _metadata: ArgumentMetadata) {
     const result = await this.schema.safeParseAsync(value);
 
