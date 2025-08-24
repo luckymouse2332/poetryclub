@@ -118,9 +118,6 @@ importers:
       '@poetryclub/shared':
         specifier: workspace:*
         version: link:../../packages/shared
-      '@poetryclub/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       '@types/bcrypt':
         specifier: ^5.0.2
         version: 5.0.2
@@ -279,15 +276,6 @@ importers:
       '@types/node':
         specifier: ^20.10.6
         version: 20.19.9
-      rimraf:
-        specifier: ^5.0.5
-        version: 5.0.10
-      typescript:
-        specifier: ^5.5.4
-        version: 5.9.2
-
-  packages/types:
-    devDependencies:
       rimraf:
         specifier: ^5.0.5
         version: 5.0.10

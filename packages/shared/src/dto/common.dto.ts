@@ -20,6 +20,7 @@ export const ErrorResponseSchema = z
     success: z.literal(false),
     message: z.string(),
     error: z.string().optional(),
+    errorId: z.string().optional(),
     statusCode: z.number().optional(),
     timestamp: z.date().optional(),
     path: z.string().optional(),
@@ -34,6 +35,7 @@ export const ErrorResponseSchema = z
       statusCode: 400,
       timestamp: '2024-01-01T00:00:00.000Z',
       path: '/api/poems',
+      errorId: 'ERR1234567890'
     },
   });
 
@@ -112,43 +114,9 @@ export const SearchDtoSchema = z
     },
   });
 
-// 认证令牌响应DTO
-export const AuthTokenResponseSchema = z
-  .object({
-    accessToken: z.string(),
-    refreshToken: z.string(),
-    expiresIn: z.number(),
-    tokenType: z.literal('Bearer'),
-  })
-  .openapi({
-    title: 'AuthTokenResponse',
-    description: '认证令牌响应',
-    example: {
-      accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-      refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-      expiresIn: 3600,
-      tokenType: 'Bearer',
-    },
-  });
-
-// 刷新令牌DTO
-export const RefreshTokenDtoSchema = z
-  .object({
-    refreshToken: z.string().min(1, '刷新令牌不能为空'),
-  })
-  .openapi({
-    title: 'RefreshTokenDto',
-    description: '刷新令牌请求',
-    example: {
-      refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-    },
-  });
-
 // 健康检查响应DTO
 export const HealthCheckResponseSchema = z
   .object({
-    status: z.literal('ok'),
-    timestamp: z.string().datetime(),
     service: z.string(),
     version: z.string().optional(),
     uptime: z.number().optional(),
@@ -157,8 +125,6 @@ export const HealthCheckResponseSchema = z
     title: 'HealthCheckResponse',
     description: '健康检查响应',
     example: {
-      status: 'ok',
-      timestamp: '2024-01-01T00:00:00.000Z',
       service: 'poetry-club-api',
       version: '1.0.0',
       uptime: 3600,
@@ -169,7 +135,7 @@ export const HealthCheckResponseSchema = z
 export type ApiResponse<T> = {
   success: boolean;
   message: string;
-  data: T;
+  data?: T;
   timestamp?: string;
 };
 
@@ -178,6 +144,4 @@ export type PaginationDto = z.infer<typeof PaginationDtoSchema>;
 export type PaginationResponse = z.infer<typeof PaginationResponseSchema>;
 export type IdParamDto = z.infer<typeof IdParamDtoSchema>;
 export type SearchDto = z.infer<typeof SearchDtoSchema>;
-export type AuthTokenResponse = z.infer<typeof AuthTokenResponseSchema>;
-export type RefreshTokenDto = z.infer<typeof RefreshTokenDtoSchema>;
 export type HealthCheckResponse = z.infer<typeof HealthCheckResponseSchema>;

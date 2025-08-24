@@ -5,6 +5,9 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import compression from 'compression';
 import { ZodOpenApiUtil } from './common/utils/zod-openapi.util';
+import { loggingMiddleware } from './common/middlewares/logging.middleware';
+import { ErrorHandlingFilter } from './common/filters/error-handling.filter';
+import { ResponseFormatInterceptor } from './common/interceptors/response-format.interceptor';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
@@ -16,6 +19,12 @@ async function bootstrap(): Promise<void> {
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     credentials: true,
   });
+
+  app.useGlobalInterceptors(new ResponseFormatInterceptor());
+
+  app.useGlobalFilters(new ErrorHandlingFilter());
+
+  app.use(loggingMiddleware);
 
   // 生成基于zod的OpenAPI文档
   const zodDocument = ZodOpenApiUtil.generateDocument({
@@ -43,8 +52,10 @@ async function bootstrap(): Promise<void> {
 
   // 合并zod生成的文档和NestJS文档
   const mergedDocument = {
+    ...zodDocument,
     ...nestDocument,
     components: {
+      ...zodDocument,
       ...nestDocument.components,
       schemas: {
         ...nestDocument.components?.schemas,
@@ -64,14 +75,6 @@ async function bootstrap(): Promise<void> {
       tryItOutEnabled: true,
     },
     customSiteTitle: '诗社API文档',
-    customfavIcon: '/favicon.ico',
-    customJs: [
-      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.min.js',
-      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.min.js',
-    ],
-    customCssUrl: [
-      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
-    ],
   });
 
   const port = +process.env.PORT || 3000;
@@ -79,7 +82,9 @@ async function bootstrap(): Promise<void> {
 
   Logger.log(`🚀 API服务运行在: http://localhost:${port}`);
   Logger.log(`📚 API文档地址: http://localhost:${port}/api/docs`);
-  Logger.log(`📊 已注册的Zod Schema: ${ZodOpenApiUtil.getSchemaNames().join(', ')}`);
+  Logger.log(
+    `📊 已注册的Zod Schema: ${ZodOpenApiUtil.getSchemaNames().join(', ')}`
+  );
 }
 
-bootstrap();
+void bootstrap();

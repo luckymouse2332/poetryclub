@@ -1,11 +1,6 @@
-import { Controller, Post, Req, UseGuards, Get } from '@nestjs/common';
+import { Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Request } from 'express';
 import { AuthService } from './auth.service';
-import { LocalAuthGuard } from './local.guard';
-import { UserDto } from '../user/dto/user.dto';
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { UserRole } from '@prisma/client';
 import {
   LoginDto,
   LoginDtoSchema,
@@ -45,12 +40,15 @@ export class AuthController {
     },
   })
   @Post('/login')
-  @UseGuards(LocalAuthGuard)
-  login(
-    @Req() req: Request,
-    @ZodBody(LoginDtoSchema, { schemaName: 'LoginDto' }) _loginDto: LoginDto
-  ) {
-    return this.authService.signIn(req.user as UserDto);
+  async login(
+    @ZodBody(LoginDtoSchema, { schemaName: 'LoginDto' }) loginDto: LoginDto
+  ): Promise<string> {
+    const result = await this.authService.validateUser(
+      loginDto.username,
+      loginDto.password
+    );
+
+    return this.authService.signIn(result);
   }
 
   @ApiRoute({

@@ -20,8 +20,6 @@ export class HealthController {
   @Get()
   check() {
     return {
-      status: 'ok' as const,
-      timestamp: new Date().toISOString(),
       service: 'poetry-club-api',
       version: '1.0.0',
       uptime: process.uptime(),

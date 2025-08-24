@@ -51,7 +51,6 @@
     "@nestjs/schematics": "^10.0.3",
     "@nestjs/testing": "^10.3.0",
     "@poetryclub/shared": "workspace:*",
-    "@poetryclub/types": "workspace:*",
     "@types/bcrypt": "^5.0.2",
     "@types/compression": "^1.7.5",
     "@types/cors": "^2.8.17",
