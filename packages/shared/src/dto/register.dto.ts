@@ -2,7 +2,7 @@ import { z } from '../z';
 
 export const RegisterDtoSchema = z
   .object({
-    email: z.string().email('请输入有效的邮箱地址'),
+    email: z.email('请输入有效的邮箱地址'),
     username: z.string().min(2, '用户名至少2个字符').max(50, '用户名不能超过50个字符').optional(),
     password: z.string().min(6, '密码至少6个字符').max(50, '密码不能超过50个字符'),
   })

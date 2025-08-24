@@ -33,6 +33,8 @@ import {
   ZodParam,
 } from 'src/common/decorators/zod-body.decorator';
 import { Request } from 'express';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { UserRole } from '@prisma/client';
 
 @ApiTags('诗作')
 @Controller('poems')
@@ -114,7 +116,7 @@ export class PoemsController {
     },
   })
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @Roles([UserRole.User, UserRole.Admin])
   @ApiBearerAuth()
   create(
     @Req() req: Request,
@@ -167,7 +169,7 @@ export class PoemsController {
     },
   })
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @Roles([UserRole.User, UserRole.Admin])
   @ApiBearerAuth()
   update(
     @Req() req: Request,
@@ -209,7 +211,7 @@ export class PoemsController {
     },
   })
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @Roles([UserRole.User, UserRole.Admin])
   @ApiBearerAuth()
   remove(
     @Req() req: Request,
@@ -261,18 +263,13 @@ export class PoemsController {
     },
   })
   @Post(':id/review')
-  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
+  @Roles([UserRole.Admin])
   review(
-    @Req() req: Request,
     @ZodParam(IdParamDtoSchema, 'id', { schemaName: 'IdParamDto' }) id: string,
     @ZodBody(ReviewPoemDtoSchema, { schemaName: 'ReviewPoemDto' })
     reviewDto: ReviewPoemDto
   ) {
-    // 检查用户是否为管理员
-    if (req.user.role !== 'Admin') {
-      throw new ForbiddenException('权限不足，只有管理员可以审核诗作');
-    }
     return this.poemsService.review(id, reviewDto);
   }
 
@@ -298,7 +295,7 @@ export class PoemsController {
     },
   })
   @Get('user/:userId')
-  @UseGuards(JwtAuthGuard)
+  @Roles([UserRole.User, UserRole.Admin])
   @ApiBearerAuth()
   findUserPoems(
     @Req() req: Request,

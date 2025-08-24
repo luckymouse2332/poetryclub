@@ -3,20 +3,26 @@ import { z } from '../z';
 // 评论DTO
 export const CommentSchema = z.object({
   id: z.string(),
-  author: z.string(),
+  user: z.string(),
   avatar: z.string(),
   date: z.string(),
   content: z.string(),
 });
 
 // 诗歌评论映射类型
-export const PoemCommentsMapSchema = z.record(z.string(), z.array(CommentSchema));
+export const PoemCommentsMapSchema = z.record(
+  z.string(),
+  z.array(CommentSchema)
+);
 
 // 创建评论DTO
 export const CreateCommentDtoSchema = z
   .object({
     poemId: z.string().min(1, '诗歌ID不能为空'),
-    content: z.string().min(1, '评论内容不能为空').max(1000, '评论内容不能超过1000个字符'),
+    content: z
+      .string()
+      .min(1, '评论内容不能为空')
+      .max(1000, '评论内容不能超过1000个字符'),
     parentId: z.string().optional(), // 用于回复评论
   })
   .openapi({
@@ -31,7 +37,10 @@ export const CreateCommentDtoSchema = z
 // 更新评论DTO
 export const UpdateCommentDtoSchema = z
   .object({
-    content: z.string().min(1, '评论内容不能为空').max(1000, '评论内容不能超过1000个字符'),
+    content: z
+      .string()
+      .min(1, '评论内容不能为空')
+      .max(1000, '评论内容不能超过1000个字符'),
   })
   .openapi({
     title: 'UpdateCommentDto',
@@ -47,7 +56,7 @@ export const CommentQueryDtoSchema = z
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(20),
     poemId: z.string().optional(),
-    authorId: z.string().optional(),
+    userId: z.string().optional(),
     sortBy: z.enum(['createdAt', 'updatedAt']).default('createdAt'),
     sortOrder: z.enum(['asc', 'desc']).default('desc'),
   })
@@ -68,15 +77,16 @@ const BaseCommentResponseSchema = z.object({
   id: z.string(),
   content: z.string(),
   poemId: z.string(),
-  authorId: z.string(),
-  author: z.object({
+  userId: z.string(),
+  user: z.object({
     id: z.string(),
     username: z.string(),
-    avatar: z.string().nullable(),
+    avatarUrl: z.string().nullable(),
   }),
   parentId: z.string().nullable(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  replyCount: z.number().optional(), // 回复数量
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
 // 评论响应DTO（支持嵌套回复）
@@ -84,51 +94,40 @@ export const CommentResponseSchema: z.ZodType<{
   id: string;
   content: string;
   poemId: string;
-  authorId: string;
-  author: {
+  userId: string;
+  user: {
     id: string;
     username: string;
-    avatar: string | null;
+    avatarUrl: string | null;
   };
   parentId: string | null;
-  replies?: Array<{
-    id: string;
-    content: string;
-    poemId: string;
-    authorId: string;
-    author: {
-      id: string;
-      username: string;
-      avatar: string | null;
-    };
-    parentId: string | null;
-    replies?: any[];
-    createdAt: string;
-    updatedAt: string;
-  }>;
-  createdAt: string;
-  updatedAt: string;
+  replyCount?: number;
+  replies?: Array<CommentResponse>;
+  createdAt: Date;
+  updatedAt: Date;
 }> = BaseCommentResponseSchema.extend({
-  replies: z.array(z.lazy(() => CommentResponseSchema)).optional(),
-})
-  .openapi({
-    title: 'CommentResponse',
-    description: '评论响应数据',
-    example: {
-      id: '1',
-      content: '这首诗写得很有意境！',
-      poemId: '1',
-      authorId: 'user1',
-      author: {
-        id: 'user1',
-        username: '用户A',
-        avatar: null,
-      },
-      parentId: null,
-      createdAt: '2024-04-24T00:00:00.000Z',
-      updatedAt: '2024-04-24T00:00:00.000Z',
+  replies: z
+    .array(z.lazy(() => CommentResponseSchema))
+    .default([])
+    .optional(),
+}).openapi({
+  title: 'CommentResponse',
+  description: '评论响应数据',
+  example: {
+    id: '1',
+    content: '这首诗写得很有意境！',
+    poemId: '1',
+    userId: 'user1',
+    user: {
+      id: 'user1',
+      username: '用户A',
+      avatarUrl: null,
     },
-  });
+    parentId: null,
+    createdAt: '2024-04-24T00:00:00.000Z',
+    updatedAt: '2024-04-24T00:00:00.000Z',
+  },
+});
 
 // 评论列表响应DTO
 export const CommentListResponseSchema = z

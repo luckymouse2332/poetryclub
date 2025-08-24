@@ -1,5 +1,12 @@
 import { applyDecorators, SetMetadata } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags, ApiBody } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiBody,
+  ApiQuery,
+  ApiParam,
+} from '@nestjs/swagger';
 import { ZodType } from 'zod';
 import { ZodOpenApiUtil } from '../utils/zod-openapi.util';
 
@@ -39,7 +46,12 @@ export function ApiRoute(options: ApiRouteOptions) {
 
   // 添加基本的API文档装饰器
   if (options.summary) {
-    decorators.push(ApiOperation({ summary: options.summary, description: options.description }));
+    decorators.push(
+      ApiOperation({
+        summary: options.summary,
+        description: options.description,
+      })
+    );
   }
 
   if (options.tags) {
@@ -74,7 +86,7 @@ export function ApiRoute(options: ApiRouteOptions) {
       options.requestBody.schema,
       options.requestBody.description || 'Request body schema'
     );
-    
+
     // 添加ApiBody装饰器以在Swagger中显示请求体
     decorators.push(
       ApiBody({
@@ -92,6 +104,16 @@ export function ApiRoute(options: ApiRouteOptions) {
       options.queryParams.schemaName,
       options.queryParams.schema,
       options.queryParams.description || 'Query parameters schema'
+    );
+
+    // 添加ApiQuery装饰器以在Swagger中显示查询参数
+    decorators.push(
+      ApiQuery({
+        description: options.queryParams.description || 'Query parameters',
+        schema: {
+          $ref: `#/components/schemas/${options.queryParams.schemaName}`,
+        },
+      })
     );
   }
 

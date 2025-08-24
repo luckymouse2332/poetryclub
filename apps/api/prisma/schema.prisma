@@ -59,11 +59,15 @@ model Comment {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  poem   Poem   @relation(fields: [poemId], references: [id], onDelete: Cascade)
-  poemId String @map("poem_id")
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String @map("user_id")
+  poem     Poem      @relation(fields: [poemId], references: [id], onDelete: Cascade)
+  poemId   String    @map("poem_id")
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String    @map("user_id")
+  parentId String?   @map("parent_id") // 支持回复功能
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
 
+  @@index([parentId]) // 为 parentId 创建索引以优化查询
   @@map("comments")
 }
 

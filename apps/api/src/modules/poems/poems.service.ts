@@ -9,6 +9,8 @@ import {
   UpdatePoemDto,
   PoemQueryDto,
   ReviewPoemDto,
+  PoemListResponse,
+  PoemResponse,
 } from '@poetryclub/shared';
 import { PoemStatus, Prisma } from '@prisma/client';
 
@@ -16,7 +18,10 @@ import { PoemStatus, Prisma } from '@prisma/client';
 export class PoemsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createPoemDto: CreatePoemDto, authorId: string) {
+  async create(
+    createPoemDto: CreatePoemDto,
+    authorId: string
+  ): Promise<PoemResponse> {
     const { title, content, isDraft = false } = createPoemDto;
 
     return this.prisma.poem.create({
@@ -40,7 +45,7 @@ export class PoemsService {
     });
   }
 
-  async findAll(query?: PoemQueryDto) {
+  async findAll(query?: PoemQueryDto): Promise<PoemListResponse> {
     const {
       page = 1,
       limit = 20,

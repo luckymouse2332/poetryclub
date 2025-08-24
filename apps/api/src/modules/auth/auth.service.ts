@@ -46,7 +46,7 @@ export class AuthService {
     }
 
     const passwordHashed = await bcrypt.hash(password, HASH_ROUNDS);
-    const { passwordHash, ...results } = await this.userService.add({
+    const { passwordHash, ...results } = await this.userService.create({
       username: username ?? email,
       passwordHash: passwordHashed,
       email,

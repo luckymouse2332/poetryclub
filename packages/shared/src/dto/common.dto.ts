@@ -7,7 +7,7 @@ export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
       success: z.boolean(),
       message: z.string(),
       data: dataSchema,
-      timestamp: z.string().datetime().optional(),
+      timestamp: z.date().optional(),
     })
     .openapi({
       title: 'ApiResponse',
@@ -21,7 +21,7 @@ export const ErrorResponseSchema = z
     message: z.string(),
     error: z.string().optional(),
     statusCode: z.number().optional(),
-    timestamp: z.string().datetime().optional(),
+    timestamp: z.date().optional(),
     path: z.string().optional(),
   })
   .openapi({
