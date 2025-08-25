@@ -14,7 +14,7 @@ function makeErrorId() {
 }
 
 @Catch()
-export class ErrorHandlingFilter implements ExceptionFilter {
+export class GlobalErrorHandler implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const res = ctx.getResponse<Response>();

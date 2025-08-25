@@ -1,6 +1,7 @@
 # Dependencies
 node_modules/
 .pnpm-store/
+pnpm-lock.yaml
 
 # Build outputs
 dist/
@@ -80,6 +81,7 @@ temp/
 *.swp
 *.swo
 *~
+.VSCodeCounter
 
 # OS generated files
 .DS_Store

@@ -15,8 +15,7 @@ import {
 } from '@poetryclub/shared';
 import { ApiRoute } from 'src/common/decorators/api-route.decorator';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { UserRole } from '@prisma/client';
+import { RequireAuth } from 'src/common/decorators/require-auth.decorator';
 
 @ApiTags('评论')
 @Controller('comment')
@@ -40,7 +39,7 @@ export class CommentController {
   })
   @Post()
   @ApiBearerAuth()
-  @Roles([UserRole.User, UserRole.Admin])
+  @RequireAuth()
   create(
     @Req() req: Request,
     @ZodBody(CreateCommentDtoSchema) body: CreateCommentDto
@@ -83,7 +82,7 @@ export class CommentController {
       403: { description: '没有权限删除该评论' },
     },
   })
-  @Roles([UserRole.User, UserRole.Admin])
+  @RequireAuth()
   @ApiBearerAuth()
   @Delete(':commentId')
   delete(

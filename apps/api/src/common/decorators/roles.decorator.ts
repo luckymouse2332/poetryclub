@@ -1,6 +1,6 @@
 import { Reflector } from '@nestjs/core';
 
 /**
- * Defines roles required by API endpoint
+ * 定义能访问接口的用户
  */
 export const Roles = Reflector.createDecorator<string[]>();

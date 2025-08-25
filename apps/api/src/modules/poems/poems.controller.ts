@@ -4,12 +4,10 @@ import {
   Post,
   Patch,
   Delete,
-  UseGuards,
   ForbiddenException,
   Req,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/jwt.guard';
 import { PoemsService } from './poems.service';
 import {
   CreatePoemDtoSchema,
@@ -33,8 +31,8 @@ import {
   ZodParam,
 } from 'src/common/decorators/zod-body.decorator';
 import { Request } from 'express';
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { UserRole } from '@prisma/client';
+import { RequireAuth } from 'src/common/decorators/require-auth.decorator';
+import { RequireAdmin } from 'src/common/decorators/require-admin.decorator';
 
 @ApiTags('诗作')
 @Controller('poems')
@@ -116,7 +114,7 @@ export class PoemsController {
     },
   })
   @Post()
-  @Roles([UserRole.User, UserRole.Admin])
+  @RequireAuth()
   @ApiBearerAuth()
   create(
     @Req() req: Request,
@@ -169,7 +167,7 @@ export class PoemsController {
     },
   })
   @Patch(':id')
-  @Roles([UserRole.User, UserRole.Admin])
+  @RequireAuth()
   @ApiBearerAuth()
   update(
     @Req() req: Request,
@@ -211,7 +209,7 @@ export class PoemsController {
     },
   })
   @Delete(':id')
-  @Roles([UserRole.User, UserRole.Admin])
+  @RequireAuth()
   @ApiBearerAuth()
   remove(
     @Req() req: Request,
@@ -264,7 +262,7 @@ export class PoemsController {
   })
   @Post(':id/review')
   @ApiBearerAuth()
-  @Roles([UserRole.Admin])
+  @RequireAdmin()
   review(
     @ZodParam(IdParamDtoSchema, 'id', { schemaName: 'IdParamDto' }) id: string,
     @ZodBody(ReviewPoemDtoSchema, { schemaName: 'ReviewPoemDto' })
@@ -295,7 +293,7 @@ export class PoemsController {
     },
   })
   @Get('user/:userId')
-  @Roles([UserRole.User, UserRole.Admin])
+  @RequireAuth()
   @ApiBearerAuth()
   findUserPoems(
     @Req() req: Request,

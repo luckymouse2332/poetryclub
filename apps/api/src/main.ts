@@ -6,8 +6,8 @@ import helmet from 'helmet';
 import compression from 'compression';
 import { ZodOpenApiUtil } from './common/utils/zod-openapi.util';
 import { loggingMiddleware } from './common/middlewares/logging.middleware';
-import { ErrorHandlingFilter } from './common/filters/error-handling.filter';
-import { ResponseFormatInterceptor } from './common/interceptors/response-format.interceptor';
+import { GlobalErrorHandler } from './common/filters/global-error-handler.filter';
+import { GlobalResponseFormatter } from './common/interceptors/global-response-formatter.interceptor';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
@@ -20,9 +20,9 @@ async function bootstrap(): Promise<void> {
     credentials: true,
   });
 
-  app.useGlobalInterceptors(new ResponseFormatInterceptor());
+  app.useGlobalInterceptors(new GlobalResponseFormatter());
 
-  app.useGlobalFilters(new ErrorHandlingFilter());
+  app.useGlobalFilters(new GlobalErrorHandler());
 
   app.use(loggingMiddleware);
 

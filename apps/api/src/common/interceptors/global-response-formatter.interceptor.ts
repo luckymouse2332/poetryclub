@@ -43,29 +43,13 @@ function normalizeResponse(data: any): ApiResponse<any> {
 }
 
 @Injectable()
-export class ResponseFormatInterceptor implements NestInterceptor {
+export class GlobalResponseFormatter implements NestInterceptor {
   intercept(
-    context: ExecutionContext,
+    _context: ExecutionContext,
     next: CallHandler
   ): Observable<ApiResponse<any>> {
     return next.handle().pipe(
-      map((data) => {
-        if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
-          return {
-            ...data,
-            success: true,
-            message: '请求成功',
-            timestamp: new Date(),
-          } as ApiResponse<any>;
-        } else {
-          return {
-            data,
-            success: true,
-            message: '请求成功',
-            timestamp: new Date().toISOString(),
-          } as ApiResponse<any>;
-        }
-      }),
+      map((data) => normalizeResponse(data)),
       catchError((err) => {
         // 捕获到异常，重新抛出以便后续的异常过滤器处理
         return throwError(() => err);

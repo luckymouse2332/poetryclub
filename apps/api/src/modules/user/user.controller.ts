@@ -30,8 +30,8 @@ import {
   ZodParam,
 } from 'src/common/decorators/zod-body.decorator';
 import { ApiRoute } from 'src/common/decorators/api-route.decorator';
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { UserRole } from '@prisma/client';
+import { RequireAuth } from 'src/common/decorators/require-auth.decorator';
+import { RequireAdmin } from 'src/common/decorators/require-admin.decorator';
 
 @ApiTags('用户管理')
 @Controller('user')
@@ -65,7 +65,7 @@ export class UserController {
     },
   })
   @Get()
-  @Roles([UserRole.Admin, UserRole.User])
+  @RequireAuth()
   @ApiBearerAuth()
   findAll(
     @Req() req: Request,
@@ -113,7 +113,7 @@ export class UserController {
     },
   })
   @Get(':id')
-  @Roles([UserRole.Admin, UserRole.User])
+  @RequireAuth()
   @ApiBearerAuth()
   findOne(
     @Req() req: Request,
@@ -168,10 +168,9 @@ export class UserController {
     },
   })
   @Patch(':id')
-  @Roles([UserRole.Admin])
+  @RequireAdmin()
   @ApiBearerAuth()
   adminUpdate(
-    @Req() req: Request,
     @ZodParam(IdParamDtoSchema, 'id', { schemaName: 'IdParamDto' }) id: string,
     @ZodBody(AdminUpdateUserDtoSchema, { schemaName: 'AdminUpdateUserDto' })
     updateDto: UserPaginationQueryDto
@@ -209,7 +208,7 @@ export class UserController {
     },
   })
   @Delete(':id')
-  @Roles([UserRole.Admin])
+  @RequireAdmin()
   @ApiBearerAuth()
   remove(
     @Req() req: Request,
@@ -235,7 +234,7 @@ export class UserController {
     },
   })
   @Get('profile/me')
-  @Roles([UserRole.Admin, UserRole.User])
+  @RequireAuth()
   @ApiBearerAuth()
   getProfile(@Req() req: Request) {
     return this.userService.findOne({ id: req.user.id });
@@ -273,7 +272,7 @@ export class UserController {
     },
   })
   @Patch('profile/me')
-  @Roles([UserRole.Admin, UserRole.User])
+  @RequireAuth()
   @ApiBearerAuth()
   updateProfile(
     @Req() req: Request,
@@ -313,7 +312,7 @@ export class UserController {
     },
   })
   @Post('profile/change-password')
-  @Roles([UserRole.Admin, UserRole.User])
+  @RequireAuth()
   @ApiBearerAuth()
   changePassword(
     @Req() req: Request,
