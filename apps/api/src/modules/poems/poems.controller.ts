@@ -23,6 +23,7 @@ import {
   UpdatePoemDto,
   ReviewPoemDto,
   CreatePoemDto,
+  LikeResponseSchema,
 } from '@poetryclub/shared';
 import { ApiRoute } from 'src/common/decorators/api-route.decorator';
 import {
@@ -306,5 +307,99 @@ export class PoemsController {
       throw new ForbiddenException('权限不足，只能查看自己的诗作');
     }
     return this.poemsService.findUserPoems(userId, query);
+  }
+
+  @ApiRoute({
+    summary: '点赞',
+    description: '点赞指定的诗作',
+    pathParams: {
+      schema: IdParamDtoSchema,
+      schemaName: 'IdParamDto',
+      description: '诗作ID',
+    },
+    responses: {
+      200: {
+        description: '点赞成功',
+        schema: LikeResponseSchema,
+        schemaName: 'LikeResponse',
+      },
+      400: {
+        description: '请求参数错误',
+        schema: ErrorResponseSchema,
+        schemaName: 'ErrorResponse',
+      },
+      401: {
+        description: '未授权访问',
+        schema: ErrorResponseSchema,
+        schemaName: 'ErrorResponse',
+      },
+      404: {
+        description: '诗作不存在',
+        schema: ErrorResponseSchema,
+        schemaName: 'ErrorResponse',
+      },
+      409: {
+        description: '已点赞',
+        schema: ErrorResponseSchema,
+        schemaName: 'ErrorResponse',
+      },
+    },
+  })
+  @Post(':id/like')
+  @RequireAuth()
+  @ApiBearerAuth()
+  like(
+    @Req() req: Request,
+    @ZodParam(IdParamDtoSchema, 'id', { schemaName: 'IdParamDto' }) id: string
+  ) {
+    const userId = req.user.id;
+    return this.poemsService.like(id, userId);
+  }
+
+  @ApiRoute({
+    summary: '取消点赞',
+    description: '取消对指定诗作的点赞',
+    pathParams: {
+      schema: IdParamDtoSchema,
+      schemaName: 'IdParamDto',
+      description: '诗作ID',
+    },
+    responses: {
+      200: {
+        description: '取消点赞成功',
+        schema: LikeResponseSchema,
+        schemaName: 'LikeResponse',
+      },
+      400: {
+        description: '请求参数错误',
+        schema: ErrorResponseSchema,
+        schemaName: 'ErrorResponse',
+      },
+      401: {
+        description: '未授权访问',
+        schema: ErrorResponseSchema,
+        schemaName: 'ErrorResponse',
+      },
+      404: {
+        description: '诗作不存在',
+        schema: ErrorResponseSchema,
+        schemaName: 'ErrorResponse',
+      },
+      409: {
+        description: '未点赞',
+        schema: ErrorResponseSchema,
+        schemaName: 'ErrorResponse',
+      },
+    },
+  })
+  @Delete(':id/like')
+  @RequireAuth()
+  @ApiBearerAuth()
+  unlike(
+    @Req() req: Request,
+    @ZodParam(IdParamDtoSchema, 'id', { schemaName: 'IdParamDto' }) id: string
+  ) {
+    const userId = req.user.id;
+    return this.poemsService.unlike(id, userId);
   }
 }

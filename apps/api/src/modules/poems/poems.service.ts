@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import {
@@ -119,6 +120,53 @@ export class PoemsService {
     };
   }
 
+  /**
+   * 轻量级诗歌存在性检查方法
+   * 仅检查诗歌是否存在，不加载关联数据
+   * 适用于权限验证等场景
+   */
+  async checkPoemExists(id: string): Promise<boolean> {
+    const count = await this.prisma.poem.count({
+      where: { id },
+    });
+    return count > 0;
+  }
+
+  /**
+   * 获取诗歌基本信息（不含评论和点赞详情）
+   * 适用于需要诗歌基本信息但不需要完整关联数据的场景
+   */
+  async findOneBasic(id: string) {
+    const poem = await this.prisma.poem.findUnique({
+      where: { id },
+      include: {
+        authorUser: {
+          select: {
+            id: true,
+            username: true,
+            bio: true,
+          },
+        },
+        _count: {
+          select: {
+            comments: true,
+            likes: true,
+          },
+        },
+      },
+    });
+
+    if (!poem) {
+      throw new NotFoundException('诗作不存在');
+    }
+
+    return poem;
+  }
+
+  /**
+   * 获取诗歌完整信息（包含所有关联数据）
+   * 适用于诗歌详情页等需要完整信息的场景
+   */
   async findOne(id: string) {
     const poem = await this.prisma.poem.findUnique({
       where: { id },
@@ -163,7 +211,8 @@ export class PoemsService {
   }
 
   async update(id: string, updatePoemDto: UpdatePoemDto, userId: string) {
-    const poem = await this.findOne(id);
+    // 使用基本信息查询进行权限检查，避免加载不必要的关联数据
+    const poem = await this.findOneBasic(id);
 
     // 检查权限：只有作者可以更新
     if (poem.authorId !== userId) {
@@ -190,7 +239,8 @@ export class PoemsService {
   }
 
   async remove(id: string, userId: string) {
-    const poem = await this.findOne(id);
+    // 使用基本信息查询进行权限检查，避免加载不必要的关联数据
+    const poem = await this.findOneBasic(id);
 
     // 检查权限：只有作者可以删除
     if (poem.authorId !== userId) {
@@ -203,7 +253,11 @@ export class PoemsService {
   }
 
   async review(id: string, reviewDto: ReviewPoemDto) {
-    const poem = await this.findOne(id);
+    const result = await this.checkPoemExists(id);
+
+    if (!result) {
+      throw new NotFoundException('诗作不存在');
+    }
 
     const { status, rejectionReason } = reviewDto;
 
@@ -238,7 +292,7 @@ export class PoemsService {
 
     const skip = (page - 1) * limit;
 
-    const where: any = {
+    const where: Prisma.PoemWhereInput = {
       authorId: userId,
     };
 
@@ -287,5 +341,88 @@ export class PoemsService {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+
+  /**
+   * 点赞操作
+   *
+   * 该操作会在数据库中创建一个点赞记录
+   *
+   * 点赞记录包含用户ID和诗作ID
+   *
+   * 点赞记录的创建时间会自动设置为当前时间
+   *
+   * @param id 诗作ID
+   * @param userId 用户ID
+   * @returns 点赞信息
+   *
+   * @throws ConflictException 已点赞
+   * @throws NotFoundException 诗作不存在
+   */
+  async like(id: string, userId: string) {
+    const result = await this.checkPoemExists(id);
+
+    if (!result) {
+      throw new NotFoundException('诗作不存在');
+    }
+
+    const like = await this.prisma.like.findUnique({
+      where: {
+        poemId_userId: {
+          poemId: id,
+          userId,
+        },
+      },
+    });
+
+    if (like) {
+      throw new ConflictException('已点赞');
+    }
+
+    return await this.prisma.like.create({
+      data: {
+        userId,
+        poemId: id,
+      },
+    });
+  }
+
+  /**
+   * 取消点赞
+   *
+   * 该操作直接从数据库中删除点赞对象
+   *
+   * @param id 诗作ID
+   * @param userId 用户ID
+   * @returns 取消点赞信息
+   *
+   * @throws ConflictException 未点赞
+   * @throws NotFoundException 诗作不存在
+   */
+  async unlike(id: string, userId: string) {
+    const result = await this.checkPoemExists(id);
+
+    if (!result) {
+      throw new NotFoundException('诗作不存在');
+    }
+
+    const like = await this.prisma.like.findUnique({
+      where: {
+        poemId_userId: {
+          poemId: id,
+          userId,
+        },
+      },
+    });
+
+    if (!like) {
+      throw new ConflictException('未点赞');
+    }
+
+    return await this.prisma.like.delete({
+      where: {
+        id: like.id,
+      },
+    });
   }
 }

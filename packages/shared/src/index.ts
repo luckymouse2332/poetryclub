@@ -7,6 +7,7 @@ export * from './dto/user.dto';
 export * from './dto/common.dto';
 export * from './dto/comment.dto';
 export * from './dto/auth.dto';
+export * from './dto/like.dto';
 
 // 导出工具函数
 export * from './utils/datetime.util';
