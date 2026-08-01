@@ -1,0 +1,103 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  "default_agent": "lead",
+  "enabled_providers": ["openai", "deepseek"],
+  "subagent_depth": 1,
+  "share": "disabled",
+
+  "instructions": [
+    "AGENTS.md",
+    "docs/product.md",
+    "docs/architecture.md"
+  ],
+
+  "agent": {
+    "lead": {
+      "description": "项目负责人，负责架构、拆分、复杂实现、审查和最终整合",
+      "mode": "primary",
+      "model": "openai/gpt-5.6-sol",
+      "prompt": "{file:./.opencode/prompts/lead.md}",
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "*": "ask",
+          "git status*": "allow",
+          "git diff*": "allow",
+          "git log*": "allow",
+          "pnpm lint*": "allow",
+          "pnpm test*": "allow",
+          "pnpm build*": "allow",
+          "pnpm exec tsc*": "allow",
+          "git push*": "deny",
+          "rm -rf *": "deny"
+        }
+      }
+    },
+
+    "deepseek-builder": {
+      "description": "按照现有任务说明完成范围明确的实现和测试，不做架构决策",
+      "mode": "subagent",
+      "model": "deepseek/deepseek-v4-flash",
+      "prompt": "{file:./.opencode/prompts/deepseek-builder.md}",
+      "steps": 35,
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "*": "ask",
+          "git status*": "allow",
+          "git diff*": "allow",
+          "pnpm lint*": "allow",
+          "pnpm test*": "allow",
+          "pnpm build*": "allow",
+          "pnpm exec tsc*": "allow",
+          "git commit*": "deny",
+          "git push*": "deny",
+          "rm -rf *": "deny"
+        }
+      }
+    },
+
+    "deepseek-review": {
+      "description": "只读审查当前改动，检查安全、正确性、性能和测试覆盖",
+      "mode": "subagent",
+      "model": "deepseek/deepseek-v4-pro",
+      "prompt": "{file:./.opencode/prompts/deepseek-review.md}",
+      "steps": 20,
+      "permission": {
+        "edit": "deny",
+        "bash": {
+          "*": "deny",
+          "git status*": "allow",
+          "git diff*": "allow",
+          "git log*": "allow",
+          "pnpm lint*": "allow",
+          "pnpm test*": "allow",
+          "pnpm build*": "allow",
+          "pnpm exec tsc*": "allow"
+        }
+      }
+    },
+
+    "deepseek-frontend": {
+      "description": "根据既定交互规范实现和测试 React 前端，不自行修改产品设计",
+      "mode": "subagent",
+      "model": "deepseek/deepseek-v4-flash",
+      "prompt": "{file:./.opencode/prompts/deepseek-frontend.md}",
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "*": "ask",
+          "pnpm lint*": "allow",
+          "pnpm test*": "allow",
+          "pnpm build*": "allow",
+          "pnpm exec tsc*": "allow",
+          "git diff*": "allow",
+          "git status*": "allow",
+          "git commit*": "deny",
+          "git push*": "deny"
+        }
+      }
+    }
+  }
+}
