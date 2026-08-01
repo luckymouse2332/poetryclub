@@ -6,12 +6,21 @@ import { type FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/features/auth/auth-client";
 import { signInSchema, signUpSchema } from "@/features/auth/validation";
+import { getSafeRedirectPath } from "@/lib/safe-redirect";
 
 type AuthMode = "sign-in" | "sign-up";
 
-export function AuthForm() {
+type AuthFormProps = Readonly<{
+  initialMode?: AuthMode;
+  nextPath?: string;
+}>;
+
+export function AuthForm({
+  initialMode = "sign-in",
+  nextPath = "/",
+}: AuthFormProps) {
   const router = useRouter();
-  const [mode, setMode] = useState<AuthMode>("sign-in");
+  const [mode, setMode] = useState<AuthMode>(initialMode);
   const [error, setError] = useState<string>();
   const [notice, setNotice] = useState<string>();
   const [pending, setPending] = useState(false);
@@ -59,7 +68,7 @@ export function AuthForm() {
         return;
       }
 
-      router.replace("/");
+      router.replace(getSafeRedirectPath(nextPath));
       router.refresh();
     } catch {
       setError("暂时无法连接服务器，请稍后重试。");

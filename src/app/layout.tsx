@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+
 import { SiteHeader } from "@/components/site-header";
+import { AuthNavigation } from "@/features/auth/components/auth-navigation";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className="h-full antialiased">
       <body className="flex min-h-full flex-col">
-        <SiteHeader />
+        <SiteHeader navigation={<AuthNavigation />} />
         <main className="flex flex-1 flex-col">{children}</main>
       </body>
     </html>

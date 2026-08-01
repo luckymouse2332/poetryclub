@@ -1,6 +1,7 @@
 import "server-only";
 
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth/minimal";
 
 import { db } from "@/server/db";
@@ -24,9 +25,13 @@ export const auth = betterAuth({
     minPasswordLength: 8,
     maxPasswordLength: 128,
   },
+  session: {
+    deferSessionRefresh: true,
+  },
   trustedOrigins: [authOrigin],
   advanced: {
     cookiePrefix: "poetryclub",
     useSecureCookies: authOrigin.startsWith("https://"),
   },
+  plugins: [nextCookies()],
 });
