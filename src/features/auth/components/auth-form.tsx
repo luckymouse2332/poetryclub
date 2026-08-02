@@ -4,6 +4,9 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
+import { Surface } from "@/components/ui/surface";
 import { authClient } from "@/features/auth/auth-client";
 import { signInSchema, signUpSchema } from "@/features/auth/validation";
 import { getSafeRedirectPath } from "@/lib/safe-redirect";
@@ -84,85 +87,113 @@ export function AuthForm({
   }
 
   return (
-    <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-sm">
-      <div className="grid grid-cols-2 rounded-lg bg-muted p-1" role="tablist">
-        <button
+    <Surface className="w-full" aria-label="认证表单">
+      <div
+        className="grid grid-cols-2 gap-1 rounded-md bg-surface-muted p-1"
+        role="tablist"
+        aria-label="选择登录或注册"
+      >
+        <Button
           type="button"
+          variant="ghost"
           role="tab"
           aria-selected={mode === "sign-in"}
+          aria-controls="auth-form-panel"
           onClick={() => switchMode("sign-in")}
-          className="rounded-md px-3 py-2 text-sm font-medium aria-selected:bg-background aria-selected:shadow-sm"
+          disabled={pending}
+          className="w-full aria-selected:bg-paper aria-selected:text-foreground aria-selected:shadow-card"
         >
           登录
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="ghost"
           role="tab"
           aria-selected={mode === "sign-up"}
+          aria-controls="auth-form-panel"
           onClick={() => switchMode("sign-up")}
-          className="rounded-md px-3 py-2 text-sm font-medium aria-selected:bg-background aria-selected:shadow-sm"
+          disabled={pending}
+          className="w-full aria-selected:bg-paper aria-selected:text-foreground aria-selected:shadow-card"
         >
           注册
-        </button>
+        </Button>
       </div>
 
-      <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
+      <form
+        id="auth-form-panel"
+        className="mt-6 space-y-5"
+        onSubmit={handleSubmit}
+        noValidate
+      >
         {mode === "sign-up" ? (
-          <label className="block text-sm font-medium">
-            昵称
-            <input
-              className="mt-1.5 w-full rounded-md border border-input bg-background px-3 py-2 outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              name="name"
-              type="text"
-              autoComplete="name"
-              maxLength={50}
-              required
-            />
-          </label>
+          <FormField id="name" label="昵称" required disabled={pending}>
+            {(controlProps) => (
+              <Input
+                {...controlProps}
+                name="name"
+                type="text"
+                autoComplete="name"
+                maxLength={50}
+              />
+            )}
+          </FormField>
         ) : null}
 
-        <label className="block text-sm font-medium">
-          邮箱
-          <input
-            className="mt-1.5 w-full rounded-md border border-input bg-background px-3 py-2 outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-          />
-        </label>
+        <FormField id="email" label="邮箱" required disabled={pending}>
+          {(controlProps) => (
+            <Input
+              {...controlProps}
+              name="email"
+              type="email"
+              autoComplete="email"
+            />
+          )}
+        </FormField>
 
-        <label className="block text-sm font-medium">
-          密码
-          <input
-            className="mt-1.5 w-full rounded-md border border-input bg-background px-3 py-2 outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            name="password"
-            type="password"
-            autoComplete={
-              mode === "sign-up" ? "new-password" : "current-password"
-            }
-            minLength={8}
-            maxLength={128}
-            required
-          />
-        </label>
+        <FormField
+          id="password"
+          label="密码"
+          description={mode === "sign-up" ? "请使用至少 8 个字符。" : undefined}
+          required
+          disabled={pending}
+        >
+          {(controlProps) => (
+            <Input
+              {...controlProps}
+              name="password"
+              type="password"
+              autoComplete={
+                mode === "sign-up" ? "new-password" : "current-password"
+              }
+              minLength={8}
+              maxLength={128}
+            />
+          )}
+        </FormField>
 
         {error ? (
-          <p className="text-sm text-destructive" role="alert" aria-live="polite">
+          <p
+            className="rounded-md border border-danger bg-danger-surface p-3 text-label text-danger"
+            role="alert"
+            aria-live="polite"
+          >
             {error}
           </p>
         ) : null}
 
         {notice ? (
-          <p className="text-sm text-muted-foreground" role="status">
+          <p
+            className="rounded-md border border-success bg-success-surface p-3 text-label text-success"
+            role="status"
+          >
             {notice}
           </p>
         ) : null}
 
-        <Button className="w-full" type="submit" disabled={pending}>
+        <Button className="w-full" type="submit" loading={pending}>
           {pending ? "处理中…" : mode === "sign-up" ? "创建账号" : "登录"}
         </Button>
       </form>
-    </div>
+    </Surface>
   );
 }

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import { PageContainer } from "@/components/layout/page-container";
+import { PageHeader } from "@/components/layout/page-header";
 import { AuthForm } from "@/features/auth/components/auth-form";
 import { getSafeRedirectPath } from "@/lib/safe-redirect";
 
@@ -20,14 +22,18 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const nextPath = getSafeRedirectPath(query.next);
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center px-4 py-16">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-semibold tracking-tight">加入回中诗社</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          使用邮箱创建账号或登录。M0 暂不提供找回密码与邮箱验证。
-        </p>
-      </div>
+    <PageContainer
+      width="narrow"
+      className="flex flex-1 flex-col justify-center py-12 md:py-16"
+    >
+      <PageHeader
+        align="center"
+        eyebrow="回到诗社"
+        title="加入回中诗社"
+        description="使用邮箱创建账号或登录，继续记录属于校园的诗意。"
+        className="mb-8"
+      />
       <AuthForm initialMode={initialMode} nextPath={nextPath} />
-    </div>
+    </PageContainer>
   );
 }
