@@ -1,10 +1,15 @@
 import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { LoaderCircle } from "lucide-react";
+import { Slot } from "radix-ui";
 
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 
+/**
+ * shadcn/ui Button，变体与尺寸按 `docs/design-system.md` 的语义 Token 定制。
+ * 保留 shadcn 的 `data-slot` / `asChild`（Radix Slot）约定，
+ * 同时保留本项目的 `loading` 语义：aria-busy + 禁止重复提交。
+ */
 const buttonVariants = cva(
   "inline-flex cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap rounded-md text-label font-medium transition-colors disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-disabled disabled:text-disabled-foreground disabled:shadow-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
@@ -33,16 +38,16 @@ const buttonVariants = cva(
   },
 );
 
-type ButtonVariantProps = VariantProps<typeof buttonVariants>;
+type ButtonVariants = VariantProps<typeof buttonVariants>;
 
 type NativeButtonProps = React.ComponentProps<"button"> &
-  ButtonVariantProps & {
+  ButtonVariants & {
     asChild?: false;
     loading?: boolean;
   };
 
 type ChildButtonProps = Omit<React.ComponentProps<"button">, "disabled"> &
-  ButtonVariantProps & {
+  ButtonVariants & {
     asChild: true;
     disabled?: never;
     loading?: never;
@@ -52,39 +57,44 @@ export type ButtonProps = NativeButtonProps | ChildButtonProps;
 
 function Button({
   className,
-  variant,
-  size,
+  variant = "primary",
+  size = "default",
   asChild = false,
   loading = false,
   disabled,
   children,
   ...props
 }: ButtonProps) {
-  const isDisabled = disabled || loading;
-
   if (asChild) {
     return (
-      <Slot
+      <Slot.Root
+        data-slot="button"
+        data-variant={variant}
+        data-size={size}
         className={cn(buttonVariants({ variant, size, className }))}
         {...props}
       >
         {children}
-      </Slot>
+      </Slot.Root>
     );
   }
 
   return (
     <button
+      data-slot="button"
+      data-variant={variant}
+      data-size={size}
       className={cn(buttonVariants({ variant, size, className }))}
-      disabled={isDisabled}
+      disabled={disabled || loading}
       aria-busy={loading || undefined}
       {...props}
     >
       {loading ? (
-        <LoaderCircle
+        <Spinner
+          role={undefined}
+          aria-label={undefined}
           aria-hidden="true"
           data-loading-icon="true"
-          className="animate-spin"
         />
       ) : null}
       {children}

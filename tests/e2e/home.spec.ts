@@ -45,58 +45,118 @@ test("site header navigation is present", async ({ page }) => {
   await expect(nav.getByRole("link")).toHaveCount(3);
 });
 
-test("site footer uses a three-column desktop layout with policy and ICP links", async ({
+test("site footer aligns brand, centered legal notice and policy links on one row", async ({
   page,
 }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
+  const measureFooterAt = async (viewport: {
+    width: number;
+    height: number;
+  }) => {
+    await page.setViewportSize(viewport);
+    // boundingBox 相对视口，而全局 scroll-behavior 为 smooth；先把滚动稳定在底部再测量。
+    await page.evaluate(async () => {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "instant" });
+      await new Promise((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(resolve)),
+      );
+    });
+
+    const footer = page.getByRole("contentinfo");
+    const brand = footer.getByText("回中诗社", { exact: true });
+    const note = footer.getByText("2021—2024级");
+    const copyright = footer.getByText(/^© \d{4} 回中诗社$/);
+    const privacyLink = footer.getByRole("link", { name: "隐私政策" });
+    const termsLink = footer.getByRole("link", { name: "使用条款" });
+    const icpLink = footer.getByRole("link", {
+      name: "京ICP备2022016960号-1（新窗口打开）",
+    });
+
+    const [brandBox, noteBox, privacyBox, termsBox, copyrightBox, icpBox] =
+      await Promise.all([
+        brand.boundingBox(),
+        note.boundingBox(),
+        privacyLink.boundingBox(),
+        termsLink.boundingBox(),
+        copyright.boundingBox(),
+        icpLink.boundingBox(),
+      ]);
+    for (const box of [
+      brandBox,
+      noteBox,
+      privacyBox,
+      termsBox,
+      copyrightBox,
+      icpBox,
+    ]) {
+      expect(box).not.toBeNull();
+    }
+
+    const pageCenter = viewport.width / 2;
+    const centerOf = (box: { x: number; width: number }) => box.x + box.width / 2;
+    const middleOf = (box: { y: number; height: number }) =>
+      box.y + box.height / 2;
+
+    // 版权与备案号始终同处一行，整体在页面水平居中，备案号在版权之后。
+    expect(copyrightBox!.x).toBeLessThan(icpBox!.x);
+    expect(Math.abs(copyrightBox!.y - icpBox!.y)).toBeLessThan(icpBox!.height);
+    const legalCenter = (copyrightBox!.x + icpBox!.x + icpBox!.width) / 2;
+    expect(Math.abs(legalCenter - pageCenter)).toBeLessThan(1);
+    // 品牌名在说明之上。
+    expect(brandBox!.y + brandBox!.height).toBeLessThanOrEqual(noteBox!.y);
+
+    if (viewport.width >= 1024) {
+      // 三栏单行：品牌靠左、合规信息居中、政策链接靠右。
+      expect(brandBox!.x + brandBox!.width).toBeLessThan(copyrightBox!.x);
+      expect(icpBox!.x + icpBox!.width).toBeLessThan(privacyBox!.x);
+      expect(brandBox!.x).toBeLessThan(pageCenter);
+      expect(privacyBox!.x).toBeGreaterThan(pageCenter);
+      // 三组内容在同一行内垂直居中对齐。
+      const brandMiddle = (brandBox!.y + noteBox!.y + noteBox!.height) / 2;
+      expect(Math.abs(middleOf(icpBox!) - brandMiddle)).toBeLessThan(2);
+      expect(Math.abs(middleOf(privacyBox!) - middleOf(icpBox!))).toBeLessThan(1);
+      expect(Math.abs(middleOf(termsBox!) - middleOf(icpBox!))).toBeLessThan(1);
+      // 左右两组相对页面中心对称；负外边距抵消链接 8px 点击内边距后文字与内容边界对齐。
+      const termsRight = termsBox!.x + termsBox!.width;
+      expect(
+        Math.abs(pageCenter - brandBox!.x - (termsRight - pageCenter)),
+      ).toBeLessThanOrEqual(8);
+    } else {
+      // 窄视口：品牌、说明、合规信息、政策链接居中纵向堆叠。
+      for (const box of [brandBox!, noteBox!]) {
+        expect(Math.abs(centerOf(box) - pageCenter)).toBeLessThan(1);
+      }
+      const linksCenter = (privacyBox!.x + termsBox!.x + termsBox!.width) / 2;
+      expect(Math.abs(linksCenter - pageCenter)).toBeLessThan(1);
+      expect(noteBox!.y + noteBox!.height).toBeLessThanOrEqual(icpBox!.y);
+      expect(icpBox!.y + icpBox!.height).toBeLessThanOrEqual(privacyBox!.y);
+    }
+  };
+
   await page.goto("/");
 
   const footer = page.getByRole("contentinfo");
-  const brand = footer.getByText("回中诗社", { exact: true });
-  const note = footer.getByText("2021—2024级 · 一个属于校园的诗意角落。");
   const privacyLink = footer.getByRole("link", { name: "隐私政策" });
   const termsLink = footer.getByRole("link", { name: "使用条款" });
   const icpLink = footer.getByRole("link", {
     name: "京ICP备2022016960号-1（新窗口打开）",
   });
 
-  await expect(note).toBeVisible();
   await expect(privacyLink).toHaveAttribute("href", "/privacy");
   await expect(termsLink).toHaveAttribute("href", "/terms");
   await expect(icpLink).toHaveAttribute("href", "https://beian.miit.gov.cn/");
   await expect(icpLink).toHaveAttribute("target", "_blank");
+  await expect(icpLink).toHaveAttribute("rel", /noopener/);
 
-  const [brandBox, noteBox, privacyBox] = await Promise.all([
-    brand.boundingBox(),
-    note.boundingBox(),
-    privacyLink.boundingBox(),
-  ]);
-  expect(brandBox).not.toBeNull();
-  expect(noteBox).not.toBeNull();
-  expect(privacyBox).not.toBeNull();
-  expect(Math.abs(noteBox!.x + noteBox!.width / 2 - 720)).toBeLessThan(1);
-  expect(brandBox!.x + brandBox!.width).toBeLessThan(noteBox!.x);
-  expect(noteBox!.x + noteBox!.width).toBeLessThan(privacyBox!.x);
+  await measureFooterAt({ width: 1440, height: 900 });
 
-  await privacyLink.focus();
+  // 焦点顺序与视觉顺序一致：备案号在中间栏，先于右侧政策链接。
+  await icpLink.focus();
+  await page.keyboard.press("Tab");
+  await expect(privacyLink).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(termsLink).toBeFocused();
-  await page.keyboard.press("Tab");
-  await expect(icpLink).toBeFocused();
 
-  await page.setViewportSize({ width: 390, height: 844 });
-  const [mobileBrandBox, mobileNoteBox, mobilePrivacyBox] = await Promise.all([
-    brand.boundingBox(),
-    note.boundingBox(),
-    privacyLink.boundingBox(),
-  ]);
-  expect(mobileBrandBox).not.toBeNull();
-  expect(mobileNoteBox).not.toBeNull();
-  expect(mobilePrivacyBox).not.toBeNull();
-  expect(mobileBrandBox!.y + mobileBrandBox!.height).toBeLessThan(mobileNoteBox!.y);
-  expect(mobileNoteBox!.y + mobileNoteBox!.height).toBeLessThan(
-    mobilePrivacyBox!.y,
-  );
+  await measureFooterAt({ width: 390, height: 844 });
 });
 
 for (const informationPage of [

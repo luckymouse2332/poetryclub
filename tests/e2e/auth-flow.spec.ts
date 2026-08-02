@@ -20,6 +20,23 @@ function collectSensitiveKeys(value: unknown, prefix = ""): string[] {
   return [];
 }
 
+/**
+ * 等待 React 接管指定节点（hydration 完成）。
+ *
+ * 登录/注册表单的提交完全依赖客户端 JS：hydration 之前点击提交按钮会触发浏览器
+ * 原生 GET 提交，请求不会到达 authClient（密码还会被带进 URL）。真实用户不可能
+ * 在页面可交互前完成填写并提交，测试因此显式等待，避免与 hydration 竞速。
+ */
+async function waitForHydration(page: Page, selector: string): Promise<void> {
+  await page.waitForFunction((target) => {
+    const element = document.querySelector(target);
+    return Boolean(
+      element &&
+        Object.keys(element).some((key) => key.startsWith("__reactFiber$")),
+    );
+  }, selector);
+}
+
 function uniqueEmail(prefix: string): string {
   const nonce = `${Date.now()}${Math.floor(Math.random() * 100_000)}`;
   return `${prefix}-${nonce}@example.com`;
@@ -100,6 +117,7 @@ test.describe.serial("authenticated session loop", () => {
   test("registers via the UI, signs in, and reaches the protected account page", async () => {
     // Register through the real UI (mode=sign-up).
     await page.goto("/login?mode=sign-up&next=/account");
+    await waitForHydration(page, "#auth-form-panel button[type=submit]");
     await page.getByLabel("昵称").fill(displayName);
     await page.getByLabel("邮箱").fill(email);
     await page.getByLabel("密码").fill(password);
