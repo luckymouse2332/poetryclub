@@ -19,7 +19,7 @@ export default function TermsPage() {
       <div className="mt-8 divide-y divide-border-subtle">
         <Section title="当前可用的功能" className="py-8">
           <p className="text-body text-subtle">
-            目前已经开放账号注册、登录和账户页面。诗作阅读、发布、评论与收藏仍在建设中，页面不会暗示这些功能当前可用。
+            目前已经开放账号注册、登录、账户页面，以及诗作的阅读、发布与撤回管理。评论与收藏仍在建设中，页面不会暗示这些功能当前可用。
           </p>
         </Section>
         <Section title="账号与安全" className="py-8">

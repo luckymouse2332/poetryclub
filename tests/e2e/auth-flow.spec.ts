@@ -51,6 +51,7 @@ test("anonymous home navigation shows only implemented public entries", async ({
   await expect(nav.getByRole("link", { name: "登录" })).toBeVisible();
   await expect(nav.getByRole("link", { name: "注册" })).toHaveCount(0);
   await expect(nav.getByRole("link", { name: "账户" })).toHaveCount(0);
+  await expect(nav.getByRole("link", { name: "我的诗作" })).toHaveCount(0);
   await expect(nav.getByRole("button", { name: "登出" })).toHaveCount(0);
 });
 
@@ -158,6 +159,7 @@ test.describe.serial("authenticated session loop", () => {
     // Navigation reflects the authenticated state.
     const nav = page.getByRole("navigation");
     await expect(nav.getByText(displayName)).toHaveCount(0);
+    await expect(nav.getByRole("link", { name: "我的诗作" })).toBeVisible();
     await expect(nav.getByRole("link", { name: "账户" })).toBeVisible();
     await expect(nav.getByRole("button", { name: "登出" })).toBeVisible();
     await expect(nav.getByRole("link", { name: "登录" })).toHaveCount(0);
@@ -208,6 +210,20 @@ test.describe.serial("authenticated session loop", () => {
     expect(accountDimensions.scrollWidth).toBeLessThanOrEqual(
       accountDimensions.clientWidth,
     );
+
+    // 首页首屏随认证态切换：不再出现登录按钮，改为写作与作品入口。
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    const homeMain = page.getByRole("main");
+    await expect(homeMain.getByText(`欢迎回来，${displayName}。`)).toBeVisible();
+    await expect(homeMain.getByRole("link", { name: "写一首" })).toHaveAttribute(
+      "href",
+      "/account/poems/new",
+    );
+    await expect(
+      homeMain.getByRole("link", { name: "我的诗作" }),
+    ).toHaveAttribute("href", "/account/poems");
+    await expect(homeMain.getByRole("link", { name: "登录" })).toHaveCount(0);
   });
 
   test("logs out via the UI; repeated sign-out API calls stay stable; stale cookies are rejected", async () => {
@@ -220,6 +236,7 @@ test.describe.serial("authenticated session loop", () => {
     await expect(nav.getByRole("link", { name: "登录" })).toBeVisible();
     await expect(nav.getByRole("link", { name: "注册" })).toHaveCount(0);
     await expect(nav.getByRole("link", { name: "账户" })).toHaveCount(0);
+    await expect(nav.getByRole("link", { name: "我的诗作" })).toHaveCount(0);
     await expect(nav.getByRole("button", { name: "登出" })).toHaveCount(0);
 
     // Double POST to the sign-out endpoint is stable and idempotent.

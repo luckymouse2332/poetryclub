@@ -10,6 +10,7 @@
 | M1 | 认证会话闭环 | 已完成 | [M1-auth-session-loop.md](./M1-auth-session-loop.md) |
 | M1.5 | 视觉基础设施正式落地 | 已完成 | [M1.5-design-foundation.md](./M1.5-design-foundation.md) |
 | M1.6 | 自定义 UI 组件迁移到 shadcn/ui | 已完成 | [M1.6-shadcn-migration.md](./M1.6-shadcn-migration.md) |
+| M2.0 | 诗作发布闭环 | 已完成 | [M2-poem-publishing.md](./M2-poem-publishing.md) |
 
 ## 约定
 
