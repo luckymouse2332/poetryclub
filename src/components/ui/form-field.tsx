@@ -1,6 +1,11 @@
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 
 export type FormFieldControlProps = {
   id: string;
@@ -21,6 +26,10 @@ export type FormFieldProps = {
   children: (props: FormFieldControlProps) => React.ReactNode;
 };
 
+/**
+ * 在 shadcn/ui Field 之上统一生成 label、description、required、error、disabled
+ * 与 `aria-describedby` 关系，避免各表单各写一套无障碍关联。
+ */
 function FormField({
   id,
   label,
@@ -37,13 +46,10 @@ function FormField({
     [descriptionId, errorId].filter(Boolean).join(" ") || undefined;
 
   return (
-    <div className={cn("space-y-1.5", className)}>
-      <label
+    <Field className={className}>
+      <FieldLabel
         htmlFor={id}
-        className={cn(
-          "text-label font-medium text-foreground",
-          disabled && "text-muted-foreground",
-        )}
+        className={disabled ? "text-muted-foreground" : undefined}
       >
         {label}
         {required ? (
@@ -52,7 +58,7 @@ function FormField({
             *
           </span>
         ) : null}
-      </label>
+      </FieldLabel>
       {children({
         id,
         required: required || undefined,
@@ -61,16 +67,10 @@ function FormField({
         "aria-describedby": describedBy,
       })}
       {description ? (
-        <p id={descriptionId} className="text-caption text-muted-foreground">
-          {description}
-        </p>
+        <FieldDescription id={descriptionId}>{description}</FieldDescription>
       ) : null}
-      {error ? (
-        <p id={errorId} role="alert" className="text-label text-danger">
-          {error}
-        </p>
-      ) : null}
-    </div>
+      {error ? <FieldError id={errorId}>{error}</FieldError> : null}
+    </Field>
   );
 }
 

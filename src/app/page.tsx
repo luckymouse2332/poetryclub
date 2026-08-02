@@ -274,10 +274,7 @@ export default function HomePage() {
             </h2>
             <div className="mt-4 max-w-reading space-y-4 text-body text-subtle">
               <p>
-                这里收录同学们写下的打油诗，也保存和这些诗有关的人、地点与往事。
-              </p>
-              <p>
-                有些诗写得认真，有些只是课间的即兴。等作品功能正式开放后，同学可以在这里阅读、记录和补充共同的记忆。
+                这里收录同学们写下的打油诗。
               </p>
             </div>
           </section>

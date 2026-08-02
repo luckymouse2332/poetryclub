@@ -117,7 +117,12 @@
 - `PageContainer`：统一最大宽度、响应式页边距和可选窄 / 阅读宽度。
 - `PageHeader`：eyebrow、标题、描述和可选 actions；标题层级由调用方指定。
 - `Section`：统一垂直节奏，可包含区块标题、描述和 actions。
-- Footer 当前可选；若加入，只放版权 / 产品说明等真实静态信息。
+- `SiteFooter`：页脚，用于展示合规信息和用户协议
+  - 左栏品牌名与年级短说明，中栏版权与 ICP 备案号（合并为一行），右栏政策链接（隐私政策 / 使用条款）；
+  - 三组内容在同一行内垂直居中对齐；中栏因等宽栅格始终落在页面水平中心，左右两栏相对中心对称；
+  - ICP 备案号必须居中展示、链接到工信部备案系统，并使用 `target="_blank"` + `rel="noopener noreferrer"`；
+  - <1024px 改为居中纵向堆叠（品牌 → 说明 → 合规信息 → 政策链接），避免三栏挤压换行；
+  - 链接保持 44px 最低点击高度，横向内边距用列表负外边距抵消，使文字与内容边界对齐。
 
 ## 10. 组件状态
 
@@ -139,10 +144,28 @@
 - FormField 统一生成 label、description、required、error、disabled 和 `aria-describedby` 关系。
 - Error 同时使用 `aria-invalid`、提示文本和危险样式；disabled 不能只降低透明度而失去可读性。
 
-### Surface / EmptyState
+### Surface / Card / Empty
 
-- Surface 变体：default、paper、muted；只表达承载层级，不制造业务语义。
-- EmptyState 包含真实标题、说明和可选操作；不得用假业务数据填充空白。
+- Surface 表达承载层级，变体：default、paper、muted，内边距：none / sm / md / lg；只表达承载层级，不制造业务语义。
+- Card 是 shadcn 上游的卡片家族（Card / CardHeader / CardTitle / CardDescription / CardAction / CardContent / CardFooter），
+  用于需要标题、描述与页脚分区的卡片；不带 variant，承载层级由 Surface 负责，两者不互相替代。
+- Empty 包含真实标题、说明和可选操作；不得用假业务数据填充空白。
+
+### 组件实现基线
+
+`src/components/ui` 同时存在两类组件，任何新增组件必须先归类再实现：
+
+| 类别 | 含义 | 组件 |
+| --- | --- | --- |
+| 上游同构 | 结构、`data-slot`、子组件与上游 shadcn/ui 一致，只把类名映射到本文件的 Token 并去掉 `dark:` 变体 | `card`、`empty`、`field`、`label`、`separator`、`spinner` |
+| 上游同构 + 项目变体 | 以上游为基线，额外增加项目需要的 cva 变体或行为 | `button`（variant/size/loading）、`badge`、`input`、`textarea` |
+| 项目自有 | 上游没有对应组件，由本项目定义并负责维护 | `surface`、`form-field`、`icon-button` |
+
+- 基线为 shadcn/ui new-york（配置见 `components.json`）。本文件定义的 Token 与状态规范优先于 shadcn 默认样式；
+  每个文件顶部注释必须写明与上游的差异，项目自有组件必须在注释中明确声明「不是上游组件」。
+- 组件来源规则见 `AGENTS.md`「UI 组件来源规则」：除非上游没有，否则一律 `pnpm dlx shadcn@latest add` 添加后再改写，自实现组件登记进上表「项目自有」一行。
+- 组件保留 shadcn 约定：`data-slot` 标记、`asChild`（Radix Slot）与 `cn()` 合并顺序。
+- 迁移期的命名对应关系：EmptyState → `Empty`，FormField 内部改用 `Field` 家族与 Radix `Label`；`Surface` 保留原名与原语义。
 
 ## 11. 可访问性规则
 
@@ -166,3 +189,4 @@
 8. 不自动实现深色模式；如未来需要，应单独设计夜间阅读主题。
 9. 不创建未实现功能链接、假作品、假时间线或难以删除的演示数据。
 10. 不因视觉改造改变认证、授权、跳转、会话或数据库行为。
+11. 不手写或复制粘贴 shadcn/ui 已有的组件；必须用 `pnpm dlx shadcn@latest add` 添加后再改写。

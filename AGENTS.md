@@ -18,6 +18,14 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - 默认使用 Server Components。只有需要浏览器 API、本地交互状态或事件处理的组件才允许添加 `"use client"`。
 - React Client Component 不得直接访问数据库；数据库访问只能位于 `src/server` 或明确的服务端模块。
 
+## UI 组件来源规则
+
+- 除非 shadcn/ui 没有对应组件，否则禁止自实现。新组件一律用 `pnpm dlx shadcn@latest add <component>` 添加，不得手写或复制粘贴源码。
+- 在生成的源码上改写以满足业务目标：类名映射到 `docs/design-system.md` 的 Token、去掉 `dark:` 变体、按需增加 cva 变体；保留上游的组件结构、`data-slot`、`asChild` 与 `cn()` 约定。差异写在文件顶部注释。
+- 确认上游没有对应组件才可自实现，须在注释中声明「不是上游组件」并登记进 `docs/design-system.md` 第 10 节的基线表。现有项目自有组件：`surface`、`form-field`、`icon-button`。
+- 禁止把自实现组件改名成上游组件名冒充迁移。
+- 无头原语统一从 `radix-ui` 导入，不混用 `@radix-ui/react-*`。
+
 ## 服务端入口安全检查
 
 Server Action 和 Route Handler 都必须视为可被外部直接调用的服务端入口。每个写操作必须独立执行：
