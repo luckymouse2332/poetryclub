@@ -12,7 +12,7 @@ test("home page shows the community identity without fake business content", asy
   await expect(page.getByText("2021—2024级").first()).toBeVisible();
   await expect(
     page.getByText(
-      "记录我们中学时代写下的打油诗，也记录那些当时觉得平常，后来再也没有的事情。",
+      "初中时代的打油诗和班史。",
     ),
   ).toBeVisible();
   await expect(
