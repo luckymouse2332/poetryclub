@@ -28,6 +28,11 @@ export async function AuthNavigation() {
     <>
       <li>
         <Button asChild variant="ghost" size="sm">
+          <Link href="/account/poems">我的诗作</Link>
+        </Button>
+      </li>
+      <li>
+        <Button asChild variant="ghost" size="sm">
           <Link href="/account">账户</Link>
         </Button>
       </li>

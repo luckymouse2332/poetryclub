@@ -19,9 +19,16 @@ test("home page shows the community identity without fake business content", asy
     page.getByRole("img", { name: "回中诗社校园视觉" }),
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: "关于回中诗社" })).toBeVisible();
+  await expect(page.getByText("回中诗社不是正经诗社")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "收录标准（很低）" }),
+  ).toBeVisible();
+  await expect(page.getByRole("listitem").filter({ hasText: "押韵可选" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "网站正在建设" })).toBeVisible();
   await expect(page.getByText("账户与登录")).toBeVisible();
-  await expect(page.getByText("已开放")).toBeVisible();
+  await expect(page.getByText("诗作阅读")).toBeVisible();
+  await expect(page.getByText("诗作发布")).toBeVisible();
+  await expect(page.getByText("已开放")).toHaveCount(3);
   await expect(page.getByText("当前阶段先搭好可靠的页面与阅读基础")).toHaveCount(
     0,
   );
@@ -29,10 +36,19 @@ test("home page shows the community identity without fake business content", asy
     0,
   );
 
-  const mainLinks = page.getByRole("main").getByRole("link");
-  await expect(mainLinks).toHaveCount(2);
+  // 匿名访客的首屏主操作仍然是登录入口。
+  const main = page.getByRole("main");
+  const mainLinks = main.getByRole("link");
   await expect(mainLinks.nth(0)).toHaveAttribute("href", "/login?next=/account");
   await expect(mainLinks.nth(1)).toHaveAttribute("href", "#about");
+  await expect(main.getByRole("link", { name: "写一首" })).toHaveCount(0);
+  await expect(main.getByText(/^欢迎回来/)).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { level: 2, name: "最近诗作" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "浏览全部诗作" }),
+  ).toHaveAttribute("href", "/poems");
 });
 
 test("site header navigation is present", async ({ page }) => {
@@ -41,8 +57,9 @@ test("site header navigation is present", async ({ page }) => {
   const nav = page.getByRole("navigation");
   await expect(nav).toBeVisible();
   await expect(nav.getByRole("link", { name: "首页" })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "诗作" })).toBeVisible();
   await expect(nav.getByRole("link", { name: "登录" })).toBeVisible();
-  await expect(nav.getByRole("link")).toHaveCount(3);
+  await expect(nav.getByRole("link")).toHaveCount(4);
 });
 
 test("site footer aligns brand, centered legal notice and policy links on one row", async ({

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Surface } from "@/components/ui/surface";
 import {
   formatCreatedAt,
@@ -42,6 +44,17 @@ export default async function AccountPage() {
             </div>
           </dl>
         </Surface>
+      </Section>
+
+      <Section title="我的作品" className="pb-0 pt-8">
+        <p className="text-body text-subtle">
+          发布、编辑与撤回你的诗歌作品。
+        </p>
+        <div className="mt-4">
+          <Button asChild>
+            <Link href="/account/poems">管理我的诗作</Link>
+          </Button>
+        </div>
       </Section>
     </PageContainer>
   );

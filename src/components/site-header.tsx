@@ -41,6 +41,11 @@ export function SiteHeader({ navigation }: SiteHeaderProps) {
               <Link href="/">首页</Link>
             </Button>
           </li>
+          <li>
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/poems">诗作</Link>
+            </Button>
+          </li>
           {navigation}
         </ul>
       </nav>
