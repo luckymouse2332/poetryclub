@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 
+import { Button } from "@/components/ui/button";
+
 export default function ErrorPage({
   error,
   unstable_retry,
@@ -18,16 +20,16 @@ export default function ErrorPage({
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-6 py-24 text-center">
       <h1 className="text-2xl font-semibold tracking-tight">出了点问题</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
+      <p className="mt-2 text-label text-subtle">
         页面加载失败，请稍后重试。如果问题持续出现，请联系管理员。
       </p>
-      <button
+      <Button
         type="button"
         onClick={() => unstable_retry()}
-        className="mt-6 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        className="mt-6"
       >
         重试
-      </button>
+      </Button>
     </div>
   );
 }

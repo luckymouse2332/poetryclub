@@ -1,7 +1,7 @@
 import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
 import { logoutAction } from "@/features/auth/actions";
-import { getUserDisplayName } from "@/features/auth/user-display";
 import { getCurrentUser } from "@/server/auth/session";
 
 /**
@@ -16,20 +16,9 @@ export async function AuthNavigation() {
     return (
       <>
         <li>
-          <Link
-            href="/login"
-            className="text-muted-foreground transition-colors hover:text-foreground"
-          >
-            登录
-          </Link>
-        </li>
-        <li>
-          <Link
-            href="/login?mode=sign-up"
-            className="text-muted-foreground transition-colors hover:text-foreground"
-          >
-            注册
-          </Link>
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/login">登录</Link>
+          </Button>
         </li>
       </>
     );
@@ -37,23 +26,16 @@ export async function AuthNavigation() {
 
   return (
     <>
-      <li className="text-muted-foreground">{getUserDisplayName(user)}</li>
       <li>
-        <Link
-          href="/account"
-          className="text-muted-foreground transition-colors hover:text-foreground"
-        >
-          账号
-        </Link>
+        <Button asChild variant="ghost" size="sm">
+          <Link href="/account">账户</Link>
+        </Button>
       </li>
       <li>
         <form action={logoutAction}>
-          <button
-            type="submit"
-            className="cursor-pointer text-muted-foreground transition-colors hover:text-foreground"
-          >
+          <Button type="submit" variant="ghost" size="sm">
             登出
-          </button>
+          </Button>
         </form>
       </li>
     </>

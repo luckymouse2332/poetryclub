@@ -25,15 +25,15 @@ function uniqueEmail(prefix: string): string {
   return `${prefix}-${nonce}@example.com`;
 }
 
-test("anonymous home navigation shows login and sign-up but no account or sign-out", async ({
+test("anonymous home navigation shows only implemented public entries", async ({
   page,
 }) => {
   await page.goto("/");
 
   const nav = page.getByRole("navigation");
   await expect(nav.getByRole("link", { name: "登录" })).toBeVisible();
-  await expect(nav.getByRole("link", { name: "注册" })).toBeVisible();
-  await expect(nav.getByRole("link", { name: "账号" })).toHaveCount(0);
+  await expect(nav.getByRole("link", { name: "注册" })).toHaveCount(0);
+  await expect(nav.getByRole("link", { name: "账户" })).toHaveCount(0);
   await expect(nav.getByRole("button", { name: "登出" })).toHaveCount(0);
 });
 
@@ -139,15 +139,37 @@ test.describe.serial("authenticated session loop", () => {
 
     // Navigation reflects the authenticated state.
     const nav = page.getByRole("navigation");
-    await expect(nav.getByText(displayName)).toBeVisible();
-    await expect(nav.getByRole("link", { name: "账号" })).toBeVisible();
+    await expect(nav.getByText(displayName)).toHaveCount(0);
+    await expect(nav.getByRole("link", { name: "账户" })).toBeVisible();
     await expect(nav.getByRole("button", { name: "登出" })).toBeVisible();
     await expect(nav.getByRole("link", { name: "登录" })).toHaveCount(0);
     await expect(nav.getByRole("link", { name: "注册" })).toHaveCount(0);
 
+    const accountLink = nav.getByRole("link", { name: "账户" });
+    const logoutButton = nav.getByRole("button", { name: "登出" });
+    const [accountLinkMetrics, logoutButtonMetrics] = await Promise.all([
+      accountLink.evaluate((element) => {
+        const styles = getComputedStyle(element);
+        return {
+          height: element.getBoundingClientRect().height,
+          fontSize: styles.fontSize,
+          lineHeight: styles.lineHeight,
+        };
+      }),
+      logoutButton.evaluate((element) => {
+        const styles = getComputedStyle(element);
+        return {
+          height: element.getBoundingClientRect().height,
+          fontSize: styles.fontSize,
+          lineHeight: styles.lineHeight,
+        };
+      }),
+    ]);
+    expect(accountLinkMetrics).toEqual(logoutButtonMetrics);
+
     // The account page shows the safe profile fields.
     await expect(
-      page.getByRole("heading", { level: 1, name: "账号" }),
+      page.getByRole("heading", { level: 1, name: "账户" }),
     ).toBeVisible();
     await expect(page.getByText("显示名称")).toBeVisible();
     await expect(page.getByText(email)).toBeVisible();
@@ -159,6 +181,15 @@ test.describe.serial("authenticated session loop", () => {
 
     // The raw session token string must not appear in the account HTML.
     expect(await page.content()).not.toContain(sessionTokenValue);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    const accountDimensions = await page.evaluate(() => ({
+      clientWidth: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+    }));
+    expect(accountDimensions.scrollWidth).toBeLessThanOrEqual(
+      accountDimensions.clientWidth,
+    );
   });
 
   test("logs out via the UI; repeated sign-out API calls stay stable; stale cookies are rejected", async () => {
@@ -169,8 +200,8 @@ test.describe.serial("authenticated session loop", () => {
     // Navigation returns to the anonymous state.
     const nav = page.getByRole("navigation");
     await expect(nav.getByRole("link", { name: "登录" })).toBeVisible();
-    await expect(nav.getByRole("link", { name: "注册" })).toBeVisible();
-    await expect(nav.getByRole("link", { name: "账号" })).toHaveCount(0);
+    await expect(nav.getByRole("link", { name: "注册" })).toHaveCount(0);
+    await expect(nav.getByRole("link", { name: "账户" })).toHaveCount(0);
     await expect(nav.getByRole("button", { name: "登出" })).toHaveCount(0);
 
     // Double POST to the sign-out endpoint is stable and idempotent.
