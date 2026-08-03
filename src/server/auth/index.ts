@@ -7,6 +7,7 @@ import { betterAuth } from "better-auth/minimal";
 import { db } from "@/server/db";
 import * as schema from "@/server/db/schema";
 import { getServerEnv } from "@/server/env";
+import { invitationRegistrationPlugin } from "@/server/auth/invitation-plugin";
 
 const env = getServerEnv();
 const authOrigin = new URL(env.BETTER_AUTH_URL).origin;
@@ -18,7 +19,24 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
     schema,
+    transaction: true,
   }),
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        required: true,
+        defaultValue: "member",
+        input: false,
+      },
+      status: {
+        type: "string",
+        required: true,
+        defaultValue: "active",
+        input: false,
+      },
+    },
+  },
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
@@ -33,5 +51,5 @@ export const auth = betterAuth({
     cookiePrefix: "poetryclub",
     useSecureCookies: authOrigin.startsWith("https://"),
   },
-  plugins: [nextCookies()],
+  plugins: [invitationRegistrationPlugin(), nextCookies()],
 });

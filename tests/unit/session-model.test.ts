@@ -27,6 +27,8 @@ function buildSession() {
     name: "李白",
     email: "li@example.com",
     createdAt: "2026-01-01T09:00:00.000Z",
+    role: "member",
+    status: "active",
     password: "dummy-password-hash",
   };
 
@@ -44,6 +46,8 @@ describe("toCurrentSession", () => {
         name: "李白",
         email: "li@example.com",
         createdAt: new Date("2026-01-01T09:00:00.000Z"),
+        role: "member",
+        status: "active",
       },
     });
   });
@@ -112,5 +116,15 @@ describe("toCurrentSession", () => {
     value.user = { ...value.user, id: "user-2" };
 
     expect(toCurrentSession(value, FIXED_NOW)).toBeNull();
+  });
+
+  it("returns null for unrecognized authority fields", () => {
+    const invalidRole = buildSession();
+    invalidRole.user = { ...invalidRole.user, role: "owner" };
+    const invalidStatus = buildSession();
+    invalidStatus.user = { ...invalidStatus.user, status: "deleted" };
+
+    expect(toCurrentSession(invalidRole, FIXED_NOW)).toBeNull();
+    expect(toCurrentSession(invalidStatus, FIXED_NOW)).toBeNull();
   });
 });

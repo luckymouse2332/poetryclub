@@ -32,6 +32,23 @@ docker compose --env-file deploy/.env.production \
 
 Compose 会等待 PostgreSQL 健康，运行已提交的 Drizzle migration；只有 migration 成功后才启动应用，应用健康后 Caddy 才开始代理。禁止用 `drizzle-kit push` 替代 migration。
 
+### 首个管理员（首次上线一次）
+
+M3 migration 完成后，使用 `deploy/.env.production` 中临时设置的
+`INITIAL_ADMIN_EMAIL`、`INITIAL_ADMIN_NAME`、`INITIAL_ADMIN_PASSWORD` 运行：
+
+```bash
+docker compose --env-file deploy/.env.production \
+  -f deploy/compose.production.yaml --profile tools \
+  run --rm bootstrap-admin
+```
+
+脚本使用 Better Auth 官方密码哈希创建缺失的邮箱密码账号，或提升已有 active
+账号；过程取得管理员事务锁、写入审计，并可重复执行。已是 active admin 时不会
+重复写入。不得使用公开接口自我提升。成功后从生产环境文件移除三个临时变量，
+再次执行普通 `up -d`。如果目标账号已被禁用，脚本会拒绝自动恢复，须由另一名
+管理员处理。
+
 查看状态与日志：
 
 ```bash

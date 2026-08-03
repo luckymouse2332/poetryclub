@@ -60,12 +60,15 @@ src/
 ## 认证边界
 
 - 会话由 Better Auth 在服务端管理；客户端只得到受限的身份视图。
-- M0 启用邮箱密码注册 / 登录，认证请求挂载在 `/api/auth/[...all]`；不启用 OAuth、角色插件或复杂权限系统。
+- 邮箱密码注册 / 登录请求挂载在 `/api/auth/[...all]`；不启用 OAuth、Better Auth admin 插件或复杂权限组。
+- M3 采用项目自有的 `member | admin` 最小角色与 `active | suspended` 状态。角色和状态是服务端控制字段，管理写操作走项目 policy/service，不暴露 Better Auth admin mutation endpoint。
+- 公开注册必须提供有效邀请码。邀请码只保存 SHA-256 哈希；Better Auth Drizzle adapter 启用真实事务，注册的 user/account 创建与邀请码原子计数在同一事务提交或回滚。
 - 注册后不自动登录，以避免现阶段在既有邮箱注册时形成账号枚举差异；用户需显式登录。
 - 会话凭据只通过 HttpOnly Cookie 传递；认证 JSON 响应会移除 session token、provider token 和密码字段，避免暴露给浏览器脚本。
 - Better Auth 负责其认证端点的协议级输入校验、密码哈希、Cookie 和错误响应；项目自有写入口仍必须使用 Zod 并执行完整安全检查。
 - 服务端入口不得信任客户端传入的用户 ID、角色、权限、作者信息或审核状态。
 - 对象级授权逻辑集中在 `src/server/policies`，由服务端入口调用。
+- `requireActiveUser()` 和 `requireAdmin()` 根据会话用户 ID 重新读取数据库权威状态；suspended 用户保留会话和只读页面，但不能执行任何身份写操作，suspended admin 不能管理。
 - M0 不提供邮箱验证、找回密码、会话管理页和路由保护；这些必须作为独立任务实现。
 
 ## 数据库 / 事务 / migration 规则
@@ -76,6 +79,9 @@ src/
 - M0 的认证表为 Better Auth 官方 CLI 生成的 `user`、`session`、`account`、`verification`，随后由 Drizzle Kit 生成 `drizzle/0000_harsh_echo.sql`。
 - `user → session/account` 外键使用级联删除；邮箱和 session token 唯一，外键与验证标识具有索引。
 - 生产环境必须使用持久化的 PostgreSQL 数据卷。
+- 可能移除 active admin 的操作先锁定 `admin_guard(id=1)`，在同一事务内复查 active admin 数量、更新目标并写审计，避免并发产生 0 个管理员。
+- 诗作作者状态 `draft | published` 与治理状态 `visible | hidden` 独立；公开读取统一要求 published、visible 且 `publishedAt` 非空。
+- 管理操作与 `admin_audit_log` 在同一事务内完成；日志只读，不记录凭据、Cookie、邀请码明文或其他敏感信息。
 
 ## 错误与敏感信息
 

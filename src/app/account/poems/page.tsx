@@ -16,6 +16,7 @@ import {
 import { OwnPoemCard } from "@/features/posts/components/own-poem-card";
 import { Pagination } from "@/features/posts/components/pagination";
 import { requireCurrentUser } from "@/server/auth/session";
+import { getAuthoritativeUser } from "@/server/policies/access";
 import { listOwnPoems } from "@/server/services/poems";
 import { pageSchema } from "@/server/validation/poems";
 
@@ -30,7 +31,9 @@ type AccountPoemsPageProps = Readonly<{
 export default async function AccountPoemsPage({
   searchParams,
 }: AccountPoemsPageProps) {
-  const user = await requireCurrentUser("/account/poems");
+  const sessionUser = await requireCurrentUser("/account/poems");
+  const currentUser = await getAuthoritativeUser(sessionUser.id);
+  const suspended = currentUser?.status === "suspended";
 
   const query = await searchParams;
   const parsedPage = pageSchema.safeParse(query.page);
@@ -38,7 +41,7 @@ export default async function AccountPoemsPage({
     notFound();
   }
 
-  const result = await listOwnPoems(user.id, parsedPage.data);
+  const result = await listOwnPoems(sessionUser.id, parsedPage.data);
   if (result.total > 0 && parsedPage.data > result.pageCount) {
     notFound();
   }
@@ -50,13 +53,31 @@ export default async function AccountPoemsPage({
       <PageHeader
         eyebrow="我的作品"
         title="我的诗作"
-        description="管理你的草稿与已发布诗作。发布后才会对所有人可见。"
+        description={
+          suspended
+            ? "你的账号已被管理员禁用，目前只能浏览自己的诗作，不能新建、编辑、发布或删除。"
+            : "管理你的草稿与已发布诗作。发布后才会对所有人可见。"
+        }
         actions={
-          <Button asChild>
-            <Link href="/account/poems/new">新建诗作</Link>
-          </Button>
+          !suspended ? (
+            <Button asChild>
+              <Link href="/account/poems/new">新建诗作</Link>
+            </Button>
+          ) : undefined
         }
       />
+
+      {suspended ? (
+        <p
+          role="alert"
+          className="mt-6 rounded-md border border-danger bg-danger-surface p-4 text-label text-danger"
+        >
+          你的账号已被禁用，写操作已关闭。
+          {currentUser?.suspensionReason
+            ? `原因：${currentUser.suspensionReason}`
+            : null}
+        </p>
+      ) : null}
 
       {notice ? (
         <p
@@ -71,22 +92,26 @@ export default async function AccountPoemsPage({
         {result.items.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2">
             {result.items.map((poem) => (
-              <OwnPoemCard key={poem.id} poem={poem} />
+              <OwnPoemCard key={poem.id} poem={poem} suspended={suspended} />
             ))}
           </div>
         ) : (
           <Empty>
             <EmptyHeader>
-              <EmptyTitle>还没有诗作</EmptyTitle>
+              <EmptyTitle>{suspended ? "暂无诗作" : "还没有诗作"}</EmptyTitle>
               <EmptyDescription>
-                新建一首草稿，写好后可以随时发布。
+                {suspended
+                  ? "账号被禁用期间只能浏览已有内容。"
+                  : "新建一首草稿，写好后可以随时发布。"}
               </EmptyDescription>
             </EmptyHeader>
-            <EmptyContent>
-              <Button asChild>
-                <Link href="/account/poems/new">新建诗作</Link>
-              </Button>
-            </EmptyContent>
+            {!suspended ? (
+              <EmptyContent>
+                <Button asChild>
+                  <Link href="/account/poems/new">新建诗作</Link>
+                </Button>
+              </EmptyContent>
+            ) : null}
           </Empty>
         )}
       </Section>

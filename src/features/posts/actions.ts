@@ -3,7 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { requireCurrentUser } from "@/server/auth/session";
+import {
+  AccessControlError,
+  requireActiveUser,
+  type AuthoritativeUser,
+} from "@/server/policies/access";
 import {
   PoemMutationError,
   createDraft,
@@ -61,6 +65,33 @@ function operationErrorState(): PoemActionState {
   };
 }
 
+function suspendedErrorState(): PoemActionState {
+  return {
+    status: "error",
+    message: "你的账号已被禁用，目前只能查看内容，不能修改诗作。请联系管理员。",
+  };
+}
+
+async function requirePoemWriter(returnTo: string): Promise<AuthoritativeUser | PoemActionState> {
+  try {
+    return await requireActiveUser(returnTo);
+  } catch (error) {
+    if (
+      error instanceof AccessControlError &&
+      error.code === "account_suspended"
+    ) {
+      return suspendedErrorState();
+    }
+    throw error;
+  }
+}
+
+function isActionState(
+  value: AuthoritativeUser | PoemActionState,
+): value is PoemActionState {
+  return "message" in value || "fieldErrors" in value;
+}
+
 function revalidatePublicPoem(id: string): void {
   revalidatePath("/");
   revalidatePath("/poems");
@@ -71,7 +102,8 @@ export async function createPoemAction(
   _previousState: PoemActionState,
   formData: FormData,
 ): Promise<PoemActionState> {
-  const currentUser = await requireCurrentUser("/account/poems/new");
+  const currentUser = await requirePoemWriter("/account/poems/new");
+  if (isActionState(currentUser)) return currentUser;
   const input = readPoemInput(formData);
   const creationToken = creationTokenSchema.safeParse(
     formData.get("creationToken"),
@@ -94,7 +126,8 @@ export async function updatePoemAction(
   _previousState: PoemActionState,
   formData: FormData,
 ): Promise<PoemActionState> {
-  const currentUser = await requireCurrentUser("/account/poems");
+  const currentUser = await requirePoemWriter("/account/poems");
+  if (isActionState(currentUser)) return currentUser;
   const parsedId = poemIdSchema.safeParse(id);
   const input = readPoemInput(formData);
 
@@ -129,23 +162,27 @@ export async function publishPoemAction(
 ): Promise<PoemActionState> {
   void _previousState;
   void _formData;
-  const currentUser = await requireCurrentUser("/account/poems");
+  const currentUser = await requirePoemWriter("/account/poems");
+  if (isActionState(currentUser)) return currentUser;
   const parsedId = poemIdSchema.safeParse(id);
   if (!parsedId.success) {
     return operationErrorState();
   }
 
   try {
-    await publishOwnDraft(parsedId.data, currentUser.id);
+    const published = await publishOwnDraft(parsedId.data, currentUser.id);
+    revalidatePath("/account/poems");
+    revalidatePath(`/account/poems/${parsedId.data}/edit`);
+    revalidatePublicPoem(parsedId.data);
+    if (published.moderationStatus === "hidden") {
+      redirect(`/account/poems/${parsedId.data}/edit?published=1`);
+    }
   } catch (error) {
     if (error instanceof PoemMutationError) {
       return operationErrorState();
     }
     throw error;
   }
-  revalidatePath("/account/poems");
-  revalidatePath(`/account/poems/${parsedId.data}/edit`);
-  revalidatePublicPoem(parsedId.data);
   redirect(`/poems/${parsedId.data}`);
 }
 
@@ -156,7 +193,8 @@ export async function withdrawPoemAction(
 ): Promise<PoemActionState> {
   void _previousState;
   void _formData;
-  const currentUser = await requireCurrentUser("/account/poems");
+  const currentUser = await requirePoemWriter("/account/poems");
+  if (isActionState(currentUser)) return currentUser;
   const parsedId = poemIdSchema.safeParse(id);
   if (!parsedId.success) {
     return operationErrorState();
@@ -183,7 +221,8 @@ export async function deletePoemAction(
 ): Promise<PoemActionState> {
   void _previousState;
   void _formData;
-  const currentUser = await requireCurrentUser("/account/poems");
+  const currentUser = await requirePoemWriter("/account/poems");
+  if (isActionState(currentUser)) return currentUser;
   const parsedId = poemIdSchema.safeParse(id);
   if (!parsedId.success) {
     return operationErrorState();

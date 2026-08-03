@@ -7,7 +7,10 @@ import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Surface } from "@/components/ui/surface";
-import { authClient } from "@/features/auth/auth-client";
+import {
+  authClient,
+  registerWithInvitation,
+} from "@/features/auth/auth-client";
 import { signInSchema, signUpSchema } from "@/features/auth/validation";
 import { getSafeRedirectPath } from "@/lib/safe-redirect";
 
@@ -37,7 +40,12 @@ export function AuthForm({
     const input = {
       email: formData.get("email"),
       password: formData.get("password"),
-      ...(mode === "sign-up" ? { name: formData.get("name") } : {}),
+      ...(mode === "sign-up"
+        ? {
+            name: formData.get("name"),
+            inviteCode: formData.get("inviteCode"),
+          }
+        : {}),
     };
     setPending(true);
 
@@ -50,7 +58,7 @@ export function AuthForm({
           setError(result.error.issues[0]?.message ?? "请检查输入内容");
           return;
         }
-        response = await authClient.signUp.email(result.data);
+        response = await registerWithInvitation(result.data);
       } else {
         const result = signInSchema.safeParse(input);
         if (!result.success) {
@@ -126,17 +134,37 @@ export function AuthForm({
         noValidate
       >
         {mode === "sign-up" ? (
-          <FormField id="name" label="昵称" required disabled={pending}>
-            {(controlProps) => (
-              <Input
-                {...controlProps}
-                name="name"
-                type="text"
-                autoComplete="name"
-                maxLength={50}
-              />
-            )}
-          </FormField>
+          <>
+            <FormField id="name" label="昵称" required disabled={pending}>
+              {(controlProps) => (
+                <Input
+                  {...controlProps}
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  maxLength={50}
+                />
+              )}
+            </FormField>
+            <FormField
+              id="inviteCode"
+              label="邀请码"
+              description="回中诗社目前仅接受持有效邀请码的同学注册。"
+              required
+              disabled={pending}
+            >
+              {(controlProps) => (
+                <Input
+                  {...controlProps}
+                  name="inviteCode"
+                  type="text"
+                  autoComplete="off"
+                  minLength={32}
+                  maxLength={128}
+                />
+              )}
+            </FormField>
+          </>
         ) : null}
 
         <FormField id="email" label="邮箱" required disabled={pending}>

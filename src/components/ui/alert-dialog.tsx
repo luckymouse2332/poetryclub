@@ -20,9 +20,8 @@ import { Button } from "@/components/ui/button";
  * 3. 移除 `animate-in` / `animate-out` 系列动画类：项目未引入 `tw-animate-css`
  *    依赖（AGENTS 禁止新增依赖），保留这些类只会成为死代码；Radix 的
  *    `data-[state=*]` 状态属性与焦点管理保持不变。
- * 4. 字号映射到项目字号 Token，`text-label` 等自定义字号类按
- *    `src/components/ui/field.tsx` 的约定保留在未合并前缀中，避免被
- *    tailwind-merge 误当作颜色类丢弃。
+ * 4. 字号映射到项目字号 Token；项目字号已注册进 `src/lib/utils.ts` 的
+ *    tailwind-merge 配置，可与语义文字颜色类安全共存。
  */
 function AlertDialog({
   ...props

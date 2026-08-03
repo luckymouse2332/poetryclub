@@ -1,18 +1,50 @@
-import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
+import { relations, sql } from "drizzle-orm";
+import {
+  check,
+  index,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+} from "drizzle-orm/pg-core";
+import type { AnyPgColumn } from "drizzle-orm/pg-core";
 
-export const user = pgTable("user", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull().unique(),
-  emailVerified: boolean("email_verified").default(false).notNull(),
-  image: text("image"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
-    .defaultNow()
-    .$onUpdate(() => /* @__PURE__ */ new Date())
-    .notNull(),
-});
+export const userRole = pgEnum("user_role", ["member", "admin"]);
+
+export const userStatus = pgEnum("user_status", ["active", "suspended"]);
+
+export const user = pgTable(
+  "user",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    email: text("email").notNull().unique(),
+    emailVerified: boolean("email_verified").default(false).notNull(),
+    image: text("image"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+    role: userRole("role").default("member").notNull(),
+    status: userStatus("status").default("active").notNull(),
+    suspensionReason: text("suspension_reason"),
+    suspendedAt: timestamp("suspended_at"),
+    suspendedBy: text("suspended_by").references(
+      (): AnyPgColumn => user.id,
+      { onDelete: "set null" },
+    ),
+  },
+  (table) => [
+    index("user_role_idx").on(table.role),
+    index("user_status_idx").on(table.status),
+    check(
+      "user_moderation_state_check",
+      sql`(${table.status} = 'active' AND ${table.suspensionReason} IS NULL AND ${table.suspendedAt} IS NULL AND ${table.suspendedBy} IS NULL) OR (${table.status} = 'suspended' AND trim(coalesce(${table.suspensionReason}, '')) <> '' AND ${table.suspendedAt} IS NOT NULL)`,
+    ),
+  ],
+);
 
 export const session = pgTable(
   "session",

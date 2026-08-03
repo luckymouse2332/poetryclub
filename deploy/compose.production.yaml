@@ -67,6 +67,27 @@ services:
     security_opt:
       - no-new-privileges:true
 
+  bootstrap-admin:
+    profiles: ["tools"]
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: migrator
+    command: ["node", "scripts/bootstrap-admin.mjs"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+      INITIAL_ADMIN_EMAIL: ${INITIAL_ADMIN_EMAIL:-}
+      INITIAL_ADMIN_NAME: ${INITIAL_ADMIN_NAME:-}
+      INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:-}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - backend
+    restart: "no"
+    security_opt:
+      - no-new-privileges:true
+
   caddy:
     image: caddy:2-alpine
     environment:

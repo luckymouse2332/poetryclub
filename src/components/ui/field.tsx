@@ -20,9 +20,8 @@ import { cn } from "@/lib/utils";
  *    因此 label 仍是行内元素、必填星号紧跟标签文字。
  * 2. 字号与颜色映射到设计系统 Token，并去掉上游的 `dark:` 变体。
  *
- * 注意：`text-caption` / `text-label` 等项目自定义字号类会被 tailwind-merge
- * 误判为文字颜色类，与 `text-*` 颜色类一起经过 `cn()` 会被丢弃（见 `src/lib/utils.ts`）。
- * 说明与错误文案因此保留未合并的字号前缀，维持既有字号。
+ * 项目字号已注册进 `src/lib/utils.ts` 的 tailwind-merge 配置，
+ * 因此 `text-caption` / `text-label` 可与语义文字颜色类安全共存。
  */
 function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
   return (
