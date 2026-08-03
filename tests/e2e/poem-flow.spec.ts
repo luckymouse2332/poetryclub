@@ -5,6 +5,8 @@ import {
   type Page,
 } from "@playwright/test";
 
+import { createTestInvitation } from "./helpers/database";
+
 const PASSWORD = "password123";
 
 test.setTimeout(120_000);
@@ -29,11 +31,13 @@ async function registerAndSignIn(
   email: string,
   next = "/account/poems",
 ): Promise<void> {
+  const inviteCode = await createTestInvitation();
   await page.goto(`/login?mode=sign-up&next=${encodeURIComponent(next)}`);
   await waitForHydration(page, "#auth-form-panel button[type=submit]");
   await page.getByLabel("昵称").fill(name);
   await page.getByLabel("邮箱").fill(email);
   await page.getByLabel("密码").fill(PASSWORD);
+  await page.getByLabel("邀请码").fill(inviteCode);
   await page.getByRole("button", { name: "创建账号" }).click();
   await expect(
     page.getByText("注册请求已完成，请使用邮箱和密码登录。"),

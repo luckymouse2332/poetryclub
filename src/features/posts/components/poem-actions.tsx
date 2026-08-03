@@ -25,6 +25,11 @@ type PoemActionsProps = Readonly<{
   id: string;
   status: "draft" | "published";
   /**
+   * 管理状态：hidden 时不显示“查看公开页”，但发布 / 撤回 / 删除仍可操作
+   * （服务端不会清除隐藏状态）。
+   */
+  moderationStatus?: "visible" | "hidden";
+  /**
    * 紧凑布局：嵌入我的诗作卡片等场景时使用。按钮切换为 sm 尺寸（仍保持
    * 44px 最低交互高度），内部按钮改为横向换行排列，避免卡片横向溢出。
    * 不影响 action 协议或安全语义。
@@ -53,8 +58,14 @@ function ActionError({ state }: Readonly<{ state: PoemActionState }>) {
  * 状态操作区（Client Component）：草稿可发布 / 删除，已发布可查看公开页 / 撤回。
  * 每个操作独立使用 `useActionState`，提交期间按钮 loading 并禁止重复提交。
  * 删除必须经 AlertDialog 二次确认，且只允许删除未发布草稿。
+ * 被管理员隐藏的作品不显示“查看公开页”，其余状态操作保持可用且不解除隐藏。
  */
-export function PoemActions({ id, status, compact = false }: PoemActionsProps) {
+export function PoemActions({
+  id,
+  status,
+  moderationStatus = "visible",
+  compact = false,
+}: PoemActionsProps) {
   const [publishState, publishAction, publishPending] = useActionState(
     publishPoemAction.bind(null, id),
     INITIAL_STATE,
@@ -68,6 +79,7 @@ export function PoemActions({ id, status, compact = false }: PoemActionsProps) {
     INITIAL_STATE,
   );
   const buttonSize = compact ? "sm" : "default";
+  const hidden = moderationStatus === "hidden";
 
   return (
     <div className="space-y-3">
@@ -122,9 +134,11 @@ export function PoemActions({ id, status, compact = false }: PoemActionsProps) {
           </>
         ) : (
           <>
-            <Button asChild variant="secondary" size={buttonSize}>
-              <Link href={`/poems/${id}`}>查看公开页</Link>
-            </Button>
+            {!hidden ? (
+              <Button asChild variant="secondary" size={buttonSize}>
+                <Link href={`/poems/${id}`}>查看公开页</Link>
+              </Button>
+            ) : null}
             <form action={withdrawAction}>
               <Button
                 type="submit"
@@ -138,6 +152,11 @@ export function PoemActions({ id, status, compact = false }: PoemActionsProps) {
           </>
         )}
       </div>
+      {hidden ? (
+        <p className="rounded-md border border-warning/30 bg-warning-surface p-3 text-label text-warning">
+          该作品已被管理员隐藏，不会对所有人可见；保存、撤回或重新发布都不会解除隐藏。
+        </p>
+      ) : null}
       {status === "draft" ? (
         <ActionError state={publishState} />
       ) : (

@@ -19,4 +19,10 @@ export const signUpSchema = signInSchema.extend({
     .trim()
     .min(1, "请输入昵称")
     .max(50, "昵称不能超过 50 个字符"),
+  inviteCode: z
+    .string()
+    .trim()
+    .min(32, "请输入有效的邀请码")
+    .max(128, "请输入有效的邀请码")
+    .regex(/^[A-Za-z0-9_-]+$/, "请输入有效的邀请码"),
 });

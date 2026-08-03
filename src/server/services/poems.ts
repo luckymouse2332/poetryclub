@@ -22,6 +22,7 @@ import {
 export const POEM_EXCERPT_LENGTH = 240;
 
 export type PoemStatus = "draft" | "published";
+export type PoemModerationStatus = "visible" | "hidden";
 
 export type PublicPoemSummary = Readonly<{
   id: string;
@@ -48,6 +49,8 @@ export type OwnPoemSummary = Readonly<{
   status: PoemStatus;
   updatedAt: Date;
   publishedAt: Date | null;
+  moderationStatus: PoemModerationStatus;
+  moderationReason: string | null;
 }>;
 
 export type OwnPoemDetail = Readonly<{
@@ -60,6 +63,9 @@ export type OwnPoemDetail = Readonly<{
   createdAt: Date;
   updatedAt: Date;
   publishedAt: Date | null;
+  moderationStatus: PoemModerationStatus;
+  moderationReason: string | null;
+  moderatedAt: Date | null;
 }>;
 
 export type PaginatedResult<T> = Readonly<{
@@ -89,13 +95,18 @@ function pageOffset(page: number): number {
   return (page - 1) * POEM_PAGE_SIZE;
 }
 
+function publicPoemVisibility() {
+  return and(
+    eq(poem.status, "published"),
+    eq(poem.moderationStatus, "visible"),
+    isNotNull(poem.publishedAt),
+  );
+}
+
 export async function listPublishedPoems(
   page: number,
 ): Promise<PaginatedResult<PublicPoemSummary>> {
-  const visibility = and(
-    eq(poem.status, "published"),
-    isNotNull(poem.publishedAt),
-  );
+  const visibility = publicPoemVisibility();
   const [rows, totalRows] = await Promise.all([
     db
       .select({
@@ -140,7 +151,7 @@ export async function listRecentPublishedPoems(
     })
     .from(poem)
     .innerJoin(user, eq(poem.authorId, user.id))
-    .where(and(eq(poem.status, "published"), isNotNull(poem.publishedAt)))
+    .where(publicPoemVisibility())
     .orderBy(desc(poem.publishedAt), desc(poem.id))
     .limit(safeLimit);
 
@@ -169,8 +180,7 @@ const readPublishedPoem = async (
     .where(
       and(
         eq(poem.id, id),
-        eq(poem.status, "published"),
-        isNotNull(poem.publishedAt),
+        publicPoemVisibility(),
       ),
     )
     .limit(1);
@@ -198,6 +208,8 @@ export async function listOwnPoems(
         status: poem.status,
         updatedAt: poem.updatedAt,
         publishedAt: poem.publishedAt,
+        moderationStatus: poem.moderationStatus,
+        moderationReason: poem.moderationReason,
       })
       .from(poem)
       .where(eq(poem.authorId, authorId))
@@ -231,6 +243,9 @@ export async function getOwnPoem(
       createdAt: poem.createdAt,
       updatedAt: poem.updatedAt,
       publishedAt: poem.publishedAt,
+      moderationStatus: poem.moderationStatus,
+      moderationReason: poem.moderationReason,
+      moderatedAt: poem.moderatedAt,
     })
     .from(poem)
     .where(and(eq(poem.id, id), eq(poem.authorId, authorId)))
@@ -288,7 +303,10 @@ export async function updateOwnPoem(
 export async function publishOwnDraft(
   id: string,
   authorId: string,
-): Promise<Date> {
+): Promise<Readonly<{
+  publishedAt: Date;
+  moderationStatus: PoemModerationStatus;
+}>> {
   const updated = await db
     .update(poem)
     .set({
@@ -303,12 +321,18 @@ export async function publishOwnDraft(
         eq(poem.status, "draft"),
       ),
     )
-    .returning({ publishedAt: poem.publishedAt });
+    .returning({
+      publishedAt: poem.publishedAt,
+      moderationStatus: poem.moderationStatus,
+    });
 
   if (!updated[0]) {
     throw new PoemMutationError("invalid_transition");
   }
-  return requirePublishedAt(updated[0].publishedAt);
+  return {
+    publishedAt: requirePublishedAt(updated[0].publishedAt),
+    moderationStatus: updated[0].moderationStatus,
+  };
 }
 
 export async function withdrawOwnPublishedPoem(

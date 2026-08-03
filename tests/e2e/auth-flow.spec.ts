@@ -1,5 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
+import { createTestInvitation } from "./helpers/database";
+
 const SENSITIVE_KEYS = ["token", "accessToken", "refreshToken", "idToken", "password"];
 
 function collectSensitiveKeys(value: unknown, prefix = ""): string[] {
@@ -116,12 +118,14 @@ test.describe.serial("authenticated session loop", () => {
   });
 
   test("registers via the UI, signs in, and reaches the protected account page", async () => {
+    const inviteCode = await createTestInvitation();
     // Register through the real UI (mode=sign-up).
     await page.goto("/login?mode=sign-up&next=/account");
     await waitForHydration(page, "#auth-form-panel button[type=submit]");
     await page.getByLabel("昵称").fill(displayName);
     await page.getByLabel("邮箱").fill(email);
     await page.getByLabel("密码").fill(password);
+    await page.getByLabel("邀请码").fill(inviteCode);
     await page.getByRole("button", { name: "创建账号" }).click();
     await expect(
       page.getByText("注册请求已完成，请使用邮箱和密码登录。"),

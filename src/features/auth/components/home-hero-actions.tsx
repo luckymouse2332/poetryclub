@@ -3,17 +3,19 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { getUserDisplayName } from "@/features/auth/user-display";
 import { getCurrentUser } from "@/server/auth/session";
+import { getAuthoritativeUser } from "@/server/policies/access";
 
 /**
  * 首页首屏主操作（Server Component）：在服务端读取当前用户，只按认证态切换入口，
  * 不向任何 Client Component 传递会话或用户对象，也不改变认证 / 授权 / 跳转行为。
- * 匿名访客看到登录入口；已登录用户改为看到写作与作品入口，不再出现登录按钮。
+ * 匿名访客看到登录入口；已登录且 active 用户看到写作与作品入口。
+ * suspended 用户只保留只读入口并显示禁用原因（写入口由服务端再次强制校验）。
  * 显示名走 getUserDisplayName，昵称为空时回退为掩码邮箱，不暴露完整邮箱。
  */
 export async function HomeHeroActions() {
-  const user = await getCurrentUser();
+  const sessionUser = await getCurrentUser();
 
-  if (!user) {
+  if (!sessionUser) {
     return (
       <div className="mt-8 flex flex-wrap items-center gap-3">
         <Button asChild size="lg">
@@ -26,10 +28,37 @@ export async function HomeHeroActions() {
     );
   }
 
+  const currentUser = await getAuthoritativeUser(sessionUser.id);
+  const suspended = currentUser?.status === "suspended";
+
+  if (suspended || !currentUser) {
+    return (
+      <div className="mt-8">
+        <p
+          role="alert"
+          className="max-w-reading rounded-md border border-danger bg-danger-surface p-4 text-label text-danger"
+        >
+          你的账号已被管理员禁用，目前只能浏览内容，不能新建或修改诗作。
+          {currentUser?.suspensionReason
+            ? `原因：${currentUser.suspensionReason}`
+            : null}
+        </p>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <Button asChild variant="secondary" size="lg">
+            <Link href="/account/poems">我的诗作</Link>
+          </Button>
+          <Button asChild variant="ghost" size="lg">
+            <Link href="/account">查看账户</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mt-8">
       <p className="text-body text-subtle">
-        欢迎回来，{getUserDisplayName(user)}。
+        欢迎回来，{getUserDisplayName(currentUser)}。
       </p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <Button asChild size="lg">

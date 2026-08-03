@@ -30,7 +30,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         align="center"
         eyebrow="回到诗社"
         title="加入回中诗社"
-        description="使用邮箱创建账号或登录，继续记录属于校园的诗意。"
+        description="使用邮箱登录；新同学需要有效邀请码才能创建账号。"
         className="mb-8"
       />
       <AuthForm initialMode={initialMode} nextPath={nextPath} />

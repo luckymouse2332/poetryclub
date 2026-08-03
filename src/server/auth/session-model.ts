@@ -3,6 +3,8 @@ export type CurrentUser = Readonly<{
   name: string;
   email: string;
   createdAt: Date;
+  role: "member" | "admin";
+  status: "active" | "suspended";
 }>;
 
 export type CurrentSession = Readonly<{
@@ -23,6 +25,8 @@ type AuthSessionLike = Readonly<{
     name: string;
     email: string;
     createdAt: Date | string;
+    role: unknown;
+    status: unknown;
   }>;
 }>;
 
@@ -35,7 +39,12 @@ export function toCurrentSession(
   value: AuthSessionLike | null,
   now = new Date(),
 ): CurrentSession | null {
-  if (!value || value.session.userId !== value.user.id) {
+  if (
+    !value ||
+    value.session.userId !== value.user.id ||
+    (value.user.role !== "member" && value.user.role !== "admin") ||
+    (value.user.status !== "active" && value.user.status !== "suspended")
+  ) {
     return null;
   }
 
@@ -55,6 +64,8 @@ export function toCurrentSession(
       name: value.user.name,
       email: value.user.email,
       createdAt,
+      role: value.user.role,
+      status: value.user.status,
     },
   };
 }

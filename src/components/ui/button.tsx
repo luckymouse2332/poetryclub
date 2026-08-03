@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
  * 同时保留本项目的 `loading` 语义：aria-busy + 禁止重复提交。
  */
 const buttonVariants = cva(
-  "inline-flex cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap rounded-md text-label font-medium transition-colors disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-disabled disabled:text-disabled-foreground disabled:shadow-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-disabled disabled:text-disabled-foreground disabled:shadow-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -25,10 +25,10 @@ const buttonVariants = cva(
           "bg-danger text-danger-foreground hover:bg-danger-hover active:bg-danger-hover",
       },
       size: {
-        default: "h-control px-4",
+        default: "h-control px-4 text-label",
         sm: "h-control px-3 text-caption",
-        lg: "h-12 px-6",
-        icon: "h-control w-control",
+        lg: "h-12 px-6 text-label",
+        icon: "h-control w-control text-label",
       },
     },
     defaultVariants: {

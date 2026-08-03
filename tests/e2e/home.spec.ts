@@ -19,9 +19,9 @@ test("home page shows the community identity without fake business content", asy
     page.getByRole("img", { name: "回中诗社校园视觉" }),
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: "关于回中诗社" })).toBeVisible();
-  await expect(page.getByText("回中诗社不是正经诗社")).toBeVisible();
+  await expect(page.getByText("回中诗社源自社长Kevin自己的创作，但这里不是你想象中的那种正经诗社。")).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "收录标准（很低）" }),
+    page.getByRole("heading", { name: "收录标准", exact: true }),
   ).toBeVisible();
   await expect(page.getByRole("listitem").filter({ hasText: "押韵可选" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "网站正在建设" })).toBeVisible();

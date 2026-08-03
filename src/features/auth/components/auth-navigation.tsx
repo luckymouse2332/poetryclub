@@ -8,6 +8,10 @@ import { getCurrentUser } from "@/server/auth/session";
  * 认证导航（Server Component）：在服务端读取当前用户，仅向渲染层暴露最小安全视图，
  * 不向任何 Client Component 传递会话或用户对象。
  * 返回的是 SiteHeader 导航列表的 <li> 列表项片段。
+ *
+ * M3 调整：仅当服务端会话 DTO 为 role=admin 且 status=active 时显示“管理”入口；
+ * suspended 用户仍保留账户 / 我的诗作（只读入口）与登出。隐藏导航不作为鉴权，
+ * 真正的管理保护由 requireAdmin 与各 Server Action 独立完成。
  */
 export async function AuthNavigation() {
   const user = await getCurrentUser();
@@ -24,6 +28,8 @@ export async function AuthNavigation() {
     );
   }
 
+  const isActiveAdmin = user.role === "admin" && user.status === "active";
+
   return (
     <>
       <li>
@@ -36,6 +42,13 @@ export async function AuthNavigation() {
           <Link href="/account">账户</Link>
         </Button>
       </li>
+      {isActiveAdmin ? (
+        <li>
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/admin">管理</Link>
+          </Button>
+        </li>
+      ) : null}
       <li>
         <form action={logoutAction}>
           <Button type="submit" variant="ghost" size="sm">

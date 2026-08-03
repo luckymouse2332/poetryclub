@@ -23,6 +23,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml drizzle.config.ts tsconfig.
 COPY drizzle ./drizzle
 COPY src/server/db/schema ./src/server/db/schema
 COPY src/server/validation/env.ts ./src/server/validation/env.ts
+COPY scripts/bootstrap-admin.mjs ./scripts/bootstrap-admin.mjs
 USER node
 CMD ["node", "node_modules/drizzle-kit/bin.cjs", "migrate"]
 
