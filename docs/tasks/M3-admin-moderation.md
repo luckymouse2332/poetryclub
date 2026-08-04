@@ -86,10 +86,10 @@ M1 已建立权威服务端会话，M2 已完成诗作发布闭环。本任务�
 - 初始化：`pnpm admin:bootstrap` 已验证首次创建/提升及重复执行幂等；生产 Compose tools profile 配置校验通过。
 - 最终：`pnpm typecheck`、`pnpm lint`、`pnpm test`、`pnpm test:e2e`、`pnpm build`、`pnpm db:check` 全部通过。
 
-## DeepSeek 只读审查
+## 复核记录
 
 - 首轮逐项确认邀请码原子事务、管理入口鉴权、最后管理员锁、hidden 公开谓词、审计事务和 migration 无权限绕过或数据一致性阻断问题。
-- 首轮将 `registerWithInvitation` 误判为返回结构阻断；Lead 对照调用方确认仅消费 `error`，并补充 same-origin Origin/Host CSRF 与统一错误设计说明。第二轮复核撤销该问题。
+- 首轮将 `registerWithInvitation` 误判为返回结构阻断；对照调用方确认仅消费 `error`，并补充 same-origin Origin/Host CSRF 与统一错误设计说明。第二轮复核撤销该问题。
 - 未采纳“未知 role/status 回退 active”的建议：权威字段异常必须 fail-closed；migration 与数据库默认保证合法值。
 - 接受邀请码预检与最终消费之间可能被其他请求抢完的竞态：最终原子条件更新是权威结果，对外统一为无效且不会超用或错误计数。
 - 补充管理诗作详情、隐藏操作人/时间、只停用尚可用邀请码、共享数据库单 worker E2E 及最后管理员并发清理后，第二轮确认 0 Blocking、0 Critical、0 未处理 Major，可完成 M3。
@@ -105,5 +105,5 @@ M1 已建立权威服务端会话，M2 已完成诗作发布闭环。本任务�
 ## 状态
 
 - 状态：`已完成`
-- 负责人：首席架构师（DeepSeek 协助范围明确的基础实现与前端）
+- 负责人：项目维护者
 - 完成日期：2026-08-03

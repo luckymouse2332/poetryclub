@@ -6,7 +6,7 @@
 
 ## 范围
 
-M0 共 18 项清单（见下方「清单与状态」）。低风险的文档、页面骨架与测试配置由 deepseek-builder 协助，认证、安全边界、数据库设计、migration、部署和最终整合由首席架构师完成并复核。
+M0 共 18 项清单（见下方「清单与状态」），覆盖文档、工程配置、认证基线、数据库、部署和最终验证。
 
 ## 非目标
 
@@ -59,7 +59,7 @@ M0 共 18 项清单（见下方「清单与状态」）。低风险的文档、�
 - runner 与 migrator 镜像均构建成功；运行态验证了 health、注册 / 登录、HttpOnly Cookie 和 JSON 无 token。
 - 最终验证：`pnpm typecheck`、`pnpm lint`、`pnpm test`、`pnpm build` 全部通过。
 
-## DeepSeek 只读审查
+## 复核记录
 
 - 首轮提出 `session/account.updated_at` 无数据库默认值：未改写已执行的 0000，而是补充 Schema 并新增 0001 migration。
 - 要求验证 migrator：实际构建后发现非 root Corepack 会尝试联网，已改为直接执行镜像内 Drizzle Kit；在 PostgreSQL 上重新验证成功。
@@ -76,5 +76,5 @@ M0 共 18 项清单（见下方「清单与状态」）。低风险的文档、�
 ## 状态
 
 - 状态：`已完成`
-- 负责人：首席架构师（deepseek-builder 协助低风险子项）
+- 负责人：项目维护者
 - 完成日期：2026-08-01

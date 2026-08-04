@@ -67,7 +67,7 @@
 - [x] 新界面复用现有 shadcn/ui 和设计语言，支持键盘、字段错误、整体错误、防重复提交、390px 至 1440px。
 - [x] M1 会话读取、账户页和登出流程无回归。
 - [x] `pnpm typecheck`、`pnpm lint`、`pnpm test`、`pnpm test:e2e`（环境允许）、`pnpm build`、`pnpm db:check` 全部通过。
-- [x] DeepSeek 只读审查无未处理的阻断级或严重问题。
+- [x] 复核无未处理的阻断级或严重问题。
 
 ## 测试
 
@@ -76,7 +76,7 @@
 - 数据库：本地开发 PostgreSQL 已通过 `pnpm db:migrate` 应用版本化 migration；未使用 schema push，未接触生产数据。
 - 最终验证：`pnpm typecheck`、`pnpm lint`、`pnpm test`（103/103）、`pnpm test:e2e`（26/26）、`pnpm build`、`pnpm db:check` 全部通过。
 
-## DeepSeek 只读审查
+## 复核记录
 
 - 首轮确认无 IDOR、草稿泄露、非法状态转换、缓存残留、删除语义或查询边界的阻断问题。
 - 采纳事件日期跨时区风险：表单回填改用 UTC getter，并增加单元测试。
@@ -98,5 +98,5 @@
 ## 状态
 
 - 状态：`已完成`
-- 负责人：首席架构师（DeepSeek 协助范围明确的基础实现与前端接线）
+- 负责人：项目维护者
 - 完成日期：2026-08-02

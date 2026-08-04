@@ -15,7 +15,7 @@
 - [x] 未登录访问 `/account` 时跳转 `/login`，并携带经过固定生成的站内返回地址。
 - [x] 集中校验登录成功后的 `next` 参数，只允许安全站内相对路径，非法值回退 `/`。
 - [x] 增加单元、集成和 Playwright 覆盖认证导航、账号页、失效会话、登出、重定向和敏感字段泄漏。
-- [x] 运行完整验收命令并完成 DeepSeek 只读安全审查。
+- [x] 运行完整验收命令并完成安全复核。
 
 ## 非目标
 
@@ -48,7 +48,7 @@
 - [x] 合法站内 `next` 被接受；外部、协议相对、协议、反斜杠及编码绕过均回退 `/`。
 - [x] 浏览器可见响应不包含 session token、provider token 或密码字段。
 - [x] `pnpm typecheck`、`pnpm lint`、`pnpm test`、`pnpm test:e2e`、`pnpm build`、`pnpm db:check` 全部通过。
-- [x] DeepSeek 只读审查无未处理的阻断级或严重问题。
+- [x] 安全复核无未处理的阻断级或严重问题。
 
 ## 测试
 
@@ -56,7 +56,7 @@
 - 集成 / Playwright：9 个用例通过；使用真实 Better Auth 与 PostgreSQL 覆盖匿名导航、账号页服务端跳转、无效 Cookie、注册后显式登录、有效会话、登出、重复登出、旧 Cookie 重放拒绝和响应 token 清理。
 - 最终验收：`pnpm typecheck`、`pnpm lint`、`pnpm test`、`pnpm test:e2e`、`pnpm build`、`pnpm db:check` 全部通过。Windows 环境默认 3000 端口因系统 `EACCES` 无法监听，E2E 使用配置支持的 `PLAYWRIGHT_BASE_URL=http://localhost:4000` 运行并通过 9/9。
 
-## DeepSeek 只读审查
+## 复核记录
 
 - 首轮：无阻断级或严重问题；发现 `server → features` 的返回地址工具反向依赖，已将工具移至 `src/lib/safe-redirect.ts` 并更新全部导入。
 - 首轮建议删除登出前无效的重复会话查询。进一步核对 Better Auth 源码后，登出改为先用权威会话调用受对象授权保护的 `revokeSession`，确认数据库记录已删除后再由 `signOut` / `nextCookies` 清除 Cookie；数据库删除失败时保留 Cookie 并抛错，允许安全重试。
@@ -75,5 +75,5 @@
 ## 状态
 
 - 状态：`已完成`
-- 负责人：首席架构师（DeepSeek 协助范围明确的测试 / 展示接线）
+- 负责人：项目维护者
 - 完成日期：2026-08-01
