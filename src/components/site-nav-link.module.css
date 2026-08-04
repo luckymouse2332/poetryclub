@@ -1,0 +1,35 @@
+.link {
+  position: relative;
+}
+
+.brandLink::after,
+.navigationLink::after {
+  position: absolute;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--seal);
+  content: "";
+  transform: translateX(-50%);
+  transition: width 160ms ease;
+}
+
+.brandLink::after {
+  bottom: -0.65rem;
+}
+
+.navigationLink::after {
+  bottom: 0.15rem;
+}
+
+.brandLink[aria-current="page"]::after {
+  width: 2.75rem;
+}
+
+.navigationLink[aria-current="page"] {
+  color: var(--seal-foreground);
+}
+
+.navigationLink[aria-current="page"]::after {
+  width: min(2.5rem, calc(100% - 1rem));
+}

@@ -163,3 +163,88 @@ export async function auditContainsText(value: string): Promise<boolean> {
     await sql.end();
   }
 }
+
+export async function createHomePoemVisibilityFixtures(): Promise<
+  Readonly<{
+    visible: Readonly<{ id: string; title: string }>;
+    draftTitle: string;
+    withdrawnTitle: string;
+    hiddenTitle: string;
+    ids: ReadonlyArray<string>;
+  }>
+> {
+  const sql = postgres(databaseUrl(), { max: 1 });
+  try {
+    const admins = await sql`
+      select id from "user"
+      where email = ${E2E_ADMIN_EMAIL} and role = 'admin' and status = 'active'
+      limit 1
+    `;
+    const admin = admins[0];
+    if (!admin) throw new Error("E2E administrator is missing");
+
+    const fixtureId = randomUUID();
+    const visible = {
+      id: randomUUID(),
+      title: `首页公开诗作 ${fixtureId}`,
+    };
+    const draft = {
+      id: randomUUID(),
+      title: `首页草稿诗作 ${fixtureId}`,
+    };
+    const withdrawn = {
+      id: randomUUID(),
+      title: `首页撤回诗作 ${fixtureId}`,
+    };
+    const hidden = {
+      id: randomUUID(),
+      title: `首页隐藏诗作 ${fixtureId}`,
+    };
+    const publishedAt = new Date(Date.now() + 60_000);
+
+    await sql`
+      insert into poem (
+        id, title, body, author_id, status, published_at, creation_token,
+        moderation_status, moderation_reason, moderated_at
+      ) values
+        (
+          ${visible.id}, ${visible.title}, '公开诗作正文', ${admin.id},
+          'published', ${publishedAt}, ${randomUUID()}, 'visible', null, null
+        ),
+        (
+          ${draft.id}, ${draft.title}, '草稿诗作正文', ${admin.id},
+          'draft', null, ${randomUUID()}, 'visible', null, null
+        ),
+        (
+          ${withdrawn.id}, ${withdrawn.title}, '撤回诗作正文', ${admin.id},
+          'draft', ${publishedAt}, ${randomUUID()}, 'visible', null, null
+        ),
+        (
+          ${hidden.id}, ${hidden.title}, '隐藏诗作正文', ${admin.id},
+          'published', ${publishedAt}, ${randomUUID()}, 'hidden',
+          'E2E 首页可见性测试', ${publishedAt}
+        )
+    `;
+
+    return {
+      visible,
+      draftTitle: draft.title,
+      withdrawnTitle: withdrawn.title,
+      hiddenTitle: hidden.title,
+      ids: [visible.id, draft.id, withdrawn.id, hidden.id],
+    };
+  } finally {
+    await sql.end();
+  }
+}
+
+export async function deletePoemsByIds(ids: ReadonlyArray<string>): Promise<void> {
+  if (ids.length === 0) return;
+
+  const sql = postgres(databaseUrl(), { max: 1 });
+  try {
+    await sql`delete from poem where id in ${sql(ids)}`;
+  } finally {
+    await sql.end();
+  }
+}

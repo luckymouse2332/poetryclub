@@ -1,8 +1,10 @@
-import Link from "next/link";
-
+import { SiteNavLink } from "@/components/site-nav-link";
 import { Button } from "@/components/ui/button";
 import { logoutAction } from "@/features/auth/actions";
 import { getCurrentUser } from "@/server/auth/session";
+
+const navigationLinkClassName =
+  "inline-flex min-h-control items-center justify-center whitespace-nowrap px-2 font-serif text-body text-foreground no-underline transition-colors hover:text-seal";
 
 /**
  * 认证导航（Server Component）：在服务端读取当前用户，仅向渲染层暴露最小安全视图，
@@ -18,13 +20,11 @@ export async function AuthNavigation() {
 
   if (!user) {
     return (
-      <>
-        <li>
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/login">登录</Link>
-          </Button>
-        </li>
-      </>
+      <li>
+        <SiteNavLink href="/login" className={navigationLinkClassName}>
+          登录
+        </SiteNavLink>
+      </li>
     );
   }
 
@@ -33,25 +33,37 @@ export async function AuthNavigation() {
   return (
     <>
       <li>
-        <Button asChild variant="ghost" size="sm">
-          <Link href="/account/poems">我的诗作</Link>
-        </Button>
+        <SiteNavLink
+          href="/account/poems"
+          match="prefix"
+          className={navigationLinkClassName}
+        >
+          我的诗作
+        </SiteNavLink>
       </li>
       <li>
-        <Button asChild variant="ghost" size="sm">
-          <Link href="/account">账户</Link>
-        </Button>
+        <SiteNavLink href="/account" className={navigationLinkClassName}>
+          账户
+        </SiteNavLink>
       </li>
       {isActiveAdmin ? (
         <li>
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/admin">管理</Link>
-          </Button>
+          <SiteNavLink
+            href="/admin"
+            match="prefix"
+            className={navigationLinkClassName}
+          >
+            管理
+          </SiteNavLink>
         </li>
       ) : null}
       <li>
         <form action={logoutAction}>
-          <Button type="submit" variant="ghost" size="sm">
+          <Button
+            type="submit"
+            variant="ghost"
+            className={`${navigationLinkClassName} h-auto rounded-none bg-transparent py-0 font-normal shadow-none hover:bg-transparent hover:text-seal active:bg-transparent active:text-seal`}
+          >
             登出
           </Button>
         </form>

@@ -177,7 +177,12 @@ test.describe.serial("authenticated session loop", () => {
         return {
           height: element.getBoundingClientRect().height,
           fontSize: styles.fontSize,
+          fontFamily: styles.fontFamily,
+          fontWeight: styles.fontWeight,
+          letterSpacing: styles.letterSpacing,
           lineHeight: styles.lineHeight,
+          paddingLeft: styles.paddingLeft,
+          paddingRight: styles.paddingRight,
         };
       }),
       logoutButton.evaluate((element) => {
@@ -185,11 +190,103 @@ test.describe.serial("authenticated session loop", () => {
         return {
           height: element.getBoundingClientRect().height,
           fontSize: styles.fontSize,
+          fontFamily: styles.fontFamily,
+          fontWeight: styles.fontWeight,
+          letterSpacing: styles.letterSpacing,
           lineHeight: styles.lineHeight,
+          paddingLeft: styles.paddingLeft,
+          paddingRight: styles.paddingRight,
         };
       }),
     ]);
     expect(accountLinkMetrics).toEqual(logoutButtonMetrics);
+
+    const baseLogoutStyle = await logoutButton.evaluate((element) => {
+      const styles = getComputedStyle(element);
+      return {
+        backgroundColor: styles.backgroundColor,
+        color: styles.color,
+      };
+    });
+    await logoutButton.hover();
+    await page.waitForTimeout(180);
+    const hoveredLogoutStyle = await logoutButton.evaluate((element) => {
+      const styles = getComputedStyle(element);
+      return {
+        backgroundColor: styles.backgroundColor,
+        color: styles.color,
+      };
+    });
+    expect(hoveredLogoutStyle.backgroundColor).toBe(
+      baseLogoutStyle.backgroundColor,
+    );
+    expect(hoveredLogoutStyle.color).not.toBe(baseLogoutStyle.color);
+    await page.mouse.move(0, 0);
+
+    const navigationList = nav.locator("ul");
+    const navigationItems = navigationList.locator(":scope > li");
+    const navigationControls = navigationList.locator("a, button");
+
+    for (const viewport of [
+      { width: 390, height: 844 },
+      { width: 768, height: 900 },
+      { width: 920, height: 900 },
+      { width: 1024, height: 900 },
+    ]) {
+      await page.setViewportSize(viewport);
+
+      const [listStyles, brandBox, listBox, itemBoxes, controlBoxes, pageWidth] =
+        await Promise.all([
+          navigationList.evaluate((element) => {
+            const styles = getComputedStyle(element);
+            return {
+              display: styles.display,
+              gridTemplateColumns: styles.gridTemplateColumns,
+            };
+          }),
+          nav.getByRole("link", { name: "回中诗社" }).boundingBox(),
+          navigationList.boundingBox(),
+          navigationItems.evaluateAll((elements) =>
+            elements.map((element) => {
+              const box = element.getBoundingClientRect();
+              return { x: box.x, y: box.y, width: box.width, height: box.height };
+            }),
+          ),
+          navigationControls.evaluateAll((elements) =>
+            elements.map((element) => {
+              const box = element.getBoundingClientRect();
+              return { x: box.x, y: box.y, width: box.width, height: box.height };
+            }),
+          ),
+          page.evaluate(() => document.documentElement.clientWidth),
+        ]);
+
+      expect(brandBox).not.toBeNull();
+      expect(listBox).not.toBeNull();
+      expect(controlBoxes).toHaveLength(5);
+      for (const box of controlBoxes) {
+        expect(box.height).toBeGreaterThanOrEqual(44);
+        expect(box.x).toBeGreaterThanOrEqual(0);
+        expect(box.x + box.width).toBeLessThanOrEqual(pageWidth);
+      }
+
+      const itemRows = new Set(itemBoxes.map((box) => Math.round(box.y))).size;
+      if (viewport.width === 390) {
+        expect(listStyles.display).toBe("grid");
+        expect(listStyles.gridTemplateColumns.split(" ")).toHaveLength(3);
+        expect(itemRows).toBe(2);
+        expect(brandBox!.y + brandBox!.height).toBeLessThan(listBox!.y);
+      } else if (viewport.width < 1024) {
+        expect(listStyles.display).toBe("grid");
+        expect(itemRows).toBe(1);
+        expect(brandBox!.y + brandBox!.height).toBeLessThan(listBox!.y);
+      } else {
+        expect(listStyles.display).toBe("flex");
+        const brandCenter = brandBox!.y + brandBox!.height / 2;
+        const listCenter = listBox!.y + listBox!.height / 2;
+        expect(Math.abs(brandCenter - listCenter)).toBeLessThan(2);
+      }
+    }
 
     // The account page shows the safe profile fields.
     await expect(
@@ -215,18 +312,18 @@ test.describe.serial("authenticated session loop", () => {
       accountDimensions.clientWidth,
     );
 
-    // 首页首屏随认证态切换：不再出现登录按钮，改为写作与作品入口。
+    // 精简首页不按认证态增加首屏按钮；登录态入口统一保留在刊头导航。
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
     const homeMain = page.getByRole("main");
-    await expect(homeMain.getByText(`欢迎回来，${displayName}。`)).toBeVisible();
-    await expect(homeMain.getByRole("link", { name: "写一首" })).toHaveAttribute(
-      "href",
-      "/account/poems/new",
-    );
+    const homeNav = page.getByRole("navigation");
     await expect(
-      homeMain.getByRole("link", { name: "我的诗作" }),
+      homeNav.getByRole("link", { name: "我的诗作" }),
     ).toHaveAttribute("href", "/account/poems");
+    await expect(homeNav.getByRole("link", { name: "账户" })).toBeVisible();
+    await expect(homeNav.getByRole("button", { name: "登出" })).toBeVisible();
+    await expect(homeMain.getByText(/^欢迎回来/)).toHaveCount(0);
+    await expect(homeMain.getByRole("link", { name: "写一首" })).toHaveCount(0);
     await expect(homeMain.getByRole("link", { name: "登录" })).toHaveCount(0);
   });
 

@@ -2,14 +2,14 @@
 
 :root {
   /* Concrete color values live only in this palette. */
-  --palette-page: #f3ede2;
-  --palette-surface: #fbf8f1;
-  --palette-surface-muted: #f6f0e6;
-  --palette-paper: #fffdf8;
+  --palette-page: #f1ebdf;
+  --palette-surface: #f4efe5;
+  --palette-surface-muted: #ece3d4;
+  --palette-paper: #f8f2e7;
   --palette-paper-aged: #eee2ce;
-  --palette-ink: #24211d;
-  --palette-ink-secondary: #615b52;
-  --palette-ink-muted: #7a7268;
+  --palette-ink: #201e1a;
+  --palette-ink-secondary: #5b554c;
+  --palette-ink-muted: #70685e;
   --palette-ink-inverse: #faf7f0;
   --palette-blue-50: #edf3f8;
   --palette-blue-100: #dce8f1;
@@ -18,10 +18,10 @@
   --palette-blue-600: #28597f;
   --palette-blue-700: #204866;
   --palette-blue-800: #193a54;
-  --palette-seal-50: #faefeb;
-  --palette-seal-300: #d89883;
-  --palette-seal-500: #a94c39;
-  --palette-seal-700: #763125;
+  --palette-seal-50: #f7ebe6;
+  --palette-seal-300: #c98d7e;
+  --palette-seal-500: #8e352f;
+  --palette-seal-700: #6d2824;
   --palette-success-50: #edf4ec;
   --palette-success-300: #a9c0a6;
   --palette-success-600: #527450;
@@ -32,9 +32,9 @@
   --palette-danger-300: #dfa099;
   --palette-danger-600: #a64238;
   --palette-danger-700: #84342d;
-  --palette-border: #d8cfc1;
-  --palette-border-light: #e7dfd3;
-  --palette-border-strong: #bdaf9d;
+  --palette-border: #d3c7b6;
+  --palette-border-light: #e2d8c9;
+  --palette-border-strong: #b7a790;
   --palette-disabled: #d8cfc1;
   --palette-disabled-foreground: #4f4942;
 
@@ -223,7 +223,7 @@ body {
   min-width: 20rem;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: var(--font-sans), "Songti SC", "STSong", "Noto Serif CJK SC", "SimSun", serif;
   overflow-wrap: anywhere;
   text-rendering: optimizeLegibility;
 }
