@@ -48,9 +48,10 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:4000:3000"
     networks:
       - backend
-      - frontend
     healthcheck:
       test:
         [
@@ -88,33 +89,9 @@ services:
     security_opt:
       - no-new-privileges:true
 
-  caddy:
-    image: caddy:2-alpine
-    environment:
-      SITE_ADDRESS: ${SITE_ADDRESS:?SITE_ADDRESS is required}
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      app:
-        condition: service_healthy
-    networks:
-      - frontend
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-
 volumes:
   postgres_data:
-  caddy_data:
-  caddy_config:
 
 networks:
-  frontend:
   backend:
     internal: true

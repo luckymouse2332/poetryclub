@@ -1,12 +1,13 @@
 # 生产部署
 
-生产拓扑固定为：`Caddy → Next.js app → PostgreSQL`。`migrate` 是部署时的一次性容器，不是常驻服务。PostgreSQL 与 Caddy 证书数据均使用命名卷持久化。
+生产拓扑固定为：`宿主机 Caddy → 127.0.0.1:4000 → Next.js app → PostgreSQL`。`migrate` 是部署时的一次性容器，不是常驻服务。Compose 只管理 PostgreSQL、migration 和 Next.js 应用；Caddy 与证书由宿主机独立管理。
 
 ## 前置条件
 
-- Linux 服务器已安装 Docker Engine 与 Docker Compose v2。
+- Linux 服务器已安装 Docker Engine、Docker Compose v2 与宿主机 Caddy。
 - 域名 A / AAAA 记录指向服务器，防火墙开放 TCP 80、TCP/UDP 443（UDP 443 用于 HTTP/3，可按网络策略关闭）。
 - 服务器上的部署目录只允许可信管理员访问。
+- 宿主机 `4000` 端口不需要对公网开放；Compose 只把它绑定到 `127.0.0.1`。
 
 ## 配置
 
@@ -16,7 +17,7 @@ cp deploy/.env.production.example deploy/.env.production
 
 修改 `deploy/.env.production`：
 
-- `SITE_ADDRESS` 与 `BETTER_AUTH_URL` 必须使用真实域名；生产认证 URL 必须为 HTTPS。
+- `BETTER_AUTH_URL` 必须使用真实域名和 HTTPS。
 - 使用独立高熵值设置 `POSTGRES_PASSWORD` 和至少 32 字符的 `BETTER_AUTH_SECRET`。
 - `DATABASE_URL` 中的密码必须与 `POSTGRES_PASSWORD` 一致；特殊字符必须进行 URL 编码。
 - 不得提交该文件，也不得把值写入镜像或前端变量。
@@ -30,7 +31,17 @@ docker compose --env-file deploy/.env.production \
   -f deploy/compose.production.yaml up -d --build
 ```
 
-Compose 会等待 PostgreSQL 健康，运行已提交的 Drizzle migration；只有 migration 成功后才启动应用，应用健康后 Caddy 才开始代理。禁止用 `drizzle-kit push` 替代 migration。
+Compose 会等待 PostgreSQL 健康，运行已提交的 Drizzle migration；只有 migration 成功后才启动应用，并把容器的 `3000` 端口发布为宿主机 `127.0.0.1:4000`。禁止用 `drizzle-kit push` 替代 migration。
+
+宿主机 Caddy 的站点配置应把请求代理到该回环地址，例如：
+
+```caddyfile
+poetry.example.edu {
+  reverse_proxy 127.0.0.1:4000
+}
+```
+
+实际域名、TLS、响应头和日志策略由宿主机 Caddy 配置负责。修改后先用 `caddy validate` 检查配置，再由宿主机的服务管理器平滑重载 Caddy。
 
 ### 首个管理员（首次上线一次）
 
@@ -55,14 +66,16 @@ docker compose --env-file deploy/.env.production \
 docker compose --env-file deploy/.env.production \
   -f deploy/compose.production.yaml ps
 docker compose --env-file deploy/.env.production \
-  -f deploy/compose.production.yaml logs --tail=200 app migrate caddy db
+  -f deploy/compose.production.yaml logs --tail=200 app migrate db
+
+curl --fail http://127.0.0.1:4000/api/health
 ```
 
 ## 数据持久化与备份
 
 - 数据库命名卷：`poetryclub_postgres_data`。
-- Caddy 证书卷：`poetryclub_caddy_data` 和 `poetryclub_caddy_config`。
 - 更新或重建容器不会删除命名卷。
+- Caddy 证书和配置的备份由宿主机的 Caddy 安装方式决定，不属于本 Compose 的数据卷。
 - 定期用 `pg_dump` 备份，并在独立环境验证恢复；不要把备份存放在同一块磁盘。
 - 不要执行 `docker compose down -v`，该命令会删除持久化数据。
 
