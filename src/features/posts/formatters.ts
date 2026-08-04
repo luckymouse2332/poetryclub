@@ -11,9 +11,26 @@ const fullDateFormatter = new Intl.DateTimeFormat("zh-CN", {
   day: "numeric",
 });
 
+const indexDateFormatter = new Intl.DateTimeFormat("zh-CN", {
+  month: "2-digit",
+  day: "2-digit",
+});
+
 /** 完整日期展示（如 2026年8月2日），供列表卡片、详情页与表单元数据使用。 */
 export function formatPoemDate(date: Date): string {
   return fullDateFormatter.format(date);
+}
+
+/** 诗刊目录使用的紧凑日期（如 08.03）。 */
+export function formatPoemIndexDate(date: Date): string {
+  const parts = indexDateFormatter.formatToParts(date);
+  const month = parts.find((part) => part.type === "month")?.value;
+  const day = parts.find((part) => part.type === "day")?.value;
+
+  if (!month || !day) {
+    throw new Error("Unable to format poem index date");
+  }
+  return `${month}.${day}`;
 }
 
 /** 把 `Date` 格式化为 `type="date"` 输入框需要的 YYYY-MM-DD 值。 */

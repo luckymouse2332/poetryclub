@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { Button } from "./ui/button";
+import { SiteNavLink } from "@/components/site-nav-link";
 
 type SiteHeaderProps = Readonly<{
   /**
@@ -14,37 +13,33 @@ export function SiteHeader({ navigation }: SiteHeaderProps) {
     <header className="border-b border-border-subtle bg-surface">
       <nav
         aria-label="主导航"
-        className="mx-auto flex w-full max-w-content flex-wrap items-center justify-between gap-x-4 px-page py-3 sm:min-h-20 sm:flex-nowrap sm:py-0"
+        className="mx-auto flex w-full max-w-content flex-col px-page py-4 lg:min-h-24 lg:flex-row lg:items-center lg:justify-between lg:gap-x-8 lg:py-0"
       >
-        <Link
-          href="/"
-          className="flex min-h-control min-w-0 items-center gap-3 rounded-md no-underline"
+        <SiteNavLink
+          href="/#top"
+          variant="brand"
+          className="inline-flex min-h-control min-w-0 self-start items-center font-serif text-page-title font-medium tracking-[0.18em] text-foreground no-underline lg:self-auto"
         >
-          <span
-            aria-hidden="true"
-            className="flex size-9 shrink-0 items-center justify-center rounded-sm border border-seal bg-seal-surface font-serif text-lg font-bold text-seal"
-          >
-            回
-          </span>
-          <span className="min-w-0 leading-tight">
-            <span className="block font-semibold tracking-widest text-foreground">
-              回中诗社
-            </span>
-            <span className="mt-1 block font-serif text-caption tracking-widest text-subtle">
-              2021—2024级
-            </span>
-          </span>
-        </Link>
-        <ul className="flex w-full items-center justify-end gap-1 border-t border-border-subtle pt-2 sm:w-auto sm:border-0 sm:pt-0">
+          回中诗社
+        </SiteNavLink>
+        <ul className="mt-3 grid w-full grid-cols-3 items-center gap-y-1 border-t border-border-subtle pt-2 sm:grid-flow-col sm:auto-cols-fr sm:grid-cols-none lg:mt-0 lg:flex lg:w-auto lg:flex-wrap lg:justify-end lg:gap-x-4 lg:border-0 lg:pt-0">
           <li>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/">首页</Link>
-            </Button>
+            <SiteNavLink
+              href="/poems"
+              match="prefix"
+              className="inline-flex min-h-control items-center justify-center whitespace-nowrap px-2 font-serif text-body text-foreground no-underline transition-colors hover:text-seal"
+            >
+              诗作
+            </SiteNavLink>
           </li>
           <li>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/poems">诗作</Link>
-            </Button>
+            <SiteNavLink
+              href="/#about"
+              match="none"
+              className="inline-flex min-h-control items-center justify-center whitespace-nowrap px-2 font-serif text-body text-foreground no-underline transition-colors hover:text-seal"
+            >
+              关于
+            </SiteNavLink>
           </li>
           {navigation}
         </ul>

@@ -1,0 +1,202 @@
+.homeContainer {
+  max-width: none;
+  padding-inline: clamp(var(--space-4), 2.55vw, var(--space-12));
+  padding-block: 0;
+}
+
+.animatedTextLink .linkArrow {
+  display: inline-block;
+  transition: transform 160ms ease;
+}
+
+.animatedTextLink:hover .linkArrow,
+.animatedTextLink:focus-visible .linkArrow {
+  transform: translateX(0.35rem);
+}
+
+.hero {
+  display: grid;
+  gap: var(--space-12);
+  background: var(--background);
+  padding-inline: var(--space-page-gutter);
+  padding-block: clamp(4rem, 14vw, 6rem) var(--space-16);
+}
+
+.introduction {
+  align-self: center;
+  min-width: 0;
+}
+
+.introductionContent {
+  max-width: var(--narrow-max-width);
+}
+
+.introductionContent h1 {
+  white-space: nowrap;
+}
+
+.archive {
+  min-width: 0;
+}
+
+.archiveWindow {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1707 / 983;
+  background: var(--paper-aged);
+}
+
+.archiveImage {
+  object-fit: cover;
+  object-position: center;
+}
+
+.indexAndAbout {
+  display: grid;
+  gap: var(--space-16);
+  border-top: 1px solid var(--border-strong);
+  padding-block: var(--space-12) var(--space-16);
+}
+
+.index,
+.about {
+  min-width: 0;
+}
+
+.indexTitle::after {
+  display: block;
+  width: 4.5rem;
+  height: 2px;
+  margin-top: var(--space-3);
+  background: var(--seal);
+  content: "";
+}
+
+.poemIndexRow {
+  display: grid;
+  grid-template-columns: 4.25rem minmax(0, 1fr);
+  gap: 0.35rem var(--space-3);
+  align-items: baseline;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-block: var(--space-4);
+}
+
+.poemDate,
+.poemAuthor {
+  color: var(--text-secondary);
+  font-family: var(--font-sans), "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-compact);
+}
+
+.poemTitle {
+  min-width: 0;
+  color: var(--foreground);
+  font-family: var(--font-serif), "Songti SC", SimSun, serif;
+  font-size: var(--font-size-body-lg);
+  font-weight: 500;
+  line-height: var(--line-height-copy);
+  overflow-wrap: anywhere;
+}
+
+.poemLink {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.28em;
+  transition:
+    color 160ms ease,
+    text-decoration-color 160ms ease;
+}
+
+.poemLink:hover,
+.poemLink:focus-visible {
+  color: var(--seal-foreground);
+  text-decoration-color: var(--seal);
+}
+
+.poemAuthor {
+  grid-column: 2;
+  margin: 0;
+}
+
+@media (min-width: 48rem) {
+  .poemIndexRow {
+    grid-template-columns: 4.5rem minmax(0, 1fr) minmax(4.5rem, auto);
+    gap: var(--space-4);
+    padding-inline: var(--space-2);
+  }
+
+  .poemAuthor {
+    grid-column: 3;
+    max-width: 10rem;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (min-width: 64rem) {
+  .hero {
+    --hero-page-edge: max(
+      var(--space-page-gutter),
+      calc(
+        (100% - var(--content-max-width)) / 2 + var(--space-page-gutter)
+      )
+    );
+
+    grid-template-columns:
+      var(--hero-page-edge) repeat(12, minmax(0, 1fr))
+      var(--hero-page-edge);
+    gap: 0;
+    align-items: stretch;
+    min-height: clamp(36rem, calc(100svh - 6rem), 48rem);
+    padding-inline: 0;
+    padding-block: 0;
+  }
+
+  .introduction {
+    display: flex;
+    align-items: center;
+    z-index: 1;
+    grid-column: 1 / 7;
+    grid-row: 1;
+    align-self: stretch;
+    background: var(--background);
+    clip-path: polygon(
+      0 0,
+      91% 0,
+      96% 12%,
+      93% 27%,
+      97% 42%,
+      92% 58%,
+      96% 74%,
+      93% 88%,
+      97% 94%,
+      84% 100%,
+      0 100%
+    );
+    padding: clamp(5rem, 10vh, 7rem) clamp(5rem, 7vw, 8rem)
+      clamp(4rem, 8vh, 6rem) clamp(3.25rem, 6.7vw, 6.5rem);
+  }
+
+  .archive {
+    grid-column: 5 / -1;
+    grid-row: 1;
+  }
+
+  .archiveWindow {
+    height: 100%;
+    aspect-ratio: auto;
+  }
+
+  .archiveImage {
+    object-position: 25% center;
+  }
+
+  .indexAndAbout {
+    grid-template-columns: minmax(0, 1.08fr) minmax(22rem, 0.92fr);
+    gap: clamp(3rem, 5vw, 6rem);
+    padding-block: var(--space-12) 5rem;
+  }
+}

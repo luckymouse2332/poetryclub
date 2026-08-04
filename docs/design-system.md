@@ -20,19 +20,19 @@
 
 | 语义 | CSS Token | 色值 | 用途 |
 | --- | --- | --- | --- |
-| Page | `--background` | `#F3EDE2` | 页面最外层暖米色背景 |
-| Surface | `--surface` | `#FBF8F1` | 导航、主内容与卡片 |
-| Surface muted | `--surface-muted` | `#F6F0E6` | 次级区域、分段控件 |
-| Paper | `--paper` | `#FFFDF8` | 阅读和输入表面 |
+| Page | `--background` | `#F1EBDF` | 页面最外层暖米色背景 |
+| Surface | `--surface` | `#F4EFE5` | 导航、主内容与卡片 |
+| Surface muted | `--surface-muted` | `#ECE3D4` | 次级区域、分段控件 |
+| Paper | `--paper` | `#F8F2E7` | 阅读和输入表面 |
 | Paper aged | `--paper-aged` | `#EEE2CE` | 校刊视觉中的少量旧纸层次 |
-| 主要文字 | `--foreground` | `#24211D` | 标题与正文 |
-| 次要文字 | `--text-secondary` | `#615B52` | 说明、元数据 |
-| 弱化文字 | `--muted-foreground` | `#7A7268` | 非关键提示、占位符 |
+| 主要文字 | `--foreground` | `#201E1A` | 标题与正文 |
+| 次要文字 | `--text-secondary` | `#5B554C` | 说明、元数据 |
+| 弱化文字 | `--muted-foreground` | `#70685E` | 非关键提示、占位符 |
 | 反色文字 | `--primary-foreground` | `#FAF7F0` | 深色按钮文字 |
 | 品牌蓝 | `--primary` | `#28597F` | 主要交互 |
 | 品牌蓝 hover | `--primary-hover` | `#204866` | hover |
 | 品牌蓝 active | `--primary-active` | `#193A54` | active / 深色品牌区 |
-| 印章红 | `--seal` | `#A94C39` | 少量品牌、档案印记 |
+| 印章红 | `--seal` | `#8E352F` | 少量品牌、档案印记 |
 | 危险 | `--danger` | `#A64238` | 错误、删除操作 |
 | 成功 | `--success` | `#527450` | 成功、确认状态 |
 | 提醒 | `--warning` | `#926B2D` | 提醒、待处理状态 |

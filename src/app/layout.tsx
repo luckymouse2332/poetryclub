@@ -39,7 +39,11 @@ export default function RootLayout({
     <html
       lang="zh-CN"
       data-scroll-behavior="smooth"
-      className={cn(notoSans.variable, notoSerif.variable, "h-full antialiased")}
+      className={cn(
+        notoSans.variable,
+        notoSerif.variable,
+        "h-full antialiased",
+      )}
     >
       <body className="flex min-h-full flex-col">
         <SiteHeader navigation={<AuthNavigation />} />

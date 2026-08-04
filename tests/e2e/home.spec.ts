@@ -1,9 +1,33 @@
 import { expect, test } from "@playwright/test";
 
+import {
+  createHomePoemVisibilityFixtures,
+  deletePoemsByIds,
+} from "./helpers/database";
+
 test("home page shows the community identity without fake business content", async ({
   page,
 }) => {
+  const browserErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") browserErrors.push(message.text());
+  });
+  page.on("pageerror", (error) => browserErrors.push(error.message));
+
   await page.goto("/");
+
+  const palette = await page.evaluate(() => ({
+    background: getComputedStyle(document.body).backgroundColor,
+    foreground: getComputedStyle(document.body).color,
+    headerSurface: getComputedStyle(document.querySelector("header")!)
+      .backgroundColor,
+    heroSurface: getComputedStyle(document.querySelector("#top > div")!)
+      .backgroundColor,
+  }));
+  expect(palette.background).toBe("rgb(241, 235, 223)");
+  expect(palette.foreground).toBe("rgb(32, 30, 26)");
+  expect(palette.headerSurface).toBe("rgb(244, 239, 229)");
+  expect(palette.heroSurface).toBe("rgb(241, 235, 223)");
 
   await expect(page).toHaveTitle(/回中诗社/);
   await expect(
@@ -12,23 +36,19 @@ test("home page shows the community identity without fake business content", asy
   await expect(page.getByText("2021—2024级").first()).toBeVisible();
   await expect(
     page.getByText(
-      "初中时代的打油诗和班史。",
+      "三年里随手写下来的诗，",
     ),
   ).toBeVisible();
   await expect(
-    page.getByRole("img", { name: "回中诗社校园视觉" }),
+    page.getByRole("img", {
+      name: "深色桌面上并列摆放着磨损的《杂诗集》封面和翻开的两页手写诗稿",
+    }),
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: "关于回中诗社" })).toBeVisible();
-  await expect(page.getByText("回中诗社源自社长Kevin自己的创作，但这里不是你想象中的那种正经诗社。")).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "收录标准", exact: true }),
-  ).toBeVisible();
-  await expect(page.getByRole("listitem").filter({ hasText: "押韵可选" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "网站正在建设" })).toBeVisible();
-  await expect(page.getByText("账户与登录")).toBeVisible();
-  await expect(page.getByText("诗作阅读")).toBeVisible();
-  await expect(page.getByText("诗作发布")).toBeVisible();
-  await expect(page.getByText("已开放")).toHaveCount(3);
+  await expect(page.getByText(/回中诗社源自社长\s*Kevin/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "收录标准" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "网站正在建设" })).toHaveCount(0);
+  await expect(page.getByText("网站还没修完，不过诗已经能看，也能写了。")).toHaveCount(0);
   await expect(page.getByText("当前阶段先搭好可靠的页面与阅读基础")).toHaveCount(
     0,
   );
@@ -36,19 +56,175 @@ test("home page shows the community identity without fake business content", asy
     0,
   );
 
-  // 匿名访客的首屏主操作仍然是登录入口。
+  // 匿名访客从首页直接阅读，登录只保留在刊头导航。
   const main = page.getByRole("main");
-  const mainLinks = main.getByRole("link");
-  await expect(mainLinks.nth(0)).toHaveAttribute("href", "/login?next=/account");
-  await expect(mainLinks.nth(1)).toHaveAttribute("href", "#about");
+  const randomLink = main.getByRole("link", { name: "随便翻翻" });
+  await expect(randomLink).toHaveAttribute(
+    "href",
+    "/poems",
+  );
+  await expect(main.getByRole("link", { name: "登录" })).toHaveCount(0);
   await expect(main.getByRole("link", { name: "写一首" })).toHaveCount(0);
   await expect(main.getByText(/^欢迎回来/)).toHaveCount(0);
-  await expect(
-    page.getByRole("heading", { level: 2, name: "最近诗作" }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("link", { name: "浏览全部诗作" }),
-  ).toHaveAttribute("href", "/poems");
+  const latestPoemsTitle = page.getByRole("heading", {
+    level: 2,
+    name: "最新诗作",
+  });
+  await expect(latestPoemsTitle).toBeVisible();
+  const titleRuleStyle = await latestPoemsTitle.evaluate((element) => {
+    const styles = getComputedStyle(element, "::after");
+    return {
+      content: styles.content,
+      display: styles.display,
+      width: styles.width,
+      height: styles.height,
+      marginTop: styles.marginTop,
+      backgroundColor: styles.backgroundColor,
+    };
+  });
+  expect(titleRuleStyle).toEqual({
+    content: '""',
+    display: "block",
+    width: "72px",
+    height: "2px",
+    marginTop: "12px",
+    backgroundColor: "rgb(142, 53, 47)",
+  });
+  const allPoemsLink = page.getByRole("link", { name: "查看全部" });
+  await expect(allPoemsLink).toHaveAttribute("href", "/poems");
+
+  const randomArrow = randomLink.locator("span[aria-hidden='true']");
+  const baseRandomTransform = await randomArrow.evaluate(
+    (element) => getComputedStyle(element).transform,
+  );
+  await randomLink.hover();
+  await page.waitForTimeout(180);
+  expect(
+    await randomArrow.evaluate((element) => getComputedStyle(element).transform),
+  ).not.toBe(baseRandomTransform);
+
+  await page.mouse.move(0, 0);
+  const allPoemsArrow = allPoemsLink.locator("span[aria-hidden='true']");
+  const baseUnderlineColor = await allPoemsLink.evaluate(
+    (element) => getComputedStyle(element).textDecorationColor,
+  );
+  const baseAllPoemsTransform = await allPoemsArrow.evaluate(
+    (element) => getComputedStyle(element).transform,
+  );
+  await allPoemsLink.hover();
+  await page.waitForTimeout(180);
+  expect(
+    await allPoemsArrow.evaluate(
+      (element) => getComputedStyle(element).transform,
+    ),
+  ).not.toBe(baseAllPoemsTransform);
+  expect(
+    await allPoemsLink.evaluate(
+      (element) => getComputedStyle(element).textDecorationColor,
+    ),
+  ).not.toBe(baseUnderlineColor);
+  expect(browserErrors).toEqual([]);
+});
+
+test("home index links only visible published poems for anonymous readers", async ({
+  page,
+}) => {
+  const fixtures = await createHomePoemVisibilityFixtures();
+
+  try {
+    await page.goto("/");
+
+    const visibleLink = page.getByRole("link", {
+      name: `《${fixtures.visible.title}》`,
+      exact: true,
+    });
+    await expect(visibleLink).toHaveAttribute(
+      "href",
+      `/poems/${fixtures.visible.id}`,
+    );
+    await expect(page.getByText(fixtures.draftTitle)).toHaveCount(0);
+    await expect(page.getByText(fixtures.withdrawnTitle)).toHaveCount(0);
+    await expect(page.getByText(fixtures.hiddenTitle)).toHaveCount(0);
+
+    const poemRow = visibleLink.locator("xpath=ancestor::li");
+    const baseLinkStyle = await visibleLink.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return {
+        color: style.color,
+        textDecorationColor: style.textDecorationColor,
+        textDecorationLine: style.textDecorationLine,
+      };
+    });
+    const baseRowStyle = await poemRow.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return {
+        backgroundColor: style.backgroundColor,
+        boxShadow: style.boxShadow,
+      };
+    });
+    await visibleLink.hover();
+    await page.waitForTimeout(180);
+    const hoveredLinkStyle = await visibleLink.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return {
+        color: style.color,
+        textDecorationColor: style.textDecorationColor,
+        textDecorationLine: style.textDecorationLine,
+      };
+    });
+    const hoveredRowStyle = await poemRow.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return {
+        backgroundColor: style.backgroundColor,
+        boxShadow: style.boxShadow,
+      };
+    });
+    expect(hoveredRowStyle.backgroundColor).toBe(
+      baseRowStyle.backgroundColor,
+    );
+    expect(hoveredRowStyle.boxShadow).toBe(baseRowStyle.boxShadow);
+    expect(baseLinkStyle.textDecorationLine).toBe("underline");
+    expect(hoveredLinkStyle.textDecorationLine).toBe("underline");
+    expect(hoveredLinkStyle.textDecorationColor).not.toBe(
+      baseLinkStyle.textDecorationColor,
+    );
+    expect(hoveredLinkStyle.color).not.toBe(baseLinkStyle.color);
+
+    await page.mouse.move(0, 0);
+    await visibleLink.focus();
+    await expect(visibleLink).toBeFocused();
+    await page.waitForTimeout(180);
+    const focusedLinkStyle = await visibleLink.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return {
+        color: style.color,
+        textDecorationColor: style.textDecorationColor,
+      };
+    });
+    const focusedRowStyle = await poemRow.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return {
+        backgroundColor: style.backgroundColor,
+        boxShadow: style.boxShadow,
+      };
+    });
+    expect(focusedRowStyle.backgroundColor).toBe(
+      baseRowStyle.backgroundColor,
+    );
+    expect(focusedRowStyle.boxShadow).toBe(baseRowStyle.boxShadow);
+    expect(focusedLinkStyle.color).toBe(hoveredLinkStyle.color);
+    expect(focusedLinkStyle.textDecorationColor).toBe(
+      hoveredLinkStyle.textDecorationColor,
+    );
+
+    await visibleLink.click();
+    await expect(page).toHaveURL(`/poems/${fixtures.visible.id}`);
+    await expect(
+      page.getByRole("heading", { level: 1, name: fixtures.visible.title }),
+    ).toBeVisible();
+  } finally {
+    await deletePoemsByIds(fixtures.ids);
+  }
 });
 
 test("site header navigation is present", async ({ page }) => {
@@ -56,10 +232,92 @@ test("site header navigation is present", async ({ page }) => {
 
   const nav = page.getByRole("navigation");
   await expect(nav).toBeVisible();
-  await expect(nav.getByRole("link", { name: "首页" })).toBeVisible();
+  const brandLink = nav.getByRole("link", { name: "回中诗社" });
+  await expect(brandLink).toHaveAttribute("aria-current", "page");
+  await expect(brandLink).toHaveAttribute("href", "/#top");
   await expect(nav.getByRole("link", { name: "诗作" })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "关于" })).toBeVisible();
   await expect(nav.getByRole("link", { name: "登录" })).toBeVisible();
   await expect(nav.getByRole("link")).toHaveCount(4);
+});
+
+test("mobile header keeps the key navigation usable", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/");
+
+  const nav = page.getByRole("navigation", { name: "主导航" });
+  const poemsLink = nav.getByRole("link", { name: "诗作" });
+  const aboutLink = nav.getByRole("link", { name: "关于" });
+  const loginLink = nav.getByRole("link", { name: "登录" });
+  await expect(poemsLink).toBeVisible();
+  await expect(aboutLink).toBeVisible();
+  await expect(loginLink).toBeVisible();
+
+  const [poemsBox, aboutBox, loginBox] = await Promise.all([
+    poemsLink.boundingBox(),
+    aboutLink.boundingBox(),
+    loginLink.boundingBox(),
+  ]);
+  expect(poemsBox).not.toBeNull();
+  expect(aboutBox).not.toBeNull();
+  expect(loginBox).not.toBeNull();
+  expect(poemsBox!.x + poemsBox!.width).toBeLessThanOrEqual(375);
+  expect(aboutBox!.x + aboutBox!.width).toBeLessThanOrEqual(375);
+  expect(loginBox!.x + loginBox!.width).toBeLessThanOrEqual(375);
+
+  await poemsLink.click();
+  await expect(page).toHaveURL("/poems");
+  await expect(
+    page.getByRole("navigation", { name: "主导航" }).getByRole("link", {
+      name: "诗作",
+    }),
+  ).toHaveAttribute("aria-current", "page");
+
+  await page.goto("/");
+  await aboutLink.click();
+  await expect(page).toHaveURL(/\/#about$/);
+  const aboutHeading = page.getByRole("heading", { name: "关于回中诗社" });
+  await expect(aboutHeading).toBeVisible();
+  const expectedAboutScroll = await page.locator("#about").evaluate((target) =>
+    Math.min(
+      (target as HTMLElement).offsetTop,
+      document.documentElement.scrollHeight - window.innerHeight,
+    ),
+  );
+  await expect
+    .poll(async () =>
+      Math.abs((await page.evaluate(() => window.scrollY)) - expectedAboutScroll),
+    )
+    .toBeLessThan(2);
+
+  // 即使 URL 已经是 #about，回到页首后再次点击仍会重新滚动。
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+  await aboutLink.click();
+  await expect
+    .poll(async () =>
+      Math.abs((await page.evaluate(() => window.scrollY)) - expectedAboutScroll),
+    )
+    .toBeLessThan(2);
+
+  const brandLink = nav.getByRole("link", { name: "回中诗社" });
+  const hero = page.locator("#top");
+  const header = page.getByRole("banner");
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+  await brandLink.click();
+  await expect(page).toHaveURL(/\/#top$/);
+  await expect
+    .poll(async () => Math.abs((await hero.boundingBox())?.y ?? 9999))
+    .toBeLessThan(2);
+  await expect
+    .poll(async () => (await header.boundingBox())?.y ?? 0)
+    .toBeLessThan(0);
+
+  // URL 已经是 #top 时也应再次触发，而不是变成无效链接。
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+  await brandLink.click();
+  await expect
+    .poll(async () => Math.abs((await hero.boundingBox())?.y ?? 9999))
+    .toBeLessThan(2);
 });
 
 test("site footer aligns brand, centered legal notice and policy links on one row", async ({
@@ -222,8 +480,9 @@ test("login page exposes the minimal email flow", async ({ page }) => {
 });
 
 for (const viewport of [
-  { width: 390, height: 844 },
+  { width: 375, height: 812 },
   { width: 768, height: 1024 },
+  { width: 1024, height: 900 },
   { width: 1440, height: 900 },
 ]) {
   test(`home and login avoid horizontal overflow at ${viewport.width}px`, async ({
@@ -240,20 +499,77 @@ for (const viewport of [
       expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
 
       if (path === "/") {
+        const latestSectionBox = await page
+          .getByRole("heading", { level: 2, name: "最新诗作" })
+          .locator("xpath=ancestor::section")
+          .boundingBox();
         const titleBox = await page
           .getByRole("heading", { level: 1, name: "回中诗社" })
           .boundingBox();
         const visualBox = await page
-          .getByRole("img", { name: "回中诗社校园视觉" })
+          .getByRole("img", {
+            name: "深色桌面上并列摆放着磨损的《杂诗集》封面和翻开的两页手写诗稿",
+          })
           .boundingBox();
 
         expect(titleBox).not.toBeNull();
         expect(visualBox).not.toBeNull();
+        expect(latestSectionBox).not.toBeNull();
 
-        if (viewport.width < 768) {
+        const expectedContentGutter = Math.min(
+          48,
+          Math.max(16, viewport.width * 0.0255),
+        );
+        expect(
+          Math.abs(latestSectionBox!.x - expectedContentGutter),
+        ).toBeLessThan(2);
+
+        const hasPageTransitionStyles = await page.evaluate(() =>
+          [...document.styleSheets].some((styleSheet) => {
+            try {
+              return [...styleSheet.cssRules].some((rule) =>
+                rule.cssText.includes("view-transition-old") &&
+                rule.cssText.includes(".page-transition"),
+              );
+            } catch {
+              return false;
+            }
+          }),
+        );
+        expect(hasPageTransitionStyles).toBe(false);
+
+        if (viewport.width < 1024) {
           expect(titleBox!.y + titleBox!.height).toBeLessThan(visualBox!.y);
         } else {
-          expect(titleBox!.x + titleBox!.width).toBeLessThan(visualBox!.x);
+          const [introductionBox, archiveBox] = await Promise.all([
+            page.locator("#top > div").nth(0).boundingBox(),
+            page.locator("#top > div").nth(1).boundingBox(),
+          ]);
+          expect(introductionBox).not.toBeNull();
+          expect(archiveBox).not.toBeNull();
+          expect(introductionBox!.width / viewport.width).toBeLessThanOrEqual(
+            0.45,
+          );
+          expect(archiveBox!.width / viewport.width).toBeGreaterThanOrEqual(
+            0.68,
+          );
+          expect(
+            await page
+              .getByRole("heading", { level: 1, name: "回中诗社" })
+              .evaluate((element) => getComputedStyle(element).whiteSpace),
+          ).toBe("nowrap");
+
+          const expectedTitleInset = Math.min(
+            104,
+            Math.max(52, viewport.width * 0.067),
+          );
+          expect(Math.abs(titleBox!.x - expectedTitleInset)).toBeLessThan(2);
+          const titleCenter = titleBox!.x + titleBox!.width / 2;
+          const visualCenter = visualBox!.x + visualBox!.width / 2;
+          expect(titleCenter).toBeLessThan(visualCenter);
+          expect(Math.abs(titleBox!.y - visualBox!.y)).toBeLessThan(
+            visualBox!.height,
+          );
         }
       }
     }
@@ -264,10 +580,10 @@ test("site navigation and login form are keyboard reachable", async ({ page }) =
   await page.goto("/login");
 
   const brand = page.getByRole("link", { name: /回中诗社/ });
-  const home = page.getByRole("navigation").getByRole("link", { name: "首页" });
+  const poems = page.getByRole("navigation").getByRole("link", { name: "诗作" });
   await brand.focus();
   await page.keyboard.press("Tab");
-  await expect(home).toBeFocused();
+  await expect(poems).toBeFocused();
 
   const signInTab = page.getByRole("tab", { name: "登录" });
   const signUpTab = page.getByRole("tab", { name: "注册" });

@@ -2,6 +2,7 @@ import {
   expect,
   test,
   type BrowserContext,
+  type Locator,
   type Page,
 } from "@playwright/test";
 
@@ -33,6 +34,18 @@ async function waitForHydration(page: Page, selector: string): Promise<void> {
         Object.keys(element).some((key) => key.startsWith("__reactFiber$")),
     );
   }, selector);
+}
+
+async function waitForHydratedLocator(locator: Locator): Promise<void> {
+  await expect
+    .poll(
+      () =>
+        locator.evaluate((element) =>
+          Object.keys(element).some((key) => key.startsWith("__reactFiber$")),
+        ),
+      { timeout: 30_000 },
+    )
+    .toBe(true);
 }
 
 async function signIn(
@@ -92,14 +105,27 @@ function cardByText(page: Page, text: string) {
   return page.locator('[data-slot="card"]').filter({ hasText: text });
 }
 
+async function openReasonDialog(
+  page: Page,
+  trigger: Locator,
+): Promise<Locator> {
+  await waitForHydratedLocator(trigger);
+  await trigger.click();
+  const dialog = page.getByRole("alertdialog");
+  await expect(dialog).toBeVisible();
+  return dialog;
+}
+
 async function submitReasonDialog(
   page: Page,
   trigger: string,
   confirm: string,
   reason: string,
 ): Promise<void> {
-  await page.getByRole("button", { name: trigger, exact: true }).click();
-  const dialog = page.getByRole("alertdialog");
+  const dialog = await openReasonDialog(
+    page,
+    page.getByRole("button", { name: trigger, exact: true }),
+  );
   await dialog.getByLabel("原因").fill(reason);
   await dialog.getByRole("button", { name: confirm, exact: true }).click();
   await expect(dialog).toHaveCount(0);
@@ -155,13 +181,16 @@ test.describe.serial("administrator authorization and governance", () => {
     ).toHaveCount(0);
 
     await adminPage.goto(`/admin/poems?q=${encodeURIComponent(poemTitle)}`);
+    const card = cardByText(adminPage, poemTitle);
+    const hideButton = card.getByRole("button", { name: "隐藏", exact: true });
+    await waitForHydratedLocator(hideButton);
     const adminCookies = await adminContext.cookies();
     const memberCookies = await memberContext.cookies();
     await adminContext.clearCookies();
     await adminContext.addCookies(memberCookies);
-    const card = cardByText(adminPage, poemTitle);
-    await card.getByRole("button", { name: "隐藏", exact: true }).click();
+    await hideButton.click();
     const dialog = adminPage.getByRole("alertdialog");
+    await expect(dialog).toBeVisible();
     await dialog.getByLabel("原因").fill("伪造管理员参数");
     await dialog.getByRole("button", { name: "确认隐藏" }).click();
     await expect(dialog.getByRole("alert")).toContainText("没有执行此管理操作的权限");
@@ -191,8 +220,10 @@ test.describe.serial("administrator authorization and governance", () => {
   test("hiding is immediately private, survives author changes, and restore follows author status", async () => {
     await adminPage.goto(`/admin/poems?q=${encodeURIComponent(poemTitle)}`);
     const card = cardByText(adminPage, poemTitle);
-    await card.getByRole("button", { name: "隐藏", exact: true }).click();
-    const dialog = adminPage.getByRole("alertdialog");
+    const dialog = await openReasonDialog(
+      adminPage,
+      card.getByRole("button", { name: "隐藏", exact: true }),
+    );
     await dialog.getByLabel("原因").fill(hiddenReason);
     await dialog.getByRole("button", { name: "确认隐藏" }).click();
     await expect(cardByText(adminPage, poemTitle).getByText("已隐藏", { exact: true })).toBeVisible();
@@ -215,10 +246,13 @@ test.describe.serial("administrator authorization and governance", () => {
     expect(await countAuditEntries("poem_hidden", poemId)).toBe(1);
 
     await adminPage.goto(`/admin/poems?q=${encodeURIComponent(poemTitle)}`);
-    await cardByText(adminPage, poemTitle)
-      .getByRole("button", { name: "恢复", exact: true })
-      .click();
-    const restore = adminPage.getByRole("alertdialog");
+    const restore = await openReasonDialog(
+      adminPage,
+      cardByText(adminPage, poemTitle).getByRole("button", {
+        name: "恢复",
+        exact: true,
+      }),
+    );
     await restore.getByLabel("原因").fill("作者已完成调整");
     await restore.getByRole("button", { name: "确认恢复" }).click();
     await expect(
@@ -244,8 +278,10 @@ test.describe.serial("administrator authorization and governance", () => {
 
     await adminPage.goto(`/admin/users?q=${encodeURIComponent(memberEmail)}`);
     const card = cardByText(adminPage, memberEmail);
-    await card.getByRole("button", { name: "禁用用户", exact: true }).click();
-    const dialog = adminPage.getByRole("alertdialog");
+    const dialog = await openReasonDialog(
+      adminPage,
+      card.getByRole("button", { name: "禁用用户", exact: true }),
+    );
     await dialog.getByLabel("原因").fill("异常写入行为测试");
     await dialog.getByRole("button", { name: "确认禁用" }).click();
 
@@ -272,13 +308,15 @@ test.describe.serial("administrator authorization and governance", () => {
 
   test("only an active administrator can create and disable invitations without leaking plaintext", async () => {
     await adminPage.goto("/admin/invitations");
+    const createButton = adminPage.getByRole("button", { name: "创建邀请码" });
+    await waitForHydratedLocator(createButton);
     const adminCookies = await adminContext.cookies();
     const memberCookies = await memberContext.cookies();
     await adminContext.clearCookies();
     await adminContext.addCookies(memberCookies);
     await adminPage.getByLabel("可用次数").fill("1");
     await adminPage.getByLabel("过期时间").fill("2030-01-01T12:00");
-    await adminPage.getByRole("button", { name: "创建邀请码" }).click();
+    await createButton.click();
     await expect(
       adminPage
         .locator('main [role="alert"]')
@@ -299,8 +337,10 @@ test.describe.serial("administrator authorization and governance", () => {
     expect(await auditContainsText(code!.trim())).toBe(false);
 
     const firstCard = adminPage.locator('[data-slot="card"]').first();
-    await firstCard.getByRole("button", { name: "停用邀请码" }).click();
-    const disable = adminPage.getByRole("alertdialog");
+    const disable = await openReasonDialog(
+      adminPage,
+      firstCard.getByRole("button", { name: "停用邀请码" }),
+    );
     await disable.getByLabel("原因").fill("测试停用邀请码");
     await disable.getByRole("button", { name: "确认停用" }).click();
     await expect(adminPage.getByText("已停用", { exact: true }).first()).toBeVisible();
@@ -384,20 +424,24 @@ test.describe.serial("administrator authorization and governance", () => {
       await adminPage.goto(`/admin/users?q=${encodeURIComponent(secondEmail)}`);
       const primaryCookies = await adminContext.cookies();
       const secondCookies = await secondContext.cookies();
+      const suspendSelfButton = cardByText(adminPage, secondEmail).getByRole(
+        "button",
+        { name: "禁用用户" },
+      );
+      await waitForHydratedLocator(suspendSelfButton);
       await adminContext.clearCookies();
       await adminContext.addCookies(secondCookies);
-      await cardByText(adminPage, secondEmail)
-        .getByRole("button", { name: "禁用用户" })
-        .click();
-      const selfDialog = adminPage.getByRole("alertdialog");
+      const selfDialog = await openReasonDialog(adminPage, suspendSelfButton);
       await selfDialog.getByLabel("原因").fill("伪造自我禁用");
       await selfDialog.getByRole("button", { name: "确认禁用" }).click();
       await expect(selfDialog.getByRole("alert")).toContainText("不能对自己的管理员身份");
       await selfDialog.getByRole("button", { name: "取消" }).click();
-      await cardByText(adminPage, secondEmail)
-        .getByRole("button", { name: "降级为成员" })
-        .click();
-      const selfDemotion = adminPage.getByRole("alertdialog");
+      const selfDemotion = await openReasonDialog(
+        adminPage,
+        cardByText(adminPage, secondEmail).getByRole("button", {
+          name: "降级为成员",
+        }),
+      );
       await selfDemotion.getByLabel("原因").fill("伪造自我降级");
       await selfDemotion.getByRole("button", { name: "确认降级" }).click();
       await expect(selfDemotion.getByRole("alert")).toContainText(
@@ -422,17 +466,21 @@ test.describe.serial("administrator authorization and governance", () => {
       expect(await countActiveAdmins()).toBe(2);
 
       await adminPage.goto(`/admin/users?q=${encodeURIComponent(secondEmail)}`);
-      await cardByText(adminPage, secondEmail)
-        .getByRole("button", { name: "禁用用户" })
-        .click();
-      const primaryDialog = adminPage.getByRole("alertdialog");
+      const primaryDialog = await openReasonDialog(
+        adminPage,
+        cardByText(adminPage, secondEmail).getByRole("button", {
+          name: "禁用用户",
+        }),
+      );
       await primaryDialog.getByLabel("原因").fill("并发移除第二管理员");
 
       await secondPage.goto(`/admin/users?q=${encodeURIComponent(E2E_ADMIN_EMAIL)}`);
-      await cardByText(secondPage, E2E_ADMIN_EMAIL)
-        .getByRole("button", { name: "禁用用户" })
-        .click();
-      const secondDialog = secondPage.getByRole("alertdialog");
+      const secondDialog = await openReasonDialog(
+        secondPage,
+        cardByText(secondPage, E2E_ADMIN_EMAIL).getByRole("button", {
+          name: "禁用用户",
+        }),
+      );
       await secondDialog.getByLabel("原因").fill("并发移除第一管理员");
 
       await Promise.allSettled([

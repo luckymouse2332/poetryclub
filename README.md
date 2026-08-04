@@ -1,65 +1,115 @@
 # 回中诗社
 
-校园诗歌兴趣社区（Web）。当前处于 **M0 工程基线** 阶段：可运行、可测试、可持续扩展的工程骨架，暂不包含业务功能。
+回中诗社是一个面向校园的诗歌兴趣社区，也是对 2021—2024 级共同记忆的线上整理。项目当前已经完成认证、邀请注册、诗作发布和管理治理闭环，并完成了以暖米纸色和诗集合照为核心的首页视觉改造。
 
-## 技术栈
+## 当前功能
 
-Next.js App Router / React / TypeScript（strict）/ pnpm / PostgreSQL / Drizzle ORM / Better Auth / Zod / Tailwind CSS / shadcn/ui / Vitest / Playwright。
+- 游客可以浏览分页诗作列表、诗作详情和公开首页内容。
+- 用户通过邀请码注册，登录后可以发布、编辑和管理自己的草稿或已发布诗作。
+- 账号具有成员、管理员角色以及正常、停用状态，服务端入口会独立执行身份、权限、输入和业务规则校验。
+- 管理员可以管理用户与邀请码、调整诗作可见性和发布状态，并查看分页审计记录。
+- 首页、诗作列表和导航已经采用统一的暖纸配色、文字链接反馈与响应式布局。
 
-## 本地启动
+评论、点赞、收藏、通知、私信、搜索和实时聊天仍属于后续范围，当前尚未实现。准确的任务状态以 [`docs/tasks/README.md`](docs/tasks/README.md) 为准。
 
-要求：Node.js 20.9+、pnpm 10.33+ 与 Docker Compose v2。
+## 技术与架构
 
-```bash
+项目使用 Next.js 16 App Router、React 19、TypeScript strict、pnpm、PostgreSQL、Drizzle ORM、Better Auth、Zod、Tailwind CSS、shadcn/ui、Vitest 和 Playwright。
+
+整体采用模块化单体结构。`src/app` 只负责路由和页面组合，业务按功能放在 `src/features`，服务端认证、数据库、策略、服务和校验集中在 `src/server`。页面默认使用 Server Components，数据库只能由服务端模块访问。
+
+## 本地开发
+
+需要 Node.js 20.9 或更高版本、pnpm 10.33 或更高版本，以及 Docker Compose v2。
+
+先安装依赖并复制环境变量文件：
+
+```powershell
 pnpm install
-cp .env.example .env.local
+Copy-Item .env.example .env.local
+```
+
+复制后至少需要调整以下三项。开发服务器固定使用 `4000` 端口；仓库中的开发数据库 Compose 默认映射到本机 `15432` 端口，因此 `DATABASE_URL` 必须与该端口保持一致。
+
+```dotenv
+DATABASE_URL=postgresql://poetryclub:poetryclub_dev@localhost:15432/poetryclub
+BETTER_AUTH_SECRET=请替换为至少32字符的随机值
+BETTER_AUTH_URL=http://localhost:4000
+```
+
+随后启动 PostgreSQL、执行已经提交的 migration，并启动应用：
+
+```powershell
 docker compose up -d db
 pnpm db:migrate
 pnpm dev
 ```
 
-请先把 `.env.local` 中的 `BETTER_AUTH_SECRET` 替换为至少 32 字符的随机值，然后打开 http://127.0.0.1:3000。若本机 5432 已占用，可设置 `POSTGRES_PORT` 并同步修改 `DATABASE_URL`。
+应用地址为 <http://localhost:4000>。`/api/health` 只用于确认应用进程存活，不代表数据库已经就绪。
 
-## 质量命令
+## 初始化管理员
 
-```bash
-pnpm typecheck    # TypeScript 类型检查
-pnpm lint         # ESLint
-pnpm test         # Vitest 单元测试
-pnpm test:watch   # Vitest 监听模式
-pnpm test:e2e     # Playwright E2E（需要先安装浏览器）
-pnpm build        # 生产构建
-pnpm db:generate  # 根据 Schema 生成版本化 migration
-pnpm db:migrate   # 应用已提交的 migration
-pnpm db:check     # 检查 migration 一致性
+首次使用管理后台时，在 `.env.local` 中设置以下临时变量：
+
+```dotenv
+INITIAL_ADMIN_EMAIL=admin@example.com
+INITIAL_ADMIN_NAME=初始管理员
+INITIAL_ADMIN_PASSWORD=请替换为8至128字符的密码
 ```
+
+完成 migration 后运行：
+
+```powershell
+pnpm admin:bootstrap
+```
+
+该命令可以创建首个管理员，也可以把已有的正常账号提升为管理员，并会写入审计记录。命令可重复执行；它不会自动恢复已经停用的账号。生产环境完成初始化后应移除这些临时变量。
+
+## 常用命令
+
+| 命令 | 用途 |
+| --- | --- |
+| `pnpm dev` | 在 `4000` 端口启动开发服务器 |
+| `pnpm build` | 生成生产构建 |
+| `pnpm start` | 在 `4000` 端口启动生产构建 |
+| `pnpm typecheck` | 执行 TypeScript 类型检查 |
+| `pnpm lint` | 执行 ESLint 检查 |
+| `pnpm test` | 运行 Vitest 单元测试 |
+| `pnpm test:watch` | 以监听模式运行单元测试 |
+| `pnpm test:e2e` | 运行 Playwright E2E 测试 |
+| `pnpm db:generate` | 根据 Schema 生成版本化 migration |
+| `pnpm db:migrate` | 应用已经提交的 migration |
+| `pnpm db:check` | 检查 migration 一致性 |
+| `pnpm db:studio` | 打开 Drizzle Studio |
+| `pnpm admin:bootstrap` | 初始化或提升首个管理员 |
+
+第一次运行 E2E 测试前需要安装 Chromium：
+
+```powershell
+pnpm exec playwright install chromium
+pnpm test:e2e
+```
+
+E2E 测试要求数据库已经启动并完成 migration，测试的全局初始化会建立专用管理员账号。
 
 ## 目录结构
 
 ```text
 src/
-├── app/          # 路由、布局、页面、错误边界（薄层）
-├── components/   # 纯 UI 组件（ui/ 为 shadcn 组件）
-├── features/     # 业务模块（M1 起按功能填充）
-├── server/       # 仅服务端逻辑（auth / db / policies / services / validation）
+├── app/          # 路由、布局、页面组合和请求入口
+├── components/   # 通用 UI 组件，ui/ 为 shadcn 组件
+├── features/     # auth、posts、moderation 等业务模块
+├── server/       # 认证、数据库、策略、服务与校验
 └── lib/          # 通用小工具
-docs/             # 产品、架构、任务文档
-tests/            # 单元测试（unit）与 E2E（e2e）
+docs/             # 产品、架构、设计系统、部署与任务文档
 drizzle/          # 版本化 SQL migration 与快照
+tests/            # Vitest 单元测试和 Playwright E2E 测试
 deploy/           # 生产 Compose、Caddy 与环境变量示例
+scripts/          # 管理员初始化等维护脚本
 ```
-
-## M0 认证与数据库
-
-- Better Auth 提供最小邮箱密码注册 / 登录，入口为 `/api/auth/*`，页面为 `/login`。
-- Drizzle Schema 仅包含 Better Auth 的四张核心表；任何改动必须生成 migration，禁止生产 schema push。
-- `/api/health` 是不访问数据库的进程存活检查，不应当作数据库就绪检查。
-- M0 不包含邮箱验证、密码找回、OAuth、角色或复杂授权。
 
 ## 生产部署
 
-生产使用一个 Next.js 应用容器、一个 PostgreSQL 实例和 Caddy 反向代理，数据库与 Caddy 证书均使用持久卷。参见 [`docs/deployment.md`](docs/deployment.md)。
+生产拓扑为 `Caddy → Next.js app → PostgreSQL`。部署流程会先等待数据库健康并执行版本化 migration，再启动应用和反向代理；数据库与 Caddy 证书使用命名卷持久化。完整配置、首次管理员初始化、备份和回滚说明见 [`docs/deployment.md`](docs/deployment.md)。
 
-## 尚未实现
-
-作品发布、评论、点赞 / 收藏、私信、推荐、搜索、实时聊天、对象存储、Redis、AI 与复杂后台均不属于 M0。
+产品范围、架构边界和视觉规范分别记录在 [`docs/product.md`](docs/product.md)、[`docs/architecture.md`](docs/architecture.md) 和 [`docs/design-system.md`](docs/design-system.md)。
