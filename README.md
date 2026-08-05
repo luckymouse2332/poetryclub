@@ -104,12 +104,12 @@ src/
 docs/             # 产品、架构、设计系统、部署与任务文档
 drizzle/          # 版本化 SQL migration 与快照
 tests/            # Vitest 单元测试和 Playwright E2E 测试
-deploy/           # 生产 Compose、Caddy 与环境变量示例
+deploy/           # 生产 Compose 与环境变量示例
 scripts/          # 管理员初始化等维护脚本
 ```
 
 ## 生产部署
 
-生产拓扑为 `Caddy → Next.js app → PostgreSQL`。部署流程会先等待数据库健康并执行版本化 migration，再启动应用和反向代理；数据库与 Caddy 证书使用命名卷持久化。完整配置、首次管理员初始化、备份和回滚说明见 [`docs/deployment.md`](docs/deployment.md)。
+生产拓扑为 `宿主机 Caddy → 127.0.0.1:4000 → Next.js app → PostgreSQL`。Compose 会先等待数据库健康并执行版本化 migration，再启动应用；Caddy 与证书由宿主机独立管理。完整配置、首次管理员初始化、备份和回滚说明见 [`docs/deployment.md`](docs/deployment.md)。
 
 产品范围、架构边界和视觉规范分别记录在 [`docs/product.md`](docs/product.md)、[`docs/architecture.md`](docs/architecture.md) 和 [`docs/design-system.md`](docs/design-system.md)。

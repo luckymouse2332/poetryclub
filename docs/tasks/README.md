@@ -7,6 +7,7 @@
 | 编号 | 任务 | 状态 | 文档 |
 | ---- | ---- | ---- | ---- |
 | M0 | 工程基线 | 已完成 | [M0-engineering-baseline.md](./M0-engineering-baseline.md) |
+| M0.1 | 宿主机 Caddy 生产部署调整 | 已完成 | [M0.1-host-caddy-production-deployment.md](./M0.1-host-caddy-production-deployment.md) |
 | M1 | 认证会话闭环 | 已完成 | [M1-auth-session-loop.md](./M1-auth-session-loop.md) |
 | M1.5 | 视觉基础设施正式落地 | 已完成 | [M1.5-design-foundation.md](./M1.5-design-foundation.md) |
 | M1.6 | 自定义 UI 组件迁移到 shadcn/ui | 已完成 | [M1.6-shadcn-migration.md](./M1.6-shadcn-migration.md) |
@@ -22,6 +23,7 @@
 | M3.7 | 暖纸配色与诗名链接反馈 | 已完成 | [M3.7-warm-palette-poem-link-hover.md](./M3.7-warm-palette-poem-link-hover.md) |
 | M3.8 | 登出按钮导航样式对齐 | 已完成 | [M3.8-logout-navigation-style-alignment.md](./M3.8-logout-navigation-style-alignment.md) |
 | M3.9 | 移动端导航与区块标题短线 | 已完成 | [M3.9-mobile-navigation-section-rule.md](./M3.9-mobile-navigation-section-rule.md) |
+| M3.10 | 产品与设计文档现状同步 | 已完成 | [M3.10-product-design-documentation-sync.md](./M3.10-product-design-documentation-sync.md) |
 
 ## 约定
 
