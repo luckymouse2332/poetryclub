@@ -10,33 +10,40 @@ type SiteHeaderProps = Readonly<{
 
 export function SiteHeader({ navigation }: SiteHeaderProps) {
   return (
-    <header className="border-b border-border-subtle bg-surface">
+    <header className="border-b border-border-subtle bg-background">
       <nav
         aria-label="主导航"
-        className="mx-auto flex w-full max-w-content flex-col px-page py-4 lg:min-h-24 lg:flex-row lg:items-center lg:justify-between lg:gap-x-8 lg:py-0"
+        className="mx-auto flex w-full max-w-none flex-col px-page py-4 lg:min-h-24 lg:flex-row lg:items-center lg:justify-between lg:gap-x-10 lg:px-12 lg:py-0 xl:px-16"
       >
         <SiteNavLink
           href="/#top"
           variant="brand"
-          className="inline-flex min-h-control min-w-0 self-start items-center font-serif text-page-title font-medium tracking-[0.18em] text-foreground no-underline lg:self-auto"
+          className="inline-flex min-h-control min-w-0 self-start items-center font-serif text-foreground no-underline lg:self-auto"
         >
-          回中诗社
+          <span className="flex flex-col">
+            <span className="text-[1.7rem] font-normal leading-tight tracking-[0.18em] sm:text-[1.9rem]">
+              回中诗社
+            </span>
+            <span className="mt-1 text-caption font-normal tracking-[0.08em] text-subtle">
+              2021—2024级
+            </span>
+          </span>
         </SiteNavLink>
-        <ul className="mt-3 grid w-full grid-cols-3 items-center gap-y-1 border-t border-border-subtle pt-2 sm:grid-flow-col sm:auto-cols-fr sm:grid-cols-none lg:mt-0 lg:flex lg:w-auto lg:flex-wrap lg:justify-end lg:gap-x-4 lg:border-0 lg:pt-0">
+        <ul className="mt-4 grid w-full grid-cols-3 items-center gap-y-1 border-t border-border-subtle pt-2 md:flex md:flex-wrap md:justify-end lg:mt-0 lg:w-auto lg:gap-x-5 lg:border-0 lg:pt-0">
           <li>
             <SiteNavLink
               href="/poems"
               match="prefix"
-              className="inline-flex min-h-control items-center justify-center whitespace-nowrap px-2 font-serif text-body text-foreground no-underline transition-colors hover:text-seal"
+              className="inline-flex min-h-control items-center justify-center whitespace-nowrap px-2 font-serif text-label tracking-[0.14em] text-foreground no-underline transition-colors hover:text-seal"
             >
               诗作
             </SiteNavLink>
           </li>
           <li>
             <SiteNavLink
-              href="/#about"
-              match="none"
-              className="inline-flex min-h-control items-center justify-center whitespace-nowrap px-2 font-serif text-body text-foreground no-underline transition-colors hover:text-seal"
+              href="/about"
+              match="exact"
+              className="inline-flex min-h-control items-center justify-center whitespace-nowrap px-2 font-serif text-label tracking-[0.14em] text-foreground no-underline transition-colors hover:text-seal"
             >
               关于
             </SiteNavLink>

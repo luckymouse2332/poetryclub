@@ -277,7 +277,7 @@ test.describe.serial("authenticated session loop", () => {
         expect(itemRows).toBe(2);
         expect(brandBox!.y + brandBox!.height).toBeLessThan(listBox!.y);
       } else if (viewport.width < 1024) {
-        expect(listStyles.display).toBe("grid");
+        expect(listStyles.display).toBe("flex");
         expect(itemRows).toBe(1);
         expect(brandBox!.y + brandBox!.height).toBeLessThan(listBox!.y);
       } else {
