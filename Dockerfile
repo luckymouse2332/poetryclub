@@ -14,7 +14,11 @@ FROM base AS builder
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
-RUN pnpm build
+RUN --mount=type=secret,id=production_env,required=true \
+    set -a && \
+    . /run/secrets/production_env && \
+    set +a && \
+    pnpm build
 
 FROM base AS migrator
 ENV NODE_ENV=production

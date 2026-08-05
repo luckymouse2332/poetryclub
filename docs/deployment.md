@@ -1,6 +1,6 @@
 # 生产部署
 
-生产拓扑固定为：`宿主机 Caddy → 127.0.0.1:4000 → Next.js app → PostgreSQL`。`migrate` 是部署时的一次性容器，不是常驻服务。Compose 只管理 PostgreSQL、migration 和 Next.js 应用；Caddy 与证书由宿主机独立管理。
+生产拓扑固定为：`宿主机 Caddy → 127.0.0.1:4000 → Next.js app → PostgreSQL`。`migrate` 是部署时的一次性容器，不是常驻服务。Compose 只管理 PostgreSQL、migration 和 Next.js 应用；Caddy 与证书由宿主机独立管理。PostgreSQL 与 migration 只连接内部后端网络，应用同时连接后端网络和用于发布宿主机回环端口的入口网络。
 
 ## 前置条件
 
