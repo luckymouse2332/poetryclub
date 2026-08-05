@@ -21,17 +21,17 @@ test("home page shows the community identity without fake business content", asy
     foreground: getComputedStyle(document.body).color,
     headerSurface: getComputedStyle(document.querySelector("header")!)
       .backgroundColor,
-    heroSurface: getComputedStyle(document.querySelector("#top > div")!)
-      .backgroundColor,
   }));
-  expect(palette.background).toBe("rgb(241, 235, 223)");
-  expect(palette.foreground).toBe("rgb(32, 30, 26)");
-  expect(palette.headerSurface).toBe("rgb(244, 239, 229)");
-  expect(palette.heroSurface).toBe("rgb(241, 235, 223)");
+  expect(palette.background).toBe("rgb(243, 238, 228)");
+  expect(palette.foreground).toBe("rgb(40, 37, 31)");
+  expect(palette.headerSurface).toBe("rgb(243, 238, 228)");
 
   await expect(page).toHaveTitle(/回中诗社/);
   await expect(
-    page.getByRole("heading", { level: 1, name: "回中诗社" }),
+    page.getByRole("heading", {
+      level: 1,
+      name: "初中三年留下的一些诗。",
+    }),
   ).toBeVisible();
   await expect(page.getByText("2021—2024级").first()).toBeVisible();
   await expect(
@@ -41,14 +41,16 @@ test("home page shows the community identity without fake business content", asy
   ).toBeVisible();
   await expect(
     page.getByRole("img", {
-      name: "深色桌面上并列摆放着磨损的《杂诗集》封面和翻开的两页手写诗稿",
+      name: "暖色光影下，磨损的《杂诗集》与一本翻开的诗稿摆在深色桌面上",
     }),
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: "关于回中诗社" })).toBeVisible();
-  await expect(page.getByText(/回中诗社源自社长\s*Kevin/)).toBeVisible();
+  await expect(page.getByText(/诗社源自社长\s*Kevin/)).toBeVisible();
   await expect(page.getByRole("heading", { name: "收录标准" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "网站正在建设" })).toHaveCount(0);
-  await expect(page.getByText("网站还没修完，不过诗已经能看，也能写了。")).toHaveCount(0);
+  await expect(
+    page.getByText("网站还没修完，不过诗已经能看，也能写了。"),
+  ).toBeVisible();
   await expect(page.getByText("当前阶段先搭好可靠的页面与阅读基础")).toHaveCount(
     0,
   );
@@ -85,12 +87,12 @@ test("home page shows the community identity without fake business content", asy
   expect(titleRuleStyle).toEqual({
     content: '""',
     display: "block",
-    width: "72px",
-    height: "2px",
-    marginTop: "12px",
-    backgroundColor: "rgb(142, 53, 47)",
+    width: "40px",
+    height: "1px",
+    marginTop: "16px",
+    backgroundColor: "rgb(155, 79, 63)",
   });
-  const allPoemsLink = page.getByRole("link", { name: "查看全部" });
+  const allPoemsLink = page.getByRole("link", { name: "查看全部诗作" });
   await expect(allPoemsLink).toHaveAttribute("href", "/poems");
 
   const randomArrow = randomLink.locator("span[aria-hidden='true']");
@@ -232,9 +234,10 @@ test("site header navigation is present", async ({ page }) => {
 
   const nav = page.getByRole("navigation");
   await expect(nav).toBeVisible();
-  const brandLink = nav.getByRole("link", { name: "回中诗社" });
+  const brandLink = nav.getByRole("link", { name: /回中诗社/ });
   await expect(brandLink).toHaveAttribute("aria-current", "page");
   await expect(brandLink).toHaveAttribute("href", "/#top");
+  await expect(brandLink.getByText("2021—2024级")).toBeVisible();
   await expect(nav.getByRole("link", { name: "诗作" })).toBeVisible();
   await expect(nav.getByRole("link", { name: "关于" })).toBeVisible();
   await expect(nav.getByRole("link", { name: "登录" })).toBeVisible();
@@ -299,7 +302,7 @@ test("mobile header keeps the key navigation usable", async ({ page }) => {
     )
     .toBeLessThan(2);
 
-  const brandLink = nav.getByRole("link", { name: "回中诗社" });
+  const brandLink = nav.getByRole("link", { name: /回中诗社/ });
   const hero = page.locator("#top");
   const header = page.getByRole("banner");
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
@@ -499,30 +502,72 @@ for (const viewport of [
       expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
 
       if (path === "/") {
-        const latestSectionBox = await page
+        const latestSection = page
           .getByRole("heading", { level: 2, name: "最新诗作" })
-          .locator("xpath=ancestor::section")
-          .boundingBox();
+          .locator("xpath=ancestor::section");
+        const latestSectionBox = await latestSection.boundingBox();
         const titleBox = await page
-          .getByRole("heading", { level: 1, name: "回中诗社" })
+          .getByRole("heading", {
+            level: 1,
+            name: "初中三年留下的一些诗。",
+          })
           .boundingBox();
         const visualBox = await page
           .getByRole("img", {
-            name: "深色桌面上并列摆放着磨损的《杂诗集》封面和翻开的两页手写诗稿",
+            name: "暖色光影下，磨损的《杂诗集》与一本翻开的诗稿摆在深色桌面上",
           })
           .boundingBox();
+        const aboutSection = page
+          .getByRole("heading", { level: 2, name: "关于回中诗社" })
+          .locator("xpath=ancestor::section");
+        const aboutSectionBox = await aboutSection.boundingBox();
+        const contentGrid = latestSection.locator("xpath=..");
+        const contentGridBox = await contentGrid.boundingBox();
+        const contentLayout = await contentGrid.evaluate((element) => {
+          const computed = getComputedStyle(element);
+          return {
+            columnGap: Number.parseFloat(computed.columnGap),
+            paddingLeft: Number.parseFloat(computed.paddingLeft),
+            paddingRight: Number.parseFloat(computed.paddingRight),
+          };
+        });
 
         expect(titleBox).not.toBeNull();
         expect(visualBox).not.toBeNull();
         expect(latestSectionBox).not.toBeNull();
+        expect(aboutSectionBox).not.toBeNull();
+        expect(contentGridBox).not.toBeNull();
 
-        const expectedContentGutter = Math.min(
-          48,
-          Math.max(16, viewport.width * 0.0255),
+        expect(contentGridBox!.width).toBeLessThanOrEqual(1240.5);
+        expect(
+          Math.abs(
+            contentGridBox!.x - (viewport.width - contentGridBox!.width) / 2,
+          ),
+        ).toBeLessThan(2);
+        expect(
+          Math.abs(
+            latestSectionBox!.x -
+              (contentGridBox!.x + contentLayout.paddingLeft),
+          ),
+        ).toBeLessThan(2);
+        expect(
+          Math.abs(contentLayout.paddingLeft - contentLayout.paddingRight),
+        ).toBeLessThan(0.5);
+
+        expect(Math.abs(visualBox!.x)).toBeLessThan(1);
+        expect(Math.abs(visualBox!.width - viewport.width)).toBeLessThan(1);
+        expect(titleBox!.x).toBeGreaterThanOrEqual(
+          viewport.width >= 1024 ? 32 : viewport.width >= 640 ? 24 : 16,
+        );
+        expect(titleBox!.y).toBeGreaterThanOrEqual(visualBox!.y);
+        expect(titleBox!.y + titleBox!.height).toBeLessThanOrEqual(
+          visualBox!.y + visualBox!.height,
         );
         expect(
-          Math.abs(latestSectionBox!.x - expectedContentGutter),
-        ).toBeLessThan(2);
+          await page
+            .locator("#top")
+            .evaluate((element) => getComputedStyle(element).clipPath),
+        ).toBe("none");
 
         const hasPageTransitionStyles = await page.evaluate(() =>
           [...document.styleSheets].some((styleSheet) => {
@@ -539,36 +584,42 @@ for (const viewport of [
         expect(hasPageTransitionStyles).toBe(false);
 
         if (viewport.width < 1024) {
-          expect(titleBox!.y + titleBox!.height).toBeLessThan(visualBox!.y);
-        } else {
-          const [introductionBox, archiveBox] = await Promise.all([
-            page.locator("#top > div").nth(0).boundingBox(),
-            page.locator("#top > div").nth(1).boundingBox(),
-          ]);
-          expect(introductionBox).not.toBeNull();
-          expect(archiveBox).not.toBeNull();
-          expect(introductionBox!.width / viewport.width).toBeLessThanOrEqual(
-            0.45,
-          );
-          expect(archiveBox!.width / viewport.width).toBeGreaterThanOrEqual(
-            0.68,
-          );
+          const expectedContentGutter = viewport.width >= 640 ? 24 : 16;
           expect(
-            await page
-              .getByRole("heading", { level: 1, name: "回中诗社" })
-              .evaluate((element) => getComputedStyle(element).whiteSpace),
-          ).toBe("nowrap");
+            Math.abs(contentLayout.paddingLeft - expectedContentGutter),
+          ).toBeLessThan(0.5);
+          expect(latestSectionBox!.y).toBeLessThan(aboutSectionBox!.y);
+        } else {
+          expect(visualBox!.height).toBeGreaterThanOrEqual(520);
+          expect(contentLayout.paddingLeft).toBeGreaterThanOrEqual(32);
+          expect(contentLayout.paddingLeft).toBeLessThanOrEqual(48);
+          expect(contentLayout.columnGap).toBeGreaterThanOrEqual(64);
+          expect(contentLayout.columnGap).toBeLessThanOrEqual(88);
+          expect(latestSectionBox!.x).toBeLessThan(aboutSectionBox!.x);
+          expect(
+            Math.abs(
+              aboutSectionBox!.x -
+                (latestSectionBox!.x +
+                  latestSectionBox!.width +
+                  contentLayout.columnGap),
+            ),
+          ).toBeLessThan(2);
 
-          const expectedTitleInset = Math.min(
-            104,
-            Math.max(52, viewport.width * 0.067),
-          );
-          expect(Math.abs(titleBox!.x - expectedTitleInset)).toBeLessThan(2);
-          const titleCenter = titleBox!.x + titleBox!.width / 2;
-          const visualCenter = visualBox!.x + visualBox!.width / 2;
-          expect(titleCenter).toBeLessThan(visualCenter);
-          expect(Math.abs(titleBox!.y - visualBox!.y)).toBeLessThan(
-            visualBox!.height,
+          const latestColumnRatio =
+            latestSectionBox!.width /
+            (latestSectionBox!.width + aboutSectionBox!.width);
+          expect(latestColumnRatio).toBeGreaterThanOrEqual(0.4);
+          expect(latestColumnRatio).toBeLessThanOrEqual(0.42);
+
+          const aboutCopy = aboutSection.locator(":scope > div");
+          const aboutCopyLayout = await aboutCopy.evaluate((element) => ({
+            maxWidth: Number.parseFloat(getComputedStyle(element).maxWidth),
+          }));
+          const aboutCopyBox = await aboutCopy.boundingBox();
+          expect(aboutCopyLayout.maxWidth).toBe(688);
+          expect(aboutCopyBox).not.toBeNull();
+          expect(aboutCopyBox!.width).toBeLessThanOrEqual(
+            aboutCopyLayout.maxWidth,
           );
         }
       }

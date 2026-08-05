@@ -2,13 +2,13 @@
 
 :root {
   /* Concrete color values live only in this palette. */
-  --palette-page: #f1ebdf;
-  --palette-surface: #f4efe5;
+  --palette-page: #f3eee4;
+  --palette-surface: #f5f0e7;
   --palette-surface-muted: #ece3d4;
   --palette-paper: #f8f2e7;
   --palette-paper-aged: #eee2ce;
-  --palette-ink: #201e1a;
-  --palette-ink-secondary: #5b554c;
+  --palette-ink: #28251f;
+  --palette-ink-secondary: #736b61;
   --palette-ink-muted: #70685e;
   --palette-ink-inverse: #faf7f0;
   --palette-blue-50: #edf3f8;
@@ -20,8 +20,8 @@
   --palette-blue-800: #193a54;
   --palette-seal-50: #f7ebe6;
   --palette-seal-300: #c98d7e;
-  --palette-seal-500: #8e352f;
-  --palette-seal-700: #6d2824;
+  --palette-seal-500: #9b4f3f;
+  --palette-seal-700: #7e3e32;
   --palette-success-50: #edf4ec;
   --palette-success-300: #a9c0a6;
   --palette-success-600: #527450;

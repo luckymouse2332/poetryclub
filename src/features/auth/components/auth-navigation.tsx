@@ -4,7 +4,7 @@ import { logoutAction } from "@/features/auth/actions";
 import { getCurrentUser } from "@/server/auth/session";
 
 const navigationLinkClassName =
-  "inline-flex min-h-control items-center justify-center whitespace-nowrap px-2 font-serif text-body text-foreground no-underline transition-colors hover:text-seal";
+  "inline-flex min-h-control items-center justify-center whitespace-nowrap px-2 font-serif text-label tracking-[0.14em] text-foreground no-underline transition-colors hover:text-seal";
 
 /**
  * 认证导航（Server Component）：在服务端读取当前用户，仅向渲染层暴露最小安全视图，

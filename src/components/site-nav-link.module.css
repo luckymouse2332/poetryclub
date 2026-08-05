@@ -2,7 +2,6 @@
   position: relative;
 }
 
-.brandLink::after,
 .navigationLink::after {
   position: absolute;
   left: 50%;
@@ -14,16 +13,8 @@
   transition: width 160ms ease;
 }
 
-.brandLink::after {
-  bottom: -0.65rem;
-}
-
 .navigationLink::after {
   bottom: 0.15rem;
-}
-
-.brandLink[aria-current="page"]::after {
-  width: 2.75rem;
 }
 
 .navigationLink[aria-current="page"] {

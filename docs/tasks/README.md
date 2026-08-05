@@ -25,6 +25,8 @@
 | M3.8 | 登出按钮导航样式对齐 | 已完成 | [M3.8-logout-navigation-style-alignment.md](./M3.8-logout-navigation-style-alignment.md) |
 | M3.9 | 移动端导航与区块标题短线 | 已完成 | [M3.9-mobile-navigation-section-rule.md](./M3.9-mobile-navigation-section-rule.md) |
 | M3.10 | 产品与设计文档现状同步 | 已完成 | [M3.10-product-design-documentation-sync.md](./M3.10-product-design-documentation-sync.md) |
+| M3.12 | 关于回中诗社页面 | 已完成 | [M3.12-about-project-journal.md](./M3.12-about-project-journal.md) |
+| M3.13 | 首页正文内容区布局收敛 | 已完成 | [M3.13-homepage-content-region-layout.md](./M3.13-homepage-content-region-layout.md) |
 
 ## 约定
 
