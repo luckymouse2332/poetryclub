@@ -107,6 +107,6 @@ src/
 - PostgreSQL 使用**持久化数据卷**。
 - Redis、搜索服务、对象存储、后台任务系统只在真实需求出现后引入。
 - 开发环境由根 `compose.yaml` 提供 PostgreSQL；应用仍推荐在宿主机运行。
-- 生产由 `deploy/compose.production.yaml` 编排一次性 migration、应用和 PostgreSQL；应用仅在 migration 成功后启动，并把宿主机回环地址的 `4000` 端口发布给宿主机 Caddy 或 Nginx。
+- 生产由 `deploy/compose.production.yaml` 编排一次性 migration、应用和 PostgreSQL；数据库通信使用内部后端网络，应用另接非内部入口网络；应用仅在 migration 成功后启动，并把宿主机回环地址的 `4000` 端口发布给宿主机 Caddy 或 Nginx。
 - 生产反向代理在宿主机独立运行，不由项目 Compose 管理证书或占用 80/443 端口。
 - 完整操作说明见 `docs/deployment.md`。
