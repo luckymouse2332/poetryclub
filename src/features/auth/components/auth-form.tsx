@@ -27,6 +27,8 @@ type AuthFormProps = Readonly<{
   nextPath?: string;
   initialNotice?: string;
   cleanPasswordResetNotice?: boolean;
+  variant?: "switchable" | "sign-in-only";
+  embedded?: boolean;
 }>;
 
 export function AuthForm({
@@ -34,9 +36,13 @@ export function AuthForm({
   nextPath = "/",
   initialNotice,
   cleanPasswordResetNotice = false,
+  variant = "switchable",
+  embedded = false,
 }: AuthFormProps) {
   const router = useRouter();
-  const [mode, setMode] = useState<AuthMode>(initialMode);
+  const [mode, setMode] = useState<AuthMode>(
+    variant === "sign-in-only" ? "sign-in" : initialMode,
+  );
   const [error, setError] = useState<string>();
   const [notice, setNotice] = useState<string | undefined>(initialNotice);
   const [pending, setPending] = useState(false);
@@ -111,42 +117,44 @@ export function AuthForm({
     setNotice(undefined);
   }
 
-  return (
-    <Surface className="w-full" aria-label="认证表单">
-      <div
-        className="grid grid-cols-2 gap-1 rounded-md bg-surface-muted p-1"
-        role="tablist"
-        aria-label="选择登录或注册"
-      >
-        <Button
-          type="button"
-          variant="ghost"
-          role="tab"
-          aria-selected={mode === "sign-in"}
-          aria-controls="auth-form-panel"
-          onClick={() => switchMode("sign-in")}
-          disabled={pending}
-          className="w-full aria-selected:bg-paper aria-selected:text-foreground aria-selected:shadow-card"
+  const content = (
+    <>
+      {variant === "switchable" ? (
+        <div
+          className="grid grid-cols-2 gap-1 rounded-md bg-surface-muted p-1"
+          role="tablist"
+          aria-label="选择登录或注册"
         >
-          登录
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          role="tab"
-          aria-selected={mode === "sign-up"}
-          aria-controls="auth-form-panel"
-          onClick={() => switchMode("sign-up")}
-          disabled={pending}
-          className="w-full aria-selected:bg-paper aria-selected:text-foreground aria-selected:shadow-card"
-        >
-          注册
-        </Button>
-      </div>
+          <Button
+            type="button"
+            variant="ghost"
+            role="tab"
+            aria-selected={mode === "sign-in"}
+            aria-controls="auth-form-panel"
+            onClick={() => switchMode("sign-in")}
+            disabled={pending}
+            className="w-full aria-selected:bg-paper aria-selected:text-foreground aria-selected:shadow-card"
+          >
+            登录
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            role="tab"
+            aria-selected={mode === "sign-up"}
+            aria-controls="auth-form-panel"
+            onClick={() => switchMode("sign-up")}
+            disabled={pending}
+            className="w-full aria-selected:bg-paper aria-selected:text-foreground aria-selected:shadow-card"
+          >
+            注册
+          </Button>
+        </div>
+      ) : null}
 
       <form
         id="auth-form-panel"
-        className="mt-6 space-y-5"
+        className={variant === "switchable" ? "mt-6 space-y-5" : "space-y-5"}
         onSubmit={handleSubmit}
         noValidate
       >
@@ -251,6 +259,29 @@ export function AuthForm({
           {pending ? "处理中…" : mode === "sign-up" ? "创建账号" : "登录"}
         </Button>
       </form>
+      {variant === "sign-in-only" ? (
+        <p className="mt-4 text-center text-label text-subtle">
+          还没有账号？
+          <Link
+            className="ml-1 text-link"
+            href={`/login?mode=sign-up&next=${encodeURIComponent(
+              getSafeRedirectPath(nextPath),
+            )}`}
+          >
+            使用邀请码注册
+          </Link>
+        </p>
+      ) : null}
+    </>
+  );
+
+  return embedded ? (
+    <div className="w-full" aria-label="认证表单">
+      {content}
+    </div>
+  ) : (
+    <Surface className="w-full" aria-label="认证表单">
+      {content}
     </Surface>
   );
 }

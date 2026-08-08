@@ -4,12 +4,14 @@ import Link from "next/link";
 import homepagePoetryCollection from "../../public/homepage-poetry-collection.png";
 
 import { formatPoemIndexDate } from "@/features/posts/formatters";
+import { getContentReaderScope } from "@/server/policies/access";
 import { listRecentPublishedPoems } from "@/server/services/poems";
 
 import styles from "./home.module.css";
 
 export default async function HomePage() {
-  const recentPoems = await listRecentPublishedPoems(3);
+  const readerScope = await getContentReaderScope();
+  const recentPoems = await listRecentPublishedPoems(3, readerScope);
 
   return (
     <>
@@ -61,11 +63,34 @@ export default async function HomePage() {
                       <Link
                         href={`/poems/${poem.id}`}
                         className={styles.poemLink}
+                        title={`《${poem.title}》`}
                       >
                         《{poem.title}》
                       </Link>
                     </h3>
-                    <p className={styles.poemAuthor}>{poem.authorName}</p>
+                    <p className={styles.poemAuthor}>
+                      <span
+                        className={styles.poemAuthorName}
+                        title={poem.authorName}
+                      >
+                        {poem.authorName}
+                      </span>
+                      {poem.visibility === "members_only"
+                        ? (
+                            <>
+                              <span
+                                aria-hidden="true"
+                                className={styles.poemVisibilitySeparator}
+                              >
+                                ·
+                              </span>
+                              <span className={styles.poemVisibilityLabel}>
+                                成员可见
+                              </span>
+                            </>
+                          )
+                        : null}
+                    </p>
                   </li>
                 ))}
               </ol>

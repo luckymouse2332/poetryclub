@@ -1,8 +1,10 @@
 import "server-only";
 
+import { cache } from "react";
 import { eq } from "drizzle-orm";
 
-import { requireCurrentUser } from "@/server/auth/session";
+import type { ContentReaderScope } from "@/lib/poem-access";
+import { getCurrentUser, requireCurrentUser } from "@/server/auth/session";
 import { db } from "@/server/db";
 import { user } from "@/server/db/schema";
 
@@ -64,3 +66,20 @@ export async function requireAdmin(returnTo = "/admin"): Promise<AuthoritativeUs
   if (currentUser.role !== "admin") throw new AccessControlError("forbidden");
   return currentUser;
 }
+
+/**
+ * Resolves the current request's authoritative read scope for published poems.
+ * Suspended accounts retain public/read-only access but do not count as active
+ * members for member-only works.
+ */
+export const getContentReaderScope = cache(
+  async (): Promise<ContentReaderScope> => {
+    const sessionUser = await getCurrentUser();
+    if (!sessionUser) return "anonymous";
+    const currentUser = await getAuthoritativeUser(sessionUser.id);
+    if (!currentUser || currentUser.status === "suspended") {
+      return currentUser ? "suspended" : "anonymous";
+    }
+    return "active_member";
+  },
+);

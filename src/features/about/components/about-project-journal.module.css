@@ -328,6 +328,68 @@
   transform: rotate(45deg);
 }
 
+.milestoneCard {
+  display: grid;
+  gap: var(--space-6);
+  margin-top: clamp(2.5rem, 6vw, 4.5rem);
+  padding: clamp(1.5rem, 4vw, 2.5rem) 0;
+  border-block: 1px solid var(--border-strong);
+}
+
+.milestoneMeta,
+.roadmapMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-4);
+  color: var(--text-secondary);
+  font-family: var(--font-sans), "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: var(--font-size-caption);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+.milestoneMeta span:first-child,
+.roadmapMeta span {
+  color: var(--seal-foreground);
+  font-size: var(--font-size-label);
+}
+
+.milestoneBody {
+  max-width: 54rem;
+}
+
+.milestoneBody h3,
+.roadmapBody h3 {
+  font-size: clamp(1.25rem, 2.4vw, 1.55rem);
+  font-weight: 400;
+  letter-spacing: 0.065em;
+  line-height: var(--line-height-heading);
+}
+
+.milestoneBody > p,
+.roadmapBody > p {
+  max-width: 46rem;
+  margin-top: var(--space-4);
+  color: var(--text-secondary);
+  font-size: var(--font-size-body);
+  line-height: 1.8;
+}
+
+.milestoneBody ul,
+.roadmapBody ul {
+  max-width: 46rem;
+  margin-top: var(--space-4);
+  padding-left: 1.2rem;
+  font-size: var(--font-size-label);
+  line-height: var(--line-height-copy);
+}
+
+.milestoneBody li::marker,
+.roadmapBody li::marker {
+  color: var(--seal);
+}
+
 .updateList > li {
   display: grid;
   gap: var(--space-6);
@@ -366,8 +428,7 @@
   line-height: var(--line-height-copy);
 }
 
-.updateBody li::marker,
-.futureList li::marker {
+.updateBody li::marker {
   color: var(--seal);
 }
 
@@ -375,13 +436,24 @@
   border-bottom: 1px solid var(--border-strong);
 }
 
-.futureList {
+.roadmapList {
+  border-top: 1px solid var(--border-subtle);
+  list-style: none;
+}
+
+.roadmapItem {
   display: grid;
-  max-width: 44rem;
   gap: var(--space-4);
-  padding-left: 1.25rem;
-  font-size: var(--font-size-body-lg);
-  line-height: var(--line-height-copy);
+  padding-block: clamp(2rem, 5vw, 3rem);
+  border-bottom: 1px dashed var(--border-subtle);
+}
+
+.roadmapBody {
+  min-width: 0;
+}
+
+.roadmapBody > p {
+  max-width: 50rem;
 }
 
 .colophon {
@@ -426,13 +498,15 @@
   }
 
   .era,
-  .updateList > li {
+  .updateList > li,
+  .roadmapItem {
     grid-template-columns: 7rem minmax(0, 1fr);
     gap: clamp(2rem, 5vw, 4rem);
   }
 
   .eraMeta,
-  .updateMeta {
+  .updateMeta,
+  .roadmapMeta {
     display: grid;
     align-content: start;
     gap: var(--space-2);

@@ -19,6 +19,11 @@ export const poemModerationStatus = pgEnum("poem_moderation_status", [
   "hidden",
 ]);
 
+export const poemVisibility = pgEnum("poem_visibility", [
+  "public",
+  "members_only",
+]);
+
 export const poem = pgTable(
   "poem",
   {
@@ -41,6 +46,7 @@ export const poem = pgTable(
     moderationStatus: poemModerationStatus("moderation_status")
       .default("visible")
       .notNull(),
+    visibility: poemVisibility("visibility").default("public").notNull(),
     moderationReason: text("moderation_reason"),
     moderatedAt: timestamp("moderated_at"),
     moderatedBy: text("moderated_by").references(
@@ -55,9 +61,10 @@ export const poem = pgTable(
     ),
     index("poem_status_published_at_idx").on(table.status, table.publishedAt),
     index("poem_author_id_updated_at_idx").on(table.authorId, table.updatedAt),
-    index("poem_status_moderation_status_published_at_idx").on(
+    index("poem_status_moderation_visibility_published_at_idx").on(
       table.status,
       table.moderationStatus,
+      table.visibility,
       table.publishedAt,
     ),
     check(

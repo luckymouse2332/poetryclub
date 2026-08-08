@@ -3,8 +3,11 @@ import { notFound } from "next/navigation";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
+import { Badge } from "@/components/ui/badge";
+import { MemberLoginGate } from "@/features/posts/components/member-login-gate";
 import { formatPoemDate } from "@/features/posts/formatters";
-import { getPublishedPoem } from "@/server/services/poems";
+import { getContentReaderScope } from "@/server/policies/access";
+import { getPublishedPoemAccess } from "@/server/services/poems";
 import { poemIdSchema } from "@/server/validation/poems";
 
 type PoemDetailPageProps = Readonly<{
@@ -19,8 +22,9 @@ export async function generateMetadata({
   if (!parsedId.success) {
     return { title: "诗作" };
   }
-  const poem = await getPublishedPoem(parsedId.data);
-  return { title: poem?.title ?? "诗作" };
+  const readerScope = await getContentReaderScope();
+  const result = await getPublishedPoemAccess(parsedId.data, readerScope);
+  return { title: result.kind === "visible" ? result.poem.title : "诗作" };
 }
 
 export default async function PoemDetailPage({
@@ -32,10 +36,38 @@ export default async function PoemDetailPage({
     notFound();
   }
 
-  const poem = await getPublishedPoem(parsedId.data);
-  if (!poem) {
+  const readerScope = await getContentReaderScope();
+  const result = await getPublishedPoemAccess(parsedId.data, readerScope);
+  if (result.kind === "not_found") {
     notFound();
   }
+
+  if (result.kind === "login_required") {
+    return (
+      <PageContainer width="reading">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none select-none blur-sm"
+        >
+          <PageHeader
+            eyebrow="诗作"
+            title="成员作品"
+            description="登录后继续阅读"
+          />
+          <div className="mt-6 h-20 rounded-lg border border-border-subtle bg-surface-muted" />
+          <article className="mt-8 space-y-4 rounded-lg border border-border-subtle bg-paper p-6 shadow-card md:p-8">
+            <div className="h-4 w-4/5 rounded bg-surface-muted" />
+            <div className="h-4 w-full rounded bg-surface-muted" />
+            <div className="h-4 w-3/5 rounded bg-surface-muted" />
+            <div className="h-4 w-11/12 rounded bg-surface-muted" />
+          </article>
+        </div>
+        <MemberLoginGate nextPath={`/poems/${parsedId.data}`} />
+      </PageContainer>
+    );
+  }
+
+  const poem = result.poem;
 
   return (
     <PageContainer width="reading">
@@ -46,6 +78,11 @@ export default async function PoemDetailPage({
       />
 
       <dl className="mt-6 rounded-lg border border-border-subtle bg-surface-muted px-6 py-4 text-label sm:flex sm:flex-wrap sm:gap-x-8">
+        {poem.visibility === "members_only" ? (
+          <div className="flex items-center py-1">
+            <Badge variant="neutral">仅成员可见</Badge>
+          </div>
+        ) : null}
         <div className="flex flex-wrap items-baseline gap-x-2 py-1">
           <dt className="text-subtle">发布时间</dt>
           <dd className="font-medium text-foreground">

@@ -10,6 +10,7 @@ import {
   pageSchema,
   poemIdSchema,
   poemInputSchema,
+  poemVisibilitySchema,
 } from "@/server/validation/poems";
 
 const validInput = {
@@ -17,6 +18,7 @@ const validInput = {
   body: "春眠不觉晓，\n处处闻啼鸟。",
   context: "孟浩然的旧作",
   occurredAt: "2026-08-02",
+  visibility: "public",
 };
 
 describe("poemInputSchema title", () => {
@@ -174,6 +176,7 @@ describe("poemInputSchema context", () => {
       title: validInput.title,
       body: validInput.body,
       occurredAt: validInput.occurredAt,
+      visibility: validInput.visibility,
     };
     const result = poemInputSchema.safeParse(withoutContext);
 
@@ -250,6 +253,7 @@ describe("poemInputSchema occurredAt", () => {
       title: validInput.title,
       body: validInput.body,
       context: validInput.context,
+      visibility: validInput.visibility,
     };
     const result = poemInputSchema.safeParse(withoutOccurredAt);
 
@@ -317,6 +321,32 @@ describe("occurredAtSchema standalone", () => {
     expect(occurredAtSchema.safeParse("2026-01-01").success).toBe(true);
     expect(occurredAtSchema.safeParse(null).success).toBe(true);
     expect(occurredAtSchema.safeParse(undefined).success).toBe(true);
+  });
+});
+
+describe("poemInputSchema visibility", () => {
+  it("accepts public and members_only", () => {
+    for (const visibility of ["public", "members_only"] as const) {
+      const result = poemInputSchema.safeParse({ ...validInput, visibility });
+      expect(result.success).toBe(true);
+      expect(poemVisibilitySchema.safeParse(visibility).success).toBe(true);
+    }
+  });
+
+  it("requires an explicit supported visibility", () => {
+    const missingVisibility = {
+      title: validInput.title,
+      body: validInput.body,
+      context: validInput.context,
+      occurredAt: validInput.occurredAt,
+    };
+    expect(poemInputSchema.safeParse(missingVisibility).success).toBe(false);
+
+    for (const visibility of ["", "private", "members", null, undefined]) {
+      expect(
+        poemInputSchema.safeParse({ ...validInput, visibility }).success,
+      ).toBe(false);
+    }
   });
 });
 

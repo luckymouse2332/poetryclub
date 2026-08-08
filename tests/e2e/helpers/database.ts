@@ -132,6 +132,35 @@ export async function getUserAuthorityByEmail(
   }
 }
 
+export async function setUserSuspendedForTest(
+  email: string,
+  suspended: boolean,
+): Promise<void> {
+  const sql = postgres(databaseUrl(), { max: 1 });
+  try {
+    const rows = suspended
+      ? await sql`
+          update "user"
+          set status = 'suspended', suspension_reason = 'E2E 成员内容访问测试',
+              suspended_at = now(), suspended_by = null, updated_at = now()
+          where email = ${email}
+          returning id
+        `
+      : await sql`
+          update "user"
+          set status = 'active', suspension_reason = null,
+              suspended_at = null, suspended_by = null, updated_at = now()
+          where email = ${email}
+          returning id
+        `;
+    if (rows.length !== 1) {
+      throw new Error(`Expected one E2E user status update for ${email}`);
+    }
+  } finally {
+    await sql.end();
+  }
+}
+
 export async function listOtherActiveAdmins(
   excludedEmails: ReadonlyArray<string>,
 ): Promise<ReadonlyArray<string>> {

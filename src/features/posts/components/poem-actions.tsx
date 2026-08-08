@@ -25,7 +25,7 @@ type PoemActionsProps = Readonly<{
   id: string;
   status: "draft" | "published";
   /**
-   * 管理状态：hidden 时不显示“查看公开页”，但发布 / 撤回 / 删除仍可操作
+   * 管理状态：hidden 时不显示“查看作品页”，但发布 / 撤回 / 删除仍可操作
    * （服务端不会清除隐藏状态）。
    */
   moderationStatus?: "visible" | "hidden";
@@ -55,10 +55,10 @@ function ActionError({ state }: Readonly<{ state: PoemActionState }>) {
 }
 
 /**
- * 状态操作区（Client Component）：草稿可发布 / 删除，已发布可查看公开页 / 撤回。
+ * 状态操作区（Client Component）：草稿可发布 / 删除，已发布可查看作品页 / 撤回。
  * 每个操作独立使用 `useActionState`，提交期间按钮 loading 并禁止重复提交。
  * 删除必须经 AlertDialog 二次确认，且只允许删除未发布草稿。
- * 被管理员隐藏的作品不显示“查看公开页”，其余状态操作保持可用且不解除隐藏。
+ * 被管理员隐藏的作品不显示“查看作品页”，其余状态操作保持可用且不解除隐藏。
  */
 export function PoemActions({
   id,
@@ -136,7 +136,7 @@ export function PoemActions({
           <>
             {!hidden ? (
               <Button asChild variant="secondary" size={buttonSize}>
-                <Link href={`/poems/${id}`}>查看公开页</Link>
+                <Link href={`/poems/${id}`}>查看作品页</Link>
               </Button>
             ) : null}
             <form action={withdrawAction}>

@@ -48,7 +48,7 @@ export default async function EditPoemPage({
   const query = await searchParams;
   const successNotice =
     query.created === "1"
-      ? "草稿已创建。发布后才会对所有人可见。"
+      ? "草稿已创建。发布后会按所选访问范围展示。"
       : query.saved === "1"
         ? "修改已保存。"
         : query.published === "1"
@@ -71,6 +71,11 @@ export default async function EditPoemPage({
         <dd>
           <Badge variant={isPublished ? "success" : "warning"}>
             {isPublished ? "已发布" : "草稿"}
+          </Badge>
+        </dd>
+        <dd>
+          <Badge variant="neutral">
+            {poem.visibility === "public" ? "公开" : "仅成员可见"}
           </Badge>
         </dd>
         {hidden ? (
@@ -170,6 +175,7 @@ export default async function EditPoemPage({
                 occurredAt: poem.occurredAt
                   ? toDateInputValue(poem.occurredAt)
                   : undefined,
+                visibility: poem.visibility,
               }}
             />
           </div>

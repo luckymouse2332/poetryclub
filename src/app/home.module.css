@@ -155,15 +155,21 @@
   font-size: var(--font-size-body);
   font-weight: 400;
   line-height: var(--line-height-copy);
-  overflow-wrap: anywhere;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .poemLink {
+  display: block;
+  overflow: hidden;
   color: inherit;
   text-decoration-line: underline;
   text-decoration-color: transparent;
   text-decoration-thickness: 1px;
+  text-overflow: ellipsis;
   text-underline-offset: 0.28em;
+  white-space: nowrap;
   transition:
     color 160ms ease,
     text-decoration-color 160ms ease;
@@ -176,9 +182,30 @@
 }
 
 .poemAuthor {
+  display: flex;
+  align-items: baseline;
+  column-gap: 0.35rem;
+  row-gap: 0.15rem;
   grid-column: 2;
   margin: 0;
-  overflow-wrap: anywhere;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.poemAuthorName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.poemVisibilityLabel {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.poemVisibilitySeparator {
+  flex: 0 0 auto;
 }
 
 .emptyState {
@@ -238,13 +265,14 @@
 
 @container (min-width: 25rem) {
   .poemIndexRow {
-    grid-template-columns: 4.5rem minmax(0, 1fr) minmax(4.5rem, auto);
+    grid-template-columns: 4.5rem minmax(0, 1fr) minmax(6rem, 12rem);
     gap: var(--space-4);
   }
 
   .poemAuthor {
     grid-column: 3;
-    max-width: 10rem;
+    max-width: none;
+    justify-content: flex-end;
     text-align: right;
   }
 }

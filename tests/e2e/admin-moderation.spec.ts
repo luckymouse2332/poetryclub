@@ -93,6 +93,7 @@ async function createPublishedPoem(
   await waitForHydration(page, "main form button[type=submit]");
   await page.getByLabel("标题").fill(title);
   await page.getByLabel("正文").fill("治理测试正文第一行。\n\n治理测试正文第二行。");
+  await page.getByRole("radio", { name: "公开", exact: true }).click();
   await page.getByRole("button", { name: "保存草稿" }).click();
   await page.waitForURL(/\/account\/poems\/[0-9a-f-]+\/edit\?created=1$/);
   const id = new URL(page.url()).pathname.split("/")[3] ?? "";

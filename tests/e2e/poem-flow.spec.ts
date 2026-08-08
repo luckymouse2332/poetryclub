@@ -64,6 +64,13 @@ async function gotoHydratedEdit(page: Page, poemId: string): Promise<void> {
   await waitForHydration(page, "main form button[type=submit]");
 }
 
+async function selectVisibility(
+  page: Page,
+  label: "公开" | "仅成员可见" = "公开",
+): Promise<void> {
+  await page.getByRole("radio", { name: label, exact: true }).click();
+}
+
 function actionError(page: Page) {
   return page.locator('main p[role="alert"]').filter({ hasText: "操作未完成" });
 }
@@ -121,6 +128,7 @@ test.describe.serial("poem publishing and authorization loop", () => {
     const duplicateTitle = uniqueValue("幂等草稿");
     await authorPage.getByLabel("标题").fill(duplicateTitle);
     await authorPage.getByLabel("正文").fill("同一张表单重复提交。\n第二行。");
+    await selectVisibility(authorPage);
     await authorPage.getByRole("button", { name: "保存草稿" }).evaluate(
       (button) => {
         (button as HTMLButtonElement).click();
@@ -140,6 +148,7 @@ test.describe.serial("poem publishing and authorization loop", () => {
     await authorPage.getByLabel("正文").fill(body);
     await authorPage.getByLabel("创作背景").fill("一次换行保存测试。\n背景第二行。");
     await authorPage.getByLabel("事件日期").fill("2026-08-02");
+    await selectVisibility(authorPage);
     await authorPage.getByRole("button", { name: "保存草稿" }).click();
     await authorPage.waitForURL(/\/account\/poems\/[0-9a-f-]+\/edit\?created=1$/);
 
@@ -213,6 +222,7 @@ test.describe.serial("poem publishing and authorization loop", () => {
     await waitForHydration(otherPage, "form button[type=submit]");
     await otherPage.getByLabel("标题").fill(uniqueValue("他人草稿"));
     await otherPage.getByLabel("正文").fill("这是另一位用户的私有草稿。");
+    await selectVisibility(otherPage);
     await otherPage.getByRole("button", { name: "保存草稿" }).click();
     await otherPage.waitForURL(/\/account\/poems\/[0-9a-f-]+\/edit\?created=1$/);
     otherDraftId = new URL(otherPage.url()).pathname.split("/")[3] ?? "";
@@ -333,6 +343,7 @@ test.describe.serial("own poems list discoverability and inline actions", () => 
     draftTitle = uniqueValue("列表操作草稿");
     await page.getByLabel("标题").fill(draftTitle);
     await page.getByLabel("正文").fill("从我的诗作列表直接管理状态。");
+    await selectVisibility(page);
     await page.getByRole("button", { name: "保存草稿" }).click();
     await page.waitForURL(/\/account\/poems\/[0-9a-f-]+\/edit\?created=1$/);
     poemId = new URL(page.url()).pathname.split("/")[3] ?? "";
@@ -345,7 +356,7 @@ test.describe.serial("own poems list discoverability and inline actions", () => 
       card.getByRole("button", { name: "发布", exact: true }),
     ).toBeVisible();
     await expect(card.getByRole("button", { name: "删除草稿" })).toBeVisible();
-    await expect(card.getByRole("link", { name: "查看公开页" })).toHaveCount(0);
+    await expect(card.getByRole("link", { name: "查看作品页" })).toHaveCount(0);
     await expect(
       card.getByRole("button", { name: "撤回", exact: true }),
     ).toHaveCount(0);
@@ -372,7 +383,7 @@ test.describe.serial("own poems list discoverability and inline actions", () => 
     await gotoListHydrated();
     const card = cardByTitle(draftTitle);
     await expect(card.getByRole("link", { name: "编辑" })).toBeVisible();
-    await expect(card.getByRole("link", { name: "查看公开页" })).toBeVisible();
+    await expect(card.getByRole("link", { name: "查看作品页" })).toBeVisible();
     await expect(
       card.getByRole("button", { name: "撤回", exact: true }),
     ).toBeVisible();
@@ -398,6 +409,6 @@ test.describe.serial("own poems list discoverability and inline actions", () => 
     await expect(
       card.getByRole("button", { name: "发布", exact: true }),
     ).toBeVisible();
-    await expect(card.getByRole("link", { name: "查看公开页" })).toHaveCount(0);
+    await expect(card.getByRole("link", { name: "查看作品页" })).toHaveCount(0);
   });
 });

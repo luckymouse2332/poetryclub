@@ -14,6 +14,7 @@ import {
   POEM_STATUS_LABELS,
   formatModerationDateTime,
 } from "@/features/moderation/formatters";
+import { POEM_VISIBILITY_LABELS } from "@/features/posts/formatters";
 import { getAdminPoem } from "@/server/services/moderation";
 import { uuidTargetIdSchema } from "@/server/validation/moderation";
 
@@ -45,6 +46,9 @@ export default async function AdminPoemDetailPage({
         </Badge>
         <Badge variant={hidden ? "danger" : "neutral"}>
           {MODERATION_STATUS_LABELS[poem.moderationStatus]}
+        </Badge>
+        <Badge variant="neutral">
+          {POEM_VISIBILITY_LABELS[poem.visibility]}
         </Badge>
       </div>
       <dl className="mt-6 space-y-2 text-label">
@@ -94,7 +98,7 @@ export default async function AdminPoemDetailPage({
             action={restorePoemAction.bind(null, poem.id)}
             triggerLabel="恢复"
             title="恢复这首诗作？"
-            description="只有作者状态仍为已发布时，恢复后才会重新公开。"
+            description="只有作者状态仍为已发布时，恢复后才会按作者选择的访问范围重新可见。"
             confirmLabel="确认恢复"
             confirmBusyLabel="正在恢复…"
           />
@@ -103,7 +107,7 @@ export default async function AdminPoemDetailPage({
             action={hidePoemAction.bind(null, poem.id)}
             triggerLabel="隐藏"
             title="隐藏这首诗作？"
-            description="隐藏后首页、公开列表和公开详情会立即不可见。"
+            description="隐藏后首页、诗作列表和作品详情会立即不可见。"
             confirmLabel="确认隐藏"
             confirmBusyLabel="正在隐藏…"
           />
