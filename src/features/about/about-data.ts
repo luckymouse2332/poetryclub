@@ -26,6 +26,13 @@ export type UpdateEntry = Readonly<{
   items: readonly string[];
 }>;
 
+export type RoadmapEntry = Readonly<{
+  status: "已完成" | "计划中" | "后续补充";
+  title: string;
+  summary: string;
+  items: readonly string[];
+}>;
+
 export const PROJECT_ERAS: readonly ProjectEra[] = [
   {
     year: "2022",
@@ -108,6 +115,20 @@ export const CURRENT_VERSION_GROUPS: readonly CurrentVersionGroup[] = [
   },
 ];
 
+export const CURRENT_MILESTONE = {
+  code: "M4.1",
+  status: "已完成",
+  date: "2026.08.08",
+  title: "内容访问权限控制",
+  summary:
+    "作品现在可以选择公开或仅成员可见，游客、注册成员、管理员和封禁账号按照明确的服务端规则读取内容。",
+  items: [
+    "公开作品继续对游客开放；仅成员作品只对普通成员和管理员开放",
+    "游客直达受保护作品时只看到登录弹窗，登录成功后返回原作品",
+    "首页、诗作列表、作者页和管理页统一展示访问范围标签",
+  ],
+} as const;
+
 export const UPDATE_ENTRIES = [
   {
     milestone: "M0",
@@ -123,7 +144,7 @@ export const UPDATE_ENTRIES = [
   {
     milestone: "M1",
     date: "2026.08.01",
-    title: "补回成员入口",
+    title: "成员入口",
     summary:
       "网站重新有了可使用的登录与账户页面，成员身份也能由服务端可靠确认。",
     items: ["完成登录、会话读取与登出", "建立受保护的账户页面"],
@@ -142,14 +163,68 @@ export const UPDATE_ENTRIES = [
   {
     milestone: "M3",
     date: "2026.08.03",
-    title: "补齐邀请与管理功能",
+    title: "邀请与管理功能",
     summary:
       "当前版本具备邀请成员、管理内容和保留管理记录所需的基本能力。",
     items: [
       "完成邀请码注册与成员、管理员权限边界",
-      "加入诗作隐藏、用户状态、角色管理与审计记录",
+      "加入诗作、用户封禁以及角色管理与审计记录",
+    ],
+  },
+  {
+    milestone: "M4",
+    date: "2026.08.08",
+    title: "访问控制与安全",
+    summary:
+      "进一步完善了安全机制和权限系统",
+    items: [
+      "添加了找回密码和邮箱验证功能",
+      "在保留旧作品公开可读的基础上，作者可以控制作品公开与仅成员可见两种访问权限。"
     ],
   },
 ] as const satisfies readonly UpdateEntry[];
 
-export const FUTURE_PLANS = ["评论系统", "搜索功能", "更多历史内容整理"] as const;
+export const ROADMAP_ENTRIES: readonly RoadmapEntry[] = [
+  {
+    status: "计划中",
+    title: "通知",
+    summary: "在网站内收到点赞、评论以及审核通知。",
+    items: ["审核提醒", "点赞提醒", "评论提醒"],
+  },
+  {
+    status: "计划中",
+    title: "作品互动",
+    summary: "在阅读作品的同时保留轻量的回应方式，逐步补充点赞、评论回复、收藏和分享。",
+    items: ["点赞", "评论回复", "收藏", "分享"],
+  },
+  {
+    status: "计划中",
+    title: "诗集与特辑",
+    summary: "把相关诗作和文章组织成可以连续阅读的一组内容，例如《回中史记》。",
+    items: ["诗集", "特辑", "相关作品编排"],
+  },
+  {
+    status: "计划中",
+    title: "班史时间轴",
+    summary: "按时间整理班级事件，并在事件旁关联相关诗作、文章和照片。",
+    items: ["班级事件", "诗作与文章关联", "照片记录"],
+  },
+  {
+    status: "计划中",
+    title: "共同创作",
+    summary: "支持多人一起完成一篇作品或一个特辑。",
+    items: ["多人共同完成作品", "多人共同整理特辑"],
+  },
+  {
+    status: "计划中",
+    title: "xian歌",
+    summary: "为神秘歌曲留下上传入口。",
+    items: ["语音上传", "歌曲上传"],
+  },
+  {
+    status: "后续补充",
+    title: "其他功能",
+    summary: "标签、头像、随机旧事、个人主页等内容会根据后续实际需求逐步补充。",
+    items: ["标签", "头像", "随机旧事", "个人主页"],
+  },
+];
