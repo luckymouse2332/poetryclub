@@ -32,6 +32,7 @@ src/
 ├── server/          # 仅服务端
 │   ├── auth/
 │   ├── db/
+│   ├── email/
 │   ├── policies/
 │   ├── services/
 │   └── validation/
@@ -60,16 +61,21 @@ src/
 ## 认证边界
 
 - 会话由 Better Auth 在服务端管理；客户端只得到受限的身份视图。
-- 邮箱密码注册 / 登录请求挂载在 `/api/auth/[...all]`；不启用 OAuth、Better Auth admin 插件或复杂权限组。
+- 邮箱密码注册、登录、修改密码和密码重置请求挂载在 `/api/auth/[...all]`；不启用 OAuth、Better Auth admin 插件或复杂权限组。
 - M3 采用项目自有的 `member | admin` 最小角色与 `active | suspended` 状态。角色和状态是服务端控制字段，管理写操作走项目 policy/service，不暴露 Better Auth admin mutation endpoint。
 - 公开注册必须提供有效邀请码。邀请码只保存 SHA-256 哈希；Better Auth Drizzle adapter 启用真实事务，注册的 user/account 创建与邀请码原子计数在同一事务提交或回滚。
 - 注册后不自动登录，以避免现阶段在既有邮箱注册时形成账号枚举差异；用户需显式登录。
 - 会话凭据只通过 HttpOnly Cookie 传递；认证 JSON 响应会移除 session token、provider token 和密码字段，避免暴露给浏览器脚本。
 - Better Auth 负责其认证端点的协议级输入校验、密码哈希、Cookie 和错误响应；项目自有写入口仍必须使用 Zod 并执行完整安全检查。
+- 注册、修改密码与重置密码共用 `8..128` 字符长度规则。修改密码调用 Better Auth `changePassword` 并撤销其他会话；邮件重置调用 `requestPasswordReset` / `resetPassword`，令牌保存于 Better Auth 既有 `verification` 表，有效期一小时，成功后撤销全部旧会话。
+- 重置邮件经 `src/server/email` 抽象发送。生产仅允许 Resend 适配层，开发日志 transport 与测试 JSONL outbox 只能在显式非生产环境使用；异步发送失败统一脱敏记录，不改变对外统一响应。
+- `/reset-password` 服务端先通过 Better Auth 官方回调验证令牌状态；客户端取得令牌后立即清理地址栏，不写入持久化存储，也不向无关链接传播。
+- 生产限流对修改密码、请求重置和提交重置使用更严格的 Better Auth 自定义规则。当前单应用容器使用内存存储；未来横向扩容时必须改为共享限流存储。
+- 当前宿主机 Caddy 直接反向代理仅绑定回环地址的应用端口。Better Auth 只从 Caddy 重写的 `X-Forwarded-For` 读取客户端 IP，不启用会信任任意转发头的 `trustedProxyHeaders`；若 Caddy 前方增加其他代理，必须先在 Caddy 层配置可信代理链。
 - 服务端入口不得信任客户端传入的用户 ID、角色、权限、作者信息或审核状态。
 - 对象级授权逻辑集中在 `src/server/policies`，由服务端入口调用。
 - `requireActiveUser()` 和 `requireAdmin()` 根据会话用户 ID 重新读取数据库权威状态；suspended 用户保留会话和只读页面，但不能执行任何身份写操作，suspended admin 不能管理。
-- M0 不提供邮箱验证、找回密码、会话管理页和路由保护；这些必须作为独立任务实现。
+- M4 已提供账户安全页和邮件密码重置；邮箱验证与独立会话管理页仍属于后续任务。
 
 ## 数据库 / 事务 / migration 规则
 
@@ -82,6 +88,7 @@ src/
 - 可能移除 active admin 的操作先锁定 `admin_guard(id=1)`，在同一事务内复查 active admin 数量、更新目标并写审计，避免并发产生 0 个管理员。
 - 诗作作者状态 `draft | published` 与治理状态 `visible | hidden` 独立；公开读取统一要求 published、visible 且 `publishedAt` 非空。
 - 管理操作与 `admin_audit_log` 在同一事务内完成；日志只读，不记录凭据、Cookie、邀请码明文或其他敏感信息。
+- 服务器终端紧急恢复脚本通过 Better Auth 公开的密码哈希入口更新唯一 credential account，并在同一 PostgreSQL 事务撤销该用户全部会话；该能力没有 Route Handler 或管理后台入口。
 
 ## 错误与敏感信息
 
@@ -96,9 +103,10 @@ src/
 ## 测试策略
 
 - 单元测试：Vitest（node 环境），匹配 `tests/unit/**/*.test.ts`。
+- 集成测试：Vitest（node 环境），匹配 `tests/integration/**/*.test.ts`，通过 `pnpm test:integration` 连接真实 PostgreSQL。
 - E2E：Playwright，位于 `tests/e2e/`，webServer 使用 `pnpm dev`。
 - 服务端入口的认证 / 授权 / 校验逻辑通过直接测试 service 与 policy 层覆盖（自 M1 起），不依赖真实数据库。
-- 质量命令：`pnpm typecheck`、`pnpm lint`、`pnpm test`、`pnpm test:e2e`、`pnpm build`。
+- 质量命令：`pnpm typecheck`、`pnpm lint`、`pnpm test`、`pnpm test:integration`、`pnpm test:e2e`、`pnpm build`、`pnpm db:check`。
 
 ## 生产部署结构
 
@@ -106,6 +114,7 @@ src/
 - Next.js 前方必须有 **Caddy 或 Nginx 反向代理**（TLS 终结、静态资源与转发）。
 - PostgreSQL 使用**持久化数据卷**。
 - Redis、搜索服务、对象存储、后台任务系统只在真实需求出现后引入。
+- 事务邮件由应用容器直接调用 Resend HTTP API；邮件供应商被隔离在服务端适配层，不进入页面或客户端 bundle。
 - 开发环境由根 `compose.yaml` 提供 PostgreSQL；应用仍推荐在宿主机运行。
 - 生产由 `deploy/compose.production.yaml` 编排一次性 migration、应用和 PostgreSQL；数据库通信使用内部后端网络，应用另接非内部入口网络；应用仅在 migration 成功后启动，并把宿主机回环地址的 `4000` 端口发布给宿主机 Caddy 或 Nginx。
 - 生产反向代理在宿主机独立运行，不由项目 Compose 管理证书或占用 80/443 端口。

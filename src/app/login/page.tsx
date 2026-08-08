@@ -13,6 +13,7 @@ type LoginPageProps = Readonly<{
   searchParams: Promise<{
     mode?: string | string[];
     next?: string | string[];
+    passwordReset?: string | string[];
   }>;
 }>;
 
@@ -20,6 +21,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const query = await searchParams;
   const initialMode = query.mode === "sign-up" ? "sign-up" : "sign-in";
   const nextPath = getSafeRedirectPath(query.next);
+  const passwordReset = query.passwordReset === "success";
 
   return (
     <PageContainer
@@ -33,7 +35,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         description="使用邮箱登录；新同学需要有效邀请码才能创建账号。"
         className="mb-8"
       />
-      <AuthForm initialMode={initialMode} nextPath={nextPath} />
+      <AuthForm
+        initialMode={initialMode}
+        nextPath={nextPath}
+        initialNotice={passwordReset ? "密码已重置，请使用新密码登录。" : undefined}
+        cleanPasswordResetNotice={passwordReset}
+      />
     </PageContainer>
   );
 }

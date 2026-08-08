@@ -28,6 +28,8 @@ COPY drizzle ./drizzle
 COPY src/server/db/schema ./src/server/db/schema
 COPY src/server/validation/env.ts ./src/server/validation/env.ts
 COPY scripts/bootstrap-admin.mjs ./scripts/bootstrap-admin.mjs
+COPY scripts/reset-user-password.mjs ./scripts/reset-user-password.mjs
+COPY src/lib/password-policy.mjs ./src/lib/password-policy.mjs
 USER node
 CMD ["node", "node_modules/drizzle-kit/bin.cjs", "migrate"]
 

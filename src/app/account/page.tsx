@@ -109,6 +109,17 @@ export default async function AccountPage() {
           </Button>
         </div>
       </Section>
+
+      <Section title="账户安全" className="pb-0 pt-8">
+        <p className="text-body text-subtle">
+          验证当前密码后可以设置新密码，并撤销其他设备上的登录会话。
+        </p>
+        <div className="mt-4">
+          <Button asChild variant="secondary">
+            <Link href="/account/security">管理账户安全</Link>
+          </Button>
+        </div>
+      </Section>
     </PageContainer>
   );
 }

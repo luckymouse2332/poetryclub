@@ -149,6 +149,27 @@ export async function listOtherActiveAdmins(
   }
 }
 
+export async function expirePasswordResetUrl(resetUrl: string): Promise<void> {
+  const url = new URL(resetUrl);
+  const token = decodeURIComponent(url.pathname.split("/").filter(Boolean).at(-1) ?? "");
+  if (!token) throw new Error("Reset URL does not contain a token");
+
+  const sql = postgres(databaseUrl(), { max: 1 });
+  try {
+    const rows = await sql`
+      update verification
+      set expires_at = ${new Date(Date.now() - 60_000)}, updated_at = now()
+      where identifier = ${`reset-password:${token}`}
+      returning id
+    `;
+    if (rows.length !== 1) {
+      throw new Error("Expected exactly one password reset verification row");
+    }
+  } finally {
+    await sql.end();
+  }
+}
+
 export async function auditContainsText(value: string): Promise<boolean> {
   const sql = postgres(databaseUrl(), { max: 1 });
   try {

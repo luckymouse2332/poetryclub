@@ -31,6 +31,21 @@ import type {
 import { MODERATION_PAGE_SIZE } from "@/server/validation/moderation";
 
 const moderatorUser = alias(user, "moderator_user");
+const poemCountsByAuthor = db
+  .select({
+    authorId: poem.authorId,
+    draftCount:
+      sql<number>`count(*) filter (where ${poem.status} = 'draft')::int`.as(
+        "draft_count",
+      ),
+    publishedCount:
+      sql<number>`count(*) filter (where ${poem.status} = 'published')::int`.as(
+        "published_count",
+      ),
+  })
+  .from(poem)
+  .groupBy(poem.authorId)
+  .as("poem_counts_by_author");
 
 type AuditAction =
   | "poem_hidden"
@@ -239,10 +254,14 @@ export async function listAdminUsers(
         role: user.role,
         status: user.status,
         suspensionReason: user.suspensionReason,
-        draftCount: sql<number>`(select count(*)::int from ${poem} p where p.author_id = ${user.id} and p.status = 'draft')`,
-        publishedCount: sql<number>`(select count(*)::int from ${poem} p where p.author_id = ${user.id} and p.status = 'published')`,
+        draftCount: sql<number>`coalesce(${poemCountsByAuthor.draftCount}, 0)`,
+        publishedCount: sql<number>`coalesce(${poemCountsByAuthor.publishedCount}, 0)`,
       })
       .from(user)
+      .leftJoin(
+        poemCountsByAuthor,
+        eq(poemCountsByAuthor.authorId, user.id),
+      )
       .where(where)
       .orderBy(desc(user.createdAt), desc(user.id))
       .limit(MODERATION_PAGE_SIZE)

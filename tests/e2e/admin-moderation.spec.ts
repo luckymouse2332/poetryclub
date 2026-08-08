@@ -217,6 +217,16 @@ test.describe.serial("administrator authorization and governance", () => {
     await expect(adminPage.getByLabel("治理状态")).toHaveValue("hidden");
   });
 
+  test("user cards show the author's actual poem counts", async () => {
+    await adminPage.goto(`/admin/users?q=${encodeURIComponent(memberEmail)}`);
+    const memberCard = cardByText(adminPage, memberEmail);
+
+    await expect(memberCard).toBeVisible();
+    await expect(
+      memberCard.getByText("草稿 0 · 已发布 1", { exact: true }),
+    ).toBeVisible();
+  });
+
   test("hiding is immediately private, survives author changes, and restore follows author status", async () => {
     await adminPage.goto(`/admin/poems?q=${encodeURIComponent(poemTitle)}`);
     const card = cardByText(adminPage, poemTitle);
