@@ -71,9 +71,21 @@ export default async function HomePage() {
                       </Link>
                     </h3>
                     <p className={styles.poemAuthor}>
-                      {poem.authorName}
+                      <span className={styles.poemAuthorName}>{poem.authorName}</span>
                       {poem.visibility === "members_only"
-                        ? ` · ${POEM_VISIBILITY_LABELS.members_only}`
+                        ? (
+                            <>
+                              <span
+                                aria-hidden="true"
+                                className={styles.poemVisibilitySeparator}
+                              >
+                                ·
+                              </span>
+                              <span className={styles.poemVisibilityLabel}>
+                                {POEM_VISIBILITY_LABELS.members_only}
+                              </span>
+                            </>
+                          )
                         : null}
                     </p>
                   </li>
