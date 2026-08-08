@@ -35,7 +35,7 @@ export function MemberLoginGate({ nextPath }: MemberLoginGateProps) {
         <DialogHeader>
           <DialogTitle>这篇作品仅成员可见</DialogTitle>
           <DialogDescription>
-            请使用正常状态的成员账号登录。登录成功后会回到当前作品。
+            请登录，登录成功后会回到当前作品。
           </DialogDescription>
         </DialogHeader>
         <AuthForm

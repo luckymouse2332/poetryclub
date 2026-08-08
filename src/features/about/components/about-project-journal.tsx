@@ -1,6 +1,5 @@
 import {
   CURRENT_VERSION_GROUPS,
-  CURRENT_MILESTONE,
   PROJECT_ERAS,
   ROADMAP_ENTRIES,
   UPDATE_ENTRIES,
@@ -164,7 +163,10 @@ export function AboutProjectJournal() {
 
             <div className={styles.currentVersionGrid}>
               {CURRENT_VERSION_GROUPS.map((group) => (
-                <section key={group.label} className={styles.currentVersionGroup}>
+                <section
+                  key={group.label}
+                  className={styles.currentVersionGroup}
+                >
                   <h3>{group.label}</h3>
                   <p>{group.description}</p>
                   <ul>
@@ -175,23 +177,6 @@ export function AboutProjectJournal() {
                 </section>
               ))}
             </div>
-
-            <aside className={styles.milestoneCard} aria-labelledby="milestone-title">
-              <div className={styles.milestoneMeta}>
-                <span>{CURRENT_MILESTONE.code}</span>
-                <span>{CURRENT_MILESTONE.status}</span>
-                <time>{CURRENT_MILESTONE.date}</time>
-              </div>
-              <div className={styles.milestoneBody}>
-                <h3 id="milestone-title">{CURRENT_MILESTONE.title}</h3>
-                <p>{CURRENT_MILESTONE.summary}</p>
-                <ul>
-                  {CURRENT_MILESTONE.items.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            </aside>
           </div>
         </section>
 
@@ -205,10 +190,11 @@ export function AboutProjectJournal() {
           <div className={styles.sectionContent}>
             <div className={styles.sectionHeading}>
               <p>更新记录</p>
-              <h2 id="updates-title">当前版本是怎样补回来的</h2>
+              <h2 id="updates-title">更新记录</h2>
             </div>
             <p className={styles.sectionTransition}>
-              2026 年的重写分成了几个阶段。这里不列每次小修，当前记录已经更新到 M4.1 内容访问权限控制。
+              2026 年的重写分成了几个阶段。这里不列每次小修，当前记录已经更新到
+              M4 内容访问权限控制。
             </p>
 
             <ol className={styles.updateList}>
@@ -246,7 +232,8 @@ export function AboutProjectJournal() {
               <h2 id="future-title">接下来准备做什么</h2>
             </div>
             <p className={styles.sectionTransition}>
-              M4.1 完成后，路线会继续围绕站内阅读、作品整理和班级记忆展开。下面记录当前已经确定的方向，具体范围会在每个任务开始前再次确认。
+              M4
+              完成后，路线会继续围绕站内阅读、作品整理和班级记忆展开。下面记录当前已经确定的方向，具体范围会在每个任务开始前再次确认。
             </p>
             <ul className={styles.roadmapList}>
               {ROADMAP_ENTRIES.map((entry) => (

@@ -115,20 +115,6 @@ export const CURRENT_VERSION_GROUPS: readonly CurrentVersionGroup[] = [
   },
 ];
 
-export const CURRENT_MILESTONE = {
-  code: "M4.1",
-  status: "已完成",
-  date: "2026.08.08",
-  title: "内容访问权限控制",
-  summary:
-    "作品现在可以选择公开或仅成员可见，游客、注册成员、管理员和封禁账号按照明确的服务端规则读取内容。",
-  items: [
-    "公开作品继续对游客开放；仅成员作品只对普通成员和管理员开放",
-    "游客直达受保护作品时只看到登录弹窗，登录成功后返回原作品",
-    "首页、诗作列表、作者页和管理页统一展示访问范围标签",
-  ],
-} as const;
-
 export const UPDATE_ENTRIES = [
   {
     milestone: "M0",
