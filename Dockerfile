@@ -15,8 +15,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 RUN --mount=type=secret,id=production_env,required=true \
+    tr -d '\r' < /run/secrets/production_env > /tmp/production_env && \
     set -a && \
-    . /run/secrets/production_env && \
+    . /tmp/production_env && \
+    rm -f /tmp/production_env && \
     set +a && \
     pnpm build
 
