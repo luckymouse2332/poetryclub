@@ -64,4 +64,12 @@ Server Action 和 Route Handler 都必须视为可被外部直接调用的服务
 
 - 任务说明与状态放在 `docs/tasks/`。开始任务前先复制 `docs/tasks/template.md` 并填写背景、范围、非目标、架构边界、验收条件、测试、风险/回滚、状态。
 - 完成的任务必须在 `docs/tasks/` 更新状态，不得虚报完成。
+- 路线任务使用 `M<阶段>.<序号>`；缺陷、运维、仓库维护、调查原型分别使用 `BUG-*`、`OPS-*`、`CHORE-*`、`SPIKE-*`。任务编号与发布版本没有对应关系。
+
+## Git 与发布工作流
+
+- 完整规则以 `docs/development-workflow.md` 为准。普通分支使用 `<type>/<task-id>-<slug>`，例如 `feat/m4-1-content-access-control`；`master` 保持可部署，普通工作不得直接提交到 `master`。
+- 提交信息使用 Conventional Commits：`<type>(<scope>)!: <subject>`。提交标题使用英文，正文可以使用中文或英文；一个提交只处理一个可独立说明和回滚的逻辑变化。
+- 发布版本使用 Semantic Versioning。稳定标签和 RC 标签分别使用 `vX.Y.Z`、`vX.Y.Z-rc.N`，必须为 annotated tag；`package.json` 与准备发布的标签保持一致，稳定发布同步更新 `CHANGELOG.md`。
+- 提交前运行 `pnpm check:conventions`、`pnpm typecheck`、`pnpm lint` 和 `pnpm test`。不得在没有明确授权时创建、移动或推送发布标签。
 

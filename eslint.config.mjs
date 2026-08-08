@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Local agent runtimes are not application source and may be mounted or
+    // removed independently of the repository checkout.
+    ".agents/**",
+    ".claude/**",
+    ".codex/**",
   ]),
 ]);
 

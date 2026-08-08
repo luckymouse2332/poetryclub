@@ -1,6 +1,6 @@
 {
   "name": "poetryclub",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "private": true,
   "packageManager": "pnpm@10.33.0",
   "engines": {
@@ -16,6 +16,9 @@
     "test:integration": "node scripts/run-integration-tests.mjs",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "check:conventions": "node scripts/check-repository-conventions.mjs current",
+    "test:conventions": "node scripts/check-repository-conventions.mjs self-test",
+    "hooks:install": "node scripts/setup-git-hooks.mjs",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:check": "drizzle-kit check",

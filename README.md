@@ -2,6 +2,8 @@
 
 回中诗社是一个面向校园的诗歌兴趣社区，也是对 2021—2024 级共同记忆的线上整理。项目当前已经完成认证、邀请注册、账户密码管理与找回、诗作发布和管理治理闭环，并完成了以暖米纸色和诗集合照为核心的首页视觉改造。
 
+当前稳定版本为 `v1.1.0`。任务编号、分支、提交和发布版本的规则见 [`docs/development-workflow.md`](docs/development-workflow.md)，版本变化见 [`CHANGELOG.md`](CHANGELOG.md)。
+
 ## 当前功能
 
 - 游客可以浏览分页诗作列表、诗作详情和公开首页内容。
@@ -81,6 +83,9 @@ pnpm admin:bootstrap
 | `pnpm test:integration` | 使用真实 PostgreSQL 运行服务端集成测试 |
 | `pnpm test:watch` | 以监听模式运行单元测试 |
 | `pnpm test:e2e` | 运行 Playwright E2E 测试 |
+| `pnpm check:conventions` | 检查当前分支、最新提交和规范检查器自身 |
+| `pnpm test:conventions` | 单独运行仓库规范检查器自检 |
+| `pnpm hooks:install` | 启用仓库提供的提交信息和推送前 Git hooks |
 | `pnpm db:generate` | 根据 Schema 生成版本化 migration |
 | `pnpm db:migrate` | 应用已经提交的 migration |
 | `pnpm db:check` | 检查 migration 一致性 |
@@ -96,6 +101,12 @@ pnpm test:e2e
 ```
 
 E2E 测试要求数据库已经启动并完成 migration，测试的全局初始化会建立专用管理员账号。
+
+## 开发工作流
+
+开始较大的功能、缺陷、运维或仓库维护工作前，先在 `docs/tasks/` 创建任务文档，再从最新 `master` 建立符合规范的短期分支。提交使用 Conventional Commits，Pull Request 标题使用同一格式。首次克隆仓库后可运行 `pnpm hooks:install` 启用本地检查；GitHub 还会检查 PR 分支、PR 标题、提交和发布标签。
+
+任务编号用于组织开发路线，发布版本使用独立的 Semantic Versioning。例如“内容访问权限”可以是 `M4.1`，合入后作为向后兼容的新功能进入 `v1.2.0`，两组数字没有绑定关系。完整流程见 [`docs/development-workflow.md`](docs/development-workflow.md)。
 
 账户密码相关能力分为四条独立路径。已登录用户在 `/account/security` 修改自己的密码；忘记密码用户在 `/forgot-password` 提交邮箱；邮件中的一次性链接进入 `/reset-password`；`pnpm account:reset-password` 只供服务器运维人员处理紧急恢复，不属于网页用户功能，也不能替代正式邮件流程。紧急恢复的具体操作和风险见 [`docs/deployment.md`](docs/deployment.md)。
 

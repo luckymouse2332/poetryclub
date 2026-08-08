@@ -1,0 +1,89 @@
+name: Repository conventions
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  pull-request:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository history
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Test convention checker
+        run: node scripts/check-repository-conventions.mjs self-test
+
+      - name: Check pull request branch
+        env:
+          BRANCH_NAME: ${{ github.head_ref }}
+        run: node scripts/check-repository-conventions.mjs branch "$BRANCH_NAME"
+
+      - name: Check pull request title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: node scripts/check-repository-conventions.mjs header "$PR_TITLE"
+
+      - name: Check pull request commits
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node scripts/check-repository-conventions.mjs commits "$BASE_SHA..$HEAD_SHA"
+
+  master-commits:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository history
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check new master commits
+        if: github.event.before != '0000000000000000000000000000000000000000'
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: node scripts/check-repository-conventions.mjs commits "$BEFORE_SHA..$HEAD_SHA"
+
+  reject-release-tag-mutation:
+    if: >-
+      startsWith(github.ref, 'refs/tags/v') &&
+      (github.event.created != true || github.event.forced == true || github.event.deleted == true)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reject moved or deleted release tag
+        run: |
+          echo "Release tags are immutable; create a new version instead."
+          exit 1
+
+  release-tag:
+    if: >-
+      github.event_name == 'push' &&
+      startsWith(github.ref, 'refs/tags/v') &&
+      github.event.created == true &&
+      github.event.forced != true &&
+      github.event.deleted != true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository history
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check release tag and version files
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: node scripts/check-repository-conventions.mjs release "$RELEASE_TAG"

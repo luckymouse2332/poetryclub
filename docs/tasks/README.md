@@ -2,6 +2,15 @@
 
 本目录维护项目的任务说明与执行状态。每个任务必须先复制 `template.md` 填写后再实现，完成后更新状态，不得虚报完成。
 
+## 阶段定义
+
+- M0：工程基线。
+- M1：认证会话与界面基础。
+- M2：诗作发布闭环。
+- M3：准入、管理治理与档案式界面。
+- M4：成员账户、内容访问、互动和共同记忆整理能力；M4.0 已完成账户密码管理与找回，“内容访问权限”使用 M4.1。
+- M5 尚未定义，在明确新的整体阶段目标前不启用 M5.0。
+
 ## 当前任务
 
 | 编号 | 任务 | 状态 | 文档 |
@@ -25,15 +34,18 @@
 | M3.8 | 登出按钮导航样式对齐 | 已完成 | [M3.8-logout-navigation-style-alignment.md](./M3.8-logout-navigation-style-alignment.md) |
 | M3.9 | 移动端导航与区块标题短线 | 已完成 | [M3.9-mobile-navigation-section-rule.md](./M3.9-mobile-navigation-section-rule.md) |
 | M3.10 | 产品与设计文档现状同步 | 已完成 | [M3.10-product-design-documentation-sync.md](./M3.10-product-design-documentation-sync.md) |
+| M3.11 | 首页全幅实拍图参考稿改造 | 已完成 | [M3.11-homepage-full-width-reference-redesign.md](./M3.11-homepage-full-width-reference-redesign.md) |
 | M3.12 | 关于回中诗社页面 | 已完成 | [M3.12-about-project-journal.md](./M3.12-about-project-journal.md) |
 | M3.13 | 首页正文内容区布局收敛 | 已完成 | [M3.13-homepage-content-region-layout.md](./M3.13-homepage-content-region-layout.md) |
 | M4.0 | 账户密码管理与找回闭环 | 已完成 | [M4-password-management-recovery.md](./M4-password-management-recovery.md) |
+| CHORE-1 | 仓库工作流与发布规范 | 已完成 | [CHORE-1-repository-workflow-conventions.md](./CHORE-1-repository-workflow-conventions.md) |
 | BUG-1 | 修复bug | 已完成 | [BUG-1-admin-user-poem-count-fix.md](./BUG-1-admin-user-poem-count-fix.md) |
 | BUG-2 | 生产 Compose 恢复变量插值修复 | 已完成 | [BUG-2-production-compose-recovery-env-interpolation.md](./BUG-2-production-compose-recovery-env-interpolation.md) |
 | BUG-3 | 生产环境文件 CRLF 构建修复 | 已完成 | [BUG-3-production-env-crlf-build.md](./BUG-3-production-env-crlf-build.md) |
 
 ## 约定
 
-- 每个任务一个文件，命名：`<编号>-<简短描述>.md`。
+- 路线任务使用 `M<阶段>.<序号>`；缺陷、运维、仓库维护和调查原型分别使用 `BUG-*`、`OPS-*`、`CHORE-*` 和 `SPIKE-*`。完整规则见 [开发、版本与发布工作流](../development-workflow.md)。
+- 每个任务一个文件，命名为 `<编号>-<英文短名>.md`。已有历史文件名保留，新文件的短名只使用小写英文字母、数字和连字符。
 - 状态取值：`待办` / `进行中` / `已完成` / `已阻塞`。
 - 任务模板见 [template.md](./template.md)。
