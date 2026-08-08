@@ -32,6 +32,7 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: false,
     env: {
+      BETTER_AUTH_URL: baseURL,
       EMAIL_TRANSPORT: "test",
       EMAIL_TEST_OUTBOX_PATH,
     },
