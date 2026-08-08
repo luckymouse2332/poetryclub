@@ -155,15 +155,21 @@
   font-size: var(--font-size-body);
   font-weight: 400;
   line-height: var(--line-height-copy);
-  overflow-wrap: anywhere;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .poemLink {
+  display: block;
+  overflow: hidden;
   color: inherit;
   text-decoration-line: underline;
   text-decoration-color: transparent;
   text-decoration-thickness: 1px;
+  text-overflow: ellipsis;
   text-underline-offset: 0.28em;
+  white-space: nowrap;
   transition:
     color 160ms ease,
     text-decoration-color 160ms ease;
@@ -182,11 +188,15 @@
   row-gap: 0.15rem;
   grid-column: 2;
   margin: 0;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .poemAuthorName {
   min-width: 0;
-  overflow-wrap: anywhere;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .poemVisibilityLabel {
@@ -255,7 +265,7 @@
 
 @container (min-width: 25rem) {
   .poemIndexRow {
-    grid-template-columns: 4.5rem minmax(0, 1fr) minmax(4.5rem, auto);
+    grid-template-columns: 4.5rem minmax(0, 1fr) minmax(6rem, 12rem);
     gap: var(--space-4);
   }
 

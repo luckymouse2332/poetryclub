@@ -63,12 +63,18 @@ export default async function HomePage() {
                       <Link
                         href={`/poems/${poem.id}`}
                         className={styles.poemLink}
+                        title={`《${poem.title}》`}
                       >
                         《{poem.title}》
                       </Link>
                     </h3>
                     <p className={styles.poemAuthor}>
-                      <span className={styles.poemAuthorName}>{poem.authorName}</span>
+                      <span
+                        className={styles.poemAuthorName}
+                        title={poem.authorName}
+                      >
+                        {poem.authorName}
+                      </span>
                       {poem.visibility === "members_only"
                         ? (
                             <>
