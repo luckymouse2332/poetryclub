@@ -38,6 +38,7 @@
 | M3.12 | 关于回中诗社页面 | 已完成 | [M3.12-about-project-journal.md](./M3.12-about-project-journal.md) |
 | M3.13 | 首页正文内容区布局收敛 | 已完成 | [M3.13-homepage-content-region-layout.md](./M3.13-homepage-content-region-layout.md) |
 | M4.0 | 账户密码管理与找回闭环 | 已完成 | [M4-password-management-recovery.md](./M4-password-management-recovery.md) |
+| M4.1 | 内容访问权限控制 | 已完成 | [M4.1-content-access-control.md](./M4.1-content-access-control.md) |
 | CHORE-1 | 仓库工作流与发布规范 | 已完成 | [CHORE-1-repository-workflow-conventions.md](./CHORE-1-repository-workflow-conventions.md) |
 | BUG-1 | 修复bug | 已完成 | [BUG-1-admin-user-poem-count-fix.md](./BUG-1-admin-user-poem-count-fix.md) |
 | BUG-2 | 生产 Compose 恢复变量插值修复 | 已完成 | [BUG-2-production-compose-recovery-env-interpolation.md](./BUG-2-production-compose-recovery-env-interpolation.md) |

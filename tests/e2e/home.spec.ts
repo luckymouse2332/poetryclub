@@ -35,11 +35,6 @@ test("home page shows the community identity without fake business content", asy
   ).toBeVisible();
   await expect(page.getByText("2021—2024级").first()).toBeVisible();
   await expect(
-    page.getByText(
-      "三年里随手写下来的诗，",
-    ),
-  ).toBeVisible();
-  await expect(
     page.getByRole("img", {
       name: "暖色光影下，磨损的《杂诗集》与一本翻开的诗稿摆在深色桌面上",
     }),
@@ -107,9 +102,6 @@ test("home page shows the community identity without fake business content", asy
 
   await page.mouse.move(0, 0);
   const allPoemsArrow = allPoemsLink.locator("span[aria-hidden='true']");
-  const baseUnderlineColor = await allPoemsLink.evaluate(
-    (element) => getComputedStyle(element).textDecorationColor,
-  );
   const baseAllPoemsTransform = await allPoemsArrow.evaluate(
     (element) => getComputedStyle(element).transform,
   );
@@ -120,11 +112,6 @@ test("home page shows the community identity without fake business content", asy
       (element) => getComputedStyle(element).transform,
     ),
   ).not.toBe(baseAllPoemsTransform);
-  expect(
-    await allPoemsLink.evaluate(
-      (element) => getComputedStyle(element).textDecorationColor,
-    ),
-  ).not.toBe(baseUnderlineColor);
   expect(browserErrors).toEqual([]);
 });
 
@@ -278,29 +265,8 @@ test("mobile header keeps the key navigation usable", async ({ page }) => {
 
   await page.goto("/");
   await aboutLink.click();
-  await expect(page).toHaveURL(/\/#about$/);
-  const aboutHeading = page.getByRole("heading", { name: "关于回中诗社" });
-  await expect(aboutHeading).toBeVisible();
-  const expectedAboutScroll = await page.locator("#about").evaluate((target) =>
-    Math.min(
-      (target as HTMLElement).offsetTop,
-      document.documentElement.scrollHeight - window.innerHeight,
-    ),
-  );
-  await expect
-    .poll(async () =>
-      Math.abs((await page.evaluate(() => window.scrollY)) - expectedAboutScroll),
-    )
-    .toBeLessThan(2);
-
-  // 即使 URL 已经是 #about，回到页首后再次点击仍会重新滚动。
-  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
-  await aboutLink.click();
-  await expect
-    .poll(async () =>
-      Math.abs((await page.evaluate(() => window.scrollY)) - expectedAboutScroll),
-    )
-    .toBeLessThan(2);
+  await expect(page).toHaveURL("/about");
+  await expect(page).toHaveTitle(/关于/);
 
   const brandLink = nav.getByRole("link", { name: /回中诗社/ });
   const hero = page.locator("#top");

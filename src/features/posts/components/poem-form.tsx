@@ -3,8 +3,19 @@
 import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+  FieldTitle,
+} from "@/components/ui/field";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Surface } from "@/components/ui/surface";
 import { Textarea } from "@/components/ui/textarea";
 import type { PoemActionState } from "@/features/posts/actions";
@@ -12,6 +23,7 @@ import {
   BODY_MAX_LENGTH,
   CONTEXT_MAX_LENGTH,
   TITLE_MAX_LENGTH,
+  type PoemVisibility,
 } from "@/server/validation/poems";
 
 export type PoemFormAction = (
@@ -30,6 +42,7 @@ type PoemFormProps = Readonly<{
     body?: string;
     context?: string;
     occurredAt?: string;
+    visibility?: PoemVisibility;
   }>;
 }>;
 
@@ -50,6 +63,7 @@ export function PoemForm({
     action,
     INITIAL_STATE,
   );
+  const displayedValues = state.values ?? initialValues;
 
   return (
     <form action={formAction} className="space-y-6">
@@ -67,7 +81,12 @@ export function PoemForm({
         </p>
       ) : null}
 
-      <Surface variant="paper" padding="lg" className="space-y-6">
+      <Surface
+        key={state.revision ?? 0}
+        variant="paper"
+        padding="lg"
+        className="space-y-6"
+      >
         <FormField
           id="title"
           label="标题"
@@ -81,7 +100,7 @@ export function PoemForm({
               name="title"
               type="text"
               maxLength={TITLE_MAX_LENGTH}
-              defaultValue={initialValues?.title}
+              defaultValue={displayedValues?.title}
             />
           )}
         </FormField>
@@ -100,7 +119,7 @@ export function PoemForm({
               name="body"
               rows={14}
               maxLength={BODY_MAX_LENGTH}
-              defaultValue={initialValues?.body}
+              defaultValue={displayedValues?.body}
             />
           )}
         </FormField>
@@ -118,7 +137,7 @@ export function PoemForm({
               name="context"
               rows={4}
               maxLength={CONTEXT_MAX_LENGTH}
-              defaultValue={initialValues?.context}
+              defaultValue={displayedValues?.context}
             />
           )}
         </FormField>
@@ -135,10 +154,65 @@ export function PoemForm({
               {...controlProps}
               name="occurredAt"
               type="date"
-              defaultValue={initialValues?.occurredAt}
+              defaultValue={displayedValues?.occurredAt}
             />
           )}
         </FormField>
+
+        <FieldSet data-invalid={Boolean(state.fieldErrors?.visibility)}>
+          <FieldLegend variant="label">
+            访问范围 <span className="text-danger">*</span>
+          </FieldLegend>
+          <FieldDescription id="visibility-description">
+            公开作品无需登录即可阅读；仅成员可见作品只对正常成员和管理员开放。
+          </FieldDescription>
+          <RadioGroup
+            name="visibility"
+            defaultValue={
+              displayedValues?.visibility === "public" ||
+              displayedValues?.visibility === "members_only"
+                ? displayedValues.visibility
+                : undefined
+            }
+            disabled={isPending}
+            aria-describedby="visibility-description"
+            aria-invalid={Boolean(state.fieldErrors?.visibility)}
+          >
+            <Field orientation="horizontal" className="items-start">
+              <RadioGroupItem
+                value="public"
+                id="visibility-public"
+                aria-label="公开"
+              />
+              <FieldContent>
+                <FieldLabel htmlFor="visibility-public">
+                  <FieldTitle>公开</FieldTitle>
+                  <FieldDescription>
+                    游客、正常成员和管理员都可以阅读。
+                  </FieldDescription>
+                </FieldLabel>
+              </FieldContent>
+            </Field>
+            <Field orientation="horizontal" className="items-start">
+              <RadioGroupItem
+                value="members_only"
+                id="visibility-members"
+                aria-label="仅成员可见"
+              />
+              <FieldContent>
+                <FieldLabel htmlFor="visibility-members">
+                  <FieldTitle>仅成员可见</FieldTitle>
+                  <FieldDescription>
+                    只有正常成员和管理员可以阅读。
+                  </FieldDescription>
+                </FieldLabel>
+              </FieldContent>
+            </Field>
+          </RadioGroup>
+          {state.fieldErrors?.visibility ? (
+            <FieldError>{state.fieldErrors.visibility}</FieldError>
+          ) : null}
+        </FieldSet>
       </Surface>
 
       <Button type="submit" className="w-full sm:w-auto" loading={isPending}>

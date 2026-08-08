@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatPoemDate } from "@/features/posts/formatters";
 import type { PublicPoemSummary } from "@/server/services/poems";
@@ -39,10 +40,13 @@ export function PoemCard({ poem, titleLevel = "h2" }: PoemCardProps) {
             </Link>
           </Title>
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="flex flex-wrap items-center gap-1.5">
           <span>作者：{poem.authorName}</span>
           <span aria-hidden="true"> · </span>
           <span>发布于 {formatPoemDate(poem.publishedAt)}</span>
+          {poem.visibility === "members_only" ? (
+            <Badge variant="neutral">仅成员可见</Badge>
+          ) : null}
         </CardDescription>
       </CardHeader>
       <CardContent>

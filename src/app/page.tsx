@@ -3,13 +3,18 @@ import Link from "next/link";
 
 import homepagePoetryCollection from "../../public/homepage-poetry-collection.png";
 
-import { formatPoemIndexDate } from "@/features/posts/formatters";
+import {
+  formatPoemIndexDate,
+  POEM_VISIBILITY_LABELS,
+} from "@/features/posts/formatters";
+import { getContentReaderScope } from "@/server/policies/access";
 import { listRecentPublishedPoems } from "@/server/services/poems";
 
 import styles from "./home.module.css";
 
 export default async function HomePage() {
-  const recentPoems = await listRecentPublishedPoems(3);
+  const readerScope = await getContentReaderScope();
+  const recentPoems = await listRecentPublishedPoems(3, readerScope);
 
   return (
     <>
@@ -65,7 +70,12 @@ export default async function HomePage() {
                         《{poem.title}》
                       </Link>
                     </h3>
-                    <p className={styles.poemAuthor}>{poem.authorName}</p>
+                    <p className={styles.poemAuthor}>
+                      {poem.authorName}
+                      {poem.visibility === "members_only"
+                        ? ` · ${POEM_VISIBILITY_LABELS.members_only}`
+                        : null}
+                    </p>
                   </li>
                 ))}
               </ol>

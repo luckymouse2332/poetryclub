@@ -55,6 +55,9 @@ export function OwnPoemCard({ poem, suspended = false }: OwnPoemCardProps) {
           <Badge variant={STATUS_VARIANT[poem.status]}>
             {STATUS_LABEL[poem.status]}
           </Badge>
+          <Badge variant="neutral">
+            {poem.visibility === "public" ? "公开" : "仅成员可见"}
+          </Badge>
           {hidden ? <Badge variant="danger">管理员已隐藏</Badge> : null}
           <span>
             更新于 {formatPoemDate(poem.updatedAt)} · {publishedLabel}

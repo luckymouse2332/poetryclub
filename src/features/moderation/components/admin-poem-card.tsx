@@ -19,6 +19,7 @@ import {
   POEM_STATUS_LABELS,
   formatModerationDate,
 } from "@/features/moderation/formatters";
+import { POEM_VISIBILITY_LABELS } from "@/features/posts/formatters";
 import type { AdminPoemSummary } from "@/server/services/moderation";
 
 type AdminPoemCardProps = Readonly<{
@@ -51,6 +52,9 @@ export function AdminPoemCard({ poem }: AdminPoemCardProps) {
           </Badge>
           <Badge variant={hidden ? "danger" : "neutral"}>
             {MODERATION_STATUS_LABELS[poem.moderationStatus]}
+          </Badge>
+          <Badge variant="neutral">
+            {POEM_VISIBILITY_LABELS[poem.visibility]}
           </Badge>
           <span>更新于 {formatModerationDate(poem.updatedAt)}</span>
         </CardDescription>
@@ -86,7 +90,7 @@ export function AdminPoemCard({ poem }: AdminPoemCardProps) {
             action={restorePoemAction.bind(null, poem.id)}
             triggerLabel="恢复"
             title="恢复这首诗作？"
-            description="恢复后，这首诗只有在作者状态为“已发布”时才会重新对所有人可见；如果仍是草稿则保持仅作者可见。"
+            description="恢复后，这首诗只有在作者状态为“已发布”时才会按作者选择的访问范围重新可见；如果仍是草稿则保持仅作者可见。"
             confirmLabel="确认恢复"
             confirmBusyLabel="正在恢复…"
           />

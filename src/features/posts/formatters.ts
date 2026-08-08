@@ -16,6 +16,11 @@ const indexDateFormatter = new Intl.DateTimeFormat("zh-CN", {
   day: "2-digit",
 });
 
+export const POEM_VISIBILITY_LABELS = {
+  public: "公开",
+  members_only: "仅成员可见",
+} as const;
+
 /** 完整日期展示（如 2026年8月2日），供列表卡片、详情页与表单元数据使用。 */
 export function formatPoemDate(date: Date): string {
   return fullDateFormatter.format(date);

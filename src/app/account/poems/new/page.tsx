@@ -27,7 +27,7 @@ export default async function NewPoemPage() {
         <PageHeader
           eyebrow="我的作品"
           title="新建诗作"
-          description="先保存为草稿，确认后再发布。"
+          description="选择访问范围并保存为草稿，确认后再发布。"
         />
         <div className="mt-8 rounded-md border border-danger bg-danger-surface p-4 text-label text-danger">
           <p role="alert">
@@ -57,7 +57,7 @@ export default async function NewPoemPage() {
       <PageHeader
         eyebrow="我的作品"
         title="新建诗作"
-        description="先保存为草稿，确认后再发布。"
+        description="选择访问范围并保存为草稿，确认后再发布。"
       />
       <div className="mt-8">
         <PoemForm

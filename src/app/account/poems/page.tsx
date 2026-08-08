@@ -56,7 +56,7 @@ export default async function AccountPoemsPage({
         description={
           suspended
             ? "你的账号已被管理员禁用，目前只能浏览自己的诗作，不能新建、编辑、发布或删除。"
-            : "管理你的草稿与已发布诗作。发布后才会对所有人可见。"
+            : "管理你的草稿、发布状态和作品访问范围。"
         }
         actions={
           !suspended ? (

@@ -63,6 +63,7 @@ src/
 - 会话由 Better Auth 在服务端管理；客户端只得到受限的身份视图。
 - 邮箱密码注册、登录、修改密码和密码重置请求挂载在 `/api/auth/[...all]`；不启用 OAuth、Better Auth admin 插件或复杂权限组。
 - M3 采用项目自有的 `member | admin` 最小角色与 `active | suspended` 状态。角色和状态是服务端控制字段，管理写操作走项目 policy/service，不暴露 Better Auth admin mutation endpoint。
+- M4.1 的作品访问范围使用 `public | members_only`。只有服务端重新确认状态为 `active` 的 member/admin 才能读取成员作品；suspended 账号保留公开和既有账户只读访问，但不能读取成员作品。
 - 公开注册必须提供有效邀请码。邀请码只保存 SHA-256 哈希；Better Auth Drizzle adapter 启用真实事务，注册的 user/account 创建与邀请码原子计数在同一事务提交或回滚。
 - 注册后不自动登录，以避免现阶段在既有邮箱注册时形成账号枚举差异；用户需显式登录。
 - 会话凭据只通过 HttpOnly Cookie 传递；认证 JSON 响应会移除 session token、provider token 和密码字段，避免暴露给浏览器脚本。
@@ -74,6 +75,7 @@ src/
 - 当前宿主机 Caddy 直接反向代理仅绑定回环地址的应用端口。Better Auth 只从 Caddy 重写的 `X-Forwarded-For` 读取客户端 IP，不启用会信任任意转发头的 `trustedProxyHeaders`；若 Caddy 前方增加其他代理，必须先在 Caddy 层配置可信代理链。
 - 服务端入口不得信任客户端传入的用户 ID、角色、权限、作者信息或审核状态。
 - 对象级授权逻辑集中在 `src/server/policies`，由服务端入口调用。
+- 作品读取策略集中在 `src/server/services/poems`，统一组合发布状态、管理员治理状态、发布时间和读取者访问范围；游客直达成员作品时只返回不含作品数据的登录门槛。
 - `requireActiveUser()` 和 `requireAdmin()` 根据会话用户 ID 重新读取数据库权威状态；suspended 用户保留会话和只读页面，但不能执行任何身份写操作，suspended admin 不能管理。
 - M4 已提供账户安全页和邮件密码重置；邮箱验证与独立会话管理页仍属于后续任务。
 
@@ -87,6 +89,7 @@ src/
 - 生产环境必须使用持久化的 PostgreSQL 数据卷。
 - 可能移除 active admin 的操作先锁定 `admin_guard(id=1)`，在同一事务内复查 active admin 数量、更新目标并写审计，避免并发产生 0 个管理员。
 - 诗作作者状态 `draft | published` 与治理状态 `visible | hidden` 独立；公开读取统一要求 published、visible 且 `publishedAt` 非空。
+- 诗作作者状态、治理状态和访问范围彼此独立；匿名读取要求 `published`、`visible`、`publishedAt` 非空且 `visibility = public`，active 成员/admin 读取允许 `public | members_only`。
 - 管理操作与 `admin_audit_log` 在同一事务内完成；日志只读，不记录凭据、Cookie、邀请码明文或其他敏感信息。
 - 服务器终端紧急恢复脚本通过 Better Auth 公开的密码哈希入口更新唯一 credential account，并在同一 PostgreSQL 事务撤销该用户全部会话；该能力没有 Route Handler 或管理后台入口。
 

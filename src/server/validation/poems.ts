@@ -6,6 +6,10 @@ export const CONTEXT_MAX_LENGTH = 2000;
 export const POEM_PAGE_SIZE = 12;
 export const POEM_MAX_PAGE = 10000;
 
+export const poemVisibilitySchema = z.enum(["public", "members_only"], {
+  error: "请选择作品访问范围",
+});
+
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
@@ -109,6 +113,7 @@ export const poemInputSchema = z.object({
   body: bodySchema,
   context: contextSchema,
   occurredAt: occurredAtSchema,
+  visibility: poemVisibilitySchema,
 });
 
 export const pageSchema = z
@@ -129,6 +134,7 @@ export const pageSchema = z
   );
 
 export type PoemInput = z.infer<typeof poemInputSchema>;
+export type PoemVisibility = z.infer<typeof poemVisibilitySchema>;
 export type PoemInputFieldErrors = z.inferFlattenedErrors<
   typeof poemInputSchema
 >;

@@ -85,6 +85,7 @@ export type AdminPoemSummary = Readonly<{
   moderatorName: string | null;
   updatedAt: Date;
   publishedAt: Date | null;
+  visibility: "public" | "members_only";
 }>;
 
 export type AdminPoemDetail = AdminPoemSummary &
@@ -192,6 +193,7 @@ export async function listAdminPoems(
         moderatorName: moderatorUser.name,
         updatedAt: poem.updatedAt,
         publishedAt: poem.publishedAt,
+        visibility: poem.visibility,
       })
       .from(poem)
       .innerJoin(user, eq(poem.authorId, user.id))
@@ -224,6 +226,7 @@ export async function getAdminPoem(id: string): Promise<AdminPoemDetail | null> 
       moderatorName: moderatorUser.name,
       updatedAt: poem.updatedAt,
       publishedAt: poem.publishedAt,
+      visibility: poem.visibility,
     })
     .from(poem)
     .innerJoin(user, eq(poem.authorId, user.id))

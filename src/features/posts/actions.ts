@@ -25,35 +25,55 @@ import {
 export type PoemActionState = Readonly<{
   status: "idle" | "error";
   message?: string;
+  revision?: number;
+  values?: Readonly<{
+    title: string;
+    body: string;
+    context: string;
+    occurredAt: string;
+    visibility: string;
+  }>;
   fieldErrors?: Readonly<{
     title?: string;
     body?: string;
     context?: string;
     occurredAt?: string;
+    visibility?: string;
   }>;
 }>;
 
-function readPoemInput(formData: FormData) {
-  return poemInputSchema.safeParse({
-    title: formData.get("title"),
-    body: formData.get("body"),
-    context: formData.get("context"),
-    occurredAt: formData.get("occurredAt"),
-  });
+function readStringField(formData: FormData, name: string): string {
+  const value = formData.get(name);
+  return typeof value === "string" ? value : "";
+}
+
+function readPoemFormValues(formData: FormData) {
+  return {
+    title: readStringField(formData, "title"),
+    body: readStringField(formData, "body"),
+    context: readStringField(formData, "context"),
+    occurredAt: readStringField(formData, "occurredAt"),
+    visibility: readStringField(formData, "visibility"),
+  };
 }
 
 function validationState(
-  result: Exclude<ReturnType<typeof readPoemInput>, { success: true }>,
+  previousState: PoemActionState,
+  result: Exclude<ReturnType<typeof poemInputSchema.safeParse>, { success: true }>,
+  values: NonNullable<PoemActionState["values"]>,
 ): PoemActionState {
   const fields = result.error.flatten().fieldErrors;
   return {
     status: "error",
     message: "请检查表单中的内容。",
+    revision: (previousState.revision ?? 0) + 1,
+    values,
     fieldErrors: {
       title: fields.title?.[0],
       body: fields.body?.[0],
       context: fields.context?.[0],
       occurredAt: fields.occurredAt?.[0],
+      visibility: fields.visibility?.[0],
     },
   };
 }
@@ -99,21 +119,27 @@ function revalidatePublicPoem(id: string): void {
 }
 
 export async function createPoemAction(
-  _previousState: PoemActionState,
+  previousState: PoemActionState,
   formData: FormData,
 ): Promise<PoemActionState> {
   const currentUser = await requirePoemWriter("/account/poems/new");
   if (isActionState(currentUser)) return currentUser;
-  const input = readPoemInput(formData);
+  const values = readPoemFormValues(formData);
+  const input = poemInputSchema.safeParse(values);
   const creationToken = creationTokenSchema.safeParse(
     formData.get("creationToken"),
   );
 
   if (!input.success) {
-    return validationState(input);
+    return validationState(previousState, input, values);
   }
   if (!creationToken.success) {
-    return { status: "error", message: creationToken.error.issues[0]?.message };
+    return {
+      status: "error",
+      message: creationToken.error.issues[0]?.message,
+      revision: (previousState.revision ?? 0) + 1,
+      values,
+    };
   }
 
   const id = await createDraft(currentUser.id, creationToken.data, input.data);
@@ -123,19 +149,20 @@ export async function createPoemAction(
 
 export async function updatePoemAction(
   id: string,
-  _previousState: PoemActionState,
+  previousState: PoemActionState,
   formData: FormData,
 ): Promise<PoemActionState> {
   const currentUser = await requirePoemWriter("/account/poems");
   if (isActionState(currentUser)) return currentUser;
   const parsedId = poemIdSchema.safeParse(id);
-  const input = readPoemInput(formData);
+  const values = readPoemFormValues(formData);
+  const input = poemInputSchema.safeParse(values);
 
   if (!parsedId.success) {
     return operationErrorState();
   }
   if (!input.success) {
-    return validationState(input);
+    return validationState(previousState, input, values);
   }
 
   try {
