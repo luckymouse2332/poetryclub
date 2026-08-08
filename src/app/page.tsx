@@ -3,10 +3,7 @@ import Link from "next/link";
 
 import homepagePoetryCollection from "../../public/homepage-poetry-collection.png";
 
-import {
-  formatPoemIndexDate,
-  POEM_VISIBILITY_LABELS,
-} from "@/features/posts/formatters";
+import { formatPoemIndexDate } from "@/features/posts/formatters";
 import { getContentReaderScope } from "@/server/policies/access";
 import { listRecentPublishedPoems } from "@/server/services/poems";
 
@@ -82,7 +79,7 @@ export default async function HomePage() {
                                 ·
                               </span>
                               <span className={styles.poemVisibilityLabel}>
-                                {POEM_VISIBILITY_LABELS.members_only}
+                                成员可见
                               </span>
                             </>
                           )
