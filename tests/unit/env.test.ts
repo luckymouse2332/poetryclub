@@ -13,7 +13,47 @@ const validEnv = {
 
 describe("parseServerEnv", () => {
   it("accepts the required server environment", () => {
-    expect(parseServerEnv(validEnv)).toEqual(validEnv);
+    expect(parseServerEnv(validEnv)).toEqual({
+      ...validEnv,
+      NODE_ENV: "development",
+      EMAIL_TRANSPORT: "development",
+    });
+  });
+
+  it("requires a real email transport configuration in production", () => {
+    expect(() =>
+      parseServerEnv({ ...validEnv, NODE_ENV: "production" }),
+    ).toThrow("RESEND_API_KEY, EMAIL_FROM_ADDRESS");
+
+    expect(() =>
+      parseServerEnv({
+        ...validEnv,
+        NODE_ENV: "production",
+        EMAIL_TRANSPORT: "development",
+      }),
+    ).toThrow("EMAIL_TRANSPORT");
+  });
+
+  it("accepts a complete production Resend configuration", () => {
+    expect(
+      parseServerEnv({
+        ...validEnv,
+        NODE_ENV: "production",
+        EMAIL_TRANSPORT: "resend",
+        RESEND_API_KEY: "re_test_key",
+        EMAIL_FROM_ADDRESS: "poetry@example.edu",
+      }),
+    ).toMatchObject({
+      NODE_ENV: "production",
+      EMAIL_TRANSPORT: "resend",
+      EMAIL_FROM_ADDRESS: "poetry@example.edu",
+    });
+  });
+
+  it("requires an explicit outbox path for the test transport", () => {
+    expect(() =>
+      parseServerEnv({ ...validEnv, EMAIL_TRANSPORT: "test" }),
+    ).toThrow("EMAIL_TEST_OUTBOX_PATH");
   });
 
   it("rejects missing variables without including their values", () => {

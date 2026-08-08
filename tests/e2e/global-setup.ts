@@ -2,11 +2,14 @@ import { spawnSync } from "node:child_process";
 
 import * as nextEnv from "@next/env";
 
+import { clearEmailTestOutbox } from "./helpers/email-outbox";
+
 export const E2E_ADMIN_EMAIL = "e2e-admin@poetryclub.test";
 export const E2E_ADMIN_PASSWORD = "e2e-admin-password-123";
 
-export default function globalSetup(): void {
+export default async function globalSetup(): Promise<void> {
   nextEnv.loadEnvConfig(process.cwd());
+  await clearEmailTestOutbox();
   const result = spawnSync("pnpm admin:bootstrap", {
     cwd: process.cwd(),
     env: {

@@ -27,6 +27,10 @@
 | M3.10 | 产品与设计文档现状同步 | 已完成 | [M3.10-product-design-documentation-sync.md](./M3.10-product-design-documentation-sync.md) |
 | M3.12 | 关于回中诗社页面 | 已完成 | [M3.12-about-project-journal.md](./M3.12-about-project-journal.md) |
 | M3.13 | 首页正文内容区布局收敛 | 已完成 | [M3.13-homepage-content-region-layout.md](./M3.13-homepage-content-region-layout.md) |
+| M4.0 | 账户密码管理与找回闭环 | 已完成 | [M4-password-management-recovery.md](./M4-password-management-recovery.md) |
+| BUG-1 | 修复bug | 已完成 | [BUG-1-admin-user-poem-count-fix.md](./BUG-1-admin-user-poem-count-fix.md) |
+| BUG-2 | 生产 Compose 恢复变量插值修复 | 已完成 | [BUG-2-production-compose-recovery-env-interpolation.md](./BUG-2-production-compose-recovery-env-interpolation.md) |
+| BUG-3 | 生产环境文件 CRLF 构建修复 | 已完成 | [BUG-3-production-env-crlf-build.md](./BUG-3-production-env-crlf-build.md) |
 
 ## 约定
 

@@ -13,13 +13,15 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint",
     "test": "vitest run",
+    "test:integration": "node scripts/run-integration-tests.mjs",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:check": "drizzle-kit check",
     "db:studio": "drizzle-kit studio",
-    "admin:bootstrap": "node scripts/bootstrap-admin.mjs"
+    "admin:bootstrap": "node scripts/bootstrap-admin.mjs",
+    "account:reset-password": "node scripts/reset-user-password.mjs"
   },
   "dependencies": {
     "@next/env": "^16.2.12",

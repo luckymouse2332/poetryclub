@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
@@ -11,7 +12,12 @@ import {
   authClient,
   registerWithInvitation,
 } from "@/features/auth/auth-client";
-import { signInSchema, signUpSchema } from "@/features/auth/validation";
+import {
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+  signInSchema,
+  signUpSchema,
+} from "@/features/auth/validation";
 import { getSafeRedirectPath } from "@/lib/safe-redirect";
 
 type AuthMode = "sign-in" | "sign-up";
@@ -19,17 +25,28 @@ type AuthMode = "sign-in" | "sign-up";
 type AuthFormProps = Readonly<{
   initialMode?: AuthMode;
   nextPath?: string;
+  initialNotice?: string;
+  cleanPasswordResetNotice?: boolean;
 }>;
 
 export function AuthForm({
   initialMode = "sign-in",
   nextPath = "/",
+  initialNotice,
+  cleanPasswordResetNotice = false,
 }: AuthFormProps) {
   const router = useRouter();
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [error, setError] = useState<string>();
-  const [notice, setNotice] = useState<string>();
+  const [notice, setNotice] = useState<string | undefined>(initialNotice);
   const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    if (!cleanPasswordResetNotice) return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete("passwordReset");
+    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+  }, [cleanPasswordResetNotice]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -181,7 +198,11 @@ export function AuthForm({
         <FormField
           id="password"
           label="密码"
-          description={mode === "sign-up" ? "请使用至少 8 个字符。" : undefined}
+          description={
+            mode === "sign-up"
+              ? `请使用 ${PASSWORD_MIN_LENGTH} 至 ${PASSWORD_MAX_LENGTH} 个字符。`
+              : undefined
+          }
           required
           disabled={pending}
         >
@@ -193,11 +214,19 @@ export function AuthForm({
               autoComplete={
                 mode === "sign-up" ? "new-password" : "current-password"
               }
-              minLength={8}
-              maxLength={128}
+              minLength={PASSWORD_MIN_LENGTH}
+              maxLength={PASSWORD_MAX_LENGTH}
             />
           )}
         </FormField>
+
+        {mode === "sign-in" ? (
+          <p className="text-right text-label">
+            <Link className="text-link" href="/forgot-password">
+              忘记密码？
+            </Link>
+          </p>
+        ) : null}
 
         {error ? (
           <p

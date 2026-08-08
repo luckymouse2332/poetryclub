@@ -47,6 +47,9 @@ services:
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:?BETTER_AUTH_URL is required}
+      EMAIL_TRANSPORT: ${EMAIL_TRANSPORT:?EMAIL_TRANSPORT is required}
+      RESEND_API_KEY: ${RESEND_API_KEY:?RESEND_API_KEY is required}
+      EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS:?EMAIL_FROM_ADDRESS is required}
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -83,6 +86,26 @@ services:
       INITIAL_ADMIN_EMAIL: ${INITIAL_ADMIN_EMAIL:-}
       INITIAL_ADMIN_NAME: ${INITIAL_ADMIN_NAME:-}
       INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:-}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - backend
+    restart: "no"
+    security_opt:
+      - no-new-privileges:true
+
+  account-password-recovery:
+    profiles: ["tools"]
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: migrator
+    command: ["node", "scripts/reset-user-password.mjs"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+      RESET_USER_EMAIL: ${RESET_USER_EMAIL:-}
+      RESET_USER_PASSWORD: ${RESET_USER_PASSWORD:-}
     depends_on:
       migrate:
         condition: service_completed_successfully

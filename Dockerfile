@@ -15,8 +15,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 RUN --mount=type=secret,id=production_env,required=true \
+    tr -d '\r' < /run/secrets/production_env > /tmp/production_env && \
     set -a && \
-    . /run/secrets/production_env && \
+    . /tmp/production_env && \
+    rm -f /tmp/production_env && \
     set +a && \
     pnpm build
 
@@ -28,6 +30,8 @@ COPY drizzle ./drizzle
 COPY src/server/db/schema ./src/server/db/schema
 COPY src/server/validation/env.ts ./src/server/validation/env.ts
 COPY scripts/bootstrap-admin.mjs ./scripts/bootstrap-admin.mjs
+COPY scripts/reset-user-password.mjs ./scripts/reset-user-password.mjs
+COPY src/lib/password-policy.mjs ./src/lib/password-policy.mjs
 USER node
 CMD ["node", "node_modules/drizzle-kit/bin.cjs", "migrate"]
 

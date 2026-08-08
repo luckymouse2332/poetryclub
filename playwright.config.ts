@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
+import { EMAIL_TEST_OUTBOX_PATH } from "./tests/e2e/helpers/email-outbox";
+
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:4000";
 const webServerUrl = new URL(baseURL);
 const webServerPort = webServerUrl.port || "4000";
@@ -26,8 +28,12 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `pnpm dev --hostname ${webServerUrl.hostname} --port ${webServerPort}`,
+    command: `pnpm exec next dev --hostname ${webServerUrl.hostname} --port ${webServerPort}`,
     url: baseURL,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
+    env: {
+      EMAIL_TRANSPORT: "test",
+      EMAIL_TEST_OUTBOX_PATH,
+    },
   },
 });
