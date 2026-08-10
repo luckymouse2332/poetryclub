@@ -53,7 +53,7 @@ export default async function NewPoemPage() {
   const creationToken = randomUUID();
 
   return (
-    <PageContainer width="narrow">
+    <PageContainer>
       <PageHeader
         eyebrow="我的作品"
         title="新建诗作"

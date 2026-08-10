@@ -61,7 +61,7 @@ export default async function EditPoemPage({
   const hidden = poem.moderationStatus === "hidden";
 
   return (
-    <PageContainer width="narrow">
+    <PageContainer>
       <PageHeader
         eyebrow="我的作品"
         title={suspended ? "查看诗作" : "编辑诗作"}

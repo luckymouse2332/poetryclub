@@ -90,7 +90,10 @@ export default async function AccountPoemsPage({
 
       <Section className="pb-0 pt-8">
         {result.items.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2">
+          <div>
+            <div aria-hidden="true" className="hidden grid-cols-[minmax(12rem,1.5fr)_8rem_9rem_11rem_minmax(13rem,auto)] gap-5 border-b border-border-strong pb-3 text-caption font-medium tracking-wide text-subtle lg:grid">
+              <span>标题</span><span>状态</span><span>访问范围</span><span>更新时间</span><span className="text-right">操作</span>
+            </div>
             {result.items.map((poem) => (
               <OwnPoemCard key={poem.id} poem={poem} suspended={suspended} />
             ))}

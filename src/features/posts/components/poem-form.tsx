@@ -81,85 +81,88 @@ export function PoemForm({
         </p>
       ) : null}
 
-      <Surface
+      <div
         key={state.revision ?? 0}
-        variant="paper"
-        padding="lg"
-        className="space-y-6"
+        className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(17rem,0.8fr)]"
       >
-        <FormField
-          id="title"
-          label="标题"
-          required
-          disabled={isPending}
-          error={state.fieldErrors?.title}
-        >
-          {(controlProps) => (
-            <Input
-              {...controlProps}
-              name="title"
-              type="text"
-              maxLength={TITLE_MAX_LENGTH}
-              defaultValue={displayedValues?.title}
-            />
-          )}
-        </FormField>
+        <Surface variant="paper" padding="lg" className="space-y-6">
+          <FormField
+            id="title"
+            label="标题"
+            required
+            disabled={isPending}
+            error={state.fieldErrors?.title}
+          >
+            {(controlProps) => (
+              <Input
+                {...controlProps}
+                name="title"
+                type="text"
+                maxLength={TITLE_MAX_LENGTH}
+                defaultValue={displayedValues?.title}
+              />
+            )}
+          </FormField>
 
-        <FormField
-          id="body"
-          label="正文"
-          description="普通文本，换行与空行会被原样保留。"
-          required
-          disabled={isPending}
-          error={state.fieldErrors?.body}
-        >
-          {(controlProps) => (
-            <Textarea
-              {...controlProps}
-              name="body"
-              rows={14}
-              maxLength={BODY_MAX_LENGTH}
-              defaultValue={displayedValues?.body}
-            />
-          )}
-        </FormField>
+          <FormField
+            id="body"
+            label="正文"
+            description="普通文本，换行与空行会被原样保留。"
+            required
+            disabled={isPending}
+            error={state.fieldErrors?.body}
+          >
+            {(controlProps) => (
+              <Textarea
+                {...controlProps}
+                name="body"
+                rows={22}
+                maxLength={BODY_MAX_LENGTH}
+                defaultValue={displayedValues?.body}
+                className="min-h-[30rem] resize-y font-serif text-body-lg leading-reading"
+              />
+            )}
+          </FormField>
+        </Surface>
 
-        <FormField
-          id="context"
-          label="创作背景"
-          description="可选，写给读者的背景说明。"
-          disabled={isPending}
-          error={state.fieldErrors?.context}
-        >
-          {(controlProps) => (
-            <Textarea
-              {...controlProps}
-              name="context"
-              rows={4}
-              maxLength={CONTEXT_MAX_LENGTH}
-              defaultValue={displayedValues?.context}
-            />
-          )}
-        </FormField>
+        <div className="space-y-4 lg:sticky lg:top-8">
+          <Surface variant="paper" padding="lg" className="space-y-6">
+            <FormField
+              id="context"
+              label="创作背景"
+              description="可选，写给读者的背景说明。"
+              disabled={isPending}
+              error={state.fieldErrors?.context}
+            >
+              {(controlProps) => (
+                <Textarea
+                  {...controlProps}
+                  name="context"
+                  rows={6}
+                  maxLength={CONTEXT_MAX_LENGTH}
+                  defaultValue={displayedValues?.context}
+                />
+              )}
+            </FormField>
 
-        <FormField
-          id="occurredAt"
-          label="事件日期"
-          description="可选，作品对应的创作或事件日期。"
-          disabled={isPending}
-          error={state.fieldErrors?.occurredAt}
-        >
-          {(controlProps) => (
-            <Input
-              {...controlProps}
-              name="occurredAt"
-              type="date"
-              defaultValue={displayedValues?.occurredAt}
-            />
-          )}
-        </FormField>
+            <FormField
+              id="occurredAt"
+              label="事件日期"
+              description="可选，作品对应的创作或事件日期。"
+              disabled={isPending}
+              error={state.fieldErrors?.occurredAt}
+            >
+              {(controlProps) => (
+                <Input
+                  {...controlProps}
+                  name="occurredAt"
+                  type="date"
+                  defaultValue={displayedValues?.occurredAt}
+                />
+              )}
+            </FormField>
 
-        <FieldSet data-invalid={Boolean(state.fieldErrors?.visibility)}>
+            <FieldSet data-invalid={Boolean(state.fieldErrors?.visibility)}>
           <FieldLegend variant="label">
             访问范围 <span className="text-danger">*</span>
           </FieldLegend>
@@ -212,12 +215,14 @@ export function PoemForm({
           {state.fieldErrors?.visibility ? (
             <FieldError>{state.fieldErrors.visibility}</FieldError>
           ) : null}
-        </FieldSet>
-      </Surface>
+            </FieldSet>
+          </Surface>
 
-      <Button type="submit" className="w-full sm:w-auto" loading={isPending}>
-        {isPending ? "正在保存…" : submitLabel}
-      </Button>
+          <Button type="submit" className="w-full" loading={isPending}>
+            {isPending ? "正在保存…" : submitLabel}
+          </Button>
+        </div>
+      </div>
     </form>
   );
 }

@@ -43,7 +43,7 @@ export default async function AccountPage() {
   const suspended = currentUser.status === "suspended";
 
   return (
-    <PageContainer width="narrow">
+    <PageContainer>
       <PageHeader
         eyebrow="个人档案"
         title="账户"
@@ -62,8 +62,9 @@ export default async function AccountPage() {
         </p>
       ) : null}
 
-      <Section title="基本信息" className="pb-0 pt-8">
-        <Surface variant="paper">
+      <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1.45fr)_minmax(17rem,0.55fr)]">
+        <Section title="基本信息" className="p-0">
+          <Surface variant="paper">
           <dl className="divide-y divide-border-subtle text-label">
             <AccountDetail label="显示名称" value={getUserDisplayName(currentUser)} />
             <AccountDetail label="邮箱" value={currentUser.email} breakAll />
@@ -94,32 +95,32 @@ export default async function AccountPage() {
               </dd>
             </div>
           </dl>
-        </Surface>
-      </Section>
+          </Surface>
+        </Section>
 
-      <Section title="我的作品" className="pb-0 pt-8">
-        <p className="text-body text-subtle">
-          {suspended
-            ? "你的账号已被禁用，目前只能浏览已有内容，不能新建或编辑诗作。"
-            : "发布、编辑与撤回你的诗歌作品。"}
-        </p>
-        <div className="mt-4">
-          <Button asChild>
-            <Link href="/account/poems">管理我的诗作</Link>
-          </Button>
-        </div>
-      </Section>
-
-      <Section title="账户安全" className="pb-0 pt-8">
-        <p className="text-body text-subtle">
-          验证当前密码后可以设置新密码，并撤销其他设备上的登录会话。
-        </p>
-        <div className="mt-4">
-          <Button asChild variant="secondary">
-            <Link href="/account/security">管理账户安全</Link>
-          </Button>
-        </div>
-      </Section>
+        <aside aria-label="快捷操作" className="space-y-4 lg:sticky lg:top-8">
+          <Surface variant="muted" className="space-y-4">
+            <div>
+              <h2 className="font-serif text-body-lg text-foreground">我的作品</h2>
+              <p className="mt-2 text-label text-subtle">
+                {suspended ? "账号禁用期间只能浏览已有内容。" : "管理草稿、发布状态与作品访问范围。"}
+              </p>
+            </div>
+            <Button asChild className="w-full">
+              <Link href="/account/poems">管理我的诗作</Link>
+            </Button>
+          </Surface>
+          <Surface variant="paper" className="space-y-4">
+            <div>
+              <h2 className="font-serif text-body-lg text-foreground">账户安全</h2>
+              <p className="mt-2 text-label text-subtle">修改密码并撤销其他设备上的登录会话。</p>
+            </div>
+            <Button asChild variant="secondary" className="w-full">
+              <Link href="/account/security">管理账户安全</Link>
+            </Button>
+          </Surface>
+        </aside>
+      </div>
     </PageContainer>
   );
 }
