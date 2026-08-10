@@ -57,10 +57,14 @@ export const AUDIT_ACTION_LABELS = {
   user_demoted: "降级成员",
   invitation_created: "创建邀请码",
   invitation_disabled: "停用邀请码",
+  announcement_created: "创建公告草稿",
+  announcement_updated: "更新公告草稿",
+  announcement_published: "发布系统公告",
 } as const;
 
 export const AUDIT_TARGET_LABELS = {
   poem: "诗作",
   user: "用户",
   invitation: "邀请码",
+  announcement: "系统公告",
 } as const;

@@ -1,6 +1,6 @@
 # 生产部署
 
-生产拓扑固定为：`宿主机 Caddy → 127.0.0.1:4000 → Next.js app → PostgreSQL`。`migrate` 是部署时的一次性容器，不是常驻服务。Compose 只管理 PostgreSQL、migration 和 Next.js 应用；Caddy 与证书由宿主机独立管理。PostgreSQL 与 migration 只连接内部后端网络，应用同时连接后端网络和用于发布宿主机回环端口的入口网络。
+生产拓扑固定为：`宿主机 Caddy → 127.0.0.1:4000 → Next.js app → PostgreSQL`，应用通过内部后端网络连接 Redis 进行通知实时唤醒。`migrate` 是部署时的一次性容器，不是常驻服务。Compose 管理 PostgreSQL、Redis、migration 和 Next.js 应用；Caddy 与证书由宿主机独立管理。PostgreSQL、Redis 与 migration 只连接内部后端网络，应用同时连接后端网络和用于发布宿主机回环端口的入口网络。
 
 ## 前置条件
 
@@ -20,6 +20,7 @@ cp deploy/.env.production.example deploy/.env.production
 - `BETTER_AUTH_URL` 必须使用真实域名和 HTTPS。
 - 使用独立高熵值设置 `POSTGRES_PASSWORD` 和至少 32 字符的 `BETTER_AUTH_SECRET`。
 - `DATABASE_URL` 中的密码必须与 `POSTGRES_PASSWORD` 一致；特殊字符必须进行 URL 编码。
+- `REDIS_URL` 在生产必须指向 Compose 内部服务，例如 `redis://redis:6379`；Redis 不发布宿主机端口。
 - `EMAIL_TRANSPORT` 在生产必须为 `resend`，并配置有效的 `RESEND_API_KEY` 与完成发信域名验证的 `EMAIL_FROM_ADDRESS`。发件人显示名称固定为“回中诗社”。
 - 不得提交该文件，也不得把值写入镜像或前端变量。
 
@@ -34,7 +35,7 @@ docker compose --env-file deploy/.env.production \
   -f deploy/compose.production.yaml up -d --build
 ```
 
-Compose 会等待 PostgreSQL 健康，运行已提交的 Drizzle migration；只有 migration 成功后才启动应用，并把容器的 `3000` 端口发布为宿主机 `127.0.0.1:4000`。禁止用 `drizzle-kit push` 替代 migration。
+Compose 会等待 PostgreSQL 和 Redis 健康，运行已提交的 Drizzle migration；只有 migration 成功且 Redis 健康后才启动应用，并把容器的 `3000` 端口发布为宿主机 `127.0.0.1:4000`。禁止用 `drizzle-kit push` 替代 migration。
 
 宿主机 Caddy 的站点配置应把请求代理到该回环地址，例如：
 
@@ -96,6 +97,8 @@ docker compose --env-file deploy/.env.production \
 
 curl --fail http://127.0.0.1:4000/api/health
 ```
+
+通知实时推送使用 Redis Pub/Sub 和认证 SSE，Redis 是唯一的实时传输通道。Redis 暂时不可用时，治理操作和公告发布仍以 PostgreSQL 持久化结果为准，通知页可以继续读取历史记录；在线用户的即时提示会在 SSE 重连或页面刷新后恢复。排查时同时查看 `redis` 服务状态和 app 日志，不要向公网发布 Redis 端口。
 
 ## 数据持久化与备份
 

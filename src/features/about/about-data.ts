@@ -168,14 +168,25 @@ export const UPDATE_ENTRIES = [
       "在保留旧作品公开可读的基础上，作者可以控制作品公开与仅成员可见两种访问权限。"
     ],
   },
+  {
+    milestone: "M5",
+    date: "2026.08.09",
+    title: "站内通知与系统公告",
+    summary:
+      "通知记录由数据库持久保存，管理员可以发布带受众快照的系统公告，在线用户获得实时唤醒。",
+    items: [
+      "完成作品治理、账号状态和角色变更通知",
+      "完成公告草稿、受众选择、发布和通知页",
+    ],
+  },
 ] as const satisfies readonly UpdateEntry[];
 
 export const ROADMAP_ENTRIES: readonly RoadmapEntry[] = [
   {
     status: "计划中",
-    title: "通知",
-    summary: "在网站内收到点赞、评论以及审核通知。",
-    items: ["审核提醒", "点赞提醒", "评论提醒"],
+    title: "互动事件通知",
+    summary: "在通用通知核心上继续接入点赞、评论、回复和收藏事件。",
+    items: ["点赞提醒", "评论与回复提醒", "收藏提醒"],
   },
   {
     status: "计划中",

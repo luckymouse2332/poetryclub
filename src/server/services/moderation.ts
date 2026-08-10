@@ -23,6 +23,15 @@ import {
   poem,
   user,
 } from "@/server/db/schema";
+import {
+  type AdminAuditAction,
+  type AdminAuditTarget,
+  writeAdminAudit,
+} from "@/server/services/admin-audit";
+import {
+  createNotificationInTransaction,
+  publishNotificationDispatch,
+} from "@/server/services/notifications";
 import type {
   InvitationInput,
   ModerationPoemListInput,
@@ -46,17 +55,6 @@ const poemCountsByAuthor = db
   .from(poem)
   .groupBy(poem.authorId)
   .as("poem_counts_by_author");
-
-type AuditAction =
-  | "poem_hidden"
-  | "poem_restored"
-  | "user_suspended"
-  | "user_restored"
-  | "user_promoted"
-  | "user_demoted"
-  | "invitation_created"
-  | "invitation_disabled";
-type AuditTarget = "poem" | "user" | "invitation";
 
 export class ModerationMutationError extends Error {
   constructor(
@@ -121,8 +119,8 @@ export type InvitationSummary = Readonly<{
 export type AuditLogSummary = Readonly<{
   id: string;
   adminName: string;
-  action: AuditAction;
-  targetType: AuditTarget;
+  action: AdminAuditAction;
+  targetType: AdminAuditTarget;
   targetId: string;
   reason: string;
   metadata: Record<string, unknown>;
@@ -323,30 +321,12 @@ export async function listAuditLogs(
   return paginated(rows, page, totalRows[0]?.value ?? 0);
 }
 
-async function writeAudit(
-  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
-  entry: Readonly<{
-    adminId: string;
-    action: AuditAction;
-    targetType: AuditTarget;
-    targetId: string;
-    reason: string;
-    metadata?: Record<string, unknown>;
-  }>,
-): Promise<void> {
-  await tx.insert(adminAuditLog).values({
-    id: randomUUID(),
-    metadata: {},
-    ...entry,
-  });
-}
-
 export async function hidePoem(
   adminId: string,
   targetId: string,
   reason: string,
 ): Promise<boolean> {
-  return db.transaction(async (tx) => {
+  const result = await db.transaction(async (tx) => {
     const changed = await tx
       .update(poem)
       .set({
@@ -356,7 +336,12 @@ export async function hidePoem(
         moderatedBy: adminId,
       })
       .where(and(eq(poem.id, targetId), eq(poem.moderationStatus, "visible")))
-      .returning({ id: poem.id, authorId: poem.authorId, status: poem.status });
+      .returning({
+        id: poem.id,
+        title: poem.title,
+        authorId: poem.authorId,
+        status: poem.status,
+      });
     const row = changed[0];
     if (!row) {
       const current = await tx
@@ -365,10 +350,12 @@ export async function hidePoem(
         .where(eq(poem.id, targetId))
         .limit(1);
       if (!current[0]) throw new ModerationMutationError("not_found");
-      if (current[0].moderationStatus === "hidden") return false;
+      if (current[0].moderationStatus === "hidden") {
+        return { changed: false, dispatch: null };
+      }
       throw new ModerationMutationError("concurrent_conflict");
     }
-    await writeAudit(tx, {
+    const auditId = await writeAdminAudit(tx, {
       adminId,
       action: "poem_hidden",
       targetType: "poem",
@@ -376,8 +363,22 @@ export async function hidePoem(
       reason,
       metadata: { authorId: row.authorId, authorStatus: row.status },
     });
-    return true;
+    const dispatch = await createNotificationInTransaction(tx, {
+      type: "moderation.poem_hidden",
+      title: `作品《${row.title}》已被隐藏`,
+      body: `管理员处理原因：${reason}`,
+      href: `/account/poems/${targetId}/edit`,
+      actorId: adminId,
+      targetType: "poem",
+      targetId,
+      payload: { auditId },
+      dedupeKey: `admin-audit:${auditId}`,
+      recipientIds: [row.authorId],
+    });
+    return { changed: true, dispatch };
   });
+  await publishNotificationDispatch(result.dispatch);
+  return result.changed;
 }
 
 export async function restorePoem(
@@ -385,7 +386,7 @@ export async function restorePoem(
   targetId: string,
   reason: string,
 ): Promise<boolean> {
-  return db.transaction(async (tx) => {
+  const result = await db.transaction(async (tx) => {
     const changed = await tx
       .update(poem)
       .set({
@@ -395,7 +396,12 @@ export async function restorePoem(
         moderatedBy: null,
       })
       .where(and(eq(poem.id, targetId), eq(poem.moderationStatus, "hidden")))
-      .returning({ id: poem.id, authorId: poem.authorId, status: poem.status });
+      .returning({
+        id: poem.id,
+        title: poem.title,
+        authorId: poem.authorId,
+        status: poem.status,
+      });
     const row = changed[0];
     if (!row) {
       const current = await tx
@@ -404,10 +410,12 @@ export async function restorePoem(
         .where(eq(poem.id, targetId))
         .limit(1);
       if (!current[0]) throw new ModerationMutationError("not_found");
-      if (current[0].moderationStatus === "visible") return false;
+      if (current[0].moderationStatus === "visible") {
+        return { changed: false, dispatch: null };
+      }
       throw new ModerationMutationError("concurrent_conflict");
     }
-    await writeAudit(tx, {
+    const auditId = await writeAdminAudit(tx, {
       adminId,
       action: "poem_restored",
       targetType: "poem",
@@ -415,8 +423,22 @@ export async function restorePoem(
       reason,
       metadata: { authorId: row.authorId, authorStatus: row.status },
     });
-    return true;
+    const dispatch = await createNotificationInTransaction(tx, {
+      type: "moderation.poem_restored",
+      title: `作品《${row.title}》已恢复显示`,
+      body: `管理员恢复说明：${reason}`,
+      href: `/account/poems/${targetId}/edit`,
+      actorId: adminId,
+      targetType: "poem",
+      targetId,
+      payload: { auditId },
+      dedupeKey: `admin-audit:${auditId}`,
+      recipientIds: [row.authorId],
+    });
+    return { changed: true, dispatch };
   });
+  await publishNotificationDispatch(result.dispatch);
+  return result.changed;
 }
 
 async function lockAdminGuard(
@@ -449,7 +471,7 @@ export async function setUserSuspended(
   suspended: boolean,
 ): Promise<boolean> {
   if (adminId === targetId) throw new ModerationMutationError("self_operation");
-  return db.transaction(async (tx) => {
+  const result = await db.transaction(async (tx) => {
     await lockAdminGuard(tx);
     const targets = await tx
       .select({ role: user.role, status: user.status })
@@ -459,7 +481,9 @@ export async function setUserSuspended(
     const target = targets[0];
     if (!target) throw new ModerationMutationError("not_found");
     const desired = suspended ? "suspended" : "active";
-    if (target.status === desired) return false;
+    if (target.status === desired) {
+      return { changed: false, dispatch: null };
+    }
     if (suspended && target.role === "admin" && target.status === "active") {
       await assertAnotherActiveAdmin(tx);
     }
@@ -485,7 +509,7 @@ export async function setUserSuspended(
       .where(and(eq(user.id, targetId), eq(user.status, target.status)))
       .returning({ id: user.id });
     if (!changed[0]) throw new ModerationMutationError("concurrent_conflict");
-    await writeAudit(tx, {
+    const auditId = await writeAdminAudit(tx, {
       adminId,
       action: suspended ? "user_suspended" : "user_restored",
       targetType: "user",
@@ -493,8 +517,26 @@ export async function setUserSuspended(
       reason,
       metadata: { previousStatus: target.status },
     });
-    return true;
+    const dispatch = await createNotificationInTransaction(tx, {
+      type: suspended
+        ? "moderation.user_suspended"
+        : "moderation.user_restored",
+      title: suspended ? "你的账号已被禁用" : "你的账号已恢复正常",
+      body: suspended
+        ? `管理员处理原因：${reason}`
+        : `管理员恢复说明：${reason}`,
+      href: "/account",
+      actorId: adminId,
+      targetType: "user",
+      targetId,
+      payload: { auditId },
+      dedupeKey: `admin-audit:${auditId}`,
+      recipientIds: [targetId],
+    });
+    return { changed: true, dispatch };
   });
+  await publishNotificationDispatch(result.dispatch);
+  return result.changed;
 }
 
 export async function setUserRole(
@@ -506,7 +548,7 @@ export async function setUserRole(
   if (adminId === targetId && role === "member") {
     throw new ModerationMutationError("self_operation");
   }
-  return db.transaction(async (tx) => {
+  const result = await db.transaction(async (tx) => {
     await lockAdminGuard(tx);
     const targets = await tx
       .select({ role: user.role, status: user.status })
@@ -515,7 +557,9 @@ export async function setUserRole(
       .for("update");
     const target = targets[0];
     if (!target) throw new ModerationMutationError("not_found");
-    if (target.role === role) return false;
+    if (target.role === role) {
+      return { changed: false, dispatch: null };
+    }
     if (target.role === "admin" && target.status === "active" && role === "member") {
       await assertAnotherActiveAdmin(tx);
     }
@@ -525,7 +569,7 @@ export async function setUserRole(
       .where(and(eq(user.id, targetId), eq(user.role, target.role)))
       .returning({ id: user.id });
     if (!changed[0]) throw new ModerationMutationError("concurrent_conflict");
-    await writeAudit(tx, {
+    const auditId = await writeAdminAudit(tx, {
       adminId,
       action: role === "admin" ? "user_promoted" : "user_demoted",
       targetType: "user",
@@ -533,8 +577,28 @@ export async function setUserRole(
       reason,
       metadata: { previousRole: target.role, targetStatus: target.status },
     });
-    return true;
+    const dispatch = await createNotificationInTransaction(tx, {
+      type:
+        role === "admin"
+          ? "moderation.user_promoted"
+          : "moderation.user_demoted",
+      title:
+        role === "admin"
+          ? "你的账号已提升为管理员"
+          : "你的账号已调整为普通成员",
+      body: `管理员变更说明：${reason}`,
+      href: "/account",
+      actorId: adminId,
+      targetType: "user",
+      targetId,
+      payload: { auditId },
+      dedupeKey: `admin-audit:${auditId}`,
+      recipientIds: [targetId],
+    });
+    return { changed: true, dispatch };
   });
+  await publishNotificationDispatch(result.dispatch);
+  return result.changed;
 }
 
 export async function createInvitation(
@@ -551,7 +615,7 @@ export async function createInvitation(
       maxUses: input.maxUses,
       expiresAt: input.expiresAt,
     });
-    await writeAudit(tx, {
+    await writeAdminAudit(tx, {
       adminId,
       action: "invitation_created",
       targetType: "invitation",
@@ -595,7 +659,7 @@ export async function disableInvitation(
       if (current[0].disabledAt) return false;
       throw new ModerationMutationError("invalid_transition");
     }
-    await writeAudit(tx, {
+    await writeAdminAudit(tx, {
       adminId,
       action: "invitation_disabled",
       targetType: "invitation",

@@ -7,6 +7,7 @@ import {
 
 const validEnv = {
   DATABASE_URL: "postgresql://user:password@localhost:5432/poetryclub",
+  REDIS_URL: "redis://localhost:6379",
   BETTER_AUTH_SECRET: "a-secure-test-secret-with-32-characters",
   BETTER_AUTH_URL: "http://localhost:3000",
 };
@@ -58,7 +59,7 @@ describe("parseServerEnv", () => {
 
   it("rejects missing variables without including their values", () => {
     expect(() => parseServerEnv({})).toThrow(
-      "Invalid server environment variables: DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL",
+      "Invalid server environment variables: DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL, REDIS_URL",
     );
   });
 

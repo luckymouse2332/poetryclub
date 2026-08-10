@@ -33,6 +33,11 @@ const SECTIONS = [
     description: "创建受控注册邀请码，并管理其状态。",
   },
   {
+    href: "/admin/announcements",
+    title: "系统公告",
+    description: "创建公告草稿、选择受众并发布站内消息。",
+  },
+  {
     href: "/admin/audit",
     title: "审计日志",
     description: "只读查看最近的管理动作记录。",

@@ -36,6 +36,13 @@
       "when": 1786175702816,
       "tag": "0004_sour_radioactive_man",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1786257814265,
+      "tag": "0005_mean_nightmare",
+      "breakpoints": true
     }
   ]
 }

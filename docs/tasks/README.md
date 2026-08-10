@@ -9,7 +9,7 @@
 - M2：诗作发布闭环。
 - M3：准入、管理治理与档案式界面。
 - M4：成员账户、内容访问、互动和共同记忆整理能力；M4.0 已完成账户密码管理与找回，“内容访问权限”使用 M4.1。
-- M5 尚未定义，在明确新的整体阶段目标前不启用 M5.0。
+- M5：可扩展的站内通知、系统公告与在线实时唤醒能力。
 
 ## 当前任务
 
@@ -39,10 +39,15 @@
 | M3.13 | 首页正文内容区布局收敛 | 已完成 | [M3.13-homepage-content-region-layout.md](./M3.13-homepage-content-region-layout.md) |
 | M4.0 | 账户密码管理与找回闭环 | 已完成 | [M4-password-management-recovery.md](./M4-password-management-recovery.md) |
 | M4.1 | 内容访问权限控制 | 已完成 | [M4.1-content-access-control.md](./M4.1-content-access-control.md) |
+| M5.0 | 可扩展站内通知与系统公告 | 已完成 | [M5.0-in-app-notifications.md](./M5.0-in-app-notifications.md) |
+| M5.1 | 站内通知交互与导航入口拆分 | 已完成 | [M5.1-navigation-information-architecture.md](./M5.1-navigation-information-architecture.md) |
+| M5.2 | 系统公告阅读页 | 已完成 | [M5.2-announcement-reader.md](./M5.2-announcement-reader.md) |
 | CHORE-1 | 仓库工作流与发布规范 | 已完成 | [CHORE-1-repository-workflow-conventions.md](./CHORE-1-repository-workflow-conventions.md) |
 | BUG-1 | 修复bug | 已完成 | [BUG-1-admin-user-poem-count-fix.md](./BUG-1-admin-user-poem-count-fix.md) |
 | BUG-2 | 生产 Compose 恢复变量插值修复 | 已完成 | [BUG-2-production-compose-recovery-env-interpolation.md](./BUG-2-production-compose-recovery-env-interpolation.md) |
 | BUG-3 | 生产环境文件 CRLF 构建修复 | 已完成 | [BUG-3-production-env-crlf-build.md](./BUG-3-production-env-crlf-build.md) |
+| BUG-4 | Redis 通知实时连接恢复 | 已完成 | [BUG-4-redis-notification-realtime-reconnect.md](./BUG-4-redis-notification-realtime-reconnect.md) |
+| BUG-5 | 账户子页面保留安全返回地址 | 已完成 | [BUG-5-account-return-path.md](./BUG-5-account-return-path.md) |
 
 ## 约定
 

@@ -20,6 +20,19 @@ services:
     security_opt:
       - no-new-privileges:true
 
+  redis:
+    image: redis:7-alpine
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
   migrate:
     build:
       context: ..
@@ -47,12 +60,15 @@ services:
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:?BETTER_AUTH_URL is required}
+      REDIS_URL: ${REDIS_URL:?REDIS_URL is required}
       EMAIL_TRANSPORT: ${EMAIL_TRANSPORT:?EMAIL_TRANSPORT is required}
       RESEND_API_KEY: ${RESEND_API_KEY:?RESEND_API_KEY is required}
       EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS:?EMAIL_FROM_ADDRESS is required}
     depends_on:
       migrate:
         condition: service_completed_successfully
+      redis:
+        condition: service_healthy
     ports:
       - "127.0.0.1:4000:3000"
     networks:

@@ -13,7 +13,7 @@ export function SiteHeader({ navigation }: SiteHeaderProps) {
     <header className="border-b border-border-subtle bg-background">
       <nav
         aria-label="主导航"
-        className="mx-auto flex w-full max-w-none flex-col px-page py-4 lg:min-h-24 lg:flex-row lg:items-center lg:justify-between lg:gap-x-10 lg:px-12 lg:py-0 xl:px-16"
+        className="mx-auto flex w-full max-w-content flex-col px-page py-4 lg:min-h-24 lg:flex-row lg:items-center lg:justify-between lg:gap-x-10 lg:py-0"
       >
         <SiteNavLink
           href="/#top"
@@ -29,7 +29,7 @@ export function SiteHeader({ navigation }: SiteHeaderProps) {
             </span>
           </span>
         </SiteNavLink>
-        <ul className="mt-4 grid w-full grid-cols-3 items-center gap-y-1 border-t border-border-subtle pt-2 md:flex md:flex-wrap md:justify-end lg:mt-0 lg:w-auto lg:gap-x-5 lg:border-0 lg:pt-0">
+        <ul className="mt-4 grid w-full grid-cols-3 grid-rows-2 items-center gap-x-1 gap-y-0 border-t border-border-subtle pt-2 sm:grid-flow-col sm:grid-cols-none sm:grid-rows-none sm:auto-cols-fr sm:justify-end lg:mt-0 lg:flex lg:w-auto lg:flex-wrap lg:gap-x-5 lg:border-0 lg:pt-0">
           <li>
             <SiteNavLink
               href="/poems"

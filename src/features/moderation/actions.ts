@@ -80,12 +80,20 @@ function firstFieldErrors(
 }
 
 function revalidatePoemModeration(id: string): void {
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   revalidatePath("/poems");
   revalidatePath(`/poems/${id}`);
   revalidatePath("/account/poems");
   revalidatePath(`/account/poems/${id}/edit`);
   revalidatePath("/admin/poems");
+  revalidatePath("/admin/audit");
+  revalidatePath("/notifications");
+}
+
+function revalidateUserModeration(): void {
+  revalidatePath("/", "layout");
+  revalidatePath("/notifications");
+  revalidatePath("/admin/users");
   revalidatePath("/admin/audit");
 }
 
@@ -172,8 +180,7 @@ export async function suspendUserAction(
   }
   return runMutation(async () => {
     await setUserSuspended(admin.id, parsed.data.targetId, parsed.data.reason, true);
-    revalidatePath("/admin/users");
-    revalidatePath("/admin/audit");
+    revalidateUserModeration();
   }, "用户已禁用。");
 }
 
@@ -197,8 +204,7 @@ export async function restoreUserAction(
   }
   return runMutation(async () => {
     await setUserSuspended(admin.id, parsed.data.targetId, parsed.data.reason, false);
-    revalidatePath("/admin/users");
-    revalidatePath("/admin/audit");
+    revalidateUserModeration();
   }, "用户已恢复。");
 }
 
@@ -229,8 +235,7 @@ export async function updateUserRoleAction(
       parsed.data.reason,
       parsed.data.newRole,
     );
-    revalidatePath("/admin/users");
-    revalidatePath("/admin/audit");
+    revalidateUserModeration();
   }, newRole === "admin" ? "用户已提升为管理员。" : "管理员已降级为成员。");
 }
 
