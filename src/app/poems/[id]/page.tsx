@@ -77,7 +77,7 @@ export default async function PoemDetailPage({
         description={`作者：${poem.authorName}`}
       />
 
-      <dl className="mt-6 rounded-lg border border-border-subtle bg-surface-muted px-6 py-4 text-label sm:flex sm:flex-wrap sm:gap-x-8">
+      <dl className="mt-6 border-y border-border-subtle py-3 text-label sm:flex sm:flex-wrap sm:gap-x-8">
         {poem.visibility === "members_only" ? (
           <div className="flex items-center py-1">
             <Badge variant="neutral">仅成员可见</Badge>
@@ -107,7 +107,7 @@ export default async function PoemDetailPage({
 
       <article
         aria-label={poem.title}
-        className="mt-8 whitespace-pre-wrap rounded-lg border border-border-subtle bg-paper p-6 font-serif text-body-lg text-foreground shadow-card md:p-8"
+        className="mt-10 whitespace-pre-wrap border-l border-border-subtle pl-6 font-serif text-body-lg leading-reading text-foreground md:pl-10"
       >
         {poem.body}
       </article>

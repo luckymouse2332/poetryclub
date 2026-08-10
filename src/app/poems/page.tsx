@@ -50,7 +50,7 @@ export default async function PoemsPage({ searchParams }: PoemsPageProps) {
       />
       <Section className="pb-0 pt-8">
         {result.items.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2">
+          <div>
             {result.items.map((poem) => (
               <PoemCard key={poem.id} poem={poem} />
             ))}

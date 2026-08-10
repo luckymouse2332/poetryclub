@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
 
-import { PageContainer } from "@/components/layout/page-container";
-import { PageHeader } from "@/components/layout/page-header";
+import { AuthSplitShell } from "@/components/layout/auth-split-shell";
 import { Button } from "@/components/ui/button";
 import { Surface } from "@/components/ui/surface";
 import { ResetPasswordForm } from "@/features/auth/components/reset-password-form";
@@ -36,18 +35,12 @@ export default async function ResetPasswordPage({
     : false;
 
   return (
-    <PageContainer
-      width="narrow"
-      className="flex flex-1 flex-col justify-center py-12 md:py-16"
+    <AuthSplitShell
+      eyebrow="账户恢复"
+      title="设置新密码"
+      description="重置成功后，所有旧登录会话都会失效。请使用新密码重新登录。"
+      note="新密码应只用于本站。完成重置后，其他设备需要重新登录。"
     >
-      <PageHeader
-        align="center"
-        eyebrow="账户恢复"
-        title="设置新密码"
-        description="重置成功后，所有旧登录会话都会失效。请使用新密码重新登录。"
-        className="mb-8"
-      />
-
       {tokenValid && token ? (
         <ResetPasswordForm token={token} />
       ) : (
@@ -67,6 +60,6 @@ export default async function ResetPasswordPage({
           </div>
         </Surface>
       )}
-    </PageContainer>
+    </AuthSplitShell>
   );
 }
