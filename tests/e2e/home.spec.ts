@@ -231,6 +231,25 @@ test("site header navigation is present", async ({ page }) => {
   await expect(nav.getByRole("link")).toHaveCount(4);
 });
 
+test("about page records the notification and announcement milestone", async ({
+  page,
+}) => {
+  await page.goto("/about");
+
+  await expect(
+    page.getByRole("heading", { level: 3, name: "站内通知与系统公告" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("完成系统公告草稿、受众快照、发布审计与成员详情阅读"),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/当前记录已经更新到\s*M5 站内通知与系统公告/),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/M5\s*完成后，路线会继续围绕站内阅读/),
+  ).toBeVisible();
+});
+
 test("mobile header keeps the key navigation usable", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/");

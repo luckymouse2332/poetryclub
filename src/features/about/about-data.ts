@@ -83,7 +83,7 @@ export const PROJECT_ERAS: readonly ProjectEra[] = [
     reason: "旧版本已经中断，诗作和项目历史仍需要一个能够继续整理、部署和维护的落点。",
     record: [
       "这一次重新完成了邀请注册、登录、诗作草稿与发布、管理员审核和生产部署，也把项目历史与现有功能重新整理到同一个仓库。",
-      "公开页面、服务端逻辑和数据库访问仍放在一个 Next.js 应用中维护。它就是现在访问到的回中诗社网站。",
+      "当前版本又补上了持久化站内通知、系统公告和成员公告阅读，公开页面、服务端逻辑和数据库访问仍放在一个 Next.js 应用中维护。它就是现在访问到的回中诗社网站。",
     ],
     technology: ["Next.js", "TypeScript", "PostgreSQL", "Drizzle ORM"],
   },
@@ -104,14 +104,14 @@ export const CURRENT_VERSION_GROUPS: readonly CurrentVersionGroup[] = [
   {
     label: "内容与账号",
     description:
-      "诗作、成员和邀请码存入 PostgreSQL，由 Drizzle 管理数据结构，登录会话交给 Better Auth。",
-    items: ["PostgreSQL", "Drizzle ORM", "Better Auth"],
+      "诗作、成员、系统公告和通知记录存入 PostgreSQL，由 Drizzle 管理数据结构，登录会话交给 Better Auth。",
+    items: ["PostgreSQL", "Drizzle ORM", "Better Auth", "站内通知"],
   },
   {
     label: "界面与运行",
     description:
-      "界面延续暖纸色和诗集档案风格；生产版本运行在 Linux 服务器上，由 Docker 与宿主机 Caddy 承担部署。",
-    items: ["Tailwind CSS", "shadcn/ui", "Docker", "Caddy", "Linux Server"],
+      "界面延续暖纸色和诗集档案风格；生产版本运行在 Linux 服务器上，由 Docker、Redis 与宿主机 Caddy 承担运行和部署。",
+    items: ["Tailwind CSS", "shadcn/ui", "Redis", "Docker", "Caddy", "Linux Server"],
   },
 ];
 
@@ -170,13 +170,14 @@ export const UPDATE_ENTRIES = [
   },
   {
     milestone: "M5",
-    date: "2026.08.09",
+    date: "2026.08.10",
     title: "站内通知与系统公告",
     summary:
-      "通知记录由数据库持久保存，管理员可以发布带受众快照的系统公告，在线用户获得实时唤醒。",
+      "站内通知已经形成从治理结果发现、系统公告发布到成员阅读的完整链路，通知记录持久保存，在线用户获得实时唤醒。",
     items: [
-      "完成作品治理、账号状态和角色变更通知",
-      "完成公告草稿、受众选择、发布和通知页",
+      "完成作品治理、账号状态和角色变更通知与分页通知中心",
+      "完成系统公告草稿、受众快照、发布审计与成员详情阅读",
+      "完成桌面通知预览、移动端通知入口和 Redis/SSE 实时唤醒",
     ],
   },
 ] as const satisfies readonly UpdateEntry[];
