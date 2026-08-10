@@ -191,10 +191,6 @@ test("mobile member navigation separates global and account responsibilities", a
     name: new RegExp(`${name}的账户菜单`),
   });
   await expect(accountTrigger.getByText("林", { exact: true })).toBeVisible();
-  await expect(accountTrigger).toHaveAttribute(
-    "aria-label",
-    /0 条未读通知$/,
-  );
   await expect(
     accountTrigger.locator('[data-unread-indicator="true"]'),
   ).toHaveCount(0);
@@ -203,13 +199,16 @@ test("mobile member navigation separates global and account responsibilities", a
     .getByRole("button", { name: "打开全站导航" })
     .click();
   const globalNavigation = page.getByRole("navigation", { name: "全站导航" });
-  await expect(globalNavigation.getByRole("link", { name: /通知/ })).toBeVisible();
+  await expect(globalNavigation.getByRole("link", { name: /通知/ })).toHaveCount(0);
   await expect(globalNavigation.getByRole("link", { name: "管理" })).toHaveCount(0);
   await expect(globalNavigation.getByRole("link", { name: "我的" })).toHaveCount(0);
   await page.keyboard.press("Escape");
 
   await accountTrigger.click();
   const accountMenu = page.getByRole("menu");
+  await expect(accountMenu.getByRole("menuitem", { name: /通知/ })).toContainText(
+    "无未读",
+  );
   await expect(accountMenu.getByRole("menuitem", { name: "我的诗作" })).toBeVisible();
   await expect(accountMenu.getByRole("menuitem", { name: "账户信息" })).toBeVisible();
   await expect(accountMenu.getByRole("menuitem", { name: "账户安全" })).toBeVisible();
@@ -418,7 +417,7 @@ test.describe.serial("authenticated session loop", () => {
     const globalNavigation = page.getByRole("navigation", {
       name: "全站导航",
     });
-    await expect(globalNavigation.getByRole("link", { name: /通知/ })).toBeVisible();
+    await expect(globalNavigation.getByRole("link", { name: /通知/ })).toHaveCount(0);
     await expect(globalNavigation.getByRole("link", { name: "管理" })).toHaveCount(0);
     await expect(globalNavigation.getByRole("link", { name: "我的" })).toHaveCount(0);
     await page.keyboard.press("Escape");
@@ -426,10 +425,6 @@ test.describe.serial("authenticated session loop", () => {
     const mobileAccountTrigger = page.getByRole("button", {
       name: new RegExp(`${displayName}的账户菜单`),
     });
-    await expect(mobileAccountTrigger).toHaveAttribute(
-      "aria-label",
-      /0 条未读通知$/,
-    );
     await expect(
       mobileAccountTrigger.locator('[data-unread-indicator="true"]'),
     ).toHaveCount(0);
@@ -438,6 +433,9 @@ test.describe.serial("authenticated session loop", () => {
     await expect(
       mobileAccountMenu.getByRole("menuitem", { name: "我的诗作" }),
     ).toBeVisible();
+    await expect(
+      mobileAccountMenu.getByRole("menuitem", { name: /通知/ }),
+    ).toContainText("无未读");
     await expect(
       mobileAccountMenu.getByRole("menuitem", { name: "账户信息" }),
     ).toBeVisible();

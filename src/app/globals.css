@@ -274,6 +274,93 @@ main {
   to { opacity: 0; transform: translate(var(--floating-x), var(--floating-y)) scale(.98); }
 }
 
+.mobile-navigation-overlay[data-state="open"] {
+  animation: navigation-backdrop-in 220ms ease-out;
+}
+
+.mobile-navigation-overlay[data-state="closed"] {
+  animation: navigation-backdrop-out 160ms ease-in;
+}
+
+.mobile-navigation-shell[data-state="open"] .mobile-navigation-drawer {
+  animation: navigation-drawer-in 260ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.mobile-navigation-shell[data-state="closed"] .mobile-navigation-drawer {
+  animation: navigation-drawer-out 180ms cubic-bezier(.4, 0, 1, 1);
+}
+
+.mobile-navigation-shell[data-state="open"] .mobile-navigation-close-icon {
+  animation: navigation-close-in 220ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.mobile-account-backdrop {
+  transition:
+    opacity 180ms ease-out,
+    backdrop-filter 180ms ease-out;
+}
+
+.mobile-account-menu[data-state="open"] {
+  transform-origin: top center;
+  animation: account-menu-in 260ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.mobile-account-menu[data-state="closed"] {
+  transform-origin: top center;
+  animation: account-menu-out 180ms cubic-bezier(.4, 0, 1, 1);
+}
+
+@keyframes navigation-backdrop-in {
+  from { opacity: 0; backdrop-filter: blur(0); }
+  to { opacity: 1; backdrop-filter: blur(4px); }
+}
+
+@keyframes navigation-backdrop-out {
+  from { opacity: 1; backdrop-filter: blur(4px); }
+  to { opacity: 0; backdrop-filter: blur(0); }
+}
+
+@keyframes navigation-drawer-in {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes navigation-drawer-out {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
+@keyframes navigation-close-in {
+  from { opacity: 0; transform: rotate(-90deg) scale(.75); }
+  to { opacity: 1; transform: rotate(0) scale(1); }
+}
+
+@keyframes account-menu-in {
+  from {
+    opacity: .7;
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(-.5rem) scaleY(.94);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes account-menu-out {
+  from {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: translateY(0) scaleY(1);
+  }
+  to {
+    opacity: .55;
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(-.375rem) scaleY(.96);
+  }
+}
+
 a {
   text-underline-offset: 0.2em;
 }

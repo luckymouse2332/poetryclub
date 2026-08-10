@@ -31,9 +31,7 @@ export async function AuthNavigation() {
       <SiteHeader
         mobileMenu={
           <MobileGlobalNavigation
-            authenticated={false}
             isActiveAdmin={false}
-            unreadCount={0}
           />
         }
         mobileAccount={
@@ -64,11 +62,7 @@ export async function AuthNavigation() {
   return (
     <SiteHeader
       mobileMenu={
-        <MobileGlobalNavigation
-          authenticated
-          isActiveAdmin={isActiveAdmin}
-          unreadCount={unreadCount}
-        />
+        <MobileGlobalNavigation isActiveAdmin={isActiveAdmin} />
       }
       mobileAccount={
         <AccountNavigationMenu

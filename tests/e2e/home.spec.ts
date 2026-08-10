@@ -359,6 +359,8 @@ test("mobile header keeps one centered row and an accessible global menu", async
   await page.goto("/");
   await waitForHydration(page, 'button[aria-label="打开全站导航"]');
   const menuTrigger = page.locator('button[aria-label="打开全站导航"]');
+  const menuTriggerBox = await menuTrigger.boundingBox();
+  expect(menuTriggerBox).not.toBeNull();
   await menuTrigger.focus();
   await menuTrigger.press("Enter");
   await expect(menuTrigger).toHaveAttribute("aria-expanded", "true");
@@ -367,6 +369,24 @@ test("mobile header keeps one centered row and an accessible global menu", async
   const closeButton = page.getByRole("button", { name: "关闭全站导航" });
   await expect(globalNavigation).toBeVisible();
   await expect(closeButton).toBeFocused();
+  const closeButtonBox = await closeButton.boundingBox();
+  expect(closeButtonBox).not.toBeNull();
+  expect(closeButtonBox).toEqual(menuTriggerBox);
+  await expect(page.locator(".mobile-navigation-drawer")).toHaveCSS(
+    "animation-name",
+    "navigation-drawer-in",
+  );
+  const [headerBox, drawerBox] = await Promise.all([
+    page.locator('nav[aria-label="主导航"].lg\\:hidden').boundingBox(),
+    page.locator(".mobile-navigation-drawer").boundingBox(),
+  ]);
+  expect(headerBox).not.toBeNull();
+  expect(drawerBox).not.toBeNull();
+  expect(drawerBox!.y).toBe(headerBox!.height);
+  await expect(page.locator(".mobile-navigation-overlay")).toHaveCSS(
+    "backdrop-filter",
+    /blur\(4px\)/,
+  );
   await expect(globalNavigation.getByRole("link", { name: "诗作" })).toBeVisible();
   await expect(globalNavigation.getByRole("link", { name: "关于" })).toBeVisible();
   await expect(globalNavigation.getByRole("link", { name: "通知" })).toHaveCount(0);
@@ -397,6 +417,14 @@ test("mobile header keeps one centered row and an accessible global menu", async
       .getByRole("navigation", { name: "主导航" })
       .getByRole("link", { name: "诗作" }),
   ).toBeVisible();
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "打开全站导航" }).click();
+  await expect(page.locator(".mobile-navigation-drawer")).toHaveCSS(
+    "animation-duration",
+    /^(?:0\.00001|1e-05)s$/,
+  );
 });
 
 test("site footer aligns brand, centered legal notice and policy links on one row", async ({

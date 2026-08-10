@@ -261,13 +261,36 @@ test("mobile notification state and admin entry stay inside their navigation rol
         name: /E2E 测试管理员的账户菜单/,
       });
       await expect(accountTrigger).toBeVisible();
-      await expect(accountTrigger).toHaveAttribute(
-        "aria-label",
-        /[1-9]\d* 条未读通知$/,
-      );
       await expect(
         accountTrigger.locator('[data-unread-indicator="true"]'),
-      ).toBeVisible();
+      ).toHaveCount(0);
+
+      await accountTrigger.click();
+      const accountMenu = page.getByRole("menu");
+      const notificationItem = accountMenu.getByRole("menuitem", {
+        name: /通知.*[1-9]\d* 条未读/,
+      });
+      await expect(notificationItem).toHaveAttribute("href", "/notifications");
+      await expect(
+        page.locator('[data-mobile-account-backdrop="true"]'),
+      ).toHaveAttribute("data-state", "open");
+      await expect(page.locator(".mobile-account-menu")).toHaveCSS(
+        "animation-name",
+        "account-menu-in",
+      );
+      await expect(
+        page.locator('[data-mobile-account-backdrop="true"]'),
+      ).toHaveCSS("backdrop-filter", /blur\(4px\)/);
+      await page.keyboard.press("Escape");
+      await expect(accountMenu).toBeHidden();
+      await expect(accountTrigger).toBeFocused();
+      await expect(
+        page.locator('[data-mobile-account-backdrop="true"]'),
+      ).toHaveAttribute("data-state", "closed");
+
+      await accountTrigger.click();
+      await page.mouse.click(8, 100);
+      await expect(accountMenu).toBeHidden();
 
       await headerNavigation
         .getByRole("button", { name: "打开全站导航" })
@@ -278,10 +301,7 @@ test("mobile notification state and admin entry stay inside their navigation rol
       const links = globalNavigation.getByRole("link");
       await expect(globalNavigation.getByRole("link", { name: "诗作" })).toBeVisible();
       await expect(globalNavigation.getByRole("link", { name: "关于" })).toBeVisible();
-      await expect(globalNavigation.getByRole("link", { name: /通知/ })).toHaveAttribute(
-        "href",
-        "/notifications",
-      );
+      await expect(globalNavigation.getByRole("link", { name: /通知/ })).toHaveCount(0);
       await expect(globalNavigation.getByRole("link", { name: "管理" })).toHaveAttribute(
         "href",
         "/admin",
@@ -309,11 +329,8 @@ test("mobile notification state and admin entry stay inside their navigation rol
     await expect(adminNavigation.getByRole("link", { name: "审计" })).toBeVisible();
 
     await page.goto("/");
-    await page.getByRole("button", { name: "打开全站导航" }).click();
-    await page
-      .getByRole("navigation", { name: "全站导航" })
-      .getByRole("link", { name: /通知/ })
-      .click();
+    await page.getByRole("button", { name: /E2E 测试管理员的账户菜单/ }).click();
+    await page.getByRole("menuitem", { name: /通知.*条未读/ }).click();
     await page.waitForURL("/notifications");
     await expect(
       page.getByRole("heading", { level: 1, name: "通知" }),
