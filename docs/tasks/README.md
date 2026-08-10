@@ -10,6 +10,7 @@
 - M3：准入、管理治理与档案式界面。
 - M4：成员账户、内容访问、互动和共同记忆整理能力；M4.0 已完成账户密码管理与找回，“内容访问权限”使用 M4.1。
 - M5：可扩展的站内通知、系统公告与在线实时唤醒能力。
+- M6：整站视觉语言、桌面工作区与浮层交互重构。
 
 ## 当前任务
 
@@ -42,6 +43,7 @@
 | M5.0 | 可扩展站内通知与系统公告 | 已完成 | [M5.0-in-app-notifications.md](./M5.0-in-app-notifications.md) |
 | M5.1 | 站内通知交互与导航入口拆分 | 已完成 | [M5.1-navigation-information-architecture.md](./M5.1-navigation-information-architecture.md) |
 | M5.2 | 系统公告阅读页 | 已完成 | [M5.2-announcement-reader.md](./M5.2-announcement-reader.md) |
+| M6.0 | 整站视觉与交互重构 | 进行中 | [M6.0-sitewide-visual-redesign.md](./M6.0-sitewide-visual-redesign.md) |
 | CHORE-1 | 仓库工作流与发布规范 | 已完成 | [CHORE-1-repository-workflow-conventions.md](./CHORE-1-repository-workflow-conventions.md) |
 | CHORE-2 | 已合并分支清理与保留规则 | 已完成 | [CHORE-2-merged-branch-retention-policy.md](./CHORE-2-merged-branch-retention-policy.md) |
 | BUG-1 | 修复bug | 已完成 | [BUG-1-admin-user-poem-count-fix.md](./BUG-1-admin-user-poem-count-fix.md) |

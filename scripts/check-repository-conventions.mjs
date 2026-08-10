@@ -284,7 +284,7 @@ function selfTest() {
     "feat/content-access-control",
     "feat/M4.1-content-access-control",
     "feat/m05-01-leading-zero",
-    "feat/m6-0-new-stage",
+    "feat/m7-0-new-stage",
     "release/v01.2.0",
   ]) {
     expectInvalid(branch, () => validateBranchName(branch));

@@ -27,15 +27,18 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
   ],
-  webServer: {
-    command: `pnpm exec next dev --hostname ${webServerUrl.hostname} --port ${webServerPort}`,
-    url: baseURL,
-    reuseExistingServer: false,
-    env: {
-      BETTER_AUTH_URL: baseURL,
-      REDIS_URL: process.env.REDIS_URL ?? "redis://127.0.0.1:6379",
-      EMAIL_TRANSPORT: "test",
-      EMAIL_TEST_OUTBOX_PATH,
-    },
-  },
+  webServer:
+    process.env.PLAYWRIGHT_REUSE_SERVER === "1"
+      ? undefined
+      : {
+          command: `pnpm exec next dev --hostname ${webServerUrl.hostname} --port ${webServerPort}`,
+          url: baseURL,
+          reuseExistingServer: false,
+          env: {
+            BETTER_AUTH_URL: baseURL,
+            REDIS_URL: process.env.REDIS_URL ?? "redis://127.0.0.1:6379",
+            EMAIL_TRANSPORT: "test",
+            EMAIL_TEST_OUTBOX_PATH,
+          },
+        },
 });
