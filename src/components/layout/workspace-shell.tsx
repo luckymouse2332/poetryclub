@@ -11,6 +11,7 @@ type WorkspaceShellProps = Readonly<{
   eyebrow: string;
   ariaLabel: string;
   items: ReadonlyArray<WorkspaceNavigationItem>;
+  showMobileNavigation?: boolean;
   children: React.ReactNode;
 }>;
 
@@ -19,15 +20,18 @@ export function WorkspaceShell({
   eyebrow,
   ariaLabel,
   items,
+  showMobileNavigation = true,
   children,
 }: WorkspaceShellProps) {
   return (
     <div className="min-h-full">
-      <SecondaryNavigation
-        ariaLabel={ariaLabel}
-        items={items}
-        className="xl:hidden"
-      />
+      {showMobileNavigation ? (
+        <SecondaryNavigation
+          ariaLabel={ariaLabel}
+          items={items}
+          className="xl:hidden"
+        />
+      ) : null}
       <div className="mx-auto w-full max-w-[80rem] xl:grid xl:grid-cols-[14rem_minmax(0,1fr)] xl:gap-10 xl:px-page">
         <aside className="hidden border-r border-border-subtle py-section pr-6 xl:block">
           <div className="sticky top-8">

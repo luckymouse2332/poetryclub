@@ -10,6 +10,7 @@ export default async function AccountLayout({
       eyebrow="MEMBER DESK"
       ariaLabel="账户导航"
       items={ACCOUNT_NAV_ITEMS}
+      showMobileNavigation={false}
     >
       {children}
     </WorkspaceShell>

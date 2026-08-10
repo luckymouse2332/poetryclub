@@ -4,6 +4,10 @@ import {
   E2E_ADMIN_EMAIL,
   E2E_ADMIN_PASSWORD,
 } from "./global-setup";
+import {
+  createUnreadNotificationFixture,
+  deleteNotificationById,
+} from "./helpers/database";
 
 async function waitForHydration(page: Page, selector: string): Promise<void> {
   await page.waitForFunction((target) => {
@@ -224,97 +228,97 @@ test("non-recipients cannot read member-only announcement details", async ({
   await expect(page.getByText("这段正文不应被管理员收件人读取。")).toHaveCount(0);
 });
 
-test("mobile notification entry navigates directly and admin navigation stays explicit", async ({
+test("mobile notification state and admin entry stay inside their navigation roles", async ({
   page,
 }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await signIn(page, "/");
+  const notificationId = await createUnreadNotificationFixture(E2E_ADMIN_EMAIL);
 
-  for (const viewport of [
-    { width: 320, height: 720 },
-    { width: 375, height: 812 },
-    { width: 390, height: 844 },
-    { width: 430, height: 860 },
-  ]) {
-    await page.setViewportSize(viewport);
-    await page.goto("/");
-    const nav = page.getByRole("navigation", { name: "主导航" });
-    const list = nav.locator("ul");
-    const visibleItems = list.locator(":scope > li:visible");
-    const visibleControls = list.locator(
-      ":scope > li:visible a:visible, :scope > li:visible button:visible",
-    );
-    const notificationLink = nav.getByRole("link", { name: /通知/ });
-    const myLink = nav.getByRole("link", { name: "我的" });
+  try {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const signInResponse = await page.request.post("/api/auth/sign-in/email", {
+      data: {
+        email: E2E_ADMIN_EMAIL,
+        password: E2E_ADMIN_PASSWORD,
+        rememberMe: false,
+      },
+    });
+    expect(signInResponse.status()).toBe(200);
 
-    await expect(notificationLink).toHaveAttribute("href", "/notifications");
-    await expect(nav.getByRole("button", { name: /^通知/ })).toHaveCount(0);
-    await expect(nav.getByRole("link", { name: "管理" })).toBeVisible();
-    await expect(myLink).toBeVisible();
-    await expect(myLink).toHaveAttribute("href", "/account");
-    await expect(nav.getByRole("button", { name: "我的" })).toBeHidden();
+    for (const viewport of [
+      { width: 320, height: 720 },
+      { width: 375, height: 812 },
+      { width: 390, height: 844 },
+      { width: 430, height: 860 },
+      { width: 768, height: 900 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await page.goto("/");
+      await waitForHydration(page, 'button[aria-label="打开全站导航"]');
+      const headerNavigation = page.getByRole("navigation", {
+        name: "主导航",
+      });
+      const accountTrigger = headerNavigation.getByRole("button", {
+        name: /E2E 测试管理员的账户菜单/,
+      });
+      await expect(accountTrigger).toBeVisible();
+      await expect(accountTrigger).toHaveAttribute(
+        "aria-label",
+        /[1-9]\d* 条未读通知$/,
+      );
+      await expect(
+        accountTrigger.locator('[data-unread-indicator="true"]'),
+      ).toBeVisible();
 
-    const [itemBoxes, controlBoxes, listBox, documentWidth] = await Promise.all([
-      visibleItems.evaluateAll((elements) =>
-        elements.map((element) => {
-          const box = element.getBoundingClientRect();
-          return { x: box.x, y: box.y, width: box.width, height: box.height };
-        }),
-      ),
-      visibleControls.evaluateAll((elements) =>
-        elements.map((element) => {
-          const box = element.getBoundingClientRect();
-          return { x: box.x, width: box.width, height: box.height };
-        }),
-      ),
-      list.boundingBox(),
-      page.evaluate(() => document.documentElement.clientWidth),
-    ]);
-
-    expect(itemBoxes).toHaveLength(5);
-    expect(new Set(itemBoxes.map((box) => Math.round(box.y))).size).toBe(2);
-    const firstRowY = Math.min(...itemBoxes.map((box) => Math.round(box.y)));
-    expect(itemBoxes.filter((box) => Math.round(box.y) === firstRowY)).toHaveLength(
-      3,
-    );
-    expect(itemBoxes.filter((box) => Math.round(box.y) !== firstRowY)).toHaveLength(
-      2,
-    );
-    expect(listBox).not.toBeNull();
-    expect(listBox!.height).toBeLessThanOrEqual(100);
-    for (const box of controlBoxes) {
-      expect(box.height).toBeGreaterThanOrEqual(44);
-      expect(box.x).toBeGreaterThanOrEqual(0);
-      expect(box.x + box.width).toBeLessThanOrEqual(documentWidth);
+      await headerNavigation
+        .getByRole("button", { name: "打开全站导航" })
+        .click();
+      const globalNavigation = page.getByRole("navigation", {
+        name: "全站导航",
+      });
+      const links = globalNavigation.getByRole("link");
+      await expect(globalNavigation.getByRole("link", { name: "诗作" })).toBeVisible();
+      await expect(globalNavigation.getByRole("link", { name: "关于" })).toBeVisible();
+      await expect(globalNavigation.getByRole("link", { name: /通知/ })).toHaveAttribute(
+        "href",
+        "/notifications",
+      );
+      await expect(globalNavigation.getByRole("link", { name: "管理" })).toHaveAttribute(
+        "href",
+        "/admin",
+      );
+      await expect(globalNavigation.getByRole("link", { name: "我的" })).toHaveCount(0);
+      await expect(globalNavigation.getByRole("link", { name: "账户信息" })).toHaveCount(0);
+      const linkHeights = await links.evaluateAll((elements) =>
+        elements.map((element) => element.getBoundingClientRect().height),
+      );
+      expect(linkHeights.every((height) => height >= 44)).toBe(true);
+      await page.getByRole("button", { name: "关闭全站导航" }).click();
     }
 
-    await myLink.click();
-    await page.waitForURL("/account");
-    const accountNavigation = page.getByRole("navigation", { name: "账户导航" });
-    await expect(accountNavigation).toBeVisible();
-    await expect(accountNavigation.getByRole("link", { name: "我的诗作" })).toBeVisible();
-    await expect(accountNavigation.getByRole("link", { name: "账户信息" })).toBeVisible();
-    await expect(accountNavigation.getByRole("link", { name: "账户安全" })).toBeVisible();
-    await expect(accountNavigation.getByRole("link", { name: "登出" })).toHaveCount(0);
+    await page.goto("/");
+    await page.getByRole("button", { name: "打开全站导航" }).click();
+    await page
+      .getByRole("navigation", { name: "全站导航" })
+      .getByRole("link", { name: "管理" })
+      .click();
+    await page.waitForURL(/\/admin$/);
+    const adminNavigation = page.getByRole("navigation", {
+      name: "管理后台导航",
+    });
+    await expect(adminNavigation.getByRole("link", { name: "总览" })).toBeVisible();
+    await expect(adminNavigation.getByRole("link", { name: "审计" })).toBeVisible();
+
+    await page.goto("/");
+    await page.getByRole("button", { name: "打开全站导航" }).click();
+    await page
+      .getByRole("navigation", { name: "全站导航" })
+      .getByRole("link", { name: /通知/ })
+      .click();
+    await page.waitForURL("/notifications");
+    await expect(
+      page.getByRole("heading", { level: 1, name: "通知" }),
+    ).toBeVisible();
+  } finally {
+    await deleteNotificationById(notificationId);
   }
-
-  await page.goto("/");
-  const homeNavigation = page.getByRole("navigation", { name: "主导航" });
-  await homeNavigation.getByRole("link", { name: "管理" }).click();
-  await page.waitForURL(/\/admin$/);
-  const adminNavigation = page.getByRole("navigation", { name: "管理后台导航" });
-  await expect(adminNavigation.getByRole("link", { name: "总览" })).toBeVisible();
-  await expect(adminNavigation.getByRole("link", { name: "审计" })).toBeVisible();
-  await expect(adminNavigation.getByRole("link", { name: "总览" })).toHaveAttribute(
-    "aria-current",
-    "page",
-  );
-
-  await page.goto("/");
-  await page
-    .getByRole("navigation", { name: "主导航" })
-    .getByRole("link", { name: /通知/ })
-    .click();
-  await page.waitForURL("/notifications");
-  await expect(page.getByRole("heading", { level: 1, name: "通知" })).toBeVisible();
 });

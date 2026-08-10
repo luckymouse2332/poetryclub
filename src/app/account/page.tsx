@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Surface } from "@/components/ui/surface";
+import { AccountSectionNavigation } from "@/features/auth/components/account-secondary-navigation";
 import {
   formatCreatedAt,
   getUserDisplayName,
@@ -29,6 +30,7 @@ export default async function AccountPage() {
           title="账户"
           description="查看当前登录身份。账户信息来自受保护的服务端会话。"
         />
+        <AccountSectionNavigation />
         <p
           role="alert"
           className="mt-6 rounded-md border border-danger bg-danger-surface p-4 text-label text-danger"
@@ -48,6 +50,7 @@ export default async function AccountPage() {
         title="账户"
         description="查看当前登录身份。账户信息来自受保护的服务端会话。"
       />
+      <AccountSectionNavigation />
 
       {suspended ? (
         <p

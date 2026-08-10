@@ -109,14 +109,15 @@
 - `max-w-content` / `--content-max-width`：1120px，通用页面内容。
 - `max-w-reading` / `--reading-max-width`：720px，长文本。
 - `max-w-narrow` / `--narrow-max-width`：512px，认证表单和少量确认流程。
-- 成员与管理工作区在 `lg` 起使用约 224px 常驻导航和弹性主内容区；小屏使用横向二级导航。
+- 成员与管理工作区在 `xl` 起使用约 224px 常驻导航和弹性主内容区；更小视口使用正文内或横向二级导航。
 - 通用内容页使用 `PageContainer`。首页仍复用该组件，但允许通过局部样式放宽最大宽度，并由首页模块单独控制首屏和下半区页边距。
 - 移动端不得水平滚动，长邮箱、昵称、诗名和用户正文必须可换行。
 
 ## 9. 页面骨架与当前导航
 
-- `SiteHeader`：品牌链接指向首页顶部，固定公开入口为“诗作”和“关于”。游客显示“登录”；登录成员桌面显示独立的“通知”入口和“我的”下拉菜单，移动端“管理”和“我的”分别进入对应页面。“我的”桌面菜单包含“我的诗作”“账户信息”“账户安全”和独立危险语义的“登出”。仅正常管理员额外显示独立的“管理”入口。桌面通知入口使用小圆点表达未读状态并打开最近消息 Popover，移动端通知入口直达 `/notifications`，导航显示不承担权限判断。
-- 小于 `sm` 时，品牌单独占一行，导航使用明确的三列两行网格并带顶部分隔线，个人菜单固定在第二行中列；`sm` 至 `lg` 前恢复单行网格，`lg` 起恢复单行品牌与右侧导航。品牌区同时显示站名与年级，当前导航项通过印章红短线表达当前位置。
+- `SiteHeader`：`lg` 以下固定为单行三段式刊头，左右使用相同宽度轨道，左侧汉堡按钮打开全站 Dialog，中间“回中诗社”保持几何居中，右侧匿名用户显示“登录”、登录用户显示单 Unicode 字素账户圆标。全站菜单只包含诗作、关于、登录后通知和正常管理员的管理入口；账户圆标打开我的诗作、账户信息、账户安全和独立危险语义登出。未读通知以圆标附近和通知菜单项的小印章红点表达，不显示数字 Badge。
+- `lg` 起保留既有桌面刊头：左侧站名与年级，右侧诗作、关于、通知、正常管理员的管理入口和“我的”菜单；桌面通知继续使用最近消息 Popover。导航显示不承担权限判断。
+- 账户页在 `xl` 以下把“我的诗作 / 账户信息 / 账户安全”放在页面标题之后，以细分隔线和印章红短线表达当前项；`xl` 起由工作区常驻侧栏承载，不在全站 Header 下重复显示。
 - `PageContainer`：统一最大宽度、响应式页边距和可选窄 / 阅读宽度。
 - `PageHeader`：eyebrow、标题、描述和可选 actions；标题层级由调用方指定。
 - `Section`：统一垂直节奏，可包含区块标题、描述和 actions。
@@ -166,7 +167,7 @@
 | --- | --- | --- |
 | 上游同构 | 结构、`data-slot`、子组件与上游 shadcn/ui 一致，只把类名映射到本文件的 Token 并去掉 `dark:` 变体 | `card`、`empty`、`field`、`label`、`separator`、`spinner`、`dropdown-menu`、`popover`、`skeleton` |
 | 上游同构 + 项目变体 | 以上游为基线，额外增加项目需要的 cva 变体或行为 | `button`（variant/size/loading）、`badge`、`input`、`textarea`、`alert-dialog`（项目 Button 变体与语义 Token） |
-| 项目自有 | 上游没有对应组件，由本项目定义并负责维护 | `surface`、`form-field`、`icon-button`、`secondary-navigation`、`workspace-shell`、`workspace-navigation`、`auth-split-shell` |
+| 项目自有 | 上游没有对应组件，由本项目定义并负责维护 | `surface`、`form-field`、`icon-button`、`secondary-navigation`、`workspace-shell`、`workspace-navigation`、`auth-split-shell`、`site-header`、`mobile-global-navigation` |
 
 - 基线为 shadcn/ui new-york（配置见 `components.json`）。本文件定义的 Token 与状态规范优先于 shadcn 默认样式；
   每个文件顶部注释必须写明与上游的差异，项目自有组件必须在注释中明确声明「不是上游组件」。

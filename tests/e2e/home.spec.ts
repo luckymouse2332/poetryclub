@@ -1,9 +1,19 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 import {
   createHomePoemVisibilityFixtures,
   deletePoemsByIds,
 } from "./helpers/database";
+
+async function waitForHydration(page: Page, selector: string) {
+  await page.waitForFunction((target) => {
+    const element = document.querySelector(target);
+    return Boolean(
+      element &&
+        Object.keys(element).some((key) => key.startsWith("__reactFiber$")),
+    );
+  }, selector);
+}
 
 test("home page shows the community identity without fake business content", async ({
   page,
@@ -311,62 +321,82 @@ test("about page changes editorial rhythm without horizontal overflow", async ({
   }
 });
 
-test("mobile header keeps the key navigation usable", async ({ page }) => {
+test("mobile header keeps one centered row and an accessible global menu", async ({
+  page,
+}) => {
+  for (const viewport of [320, 375, 390, 430]) {
+    await page.setViewportSize({ width: viewport, height: 812 });
+    await page.goto("/");
+
+    const nav = page.getByRole("navigation", { name: "主导航" });
+    const menuTrigger = nav.getByRole("button", { name: "打开全站导航" });
+    const brandLink = nav.getByRole("link", { name: "回中诗社" });
+    const loginLink = nav.getByRole("link", { name: "登录" });
+    const [navBox, menuBox, brandBox, loginBox] = await Promise.all([
+      nav.boundingBox(),
+      menuTrigger.boundingBox(),
+      brandLink.boundingBox(),
+      loginLink.boundingBox(),
+    ]);
+
+    expect(navBox).not.toBeNull();
+    expect(menuBox).not.toBeNull();
+    expect(brandBox).not.toBeNull();
+    expect(loginBox).not.toBeNull();
+    expect(navBox!.height).toBe(64);
+    expect(menuBox!.width).toBeGreaterThanOrEqual(44);
+    expect(menuBox!.height).toBeGreaterThanOrEqual(44);
+    expect(loginBox!.width).toBeGreaterThanOrEqual(44);
+    expect(loginBox!.height).toBeGreaterThanOrEqual(44);
+    expect(
+      Math.abs(brandBox!.x + brandBox!.width / 2 - viewport / 2),
+    ).toBeLessThanOrEqual(1);
+    await expect(nav.getByRole("link", { name: "诗作" })).toHaveCount(0);
+    await expect(nav.getByRole("link", { name: "关于" })).toHaveCount(0);
+  }
+
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/");
+  await waitForHydration(page, 'button[aria-label="打开全站导航"]');
+  const menuTrigger = page.locator('button[aria-label="打开全站导航"]');
+  await menuTrigger.focus();
+  await menuTrigger.press("Enter");
+  await expect(menuTrigger).toHaveAttribute("aria-expanded", "true");
 
-  const nav = page.getByRole("navigation", { name: "主导航" });
-  const poemsLink = nav.getByRole("link", { name: "诗作" });
-  const aboutLink = nav.getByRole("link", { name: "关于" });
-  const loginLink = nav.getByRole("link", { name: "登录" });
-  await expect(poemsLink).toBeVisible();
-  await expect(aboutLink).toBeVisible();
-  await expect(loginLink).toBeVisible();
+  const globalNavigation = page.getByRole("navigation", { name: "全站导航" });
+  const closeButton = page.getByRole("button", { name: "关闭全站导航" });
+  await expect(globalNavigation).toBeVisible();
+  await expect(closeButton).toBeFocused();
+  await expect(globalNavigation.getByRole("link", { name: "诗作" })).toBeVisible();
+  await expect(globalNavigation.getByRole("link", { name: "关于" })).toBeVisible();
+  await expect(globalNavigation.getByRole("link", { name: "通知" })).toHaveCount(0);
+  await expect(globalNavigation.getByRole("link", { name: "管理" })).toHaveCount(0);
+  await expect(globalNavigation.getByRole("link", { name: "我的" })).toHaveCount(0);
 
-  const [poemsBox, aboutBox, loginBox] = await Promise.all([
-    poemsLink.boundingBox(),
-    aboutLink.boundingBox(),
-    loginLink.boundingBox(),
-  ]);
-  expect(poemsBox).not.toBeNull();
-  expect(aboutBox).not.toBeNull();
-  expect(loginBox).not.toBeNull();
-  expect(poemsBox!.x + poemsBox!.width).toBeLessThanOrEqual(375);
-  expect(aboutBox!.x + aboutBox!.width).toBeLessThanOrEqual(375);
-  expect(loginBox!.x + loginBox!.width).toBeLessThanOrEqual(375);
+  await page.keyboard.press("Escape");
+  await expect(globalNavigation).toBeHidden();
+  await expect(menuTrigger).toBeFocused();
+  await expect(menuTrigger).toHaveAttribute("aria-expanded", "false");
 
-  await poemsLink.click();
+  await menuTrigger.press("Space");
+  await globalNavigation.getByRole("link", { name: "诗作" }).click();
   await expect(page).toHaveURL("/poems");
+  await expect(globalNavigation).toBeHidden();
+
+  await page.getByRole("button", { name: "打开全站导航" }).click();
   await expect(
-    page.getByRole("navigation", { name: "主导航" }).getByRole("link", {
-      name: "诗作",
-    }),
+    page
+      .getByRole("navigation", { name: "全站导航" })
+      .getByRole("link", { name: "诗作" }),
   ).toHaveAttribute("aria-current", "page");
 
-  await page.goto("/");
-  await aboutLink.click();
-  await expect(page).toHaveURL("/about");
-  await expect(page).toHaveTitle(/关于/);
-
-  const brandLink = nav.getByRole("link", { name: /回中诗社/ });
-  const hero = page.locator("#top");
-  const header = page.getByRole("banner");
-  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
-  await brandLink.click();
-  await expect(page).toHaveURL(/\/#top$/);
-  await expect
-    .poll(async () => Math.abs((await hero.boundingBox())?.y ?? 9999))
-    .toBeLessThan(2);
-  await expect
-    .poll(async () => (await header.boundingBox())?.y ?? 0)
-    .toBeLessThan(0);
-
-  // URL 已经是 #top 时也应再次触发，而不是变成无效链接。
-  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
-  await brandLink.click();
-  await expect
-    .poll(async () => Math.abs((await hero.boundingBox())?.y ?? 9999))
-    .toBeLessThan(2);
+  await page.setViewportSize({ width: 1024, height: 812 });
+  await expect(globalNavigation).toBeHidden();
+  await expect(
+    page
+      .getByRole("navigation", { name: "主导航" })
+      .getByRole("link", { name: "诗作" }),
+  ).toBeVisible();
 });
 
 test("site footer aligns brand, centered legal notice and policy links on one row", async ({

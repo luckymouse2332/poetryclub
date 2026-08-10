@@ -1,52 +1,58 @@
-# BUG-7 工作区中等视口适配 Design QA
+# M6.2 移动端导航信息架构 Design QA
 
 **Source visual truth**
 
-- 用户问题截图：`C:/Users/mouse/AppData/Local/Temp/codex-clipboard-4311f37b-9ce6-4623-9a22-77234e3a9b57.png`，Chrome 响应式视口为 1024 × 704。
-- 源截图显示 1024px 已启用 224px 常驻侧栏和五列诗作管理表格，最右操作列超出内容区并被视口裁切。
+- 旧版问题基线：`C:/Users/mouse/AppData/Local/Temp/codex-clipboard-5b94f5a6-55df-41c2-a13e-5d8487e797b7.png`，移动端同时常驻品牌块、全站导航与账户二级导航。
+- 信息架构参考：`C:/Users/mouse/AppData/Local/Temp/codex-clipboard-db7b8538-5d07-4441-9fc2-f5dc01f57d37.png` 与 `C:/Users/mouse/AppData/Local/Temp/codex-clipboard-05e79987-1dea-4549-9dd4-08d7fa02fade.png`。只参考单行刊头和明确菜单状态，没有复制 Poetry Foundation 的品牌、字体、搜索或黑白视觉。
 
 **Implementation evidence**
 
-- 1024px：`output/playwright/bug-7-poems-1024.png`，1024 × 704，`deviceScaleFactor: 1`。
-- 1280px：`output/playwright/bug-7-poems-1280.png`，1280 × 800，`deviceScaleFactor: 1`。
-- 同视口比较：`output/playwright/bug-7-before-after.png`；左侧为从用户截图裁切并归一化到 1024 × 704 的原状态，右侧为修复后页面。
-- 状态：E2E 管理员已登录，并插入可回收的诗作 fixture；测试结束后数据已删除。
+- 匿名关闭状态：`output/playwright/m6-2-mobile-header-anonymous-settled.png`，390 × 844，`deviceScaleFactor: 1`。
+- 匿名全站菜单：`output/playwright/m6-2-mobile-menu-anonymous-settled.png`，390 × 844，`deviceScaleFactor: 1`。
+- 管理员账户页：`output/playwright/m6-2-mobile-account-admin-settled.png`，390 × 844，带未读通知状态。
+- 管理员账户菜单：`output/playwright/m6-2-mobile-account-menu-settled.png`，390 × 844。
+- 桌面回归：`output/playwright/m6-2-desktop-header-admin.png`，1440 × 900。
+- 旧版与新版账户层级：`output/playwright/m6-2-before-after-account-navigation.png`。
+- 关闭状态参考对照：`output/playwright/m6-2-reference-header-comparison.png`。
+- 展开状态参考对照：`output/playwright/m6-2-reference-menu-comparison.png`。
 
 **Full-view comparison evidence**
 
-1024px 原状态的侧栏占用主内容宽度，表格标题、日期和操作向右溢出。修复后的同尺寸页面使用顶部账户导航，主内容获得完整可用宽度；诗作信息按标题、状态、访问范围、更新时间和操作纵向排列，所有操作按钮完整处于视口内。
+旧版在进入账户页前已经占用两段导航，账户二级导航继续贴在 Header 下方。新版移动端始终只有 64px 单行刊头，左右各使用相同的 48px 网格轨道，站名以独立中列实现几何居中。账户页的二级导航位于页面标题和说明之后，页面层级清楚变为全站刊头、页面标题、页面内导航、正文。
 
-1280px 截图确认常驻侧栏和五列表格在空间足够时恢复。操作列完整可见，页面没有水平滚动，桌面信息扫描效率保持不变。
+全站菜单使用接近全屏的暖纸表面，诗作、关于、通知和权限控制后的管理入口采用大点击区与细分隔线。账户入口不在左侧重复；首字符圆标打开我的诗作、账户信息、账户安全和登出。未读通知只通过圆标附近和通知条目末端的小暗红点表达。
 
 **Required fidelity surfaces**
 
-- Fonts and typography：继续使用现有品牌、PageHeader、诗作标题、标签和按钮样式，未更改字体 Token。
-- Spacing and layout rhythm：1024–1279px 改为顶部二级导航和纵向条目，避免侧栏与密集表格争夺宽度；1280px 起恢复 224px 侧栏与五列布局。
-- Colors and visual tokens：未新增颜色、阴影、圆角或卡片样式，保持现有暖纸、墨色、印章红和按钮层级。
-- Image quality and asset fidelity：页面没有图片资产，本次没有新增或替换素材。
-- Copy and content：诗作字段、状态、按钮、链接和业务行为均未修改。
+- Fonts and typography：站名、菜单和账户首字符继续使用项目衬线字体；功能说明与状态继续使用现有无衬线 Token。
+- Spacing and layout rhythm：移动刊头固定为单行 64px；左右交互区域均不少于 44px；菜单使用较大行高、充分留白与细分隔线。
+- Colors and visual tokens：继续使用暖纸背景、墨色正文、边框色和印章红，没有新增渐变、毛玻璃、大阴影或彩色头像。
+- Image quality and asset fidelity：导航不需要图片资产，没有新增占位图或装饰素材。
+- Copy and content：桌面入口、账户入口、通知和管理权限语义均保持；移动端只重新分配入口职责。
 
-**Findings**
+**Interaction and state evidence**
 
-- 没有剩余 P0、P1 或 P2 问题。
-- 1024px 的页面 `scrollWidth` 不超过 `clientWidth`，常驻侧栏隐藏，诗作条目为单列；所有链接和按钮边界均处于视口内。
-- 1280px 的页面 `scrollWidth` 不超过 `clientWidth`，常驻侧栏显示，诗作条目恢复五列。
+- 匿名状态显示“登录”；普通成员使用显示名首字素；管理员保留管理入口。
+- `Intl.Segmenter` 覆盖中文、英文、重音字母、日文、组合字符与 emoji，并以 `Array.from` 提供简单回退。
+- 有未读通知时显示暗红点，无未读通知时不渲染状态点；通知数据仍使用现有服务与 DTO。
+- 汉堡按钮支持 Enter、Space，菜单支持 Escape、关闭按钮、菜单项导航、焦点归还和 1024px 断点自动关闭。
+- 320、375、390、430、768、1024 与 1440px 已检查；移动端无水平溢出，桌面导航结构和视觉保持。
+- Playwright 使用现有 `http://localhost:3000` 开发服务器完成检查，没有启动或重启服务器。
 
-**Comparison history**
+**Findings and comparison history**
 
-- Pass 1：源截图确认 P1 操作列被裁切，根因是两个 `lg` 布局在 1024px 同时启用。
-- Fix：将共享工作区常驻侧栏和诗作五列表格的断点统一调整到 `xl`。
-- Pass 2：1024px 同视口并排图确认顶部导航、单列条目和完整操作；1280px 截图确认桌面侧栏和五列表格按预期恢复。没有新的 P0/P1/P2。
+- Pass 1：识别出旧版 P1 信息层级冲突，站名、主导航和账户导航累计占用过高；“我的”同时承担全站和账户职责。
+- Fix 1：建立单行移动刊头，拆分全站菜单与账户菜单，将账户二级导航移入正文。
+- Pass 2：并排图确认结构与参考一致，同时保留回中诗社的暖纸、宋体和暗红语言；修正焦点环为印章红。
+- Pass 3：匿名、普通成员、管理员、未读和无未读状态通过；桌面 1440px 回归无变化。没有剩余 P0、P1 或 P2 问题。
 
-**Implementation checklist**
+**Verification**
 
-- [x] 1024px 无水平溢出或操作裁切。
-- [x] 1024–1279px 使用顶部账户导航和纵向诗作条目。
-- [x] 1280px 起恢复常驻侧栏和五列表格。
-- [x] 诗作字段、状态与操作行为保持不变。
-
-**Follow-up polish**
-
-- 当前没有需要阻止交付的 P3 项。
+- [x] `pnpm check:conventions`
+- [x] `pnpm typecheck`
+- [x] `pnpm lint`
+- [x] `pnpm test`：16 个测试文件、215 项测试通过。
+- [x] Playwright：移动 Header、成员账户导航、通知桌面 Popover、管理员与未读移动导航通过。
+- [x] `pnpm build`
 
 final result: passed

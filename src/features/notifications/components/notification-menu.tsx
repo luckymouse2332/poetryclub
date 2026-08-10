@@ -11,7 +11,6 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { SiteNavLink } from "@/components/site-nav-link";
 import { NotificationListItem } from "@/features/notifications/components/notification-list-item";
 import type { NotificationView } from "@/features/notifications/formatters";
 
@@ -26,8 +25,7 @@ type NotificationNavigationProps = NotificationPopoverProps;
 function NotificationUnreadDot({ unreadCount }: { unreadCount: number }) {
   return unreadCount > 0 ? (
     <span
-      role="img"
-      aria-label="有未读通知"
+      aria-hidden="true"
       className="ml-1 size-1.5 shrink-0 rounded-full bg-seal"
     />
   ) : null;
@@ -140,24 +138,12 @@ export function NotificationNavigation({
   className,
 }: NotificationNavigationProps) {
   return (
-    <>
-      <li className="lg:hidden">
-        <SiteNavLink
-          href="/notifications"
-          match="prefix"
-          className={className}
-        >
-          通知
-          <NotificationUnreadDot unreadCount={unreadCount} />
-        </SiteNavLink>
-      </li>
-      <li className="hidden lg:block">
-        <NotificationPopover
-          unreadCount={unreadCount}
-          items={items}
-          className={className}
-        />
-      </li>
-    </>
+    <li>
+      <NotificationPopover
+        unreadCount={unreadCount}
+        items={items}
+        className={className}
+      />
+    </li>
   );
 }

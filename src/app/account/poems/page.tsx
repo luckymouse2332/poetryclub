@@ -13,6 +13,7 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { AccountSectionNavigation } from "@/features/auth/components/account-secondary-navigation";
 import { OwnPoemCard } from "@/features/posts/components/own-poem-card";
 import { Pagination } from "@/features/posts/components/pagination";
 import { requireCurrentUser } from "@/server/auth/session";
@@ -66,6 +67,7 @@ export default async function AccountPoemsPage({
           ) : undefined
         }
       />
+      <AccountSectionNavigation />
 
       {suspended ? (
         <p

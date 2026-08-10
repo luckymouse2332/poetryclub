@@ -166,6 +166,67 @@ test("account overview aligns cards and uses one quick-action surface", async ({
   );
 });
 
+test("mobile member navigation separates global and account responsibilities", async ({
+  page,
+}) => {
+  const name = `林嘉禾${Math.floor(Math.random() * 100_000)}`;
+  const email = uniqueEmail("mobile-member-navigation");
+  const password = "password123";
+  const inviteCode = await createTestInvitation();
+  const signUpResponse = await page.request.post("/api/auth/sign-up/email", {
+    data: { name, email, password, inviteCode },
+  });
+  expect(signUpResponse.status()).toBe(200);
+  const signInResponse = await page.request.post("/api/auth/sign-in/email", {
+    data: { email, password, rememberMe: false },
+  });
+  expect(signInResponse.status()).toBe(200);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/account");
+  await waitForHydration(page, 'button[aria-label="打开全站导航"]');
+
+  const headerNavigation = page.getByRole("navigation", { name: "主导航" });
+  const accountTrigger = headerNavigation.getByRole("button", {
+    name: new RegExp(`${name}的账户菜单`),
+  });
+  await expect(accountTrigger.getByText("林", { exact: true })).toBeVisible();
+  await expect(accountTrigger).toHaveAttribute(
+    "aria-label",
+    /0 条未读通知$/,
+  );
+  await expect(
+    accountTrigger.locator('[data-unread-indicator="true"]'),
+  ).toHaveCount(0);
+
+  await headerNavigation
+    .getByRole("button", { name: "打开全站导航" })
+    .click();
+  const globalNavigation = page.getByRole("navigation", { name: "全站导航" });
+  await expect(globalNavigation.getByRole("link", { name: /通知/ })).toBeVisible();
+  await expect(globalNavigation.getByRole("link", { name: "管理" })).toHaveCount(0);
+  await expect(globalNavigation.getByRole("link", { name: "我的" })).toHaveCount(0);
+  await page.keyboard.press("Escape");
+
+  await accountTrigger.click();
+  const accountMenu = page.getByRole("menu");
+  await expect(accountMenu.getByRole("menuitem", { name: "我的诗作" })).toBeVisible();
+  await expect(accountMenu.getByRole("menuitem", { name: "账户信息" })).toBeVisible();
+  await expect(accountMenu.getByRole("menuitem", { name: "账户安全" })).toBeVisible();
+  await expect(accountMenu.getByRole("menuitem", { name: "登出" })).toBeVisible();
+  await page.keyboard.press("Escape");
+
+  const [headingBox, sectionNavigationBox] = await Promise.all([
+    page.getByRole("heading", { level: 1, name: "账户" }).boundingBox(),
+    page.getByRole("navigation", { name: "账户导航" }).boundingBox(),
+  ]);
+  expect(headingBox).not.toBeNull();
+  expect(sectionNavigationBox).not.toBeNull();
+  expect(sectionNavigationBox!.y).toBeGreaterThan(
+    headingBox!.y + headingBox!.height,
+  );
+});
+
 test.describe.serial("authenticated session loop", () => {
   let page: Page;
   let sessionTokenValue: string;
@@ -296,15 +357,9 @@ test.describe.serial("authenticated session loop", () => {
     expect(hoveredLogoutStyle.backgroundColor).not.toBe(
       baseLogoutStyle.backgroundColor,
     );
-    expect(hoveredLogoutStyle.color).not.toBe(baseLogoutStyle.color);
+    expect(hoveredLogoutStyle.color).toBe(baseLogoutStyle.color);
     await page.mouse.move(0, 0);
     await page.keyboard.press("Escape");
-
-    const navigationList = nav.locator("ul");
-    const navigationItems = navigationList.locator(":scope > li:visible");
-    const navigationControls = navigationList.locator(
-      ":scope > li:visible a:visible, :scope > li:visible button:visible",
-    );
 
     for (const viewport of [
       { width: 320, height: 720 },
@@ -316,69 +371,83 @@ test.describe.serial("authenticated session loop", () => {
       { width: 1024, height: 900 },
     ]) {
       await page.setViewportSize(viewport);
-
-      const [listStyles, brandBox, listBox, itemBoxes, controlBoxes, pageWidth] =
-        await Promise.all([
-          navigationList.evaluate((element) => {
-            const styles = getComputedStyle(element);
-            return {
-              display: styles.display,
-              gridTemplateColumns: styles.gridTemplateColumns,
-            };
-          }),
-          nav.getByRole("link", { name: "回中诗社" }).boundingBox(),
-          navigationList.boundingBox(),
-          navigationItems.evaluateAll((elements) =>
-            elements.map((element) => {
-              const box = element.getBoundingClientRect();
-              return { x: box.x, y: box.y, width: box.width, height: box.height };
-            }),
-          ),
-          navigationControls.evaluateAll((elements) =>
-            elements.map((element) => {
-              const box = element.getBoundingClientRect();
-              return { x: box.x, y: box.y, width: box.width, height: box.height };
-            }),
-          ),
-          page.evaluate(() => document.documentElement.clientWidth),
-        ]);
-
-      expect(brandBox).not.toBeNull();
-      expect(listBox).not.toBeNull();
-      expect(controlBoxes).toHaveLength(4);
-      for (const box of controlBoxes) {
-        expect(box.height).toBeGreaterThanOrEqual(44);
-        expect(box.x).toBeGreaterThanOrEqual(0);
-        expect(box.x + box.width).toBeLessThanOrEqual(pageWidth);
-      }
-
-      const itemRows = new Set(itemBoxes.map((box) => Math.round(box.y))).size;
       if (viewport.width < 1024) {
-        expect(listStyles.display).toBe("grid");
-        if (viewport.width < 640) {
-          expect(listStyles.gridTemplateColumns.split(" ")).toHaveLength(3);
-          expect(itemRows).toBe(2);
-          const firstRowY = Math.min(
-            ...itemBoxes.map((box) => Math.round(box.y)),
-          );
-          expect(
-            itemBoxes.filter((box) => Math.round(box.y) === firstRowY),
-          ).toHaveLength(3);
-          expect(
-            itemBoxes.filter((box) => Math.round(box.y) !== firstRowY),
-          ).toHaveLength(1);
-        } else {
-          expect(itemRows).toBe(1);
-        }
-        expect(listBox!.height).toBeLessThanOrEqual(100);
-        expect(brandBox!.y + brandBox!.height).toBeLessThan(listBox!.y);
+        const mobileNav = page.getByRole("navigation", { name: "主导航" });
+        const menuTrigger = mobileNav.getByRole("button", {
+          name: "打开全站导航",
+        });
+        const accountTrigger = mobileNav.getByRole("button", {
+          name: new RegExp(`${displayName}的账户菜单`),
+        });
+        const brand = mobileNav.getByRole("link", { name: "回中诗社" });
+        const [navBox, menuBox, accountBox, brandBox] = await Promise.all([
+          mobileNav.boundingBox(),
+          menuTrigger.boundingBox(),
+          accountTrigger.boundingBox(),
+          brand.boundingBox(),
+        ]);
+        expect(navBox).not.toBeNull();
+        expect(menuBox).not.toBeNull();
+        expect(accountBox).not.toBeNull();
+        expect(brandBox).not.toBeNull();
+        expect(navBox!.height).toBe(64);
+        expect(menuBox!.height).toBeGreaterThanOrEqual(44);
+        expect(accountBox!.height).toBeGreaterThanOrEqual(44);
+        expect(
+          Math.abs(
+            brandBox!.x + brandBox!.width / 2 - viewport.width / 2,
+          ),
+        ).toBeLessThanOrEqual(1);
+        await expect(accountTrigger.getByText("诗", { exact: true })).toBeVisible();
       } else {
-        expect(listStyles.display).toBe("flex");
-        const brandCenter = brandBox!.y + brandBox!.height / 2;
-        const listCenter = listBox!.y + listBox!.height / 2;
-        expect(Math.abs(brandCenter - listCenter)).toBeLessThan(2);
+        const desktopNav = page.getByRole("navigation", { name: "主导航" });
+        await expect(
+          desktopNav.getByRole("button", { name: /^通知/ }),
+        ).toBeVisible();
+        await expect(
+          desktopNav.getByRole("button", { name: "我的" }),
+        ).toBeVisible();
       }
     }
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    const mobileMenuTrigger = page.getByRole("button", {
+      name: "打开全站导航",
+    });
+    await mobileMenuTrigger.click();
+    const globalNavigation = page.getByRole("navigation", {
+      name: "全站导航",
+    });
+    await expect(globalNavigation.getByRole("link", { name: /通知/ })).toBeVisible();
+    await expect(globalNavigation.getByRole("link", { name: "管理" })).toHaveCount(0);
+    await expect(globalNavigation.getByRole("link", { name: "我的" })).toHaveCount(0);
+    await page.keyboard.press("Escape");
+
+    const mobileAccountTrigger = page.getByRole("button", {
+      name: new RegExp(`${displayName}的账户菜单`),
+    });
+    await expect(mobileAccountTrigger).toHaveAttribute(
+      "aria-label",
+      /0 条未读通知$/,
+    );
+    await expect(
+      mobileAccountTrigger.locator('[data-unread-indicator="true"]'),
+    ).toHaveCount(0);
+    await mobileAccountTrigger.click();
+    const mobileAccountMenu = page.getByRole("menu");
+    await expect(
+      mobileAccountMenu.getByRole("menuitem", { name: "我的诗作" }),
+    ).toBeVisible();
+    await expect(
+      mobileAccountMenu.getByRole("menuitem", { name: "账户信息" }),
+    ).toBeVisible();
+    await expect(
+      mobileAccountMenu.getByRole("menuitem", { name: "账户安全" }),
+    ).toBeVisible();
+    await expect(
+      mobileAccountMenu.getByRole("menuitem", { name: "登出" }),
+    ).toBeVisible();
+    await page.keyboard.press("Escape");
 
     // The account page shows the safe profile fields.
     await expect(
@@ -398,6 +467,15 @@ test.describe.serial("authenticated session loop", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     const accountNavigation = page.getByRole("navigation", { name: "账户导航" });
     await expect(accountNavigation).toBeVisible();
+    const [accountHeadingBox, accountNavigationBox] = await Promise.all([
+      page.getByRole("heading", { level: 1, name: "账户" }).boundingBox(),
+      accountNavigation.boundingBox(),
+    ]);
+    expect(accountHeadingBox).not.toBeNull();
+    expect(accountNavigationBox).not.toBeNull();
+    expect(accountNavigationBox!.y).toBeGreaterThan(
+      accountHeadingBox!.y + accountHeadingBox!.height,
+    );
     await expect(accountNavigation.getByRole("link", { name: "账户信息" })).toHaveAttribute(
       "aria-current",
       "page",

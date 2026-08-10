@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
+import { AccountSectionNavigation } from "@/features/auth/components/account-secondary-navigation";
 import { updatePoemAction } from "@/features/posts/actions";
 import { PoemActions } from "@/features/posts/components/poem-actions";
 import { PoemForm } from "@/features/posts/components/poem-form";
@@ -66,6 +67,7 @@ export default async function EditPoemPage({
         eyebrow="我的作品"
         title={suspended ? "查看诗作" : "编辑诗作"}
       />
+      <AccountSectionNavigation />
 
       <dl className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 text-label">
         <dd>
