@@ -44,6 +44,7 @@
 | M5.1 | 站内通知交互与导航入口拆分 | 已完成 | [M5.1-navigation-information-architecture.md](./M5.1-navigation-information-architecture.md) |
 | M5.2 | 系统公告阅读页 | 已完成 | [M5.2-announcement-reader.md](./M5.2-announcement-reader.md) |
 | M6.0 | 整站视觉与交互重构 | 进行中 | [M6.0-sitewide-visual-redesign.md](./M6.0-sitewide-visual-redesign.md) |
+| M6.1 | About 沿革叙事重构 | 已完成 | [M6.1-about-editorial-history.md](./M6.1-about-editorial-history.md) |
 | CHORE-1 | 仓库工作流与发布规范 | 已完成 | [CHORE-1-repository-workflow-conventions.md](./CHORE-1-repository-workflow-conventions.md) |
 | CHORE-2 | 已合并分支清理与保留规则 | 已完成 | [CHORE-2-merged-branch-retention-policy.md](./CHORE-2-merged-branch-retention-policy.md) |
 | BUG-1 | 修复bug | 已完成 | [BUG-1-admin-user-poem-count-fix.md](./BUG-1-admin-user-poem-count-fix.md) |

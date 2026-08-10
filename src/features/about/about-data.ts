@@ -12,10 +12,10 @@ export type ProjectEra = Readonly<{
   sourceNote?: string;
 }>;
 
-export type CurrentVersionGroup = Readonly<{
+export type PresentRole = Readonly<{
   label: string;
+  title: string;
   description: string;
-  items: readonly string[];
 }>;
 
 export type UpdateEntry = Readonly<{
@@ -89,29 +89,24 @@ export const PROJECT_ERAS: readonly ProjectEra[] = [
   },
 ];
 
-export const CURRENT_VERSION_GROUPS: readonly CurrentVersionGroup[] = [
+export const PRESENT_ROLES: readonly PresentRole[] = [
   {
-    label: "页面与服务端",
+    label: "留下诗作",
+    title: "让散在同学手里的文字还能被找到",
     description:
-      "公开页面、登录入口和投稿流程放在同一个项目里，页面默认由服务端生成，需要交互的部分再交给浏览器。",
-    items: [
-      "Next.js App Router",
-      "TypeScript",
-      "Server Components",
-      "Server Actions",
-    ],
+      "这里继续收录初中时期写下的诗、打油诗和随手记下的句子，让它们不只留在旧文件和聊天记录里。",
   },
   {
-    label: "内容与账号",
+    label: "写清来路",
+    title: "把几次重写和失去的部分一并记下来",
     description:
-      "诗作、成员、系统公告和通知记录存入 PostgreSQL，由 Drizzle 管理数据结构，登录会话交给 Better Auth。",
-    items: ["PostgreSQL", "Drizzle ORM", "Better Auth", "站内通知"],
+      "公开仓库、技术变化和已经删除的源码都属于这份沿革。留下结果，也留下它为什么会变成今天这样。",
   },
   {
-    label: "界面与运行",
+    label: "保持开放",
+    title: "给偶然想起它的人留一个仍能打开的地址",
     description:
-      "界面延续暖纸色和诗集档案风格；生产版本运行在 Linux 服务器上，由 Docker、Redis 与宿主机 Caddy 承担运行和部署。",
-    items: ["Tailwind CSS", "shadcn/ui", "Redis", "Docker", "Caddy", "Linux Server"],
+      "当前版本继续维护阅读、投稿、账号和通知。以后同学偶然想起来时，还能回来翻一翻，就够了。",
   },
 ];
 

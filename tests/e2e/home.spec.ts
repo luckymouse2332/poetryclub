@@ -234,23 +234,81 @@ test("site header navigation is present", async ({ page }) => {
   await expect(nav.getByRole("link")).toHaveCount(4);
 });
 
-test("about page records the notification and announcement milestone", async ({
+test("about page reads as prologue, past, present, future, and appendix", async ({
   page,
 }) => {
   await page.goto("/about");
 
   await expect(
-    page.getByRole("heading", { level: 3, name: "站内通知与系统公告" }),
+    page.getByRole("heading", { level: 1, name: "关于回中诗社" }),
+  ).toBeVisible();
+
+  await expect(page.locator("main h2")).toHaveText([
+    "四次迁徙",
+    "现在它向时间敞开",
+    "接下来准备做什么",
+    "更新记录",
+  ]);
+
+  const history = page.locator('section[aria-labelledby="history-title"]');
+  await expect(history.locator("ol > li")).toHaveCount(4);
+  await expect(history.getByText("2022", { exact: true })).toBeVisible();
+  await expect(history.getByText("2026", { exact: true })).toBeVisible();
+
+  const updates = page.locator('section[aria-labelledby="updates-title"]');
+  await expect(updates.locator("ol > li")).toHaveCount(5);
+  await expect(
+    updates.getByRole("heading", { level: 3, name: "站内通知与系统公告" }),
   ).toBeVisible();
   await expect(
-    page.getByText("完成系统公告草稿、受众快照、发布审计与成员详情阅读"),
+    updates.getByText(/当前记录更新到\s*M5 站内通知与系统公告/),
   ).toBeVisible();
-  await expect(
-    page.getByText(/当前记录已经更新到\s*M5 站内通知与系统公告/),
-  ).toBeVisible();
-  await expect(
-    page.getByText(/M5\s*完成后，路线会继续围绕站内阅读/),
-  ).toBeVisible();
+  await expect(updates.getByText("M0", { exact: true })).toHaveCount(0);
+});
+
+test("about page changes editorial rhythm without horizontal overflow", async ({
+  page,
+}) => {
+  const viewports = [
+    { width: 390, historyColumns: 1, presentColumns: 1, roadmapColumns: 1 },
+    { width: 768, historyColumns: 1, presentColumns: 2, roadmapColumns: 2 },
+    { width: 1280, historyColumns: 2, presentColumns: 3, roadmapColumns: 2 },
+    { width: 1440, historyColumns: 2, presentColumns: 3, roadmapColumns: 2 },
+  ];
+
+  for (const viewport of viewports) {
+    await page.setViewportSize({ width: viewport.width, height: 900 });
+    await page.goto("/about");
+
+    const layout = await page.evaluate(() => {
+      const historyEra = document.querySelector(
+        'section[aria-labelledby="history-title"] ol > li',
+      );
+      const presentGrid = document
+        .querySelector('section[aria-labelledby="present-title"] h2')
+        ?.closest("header")?.nextElementSibling;
+      const roadmap = document.querySelector(
+        'section[aria-labelledby="future-title"] ul',
+      );
+
+      const columnCount = (element: Element | null | undefined) =>
+        element
+          ? getComputedStyle(element).gridTemplateColumns.split(" ").length
+          : 0;
+
+      return {
+        overflow: document.documentElement.scrollWidth - window.innerWidth,
+        historyColumns: columnCount(historyEra),
+        presentColumns: columnCount(presentGrid),
+        roadmapColumns: columnCount(roadmap),
+      };
+    });
+
+    expect(layout.overflow).toBeLessThanOrEqual(0);
+    expect(layout.historyColumns).toBe(viewport.historyColumns);
+    expect(layout.presentColumns).toBe(viewport.presentColumns);
+    expect(layout.roadmapColumns).toBe(viewport.roadmapColumns);
+  }
 });
 
 test("mobile header keeps the key navigation usable", async ({ page }) => {

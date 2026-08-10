@@ -4,233 +4,201 @@
   font-family: var(--font-serif), "Songti SC", STSong, SimSun, serif;
 }
 
-.hero {
-  width: min(100%, 88rem);
-  margin-inline: auto;
-  padding: clamp(4.5rem, 9vw, 8rem) var(--space-page-gutter)
-    clamp(4rem, 8vw, 7rem);
-}
-
 .folio,
-.archiveFacts,
-.sectionMarker,
-.sectionHeading > p,
+.prologueLabel,
+.originNote,
+.sectionLabel,
 .eraMeta,
 .stackLine,
 .sourceNote,
+.presentRole > p:first-child,
+.roadmapStatus,
 .updateMeta,
-.currentVersionGroup ul,
 .colophon p:not(.colophonTitle) {
   font-family: var(--font-sans), "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
-.heroHeading {
-  max-width: 58rem;
+.intro,
+.historySection,
+.presentSection,
+.futureSection,
+.updatesSection {
+  padding-inline: var(--space-page-gutter);
 }
 
-.folio {
-  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+.introFrame,
+.sectionFrame {
+  width: min(100%, 80rem);
+  margin-inline: auto;
+}
+
+.intro {
+  padding-block: clamp(3.75rem, 8vw, 6.5rem) clamp(4rem, 8vw, 7rem);
+}
+
+.folio,
+.sectionLabel {
   color: var(--seal-foreground);
   font-size: var(--font-size-caption);
   letter-spacing: 0.18em;
 }
 
-.hero h1 {
-  font-size: clamp(3rem, 8vw, 5.75rem);
-  font-weight: 400;
-  letter-spacing: 0.11em;
-  line-height: 1.08;
+.introHeading {
+  max-width: 50rem;
+  margin-top: clamp(1.75rem, 4vw, 2.75rem);
 }
 
-.heroSummary {
-  max-width: 48rem;
-  margin-top: clamp(1.75rem, 4vw, 2.75rem);
-  font-size: clamp(1.35rem, 3vw, 1.9rem);
-  letter-spacing: 0.035em;
-  line-height: 1.8;
+.introHeading h1 {
+  font-size: clamp(2.35rem, 5vw, 3.5rem);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.introHeading > p {
+  max-width: 42rem;
+  margin-top: clamp(1.25rem, 3vw, 2rem);
+  color: var(--text-secondary);
+  font-size: clamp(1.15rem, 2.2vw, 1.4rem);
+  line-height: 1.9;
   text-wrap: pretty;
 }
 
-.heroRecord {
+.prologue {
   display: grid;
-  margin-top: clamp(4rem, 9vw, 7rem);
-  padding-top: clamp(2.5rem, 5vw, 4rem);
+  margin-top: clamp(3rem, 7vw, 5.5rem);
+  padding-top: clamp(2.25rem, 5vw, 3.5rem);
   border-top: 1px solid var(--border-strong);
-  gap: clamp(3rem, 7vw, 6rem);
+  gap: var(--space-8);
 }
 
-.introduction {
+.prologueLabel {
+  color: var(--text-secondary);
+  font-size: var(--font-size-caption);
+  letter-spacing: 0.12em;
+  line-height: var(--line-height-copy);
+}
+
+.prologueLabel p:first-child {
+  margin-bottom: var(--space-2);
+  color: var(--seal-foreground);
+}
+
+.prologueCopy {
   max-width: var(--reading-max-width);
   font-size: var(--font-size-body-lg);
   line-height: 2;
 }
 
-.introduction p + p {
+.prologueCopy p + p {
   margin-top: var(--space-6);
 }
 
-.archiveFacts {
-  display: grid;
-  align-content: start;
-  gap: var(--space-8);
-}
-
-.archiveFacts div {
-  padding-left: var(--space-4);
-  border-left: 1px solid var(--seal);
-}
-
-.archiveFacts dt {
-  margin-bottom: var(--space-2);
+.originNote {
+  max-width: var(--reading-max-width);
+  margin-top: clamp(2rem, 5vw, 3.5rem);
   color: var(--text-secondary);
   font-size: var(--font-size-caption);
-  letter-spacing: 0.14em;
-}
-
-.archiveFacts dd {
-  font-family: var(--font-serif), "Songti SC", STSong, SimSun, serif;
-  font-size: var(--font-size-body);
+  letter-spacing: 0.06em;
   line-height: var(--line-height-copy);
 }
 
-.heroNote {
-  max-width: 31rem;
-  margin-top: clamp(2.5rem, 6vw, 4.5rem);
-  color: var(--text-secondary);
-  font-size: var(--font-size-label);
-  line-height: var(--line-height-copy);
-}
-
-.journal {
-  width: min(100%, 88rem);
-  margin-inline: auto;
-  padding-inline: var(--space-page-gutter);
-}
-
-.journalSection,
-.futureSection {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  padding-block: clamp(4rem, 9vw, 7.5rem);
+.historySection {
+  padding-block: clamp(4.5rem, 9vw, 8rem);
   border-top: 1px solid var(--border-strong);
 }
 
-.sectionMarker {
-  width: max-content;
-  margin-bottom: var(--space-6);
-  color: var(--seal-foreground);
-  font-size: var(--font-size-caption);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.12em;
-}
-
-.sectionContent {
-  min-width: 0;
-}
-
-.sectionHeading {
-  max-width: 52rem;
-  margin-bottom: clamp(2.5rem, 6vw, 4.5rem);
-}
-
-.sectionHeading > p {
-  margin-bottom: var(--space-3);
-  color: var(--text-secondary);
-  font-size: var(--font-size-caption);
-  letter-spacing: 0.16em;
-}
-
-.sectionHeading h2 {
-  font-size: clamp(1.8rem, 4vw, 2.6rem);
-  font-weight: 400;
-  letter-spacing: 0.075em;
-  line-height: 1.5;
-  text-wrap: pretty;
-}
-
-.sectionLead {
-  max-width: 42rem;
-  color: var(--seal-foreground);
-  font-size: clamp(1.25rem, 2.6vw, 1.65rem);
-  line-height: 1.8;
-}
-
-.readingCopy,
-.sectionTransition {
+.historyHeading {
   max-width: var(--reading-max-width);
-  font-size: var(--font-size-body-lg);
-  line-height: 1.95;
 }
 
-.readingCopy p + p {
-  margin-top: var(--space-5, 1.25rem);
+.historyHeading h2,
+.presentHeading h2,
+.futureHeading h2 {
+  margin-top: var(--space-4);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-wrap: balance;
 }
 
-.maintenanceRecord {
-  display: grid;
-  gap: clamp(2rem, 5vw, 4rem);
-}
-
-.sectionTransition {
-  margin-bottom: clamp(3rem, 7vw, 5.5rem);
+.historyHeading > p:last-child,
+.presentHeading > p,
+.futureHeading > p {
+  max-width: var(--reading-max-width);
+  margin-top: var(--space-6);
   color: var(--text-secondary);
+  font-size: var(--font-size-body-lg);
+  line-height: 1.9;
 }
 
-.eraList,
-.updateList {
-  border-top: 1px solid var(--border-subtle);
+.eraList {
+  margin-top: clamp(3.75rem, 8vw, 6.5rem);
   list-style: none;
 }
 
 .era {
   display: grid;
   gap: var(--space-6);
-  padding-block: clamp(2.75rem, 6vw, 4.5rem);
-  border-bottom: 1px dashed var(--border-subtle);
+}
+
+.era + .era {
+  margin-top: clamp(4rem, 9vw, 7rem);
+  padding-top: clamp(3rem, 6vw, 4.5rem);
+  border-top: 1px solid var(--border-subtle);
 }
 
 .eraMeta {
   display: flex;
   align-items: baseline;
   gap: var(--space-4);
+}
+
+.eraMeta time {
+  color: var(--seal-foreground);
+  font-family: var(--font-serif), "Songti SC", STSong, SimSun, serif;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.eraMeta span {
   color: var(--text-secondary);
   font-size: var(--font-size-caption);
   letter-spacing: 0.08em;
 }
 
-.eraMeta time {
-  color: var(--seal-foreground);
-  font-size: var(--font-size-label);
-  font-variant-numeric: tabular-nums;
-}
-
 .eraBody {
   min-width: 0;
-  max-width: 64rem;
+  max-width: var(--reading-max-width);
 }
 
 .eraBody h3,
-.currentVersionGroup h3,
+.presentRole h3,
+.roadmapItem h3,
 .updateBody h3 {
-  font-size: clamp(1.25rem, 2.4vw, 1.55rem);
+  font-size: clamp(1.25rem, 2.4vw, 1.6rem);
   font-weight: 400;
   letter-spacing: 0.065em;
   line-height: var(--line-height-heading);
+  text-wrap: pretty;
 }
 
 .eraReason {
-  max-width: 50rem;
   margin-top: var(--space-4);
   color: var(--seal-foreground);
   font-size: var(--font-size-body-lg);
-  line-height: 1.8;
+  line-height: 1.85;
 }
 
 .eraRecord {
-  max-width: var(--reading-max-width);
   margin-top: var(--space-6);
   font-size: var(--font-size-body);
-  line-height: 1.9;
+  line-height: 1.95;
 }
 
 .eraRecord p + p {
@@ -280,121 +248,118 @@
   text-decoration-color: currentColor;
 }
 
-.currentVersionGrid {
+.presentSection {
+  padding-block: clamp(4.5rem, 8vw, 7rem);
+  border-block: 1px solid var(--border-strong);
+}
+
+.presentHeading {
   display: grid;
-  border-block: 1px solid var(--border-subtle);
+  gap: var(--space-8);
 }
 
-.currentVersionGroup {
+.presentGrid {
+  display: grid;
+  margin-top: clamp(3rem, 7vw, 5rem);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.presentRole {
   padding-block: clamp(2rem, 5vw, 3rem);
+  border-top: 1px solid var(--border-subtle);
 }
 
-.currentVersionGroup + .currentVersionGroup {
-  border-top: 1px dashed var(--border-subtle);
+.presentRole > p:first-child {
+  margin-bottom: var(--space-4);
+  color: var(--seal-foreground);
+  font-size: var(--font-size-caption);
+  letter-spacing: 0.14em;
 }
 
-.currentVersionGroup > p {
+.presentRole > p:last-child {
   max-width: 35rem;
   margin-top: var(--space-4);
   color: var(--text-secondary);
   font-size: var(--font-size-body);
-  line-height: 1.8;
+  line-height: 1.85;
 }
 
-.currentVersionGroup ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-4);
-  margin-top: var(--space-6);
+.futureSection {
+  padding-block: clamp(5rem, 10vw, 8rem);
+}
+
+.futureHeading {
+  display: grid;
+  max-width: var(--reading-max-width);
+}
+
+.roadmapList {
+  display: grid;
+  margin-top: clamp(3.5rem, 7vw, 5.5rem);
   list-style: none;
 }
 
-.currentVersionGroup li {
-  position: relative;
-  padding-left: 0.75rem;
-  color: var(--foreground);
-  font-size: var(--font-size-caption);
-  line-height: var(--line-height-compact);
+.roadmapItem {
+  padding-block: clamp(1.75rem, 4vw, 2.75rem);
+  border-top: 1px solid var(--border-subtle);
 }
 
-.currentVersionGroup li::before {
-  position: absolute;
-  top: 0.66em;
-  left: 0;
-  width: 0.22rem;
-  height: 0.22rem;
-  background: var(--seal);
-  content: "";
-  transform: rotate(45deg);
-}
-
-.milestoneCard {
-  display: grid;
-  gap: var(--space-6);
-  margin-top: clamp(2.5rem, 6vw, 4.5rem);
-  padding: clamp(1.5rem, 4vw, 2.5rem) 0;
-  border-block: 1px solid var(--border-strong);
-}
-
-.milestoneMeta,
-.roadmapMeta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-2) var(--space-4);
-  color: var(--text-secondary);
-  font-family: var(--font-sans), "PingFang SC", "Microsoft YaHei", sans-serif;
-  font-size: var(--font-size-caption);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
-}
-
-.milestoneMeta span:first-child,
-.roadmapMeta span {
+.roadmapStatus {
+  margin-bottom: var(--space-4);
   color: var(--seal-foreground);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-caption);
+  letter-spacing: 0.12em;
 }
 
-.milestoneBody {
-  max-width: 54rem;
-}
-
-.milestoneBody h3,
-.roadmapBody h3 {
-  font-size: clamp(1.25rem, 2.4vw, 1.55rem);
-  font-weight: 400;
-  letter-spacing: 0.065em;
-  line-height: var(--line-height-heading);
-}
-
-.milestoneBody > p,
-.roadmapBody > p {
-  max-width: 46rem;
+.roadmapItem > p:last-child {
+  max-width: 34rem;
   margin-top: var(--space-4);
   color: var(--text-secondary);
   font-size: var(--font-size-body);
+  line-height: 1.85;
+}
+
+.updatesSection {
+  padding-block: clamp(3.75rem, 7vw, 5.5rem);
+  border-top: 1px solid var(--border-strong);
+}
+
+.updatesFrame {
+  width: min(100%, 68rem);
+  margin-inline: auto;
+}
+
+.updatesHeading {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.updatesHeading h2 {
+  margin-top: var(--space-3);
+  font-size: clamp(1.55rem, 3vw, 2rem);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  line-height: var(--line-height-heading);
+}
+
+.updatesHeading > p {
+  max-width: 38rem;
+  color: var(--text-secondary);
+  font-size: var(--font-size-label);
   line-height: 1.8;
 }
 
-.milestoneBody ul,
-.roadmapBody ul {
-  max-width: 46rem;
-  margin-top: var(--space-4);
-  padding-left: 1.2rem;
-  font-size: var(--font-size-label);
-  line-height: var(--line-height-copy);
-}
-
-.milestoneBody li::marker,
-.roadmapBody li::marker {
-  color: var(--seal);
+.updateList {
+  margin-top: clamp(2.5rem, 5vw, 3.75rem);
+  border-top: 1px solid var(--border-subtle);
+  list-style: none;
 }
 
 .updateList > li {
   display: grid;
-  gap: var(--space-6);
-  padding-block: clamp(2.25rem, 5vw, 3.5rem);
-  border-bottom: 1px dashed var(--border-subtle);
+  gap: var(--space-4);
+  padding-block: var(--space-6);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .updateMeta {
@@ -404,7 +369,7 @@
   color: var(--text-secondary);
   font-size: var(--font-size-caption);
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
 }
 
 .updateMeta span {
@@ -412,55 +377,24 @@
   font-size: var(--font-size-label);
 }
 
-.updateBody > p {
-  max-width: 46rem;
-  margin-top: var(--space-4);
+.updateBody h3 {
+  font-size: var(--font-size-body-lg);
+}
+
+.updateBody p {
+  max-width: 38rem;
+  margin-top: var(--space-2);
   color: var(--text-secondary);
-  font-size: var(--font-size-body);
-  line-height: 1.8;
-}
-
-.updateBody ul {
-  max-width: 46rem;
-  margin-top: var(--space-4);
-  padding-left: 1.2rem;
   font-size: var(--font-size-label);
-  line-height: var(--line-height-copy);
-}
-
-.updateBody li::marker {
-  color: var(--seal);
-}
-
-.futureSection {
-  border-bottom: 1px solid var(--border-strong);
-}
-
-.roadmapList {
-  border-top: 1px solid var(--border-subtle);
-  list-style: none;
-}
-
-.roadmapItem {
-  display: grid;
-  gap: var(--space-4);
-  padding-block: clamp(2rem, 5vw, 3rem);
-  border-bottom: 1px dashed var(--border-subtle);
-}
-
-.roadmapBody {
-  min-width: 0;
-}
-
-.roadmapBody > p {
-  max-width: 50rem;
+  line-height: 1.75;
 }
 
 .colophon {
   display: grid;
-  width: min(100%, 88rem);
+  width: min(100%, 80rem);
   margin-inline: auto;
-  padding: clamp(3.5rem, 7vw, 5.5rem) var(--space-page-gutter);
+  padding: clamp(3rem, 6vw, 4.5rem) var(--space-page-gutter);
+  border-top: 1px solid var(--border-subtle);
   gap: var(--space-2);
 }
 
@@ -473,40 +407,48 @@
 .colophon p:not(.colophonTitle) {
   color: var(--text-secondary);
   font-size: var(--font-size-caption);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.07em;
   line-height: var(--line-height-compact);
 }
 
 @media (min-width: 48rem) {
-  .heroRecord {
-    grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.42fr);
+  .presentGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .journalSection,
-  .futureSection {
-    grid-template-columns: 3.5rem minmax(0, 1fr);
+  .presentRole {
+    padding-inline: var(--space-8);
+  }
+
+  .presentRole:nth-child(even) {
+    border-left: 1px solid var(--border-subtle);
+  }
+
+  .presentRole:nth-child(3) {
+    grid-column: 1 / -1;
+  }
+
+  .roadmapList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(3rem, 7vw, 6rem);
+  }
+
+  .roadmapItem:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  .updatesHeading {
+    grid-template-columns: minmax(10rem, 0.45fr) minmax(0, 1fr);
+    align-items: end;
+    gap: clamp(2rem, 6vw, 5rem);
+  }
+
+  .updateList > li {
+    grid-template-columns: 8rem minmax(0, 1fr);
     gap: clamp(2rem, 5vw, 4rem);
   }
 
-  .sectionMarker {
-    margin-bottom: 0;
-    padding-top: 0.3rem;
-  }
-
-  .maintenanceRecord {
-    grid-template-columns: minmax(15rem, 0.72fr) minmax(0, 1fr);
-  }
-
-  .era,
-  .updateList > li,
-  .roadmapItem {
-    grid-template-columns: 7rem minmax(0, 1fr);
-    gap: clamp(2rem, 5vw, 4rem);
-  }
-
-  .eraMeta,
-  .updateMeta,
-  .roadmapMeta {
+  .updateMeta {
     display: grid;
     align-content: start;
     gap: var(--space-2);
@@ -529,30 +471,67 @@
 }
 
 @media (min-width: 64rem) {
-  .journalSection,
-  .futureSection {
-    grid-template-columns: 4rem minmax(0, 1fr);
-    gap: clamp(3rem, 5vw, 5rem);
+  .prologue {
+    grid-template-columns: 10rem minmax(0, 1fr);
+    gap: clamp(3rem, 6vw, 6rem);
   }
 
-  .currentVersionGrid {
+  .originNote {
+    margin-left: calc(10rem + clamp(3rem, 6vw, 6rem));
+  }
+
+  .historyHeading {
+    margin-left: clamp(13rem, 18vw, 16rem);
+  }
+
+  .era {
+    grid-template-columns: clamp(9.5rem, 13vw, 11rem) minmax(0, 1fr);
+    gap: clamp(3.5rem, 7vw, 7rem);
+  }
+
+  .eraMeta {
+    display: grid;
+    align-content: start;
+    gap: var(--space-4);
+  }
+
+  .presentHeading {
+    grid-template-columns: minmax(24rem, 1fr) minmax(20rem, 0.72fr);
+    align-items: end;
+    gap: clamp(4rem, 8vw, 8rem);
+  }
+
+  .presentGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .currentVersionGroup {
-    padding: clamp(2.5rem, 4vw, 3.5rem) clamp(1.5rem, 3vw, 2.5rem);
+  .presentRole:nth-child(n + 2) {
+    border-left: 1px solid var(--border-subtle);
   }
 
-  .currentVersionGroup:first-child {
-    padding-left: 0;
+  .presentRole:nth-child(3) {
+    grid-column: auto;
   }
 
-  .currentVersionGroup:last-child {
-    padding-right: 0;
+  .futureHeading {
+    grid-template-columns: minmax(24rem, 1fr) minmax(20rem, 0.72fr);
+    max-width: none;
+    align-items: end;
+    gap: clamp(4rem, 8vw, 8rem);
   }
 
-  .currentVersionGroup + .currentVersionGroup {
-    border-top: 0;
-    border-left: 1px dashed var(--border-subtle);
+  .futureHeading > .sectionLabel {
+    grid-column: 1;
+  }
+
+  .futureHeading h2 {
+    grid-column: 1;
+  }
+
+  .futureHeading > p:last-child {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    align-self: end;
+    margin-top: 0;
   }
 }
