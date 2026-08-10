@@ -327,7 +327,7 @@ test.describe.serial("own poems list discoverability and inline actions", () => 
   /** 按标题定位管理列表卡片，避免其他草稿/作品导致按钮歧义。 */
   function cardByTitle(title: string) {
     return page
-      .locator('[data-slot="card"]')
+      .getByRole("article")
       .filter({ has: page.getByRole("heading", { name: title }) });
   }
 
@@ -369,6 +369,33 @@ test.describe.serial("own poems list discoverability and inline actions", () => 
       scrollWidth: document.documentElement.scrollWidth,
     }));
     expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(`/account/poems/${poemId}/edit`);
+    const accountNavigation = page.getByRole("navigation", { name: "账户导航" });
+    await expect(accountNavigation).toBeVisible();
+    const navigationBox = await accountNavigation.boundingBox();
+    const titleInput = page.getByLabel("标题");
+    const contextInput = page.getByLabel("创作背景");
+    const [titleInputBox, contextInputBox] = await Promise.all([
+      titleInput.boundingBox(),
+      contextInput.boundingBox(),
+    ]);
+    expect(navigationBox).not.toBeNull();
+    expect(navigationBox!.width).toBeGreaterThanOrEqual(200);
+    expect(titleInputBox).not.toBeNull();
+    expect(contextInputBox).not.toBeNull();
+    expect(contextInputBox!.x).toBeGreaterThan(titleInputBox!.x + titleInputBox!.width);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.reload();
+    const [mobileTitleBox, mobileContextBox] = await Promise.all([
+      titleInput.boundingBox(),
+      contextInput.boundingBox(),
+    ]);
+    expect(mobileTitleBox).not.toBeNull();
+    expect(mobileContextBox).not.toBeNull();
+    expect(mobileContextBox!.y).toBeGreaterThan(mobileTitleBox!.y + mobileTitleBox!.height);
   });
 
   test("publishing from the list card lands on the public page", async () => {

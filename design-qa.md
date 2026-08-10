@@ -1,53 +1,48 @@
-# 首页单图调整视觉 QA
+# M6.0 整站视觉与交互重构 QA
 
-## 对照目标
+## 对照目标与证据
 
-- 原桌面效果图：`C:\Users\mouse\Documents\Codex\2026-08-04\qing\outputs\huizhong-poetry-site\implementation-desktop-final.png`
-- 用户指定的新照片：`D:\OneDrive\桌面\海报\修改图.jpg`
-- 项目内资源：`D:\mouse\Projects\poetryclub\docs\mockups\诗集合照.jpg`
-- 最终生产截图：`D:\mouse\Projects\poetryclub\output\playwright\home-1536-viewport.png`
-- 并排证据：`D:\mouse\Projects\poetryclub\output\playwright\comparison-single-photo-1536.png`
-- 对照视口：1536 × 1024 CSS px，`deviceScaleFactor: 1`
-- 原效果图与实现截图均为 1536 × 1024 像素，无需密度归一化
-- 状态：匿名访问、浅色主题、页面顶部、无 hover 或 focus 的默认视觉状态
+- 首页目标：`docs/mockups/效果图.png`
+- 桌面创作区参考：`docs/mockups/website.png`
+- 首页指定照片：`public/poetry-collection.jpg`
+- 首页桌面截图：`output/playwright/m6-home-desktop.png`
+- 首页移动截图：`output/playwright/m6-home-mobile.png`
+- 账户桌面截图：`output/playwright/m6-account-desktop.png`
+- 编辑器桌面截图：`output/playwright/m6-editor-desktop.png`
+- 首页并排对照：`output/playwright/m6-home-comparison.png`
+
+## 第一次检查
+
+- P1：首页最初仍沿用全幅照片和渐变遮罩，与目标的左文右图结构不符。已移除渐变和旧图片，改用指定实拍照片与稳定的左右分区。
+- P1：临时锯齿方案使用手写 SVG，不符合本次 Product Design 资产约束。已删除临时 SVG，改为生成并透明化的真实纸边 PNG，分别裁切为横向和竖向版本。
+- P2：1440px 下主标题最初分为三行，左栏视觉过重。已降低桌面字号上限，稳定为两行。
+- P2：第一版竖向纸边因旋转和透明区域计算几乎不可见。已改为单独裁切的竖向资产，桌面边界清晰，移动端使用横向资产。
 
 ## 最终检查
 
-- 字体与排版：沿用已通过 M3.1 验收的中文衬线标题、正文和无衬线导航。站名、年级、简介与阅读入口的层级、换行和字重保持稳定。
-- 间距与布局：1536 px 下照片从第 5 栅格列开始并延伸到视口右缘，位置接近原效果图；首页专用容器明确移除通用 `py-section`，照片紧接刊头下方。375 px 与 768 px 仍按简介、入口、照片的自然顺序排列。
-- 颜色与 Token：暖白背景、正文墨色、印章红链接和细分隔线继续使用项目语义 Token，没有新增渐变、阴影或装饰层。
-- 图片质量与资源：页面只使用用户指定的 1707 × 983 原始合照，复制前后 SHA-256 一致。`next/image` 保持原始宽高比，桌面和移动端均没有拉伸；封面和两页诗稿完整可见。
-- 文案与内容：照片 alt 准确说明深色桌面、《杂诗集》封面和展开的两页手写诗稿。最新诗作、关于内容和开发状态没有被本次视觉调整改写。
-- 交互与可访问性：生产截图覆盖 375、768、1024、1440、1536 像素视口，均无横向滚动；阅读入口焦点为 2 px 实线；浏览器 console error 与 page error 均为 0。
+- 首页：1440px 为左文右图，390px 为上文下图；指定照片可见且无渐变，纸边方向随 1024px 断点切换。图片容器本身是普通矩形，纸边资产加载失败时照片仍保持可见。
+- 公共内容：诗作列表使用档案式索引行，详情正文保持阅读宽度；长文和认证页面共享更稳定的衬线标题与双栏说明结构。
+- 成员工作区：桌面常驻导航宽度约 224px，账户页为主信息与快捷操作双栏；新建和编辑表单为正文主栏与设置侧栏，移动端自然恢复单列。
+- 浮层：Popover 与 DropdownMenu 使用统一暖纸背景、10px 圆角、边框、浮层阴影、9px 间距和 12px 碰撞边距；打开与关闭时长分别为 160ms 和 120ms，reduced-motion 关闭位移与缩放。
+- 通知与管理：通知未读项使用左侧印章红标记和轻背景；通知底部入口会关闭浮层。管理页改为常驻导航和单列分组扫描结构。
+- 可访问性：保留 Radix 键盘和焦点语义，主要操作高度不低于 44px；390、768、1024、1440px 首页与登录页无水平溢出。
 
-## 比较历史
+## 验证结果
 
-第一次单图实现仍受 `max-w-content` 约束，1536 px 下照片只有约 702 × 403 像素，与原效果图的大幅右侧视觉相比过小，记录为 P2。随后将 Hero 改为完整宽度的左右 page-edge 加 12 栏网格，让照片延伸到视口边缘，最终尺寸为约 942 × 542 像素。
-
-第二次对照发现 `PageContainer` 的 `py-0` 没有覆盖通用 `py-section`，浏览器实际仍有 64 px 顶部内边距，导致照片低于刊头且首屏分隔线过晚，记录为 P2。随后增加首页专用 `.homeContainer`，明确设置 `padding-block: 0`，并移除桌面 Hero 的额外上下内边距。
-
-第三次使用最新生产构建重新捕获全部视口。照片在桌面端紧接刊头、延伸至右缘，移动端完整按比例显示；并排全视图已足以判断本次唯一变化的首屏照片尺寸、裁切和区块节奏，因此没有另做局部裁切对照。未发现仍需修复的 P0、P1 或 P2。
-
-只读代码审查指出早期方案的 `100vw` 负外边距在传统滚动条环境中有潜在越界风险，因此没有保留该实现。最终网格只使用 Hero 自身的 `100%` 计算 page-edge，没有负外边距；复核同时把 `Image` 的 `sizes` 改为与 66vw / `calc(50vw + 11rem)` 实际布局相符，避免桌面端选择偏小的图片候选。
+- `pnpm check:conventions`：通过。
+- `pnpm typecheck`：通过。
+- `pnpm lint`：通过。
+- `pnpm test`：208 个测试通过。
+- 首页相关 Playwright E2E：15 个测试通过。
+- `pnpm build`：使用构建期占位邮件配置后通过。
+- 账户、诗作和通知整组 E2E：复用现有 3000 端口开发服务器时，Next.js HMR WebSocket 握手失败导致 Client Component 无法 hydration，测试停在既有 `waitForHydration`。未启动、重启或终止开发服务器；该项不作为视觉实现缺陷关闭。
 
 ## Findings
 
-没有仍需处理的 P0、P1 或 P2 视觉问题。
+没有仍需修复的 P0、P1 或 P2 视觉问题。现有开发服务器的 HMR/hydration 状态仍阻止完整交互回归，任务文档因此继续保持“进行中”。
 
 ## Open Questions
 
-无阻塞问题。
-
-## Implementation Checklist
-
-- [x] 双照片替换为一张用户指定合照
-- [x] `next/image`、准确 alt 与原始比例
-- [x] 桌面端大幅右侧视觉并延伸至视口边缘
-- [x] 移动端自然排列且无横向滚动
-- [x] 五档生产截图、焦点和控制台检查
-
-## Follow-up Polish
-
-当前没有影响交付的 P3 项。
+完整账户、诗作和通知 E2E 需要在可正常 hydration 的服务器状态下重跑。
 
 final result: passed

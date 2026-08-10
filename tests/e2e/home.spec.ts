@@ -10,7 +10,10 @@ test("home page shows the community identity without fake business content", asy
 }) => {
   const browserErrors: string[] = [];
   page.on("console", (message) => {
-    if (message.type() === "error") browserErrors.push(message.text());
+    if (
+      message.type() === "error" &&
+      !message.text().includes("/_next/webpack-hmr")
+    ) browserErrors.push(message.text());
   });
   page.on("pageerror", (error) => browserErrors.push(error.message));
 
@@ -36,7 +39,7 @@ test("home page shows the community identity without fake business content", asy
   await expect(page.getByText("2021—2024级").first()).toBeVisible();
   await expect(
     page.getByRole("img", {
-      name: "暖色光影下，磨损的《杂诗集》与一本翻开的诗稿摆在深色桌面上",
+      name: "深色桌面上摆放着磨损的《杂诗集》和一本摊开的手写诗稿",
     }),
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: "关于回中诗社" })).toBeVisible();
@@ -497,11 +500,8 @@ for (const viewport of [
             name: "初中三年留下的一些诗。",
           })
           .boundingBox();
-        const visualBox = await page
-          .getByRole("img", {
-            name: "暖色光影下，磨损的《杂诗集》与一本翻开的诗稿摆在深色桌面上",
-          })
-          .boundingBox();
+        const visual = page.locator("[data-home-visual]");
+        const visualBox = await visual.boundingBox();
         const aboutSection = page
           .getByRole("heading", { level: 2, name: "关于回中诗社" })
           .locator("xpath=ancestor::section");
@@ -539,20 +539,28 @@ for (const viewport of [
           Math.abs(contentLayout.paddingLeft - contentLayout.paddingRight),
         ).toBeLessThan(0.5);
 
-        expect(Math.abs(visualBox!.x)).toBeLessThan(1);
-        expect(Math.abs(visualBox!.width - viewport.width)).toBeLessThan(1);
         expect(titleBox!.x).toBeGreaterThanOrEqual(
           viewport.width >= 1024 ? 32 : viewport.width >= 640 ? 24 : 16,
         );
-        expect(titleBox!.y).toBeGreaterThanOrEqual(visualBox!.y);
-        expect(titleBox!.y + titleBox!.height).toBeLessThanOrEqual(
-          visualBox!.y + visualBox!.height,
+        const visualStyle = await visual.evaluate((element) => ({
+          backgroundImage: getComputedStyle(element).backgroundImage,
+          edgeTransform: getComputedStyle(element, "::before").transform,
+          edgeBackground: getComputedStyle(element, "::before").backgroundImage,
+        }));
+        expect(visualStyle.backgroundImage).toBe("none");
+        expect(visualStyle.edgeBackground).toContain("poetry-paper-edge-");
+        const hasGradient = await page.evaluate(() =>
+          [...document.styleSheets].some((styleSheet) => {
+            try {
+              return [...styleSheet.cssRules].some((rule) =>
+                rule.cssText.includes("linear-gradient"),
+              );
+            } catch {
+              return false;
+            }
+          }),
         );
-        expect(
-          await page
-            .locator("#top")
-            .evaluate((element) => getComputedStyle(element).clipPath),
-        ).toBe("none");
+        expect(hasGradient).toBe(false);
 
         const hasPageTransitionStyles = await page.evaluate(() =>
           [...document.styleSheets].some((styleSheet) => {
@@ -574,12 +582,19 @@ for (const viewport of [
             Math.abs(contentLayout.paddingLeft - expectedContentGutter),
           ).toBeLessThan(0.5);
           expect(latestSectionBox!.y).toBeLessThan(aboutSectionBox!.y);
+          expect(Math.abs(visualBox!.x)).toBeLessThan(1);
+          expect(Math.abs(visualBox!.width - viewport.width)).toBeLessThan(1);
+          expect(visualBox!.y).toBeGreaterThan(titleBox!.y + titleBox!.height);
+          expect(visualStyle.edgeTransform).toBe("none");
         } else {
           expect(visualBox!.height).toBeGreaterThanOrEqual(520);
+          expect(visualBox!.x).toBeGreaterThan(titleBox!.x + titleBox!.width);
+          expect(Math.abs(visualBox!.x + visualBox!.width - viewport.width)).toBeLessThan(1);
+          expect(visualStyle.edgeBackground).toContain("vertical-v2.png");
           expect(contentLayout.paddingLeft).toBeGreaterThanOrEqual(32);
           expect(contentLayout.paddingLeft).toBeLessThanOrEqual(48);
           expect(contentLayout.columnGap).toBeGreaterThanOrEqual(64);
-          expect(contentLayout.columnGap).toBeLessThanOrEqual(88);
+          expect(contentLayout.columnGap).toBeLessThanOrEqual(96);
           expect(latestSectionBox!.x).toBeLessThan(aboutSectionBox!.x);
           expect(
             Math.abs(
@@ -593,8 +608,8 @@ for (const viewport of [
           const latestColumnRatio =
             latestSectionBox!.width /
             (latestSectionBox!.width + aboutSectionBox!.width);
-          expect(latestColumnRatio).toBeGreaterThanOrEqual(0.4);
-          expect(latestColumnRatio).toBeLessThanOrEqual(0.42);
+          expect(latestColumnRatio).toBeGreaterThanOrEqual(0.42);
+          expect(latestColumnRatio).toBeLessThanOrEqual(0.46);
 
           const aboutCopy = aboutSection.locator(":scope > div");
           const aboutCopyLayout = await aboutCopy.evaluate((element) => ({

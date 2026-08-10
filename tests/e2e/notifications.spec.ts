@@ -293,7 +293,8 @@ test("mobile notification entry navigates directly and admin navigation stays ex
     const accountNavigation = page.getByRole("navigation", { name: "账户导航" });
     await expect(accountNavigation).toBeVisible();
     await expect(accountNavigation.getByRole("link", { name: "我的诗作" })).toBeVisible();
-    await expect(accountNavigation.getByRole("link", { name: "账户" })).toBeVisible();
+    await expect(accountNavigation.getByRole("link", { name: "账户信息" })).toBeVisible();
+    await expect(accountNavigation.getByRole("link", { name: "账户安全" })).toBeVisible();
     await expect(accountNavigation.getByRole("link", { name: "登出" })).toHaveCount(0);
   }
 

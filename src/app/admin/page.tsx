@@ -54,7 +54,7 @@ export default async function AdminDashboardPage() {
         title="管理后台"
         description={`欢迎回来，${getUserDisplayName(admin)}。这里管理诗作、用户与邀请码，所有变更都会写入审计日志。`}
       />
-      <div className="mt-8 grid gap-6 md:grid-cols-2">
+      <div className="mt-8 divide-y divide-border-subtle border-y border-border-subtle [&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none">
         {SECTIONS.map((section) => (
           <Card key={section.href}>
             <CardHeader>

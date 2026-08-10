@@ -170,13 +170,14 @@ test.describe.serial("authenticated session loop", () => {
     const myMenu = page.getByRole("menu");
     await expect(myMenu).toBeVisible();
     await expect(myMenu.getByRole("menuitem", { name: "我的诗作" })).toBeVisible();
-    await expect(myMenu.getByRole("menuitem", { name: "账户" })).toBeVisible();
+    await expect(myMenu.getByRole("menuitem", { name: "账户信息" })).toBeVisible();
+    await expect(myMenu.getByRole("menuitem", { name: "账户安全" })).toBeVisible();
     await expect(myMenu.getByRole("menuitem", { name: "登出" })).toBeVisible();
     await expect(myMenu.getByText("最近通知")).toHaveCount(0);
     await expect(nav.getByRole("link", { name: "登录" })).toHaveCount(0);
     await expect(nav.getByRole("link", { name: "注册" })).toHaveCount(0);
 
-    const accountLink = myMenu.getByRole("menuitem", { name: "账户" });
+    const accountLink = myMenu.getByRole("menuitem", { name: "账户信息" });
     const logoutButton = myMenu.getByRole("menuitem", { name: "登出" });
     const [accountLinkMetrics, logoutButtonMetrics] = await Promise.all([
       accountLink.evaluate((element) => {
@@ -332,7 +333,7 @@ test.describe.serial("authenticated session loop", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     const accountNavigation = page.getByRole("navigation", { name: "账户导航" });
     await expect(accountNavigation).toBeVisible();
-    await expect(accountNavigation.getByRole("link", { name: "账户" })).toHaveAttribute(
+    await expect(accountNavigation.getByRole("link", { name: "账户信息" })).toHaveAttribute(
       "aria-current",
       "page",
     );
@@ -370,7 +371,11 @@ test.describe.serial("authenticated session loop", () => {
       "href",
       "/account/poems",
     );
-    await expect(homeMyMenu.getByRole("menuitem", { name: "账户" })).toBeVisible();
+    await expect(homeMyMenu.getByRole("menuitem", { name: "账户信息" })).toBeVisible();
+    await expect(homeMyMenu.getByRole("menuitem", { name: "账户安全" })).toHaveAttribute(
+      "href",
+      "/account/security",
+    );
     await expect(homeMyMenu.getByRole("menuitem", { name: "登出" })).toBeVisible();
     await expect(homeMain.getByText(/^欢迎回来/)).toHaveCount(0);
     await expect(homeMain.getByRole("link", { name: "写一首" })).toHaveCount(0);

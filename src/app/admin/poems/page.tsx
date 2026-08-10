@@ -79,7 +79,7 @@ export default async function AdminPoemsPage({
       </div>
       <Section className="pb-0 pt-8">
         {result.items.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="divide-y divide-border-subtle border-y border-border-subtle [&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none">
             {result.items.map((poem) => (
               <AdminPoemCard key={poem.id} poem={poem} />
             ))}
