@@ -53,6 +53,7 @@
 | BUG-4 | Redis 通知实时连接恢复 | 已完成 | [BUG-4-redis-notification-realtime-reconnect.md](./BUG-4-redis-notification-realtime-reconnect.md) |
 | BUG-5 | 账户子页面保留安全返回地址 | 已完成 | [BUG-5-account-return-path.md](./BUG-5-account-return-path.md) |
 | BUG-6 | 账户页卡片对齐与表面层级修复 | 已完成 | [BUG-6-account-card-alignment.md](./BUG-6-account-card-alignment.md) |
+| BUG-7 | 工作区中等视口溢出修复 | 已完成 | [BUG-7-workspace-medium-viewport-overflow.md](./BUG-7-workspace-medium-viewport-overflow.md) |
 
 ## 约定
 

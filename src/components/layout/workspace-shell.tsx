@@ -26,10 +26,10 @@ export function WorkspaceShell({
       <SecondaryNavigation
         ariaLabel={ariaLabel}
         items={items}
-        className="lg:hidden"
+        className="xl:hidden"
       />
-      <div className="mx-auto w-full max-w-[80rem] lg:grid lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-10 lg:px-page">
-        <aside className="hidden border-r border-border-subtle py-section pr-6 lg:block">
+      <div className="mx-auto w-full max-w-[80rem] xl:grid xl:grid-cols-[14rem_minmax(0,1fr)] xl:gap-10 xl:px-page">
+        <aside className="hidden border-r border-border-subtle py-section pr-6 xl:block">
           <div className="sticky top-8">
             <p className="text-caption font-medium tracking-[0.16em] text-seal-foreground">
               {eyebrow}
