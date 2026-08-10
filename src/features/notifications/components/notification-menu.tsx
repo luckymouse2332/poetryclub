@@ -69,7 +69,7 @@ export function NotificationPopover({
       <PopoverTrigger asChild>
         <button
           type="button"
-          className={className}
+          className={`${className} data-[state=open]:text-seal-foreground`}
           aria-label={`通知，${unreadCount} 条未读`}
         >
           通知
@@ -78,9 +78,9 @@ export function NotificationPopover({
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        className="w-[min(26rem,calc(100vw-2rem))] max-h-[min(34rem,calc(100vh-2rem))] overflow-hidden p-0"
+        className="w-[min(26rem,calc(100vw-1.5rem))] max-h-[min(36rem,calc(100vh-1.5rem))] overflow-hidden p-0"
       >
-        <div className="flex max-h-[min(34rem,calc(100vh-2rem))] flex-col">
+        <div className="flex max-h-[min(36rem,calc(100vh-1.5rem))] flex-col">
           <header className="flex items-start justify-between gap-4 border-b border-border-subtle px-4 py-4">
             <div>
               <PopoverTitle className="text-body font-semibold">
@@ -102,7 +102,7 @@ export function NotificationPopover({
               实时更新暂时不可用，通知中心仍可正常查看。
             </p>
           ) : null}
-          <div className="min-h-0 flex-1 overflow-y-auto px-3">
+          <div className="min-h-0 flex-1 overflow-y-auto">
             {items.length > 0 ? (
               <ul aria-label="最近通知">
                 {items.map((item) => (
@@ -119,9 +119,10 @@ export function NotificationPopover({
               </p>
             )}
           </div>
-          <footer className="border-t border-border-subtle p-2">
+          <footer className="sticky bottom-0 border-t border-border-subtle bg-paper p-2">
             <Link
               href="/notifications"
+              onClick={() => setOpen(false)}
               className="flex min-h-control items-center justify-center rounded-md px-3 py-2 text-label font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground"
             >
               查看全部通知
