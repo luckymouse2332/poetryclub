@@ -33,6 +33,7 @@ export default defineConfig({
     reuseExistingServer: false,
     env: {
       BETTER_AUTH_URL: baseURL,
+      REDIS_URL: process.env.REDIS_URL ?? "redis://127.0.0.1:6379",
       EMAIL_TRANSPORT: "test",
       EMAIL_TEST_OUTBOX_PATH,
     },

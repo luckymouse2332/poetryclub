@@ -14,7 +14,10 @@ const result = spawnSync(
   ],
   {
     cwd: process.cwd(),
-    env: process.env,
+    env: {
+      ...process.env,
+      REDIS_URL: process.env.REDIS_URL ?? "redis://127.0.0.1:6379",
+    },
     stdio: "inherit",
   },
 );

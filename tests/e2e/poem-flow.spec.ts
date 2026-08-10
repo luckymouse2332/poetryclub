@@ -298,6 +298,7 @@ test.describe.serial("poem publishing and authorization loop", () => {
       (await authorPage.request.get(`/account/poems/${poemId}/edit`)).status(),
     ).toBe(404);
 
+    await authorPage.getByRole("button", { name: "我的" }).click();
     await authorPage.getByRole("button", { name: "登出" }).click();
     await authorPage.waitForURL("/");
     await authorPage.goto("/account/poems");

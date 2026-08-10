@@ -61,6 +61,20 @@ export async function requireActiveUser(
   return currentUser;
 }
 
+/**
+ * Requires an authoritative account but deliberately permits suspended users.
+ * Used for read-only account areas and notification acknowledgement, neither of
+ * which changes content, roles, permissions, or governance state.
+ */
+export async function requireExistingUser(
+  returnTo = "/",
+): Promise<AuthoritativeUser> {
+  const sessionUser = await requireCurrentUser(returnTo);
+  const currentUser = await getAuthoritativeUser(sessionUser.id);
+  if (!currentUser) throw new AccessControlError("user_not_found");
+  return currentUser;
+}
+
 export async function requireAdmin(returnTo = "/admin"): Promise<AuthoritativeUser> {
   const currentUser = await requireActiveUser(returnTo);
   if (currentUser.role !== "admin") throw new AccessControlError("forbidden");

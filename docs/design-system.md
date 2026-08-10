@@ -114,8 +114,8 @@
 
 ## 9. 页面骨架与当前导航
 
-- `SiteHeader`：品牌链接指向首页顶部，固定公开入口为“诗作”和“关于”。游客显示“登录”；登录成员显示“我的诗作”“账户”“登出”；仅正常管理员额外显示“管理”。导航显示不承担权限判断。
-- 小于 `lg` 时，品牌单独占一行，导航使用三列网格或可换行排列并带顶部分隔线；`lg` 起恢复单行品牌与右侧导航。品牌区同时显示站名与年级，当前导航项通过印章红短线表达当前位置。
+- `SiteHeader`：品牌链接指向首页顶部，固定公开入口为“诗作”和“关于”。游客显示“登录”；登录成员桌面显示独立的“通知”入口和“我的”下拉菜单，移动端“管理”和“我的”分别进入对应的文字二级导航；“我的”桌面菜单只包含“我的诗作”“账户”“登出”，移动端二级导航不包含登出。仅正常管理员额外显示独立的“管理”入口。桌面通知入口使用小圆点表达未读状态并打开最近消息 Popover，移动端通知入口直达 `/notifications`，导航显示不承担权限判断。
+- 小于 `sm` 时，品牌单独占一行，导航使用明确的三列两行网格并带顶部分隔线，个人菜单固定在第二行中列；`sm` 至 `lg` 前恢复单行网格，`lg` 起恢复单行品牌与右侧导航。品牌区同时显示站名与年级，当前导航项通过印章红短线表达当前位置。
 - `PageContainer`：统一最大宽度、响应式页边距和可选窄 / 阅读宽度。
 - `PageHeader`：eyebrow、标题、描述和可选 actions；标题层级由调用方指定。
 - `Section`：统一垂直节奏，可包含区块标题、描述和 actions。
@@ -163,9 +163,9 @@
 
 | 类别 | 含义 | 组件 |
 | --- | --- | --- |
-| 上游同构 | 结构、`data-slot`、子组件与上游 shadcn/ui 一致，只把类名映射到本文件的 Token 并去掉 `dark:` 变体 | `card`、`empty`、`field`、`label`、`separator`、`spinner` |
+| 上游同构 | 结构、`data-slot`、子组件与上游 shadcn/ui 一致，只把类名映射到本文件的 Token 并去掉 `dark:` 变体 | `card`、`empty`、`field`、`label`、`separator`、`spinner`、`dropdown-menu`、`popover`、`skeleton` |
 | 上游同构 + 项目变体 | 以上游为基线，额外增加项目需要的 cva 变体或行为 | `button`（variant/size/loading）、`badge`、`input`、`textarea`、`alert-dialog`（项目 Button 变体与语义 Token） |
-| 项目自有 | 上游没有对应组件，由本项目定义并负责维护 | `surface`、`form-field`、`icon-button` |
+| 项目自有 | 上游没有对应组件，由本项目定义并负责维护 | `surface`、`form-field`、`icon-button`、`secondary-navigation` |
 
 - 基线为 shadcn/ui new-york（配置见 `components.json`）。本文件定义的 Token 与状态规范优先于 shadcn 默认样式；
   每个文件顶部注释必须写明与上游的差异，项目自有组件必须在注释中明确声明「不是上游组件」。

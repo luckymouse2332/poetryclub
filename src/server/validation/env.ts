@@ -22,6 +22,9 @@ export const serverEnvSchema = databaseEnvSchema
     RESEND_API_KEY: z.string().min(1).optional(),
     EMAIL_FROM_ADDRESS: z.email().optional(),
     EMAIL_TEST_OUTBOX_PATH: z.string().min(1).optional(),
+    REDIS_URL: z
+      .string()
+      .regex(/^rediss?:\/\//, "must be a Redis connection URL"),
   })
   .superRefine((input, context) => {
     const transport =
@@ -60,12 +63,21 @@ export const serverEnvSchema = databaseEnvSchema
         message: "is required for the test transport",
       });
     }
+
+    if (input.NODE_ENV === "production" && !input.REDIS_URL) {
+      context.addIssue({
+        code: "custom",
+        path: ["REDIS_URL"],
+        message: "is required in production",
+      });
+    }
   })
   .transform((input) => ({
     ...input,
     EMAIL_TRANSPORT:
       input.EMAIL_TRANSPORT ??
       (input.NODE_ENV === "production" ? "resend" : "development"),
+    REDIS_URL: input.REDIS_URL ?? "redis://127.0.0.1:6379",
   }));
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;

@@ -116,9 +116,11 @@ src/
 - 生产环境运行**一个 Next.js 应用容器 + 一个 PostgreSQL 实例**。
 - Next.js 前方必须有 **Caddy 或 Nginx 反向代理**（TLS 终结、静态资源与转发）。
 - PostgreSQL 使用**持久化数据卷**。
-- Redis、搜索服务、对象存储、后台任务系统只在真实需求出现后引入。
+- Redis 仅用于通知实时唤醒；搜索服务、对象存储和后台任务系统只在真实需求出现后引入。
+- 通知数据以 PostgreSQL 为权威来源，Redis Pub/Sub 与 SSE 只提供在线用户的最佳努力提示；断线和 Redis 故障通过重新读取通知列表恢复。
 - 事务邮件由应用容器直接调用 Resend HTTP API；邮件供应商被隔离在服务端适配层，不进入页面或客户端 bundle。
 - 开发环境由根 `compose.yaml` 提供 PostgreSQL；应用仍推荐在宿主机运行。
 - 生产由 `deploy/compose.production.yaml` 编排一次性 migration、应用和 PostgreSQL；数据库通信使用内部后端网络，应用另接非内部入口网络；应用仅在 migration 成功后启动，并把宿主机回环地址的 `4000` 端口发布给宿主机 Caddy 或 Nginx。
 - 生产反向代理在宿主机独立运行，不由项目 Compose 管理证书或占用 80/443 端口。
+- 生产 Compose 的 Redis 只加入内部 `backend` 网络，不发布宿主机端口；应用启动依赖 Redis 健康检查，但 Redis 运行时短暂不可用不得破坏已持久化通知。
 - 完整操作说明见 `docs/deployment.md`。

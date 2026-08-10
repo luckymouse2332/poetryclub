@@ -1,13 +1,12 @@
-import Link from "next/link";
-
-import { Button } from "@/components/ui/button";
+import { SecondaryNavigation } from "@/components/secondary-navigation";
 
 const NAV_ITEMS = [
-  { href: "/admin", label: "总览" },
-  { href: "/admin/poems", label: "诗作" },
-  { href: "/admin/users", label: "用户" },
-  { href: "/admin/invitations", label: "邀请码" },
-  { href: "/admin/audit", label: "审计" },
+  { href: "/admin", label: "总览", match: "exact" },
+  { href: "/admin/poems", label: "诗作", match: "prefix" },
+  { href: "/admin/users", label: "用户", match: "prefix" },
+  { href: "/admin/invitations", label: "邀请码", match: "prefix" },
+  { href: "/admin/announcements", label: "公告", match: "prefix" },
+  { href: "/admin/audit", label: "审计", match: "prefix" },
 ] as const;
 
 /**
@@ -15,20 +14,5 @@ const NAV_ITEMS = [
  * 整段 /admin 路由已由 admin/layout 的 requireAdmin 守卫，隐藏导航不作为鉴权。
  */
 export function AdminNav() {
-  return (
-    <nav
-      aria-label="管理后台导航"
-      className="border-b border-border-subtle bg-surface"
-    >
-      <ul className="mx-auto flex w-full max-w-content flex-wrap items-center gap-1 px-page py-2">
-        {NAV_ITEMS.map((item) => (
-          <li key={item.href}>
-            <Button asChild variant="ghost" size="sm">
-              <Link href={item.href}>{item.label}</Link>
-            </Button>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  );
+  return <SecondaryNavigation ariaLabel="管理后台导航" items={NAV_ITEMS} />;
 }

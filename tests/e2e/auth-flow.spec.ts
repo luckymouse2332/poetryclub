@@ -49,7 +49,7 @@ test("anonymous home navigation shows only implemented public entries", async ({
 }) => {
   await page.goto("/");
 
-  const nav = page.getByRole("navigation");
+  const nav = page.getByRole("navigation", { name: "主导航" });
   await expect(nav.getByRole("link", { name: "登录" })).toBeVisible();
   await expect(nav.getByRole("link", { name: "注册" })).toHaveCount(0);
   await expect(nav.getByRole("link", { name: "账户" })).toHaveCount(0);
@@ -161,16 +161,23 @@ test.describe.serial("authenticated session loop", () => {
     );
 
     // Navigation reflects the authenticated state.
-    const nav = page.getByRole("navigation");
+    const nav = page.getByRole("navigation", { name: "主导航" });
     await expect(nav.getByText(displayName)).toHaveCount(0);
-    await expect(nav.getByRole("link", { name: "我的诗作" })).toBeVisible();
-    await expect(nav.getByRole("link", { name: "账户" })).toBeVisible();
-    await expect(nav.getByRole("button", { name: "登出" })).toBeVisible();
+    await expect(nav.getByRole("button", { name: /^通知/ })).toBeVisible();
+    const myMenuTrigger = nav.getByRole("button", { name: /^我的/ });
+    await expect(myMenuTrigger).toBeVisible();
+    await myMenuTrigger.click();
+    const myMenu = page.getByRole("menu");
+    await expect(myMenu).toBeVisible();
+    await expect(myMenu.getByRole("menuitem", { name: "我的诗作" })).toBeVisible();
+    await expect(myMenu.getByRole("menuitem", { name: "账户" })).toBeVisible();
+    await expect(myMenu.getByRole("menuitem", { name: "登出" })).toBeVisible();
+    await expect(myMenu.getByText("最近通知")).toHaveCount(0);
     await expect(nav.getByRole("link", { name: "登录" })).toHaveCount(0);
     await expect(nav.getByRole("link", { name: "注册" })).toHaveCount(0);
 
-    const accountLink = nav.getByRole("link", { name: "账户" });
-    const logoutButton = nav.getByRole("button", { name: "登出" });
+    const accountLink = myMenu.getByRole("menuitem", { name: "账户" });
+    const logoutButton = myMenu.getByRole("menuitem", { name: "登出" });
     const [accountLinkMetrics, logoutButtonMetrics] = await Promise.all([
       accountLink.evaluate((element) => {
         const styles = getComputedStyle(element);
@@ -199,7 +206,10 @@ test.describe.serial("authenticated session loop", () => {
         };
       }),
     ]);
-    expect(accountLinkMetrics).toEqual(logoutButtonMetrics);
+    expect(logoutButtonMetrics.height).toBeGreaterThanOrEqual(44);
+    expect(logoutButtonMetrics.fontFamily).toBe(accountLinkMetrics.fontFamily);
+    expect(logoutButtonMetrics.fontSize).toBe(accountLinkMetrics.fontSize);
+    expect(logoutButtonMetrics.lineHeight).toBe(accountLinkMetrics.lineHeight);
 
     const baseLogoutStyle = await logoutButton.evaluate((element) => {
       const styles = getComputedStyle(element);
@@ -217,18 +227,24 @@ test.describe.serial("authenticated session loop", () => {
         color: styles.color,
       };
     });
-    expect(hoveredLogoutStyle.backgroundColor).toBe(
+    expect(hoveredLogoutStyle.backgroundColor).not.toBe(
       baseLogoutStyle.backgroundColor,
     );
     expect(hoveredLogoutStyle.color).not.toBe(baseLogoutStyle.color);
     await page.mouse.move(0, 0);
+    await page.keyboard.press("Escape");
 
     const navigationList = nav.locator("ul");
-    const navigationItems = navigationList.locator(":scope > li");
-    const navigationControls = navigationList.locator("a, button");
+    const navigationItems = navigationList.locator(":scope > li:visible");
+    const navigationControls = navigationList.locator(
+      ":scope > li:visible a:visible, :scope > li:visible button:visible",
+    );
 
     for (const viewport of [
+      { width: 320, height: 720 },
+      { width: 375, height: 812 },
       { width: 390, height: 844 },
+      { width: 430, height: 860 },
       { width: 768, height: 900 },
       { width: 920, height: 900 },
       { width: 1024, height: 900 },
@@ -263,7 +279,7 @@ test.describe.serial("authenticated session loop", () => {
 
       expect(brandBox).not.toBeNull();
       expect(listBox).not.toBeNull();
-      expect(controlBoxes).toHaveLength(5);
+      expect(controlBoxes).toHaveLength(4);
       for (const box of controlBoxes) {
         expect(box.height).toBeGreaterThanOrEqual(44);
         expect(box.x).toBeGreaterThanOrEqual(0);
@@ -271,14 +287,24 @@ test.describe.serial("authenticated session loop", () => {
       }
 
       const itemRows = new Set(itemBoxes.map((box) => Math.round(box.y))).size;
-      if (viewport.width === 390) {
+      if (viewport.width < 1024) {
         expect(listStyles.display).toBe("grid");
-        expect(listStyles.gridTemplateColumns.split(" ")).toHaveLength(3);
-        expect(itemRows).toBe(2);
-        expect(brandBox!.y + brandBox!.height).toBeLessThan(listBox!.y);
-      } else if (viewport.width < 1024) {
-        expect(listStyles.display).toBe("flex");
-        expect(itemRows).toBe(1);
+        if (viewport.width < 640) {
+          expect(listStyles.gridTemplateColumns.split(" ")).toHaveLength(3);
+          expect(itemRows).toBe(2);
+          const firstRowY = Math.min(
+            ...itemBoxes.map((box) => Math.round(box.y)),
+          );
+          expect(
+            itemBoxes.filter((box) => Math.round(box.y) === firstRowY),
+          ).toHaveLength(3);
+          expect(
+            itemBoxes.filter((box) => Math.round(box.y) !== firstRowY),
+          ).toHaveLength(1);
+        } else {
+          expect(itemRows).toBe(1);
+        }
+        expect(listBox!.height).toBeLessThanOrEqual(100);
         expect(brandBox!.y + brandBox!.height).toBeLessThan(listBox!.y);
       } else {
         expect(listStyles.display).toBe("flex");
@@ -304,6 +330,23 @@ test.describe.serial("authenticated session loop", () => {
     expect(await page.content()).not.toContain(sessionTokenValue);
 
     await page.setViewportSize({ width: 390, height: 844 });
+    const accountNavigation = page.getByRole("navigation", { name: "账户导航" });
+    await expect(accountNavigation).toBeVisible();
+    await expect(accountNavigation.getByRole("link", { name: "账户" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    await expect(accountNavigation.getByRole("link", { name: "我的诗作" })).not.toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    await page.goto("/account/poems");
+    await expect(
+      page
+        .getByRole("navigation", { name: "账户导航" })
+        .getByRole("link", { name: "我的诗作" }),
+    ).toHaveAttribute("aria-current", "page");
+    await page.goto("/account");
     const accountDimensions = await page.evaluate(() => ({
       clientWidth: document.documentElement.clientWidth,
       scrollWidth: document.documentElement.scrollWidth,
@@ -317,11 +360,18 @@ test.describe.serial("authenticated session loop", () => {
     await page.goto("/");
     const homeMain = page.getByRole("main");
     const homeNav = page.getByRole("navigation");
-    await expect(
-      homeNav.getByRole("link", { name: "我的诗作" }),
-    ).toHaveAttribute("href", "/account/poems");
-    await expect(homeNav.getByRole("link", { name: "账户" })).toBeVisible();
-    await expect(homeNav.getByRole("button", { name: "登出" })).toBeVisible();
+    const homeMyTrigger = homeNav.getByRole("button", { name: /^我的/ });
+    await expect(homeMyTrigger).toBeVisible();
+    await waitForHydration(page, 'button[aria-label="我的"]');
+    await homeMyTrigger.click();
+    const homeMyMenu = page.getByRole("menu");
+    await expect(homeMyMenu).toBeVisible();
+    await expect(homeMyMenu.getByRole("menuitem", { name: "我的诗作" })).toHaveAttribute(
+      "href",
+      "/account/poems",
+    );
+    await expect(homeMyMenu.getByRole("menuitem", { name: "账户" })).toBeVisible();
+    await expect(homeMyMenu.getByRole("menuitem", { name: "登出" })).toBeVisible();
     await expect(homeMain.getByText(/^欢迎回来/)).toHaveCount(0);
     await expect(homeMain.getByRole("link", { name: "写一首" })).toHaveCount(0);
     await expect(homeMain.getByRole("link", { name: "登录" })).toHaveCount(0);
@@ -329,11 +379,19 @@ test.describe.serial("authenticated session loop", () => {
 
   test("logs out via the UI; repeated sign-out API calls stay stable; stale cookies are rejected", async () => {
     // Real logout through the navigation form.
-    await page.getByRole("button", { name: "登出" }).click();
+    await page.goto("/");
+    const myTrigger = page.getByRole("button", { name: /^我的/ });
+    await expect(myTrigger).toBeVisible();
+    await waitForHydration(page, 'button[aria-label="我的"]');
+    await myTrigger.click();
+    const myMenu = page.getByRole("menu");
+    await expect(myMenu).toBeVisible();
+    await myMenu.getByRole("menuitem", { name: "登出" }).click();
     await page.waitForURL("/");
+    await page.reload();
 
     // Navigation returns to the anonymous state.
-    const nav = page.getByRole("navigation");
+    const nav = page.getByRole("navigation", { name: "主导航" });
     await expect(nav.getByRole("link", { name: "登录" })).toBeVisible();
     await expect(nav.getByRole("link", { name: "注册" })).toHaveCount(0);
     await expect(nav.getByRole("link", { name: "账户" })).toHaveCount(0);
