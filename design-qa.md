@@ -1,56 +1,52 @@
-# About 沿革叙事重构 Design QA
+# BUG-6 账户页卡片对齐 Design QA
 
 **Source visual truth**
 
-- 用户在本任务中给出的 About 叙事与版式要求。
-- 重构前页面：`output/playwright/about-redesign/before-about-1440.png`，1440 × 9846 px。
-- 已验收首页视觉基线：`output/playwright/about-redesign/reference-home-1440.png`，1440 × 1516 px。
+- 用户问题截图：`C:/Users/mouse/AppData/Local/Temp/codex-clipboard-3560a04d-e7ac-4388-9179-84d54b792edb.png`，1602 × 1416 px。
+- 截图明确标出两个目标：移除左栏上方异常空白并让左右内容对齐；让“我的作品”和“账户安全”使用相同卡片颜色。
 
 **Implementation evidence**
 
-- 桌面全页：`output/playwright/about-redesign/after-about-1440-pass1.png`，1440 × 6775 px。
-- 笔记本全页：`output/playwright/about-redesign/after-about-1280-pass1.png`，1280 × 6730 px。
-- 平板全页：`output/playwright/about-redesign/after-about-768-pass1.png`，768 × 6410 px。
-- 手机全页：`output/playwright/about-redesign/after-about-390-pass1.png`，390 × 8568 px。
-- 并排比较：`output/playwright/about-redesign/comparison-1440-pass1.png`，2892 × 6218 px。
+- 桌面：`output/playwright/account-card-alignment/after-account-1440.png`，1440 × 900 px，CSS 视口 1440 × 900，`deviceScaleFactor: 1`。
+- 手机：`output/playwright/account-card-alignment/after-account-390.png`，390 × 1679 px，CSS 视口 390 × 844，`deviceScaleFactor: 1`。
+- 并排比较：`output/playwright/account-card-alignment/comparison-desktop.png`。
+- 状态：E2E 管理员已登录，账户正常，桌面工作区展开。
 
-所有截图均使用 CSS 像素、`deviceScaleFactor: 1`，页面状态为匿名访问 `/about`，没有打开浮层或交互状态。全页比较采用 1440 × 1000 CSS 视口；另外检查了 1280 × 900、768 × 900 和 390 × 844 CSS 视口。
+源截图是裁切后的 1602px 图片，缺少完整刊头和工作区导航；实现截图是完整 1440px 页面，因此不对页面整体比例作像素级判断。比较范围限定为用户指出的主内容双栏、卡片起点和 Surface 颜色。
 
 **Full-view comparison evidence**
 
-并排比较同时包含旧 About、首页视觉基线和新 About。新页面继续使用首页的暖米白背景、深色衬线标题、暗红小范围强调、无阴影细分隔线与较窄正文行宽；同时将旧页面从六个相似章节压缩为序言、历史、现在、未来和附录五种节奏。全页高度由 9846 px 降至 6775 px，内容没有被删成摘要页，主要变化来自移除重复章节骨架、压缩计划清单和只展示最近五条更新。
+并排图显示，旧页面右侧“我的作品”从双栏网格顶部开始，左侧“基本信息”标题和纸面卡片明显下沉；修复后左侧基本信息纸面卡片与右侧“我的作品”纸面卡片共享同一顶部基线。旧页面两张快捷卡分别为 `surface-muted` 与 `paper`；修复后两者均为 `paper`，背景、边框和阴影一致。
 
 **Focused region comparison evidence**
 
-- 历史：`output/playwright/about-redesign/focus-history-1440-pass1.png`，1440 × 2294 px。年份形成稳定左栏，标题与叙述保持 720px 以内的阅读宽度，阶段之间用章节留白和细线推进，没有使用圆点时间轴或卡片。
-- 现在：`output/playwright/about-redesign/focus-present-1440-pass1.png`，1440 × 714 px。标题与转折说明并列，下方三栏形成横向节奏，和前一段纵向历史形成明确区分。
-- 未来：`output/playwright/about-redesign/focus-future-1440-pass1.png`，1440 × 1444 px。两列 editorial grid 只保留状态、名称和短说明，没有 badge、进度条、阴影或 ETA。
-- 附录：`output/playwright/about-redesign/focus-updates-1440-pass1.png`，1440 × 865 px。标题和说明缩小，最近五条记录按版本、日期、标题和一句摘要紧凑排列。
+本次问题集中在桌面主内容区，并排图中的三张卡片足以清楚判断边界、标题位置和底色，不需要额外裁切。E2E 同时读取了两张快捷卡的 `backgroundColor`、`borderColor` 和 `boxShadow`，三项计算样式完全相同；左侧基本信息卡与右侧第一张快捷卡的 `y` 坐标差不超过 1px。
 
 **Required fidelity surfaces**
 
-- Fonts and typography：品牌、章节标题、年份与正文继续使用现有 Noto Serif SC 变量字体；标签、状态、日期和技术信息使用 Noto Sans SC。About 主标题最大 3.5rem，明显低于旧页 5.75rem 的 Hero 权重，正文行高为 1.85—2.0。
-- Spacing and layout rhythm：序言为单栏文章开篇；历史只在 1024px 以上启用年份左右布局；现在在 768px 为两栏、1024px 为三栏；未来在 768px 以上为两栏；附录使用更窄的 68rem 容器。四个验收视口均无水平溢出。
-- Colors and visual tokens：只使用现有 `--background`、`--foreground`、`--text-secondary`、`--seal-foreground`、`--border-subtle` 与 `--border-strong`，没有新色值、渐变、阴影或大色块。
-- Image quality and asset fidelity：About 页面按要求不使用图片或装饰资产，因此不存在裁切、清晰度或替代资产问题。
-- Copy and content：保留诗社来源、停止活动后的维护原因、四次重写事实、仓库链接、未来方向和 M1—M5 记录；新增文字只用于把现有信息压缩为“现在”的三个角色。章节顺序为过去、现在、未来，更新记录位于最后。
+- Fonts and typography：继续使用现有 PageHeader、衬线卡片标题和无衬线字段元信息，字号、字重与行高未改变。
+- Spacing and layout rhythm：移除 `Section` 默认 `py-section` 造成的重复上内边距；“基本信息”标题进入纸面卡片，三张卡片在桌面从同一网格基线开始。移动端保持基本信息、我的作品、账户安全的原有顺序。
+- Colors and visual tokens：三张卡片均使用现有 `paper` Surface Token。两个快捷按钮继续使用 primary / secondary，表达操作优先级；这不再改变卡片本身的承载层级。
+- Image quality and asset fidelity：页面没有图片资产，本次没有新增或替换视觉素材。
+- Copy and content：字段、状态、说明、链接名称和按钮文字均未修改。
 
 **Findings**
 
-- 没有发现需要继续修复的 P0、P1 或 P2 问题。
-- 开发服务器控制台持续报告 Next.js HMR WebSocket 握手失败；页面导航、服务端渲染、截图和 About E2E 均正常。这是当前已运行开发服务器的热更新连接问题，不是本次 About 组件产生的运行时错误。
+- 没有剩余 P0、P1 或 P2 问题。
+- 当前开发服务器的注册表单 hydration 仍会受到既有 HMR WebSocket 问题影响；本次专项测试改用同一认证 API 建立管理员会话，不依赖客户端注册表单，账户页面服务端渲染、布局和链接均正常。
 
 **Comparison history**
 
-- Pass 1：对 1440、1280、768、390 四个视口完成全页检查，并对历史、现在、未来和附录做聚焦检查。未发现 P0/P1/P2 视觉问题，因此没有进入修复循环。
+- Pass 1：源截图确认 P2 左栏重复上间距和 P2 同级快捷卡 Surface 不一致。
+- Fix：移除账户页对共享 `Section` 间距的依赖，把基本信息标题放入纸面 Surface，并把“我的作品”从 `muted` 改为 `paper`。
+- Pass 2：1440px 截图与运行时几何断言确认卡片顶部对齐；390px 截图确认自然单列且无水平溢出。没有新的 P0/P1/P2。
 
 **Implementation checklist**
 
-- [x] 序言先回答身份、来源和继续维护的原因。
-- [x] 历史以四个年份锚点推进，不使用传统产品时间轴。
-- [x] 现在、未来和附录分别使用三栏、两列和紧凑修订记。
-- [x] 更新记录位于页面末尾并只展示最近五条。
-- [x] 390、768、1280、1440px 无水平溢出。
+- [x] 左右首张卡片顶部对齐。
+- [x] 两张快捷卡片背景、边框和阴影一致。
+- [x] 主次按钮语义保持不变。
+- [x] 手机端单列无水平溢出。
 
 **Follow-up polish**
 

@@ -3,7 +3,6 @@ import Link from "next/link";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
-import { Section } from "@/components/layout/section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Surface } from "@/components/ui/surface";
@@ -63,43 +62,54 @@ export default async function AccountPage() {
       ) : null}
 
       <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1.45fr)_minmax(17rem,0.55fr)]">
-        <Section title="基本信息" className="p-0">
+        <section aria-labelledby="account-details-title">
           <Surface variant="paper">
-          <dl className="divide-y divide-border-subtle text-label">
-            <AccountDetail label="显示名称" value={getUserDisplayName(currentUser)} />
-            <AccountDetail label="邮箱" value={currentUser.email} breakAll />
-            <AccountDetail
-              label="注册时间"
-              value={formatCreatedAt(currentUser.createdAt)}
-            />
-            <div className="flex flex-col gap-2 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-              <dt className="text-subtle">认证状态</dt>
-              <dd>
-                <Badge variant="success">已登录</Badge>
-              </dd>
-            </div>
-            <div className="flex flex-col gap-2 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-              <dt className="text-subtle">角色</dt>
-              <dd>
-                <Badge variant={currentUser.role === "admin" ? "primary" : "neutral"}>
-                  {currentUser.role === "admin" ? "管理员" : "成员"}
-                </Badge>
-              </dd>
-            </div>
-            <div className="flex flex-col gap-2 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-              <dt className="text-subtle">账号状态</dt>
-              <dd>
-                <Badge variant={suspended ? "danger" : "success"}>
-                  {suspended ? "已禁用" : "正常"}
-                </Badge>
-              </dd>
-            </div>
-          </dl>
+            <h2
+              id="account-details-title"
+              className="font-serif text-section-title font-normal tracking-[0.04em] text-foreground"
+            >
+              基本信息
+            </h2>
+            <dl className="mt-6 divide-y divide-border-subtle text-label">
+              <AccountDetail
+                label="显示名称"
+                value={getUserDisplayName(currentUser)}
+              />
+              <AccountDetail label="邮箱" value={currentUser.email} breakAll />
+              <AccountDetail
+                label="注册时间"
+                value={formatCreatedAt(currentUser.createdAt)}
+              />
+              <div className="flex flex-col gap-2 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                <dt className="text-subtle">认证状态</dt>
+                <dd>
+                  <Badge variant="success">已登录</Badge>
+                </dd>
+              </div>
+              <div className="flex flex-col gap-2 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                <dt className="text-subtle">角色</dt>
+                <dd>
+                  <Badge
+                    variant={currentUser.role === "admin" ? "primary" : "neutral"}
+                  >
+                    {currentUser.role === "admin" ? "管理员" : "成员"}
+                  </Badge>
+                </dd>
+              </div>
+              <div className="flex flex-col gap-2 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                <dt className="text-subtle">账号状态</dt>
+                <dd>
+                  <Badge variant={suspended ? "danger" : "success"}>
+                    {suspended ? "已禁用" : "正常"}
+                  </Badge>
+                </dd>
+              </div>
+            </dl>
           </Surface>
-        </Section>
+        </section>
 
         <aside aria-label="快捷操作" className="space-y-4 lg:sticky lg:top-8">
-          <Surface variant="muted" className="space-y-4">
+          <Surface variant="paper" className="space-y-4">
             <div>
               <h2 className="font-serif text-body-lg text-foreground">我的作品</h2>
               <p className="mt-2 text-label text-subtle">

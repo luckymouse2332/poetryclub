@@ -52,6 +52,7 @@
 | BUG-3 | 生产环境文件 CRLF 构建修复 | 已完成 | [BUG-3-production-env-crlf-build.md](./BUG-3-production-env-crlf-build.md) |
 | BUG-4 | Redis 通知实时连接恢复 | 已完成 | [BUG-4-redis-notification-realtime-reconnect.md](./BUG-4-redis-notification-realtime-reconnect.md) |
 | BUG-5 | 账户子页面保留安全返回地址 | 已完成 | [BUG-5-account-return-path.md](./BUG-5-account-return-path.md) |
+| BUG-6 | 账户页卡片对齐与表面层级修复 | 已完成 | [BUG-6-account-card-alignment.md](./BUG-6-account-card-alignment.md) |
 
 ## 约定
 

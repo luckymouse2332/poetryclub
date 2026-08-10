@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
+import { E2E_ADMIN_EMAIL, E2E_ADMIN_PASSWORD } from "./global-setup";
 import { createTestInvitation } from "./helpers/database";
 
 const SENSITIVE_KEYS = ["token", "accessToken", "refreshToken", "idToken", "password"];
@@ -99,6 +100,70 @@ test("an invalid session cookie is treated as anonymous", async ({ page }) => {
   await page.waitForURL(/\/login/);
 
   expect(new URL(page.url()).searchParams.get("next")).toBe("/account");
+});
+
+test("account overview aligns cards and uses one quick-action surface", async ({
+  page,
+}) => {
+  const signInResponse = await page.request.post("/api/auth/sign-in/email", {
+    data: {
+      email: E2E_ADMIN_EMAIL,
+      password: E2E_ADMIN_PASSWORD,
+      rememberMe: false,
+    },
+  });
+  expect(signInResponse.status()).toBe(200);
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/account");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "账户" }),
+  ).toBeVisible();
+
+  const accountDetailsSurface = page.locator(
+    'section[aria-labelledby="account-details-title"] > [data-slot="surface"]',
+  );
+  const quickActionSurfaces = page.locator(
+    'aside[aria-label="快捷操作"] > [data-slot="surface"]',
+  );
+  await expect(quickActionSurfaces).toHaveCount(2);
+  await expect(accountDetailsSurface).toHaveAttribute("data-variant", "paper");
+  expect(
+    await quickActionSurfaces.evaluateAll((elements) =>
+      elements.map((element) => element.getAttribute("data-variant")),
+    ),
+  ).toEqual(["paper", "paper"]);
+
+  const [detailsBox, firstQuickActionBox, quickActionStyles] =
+    await Promise.all([
+      accountDetailsSurface.boundingBox(),
+      quickActionSurfaces.first().boundingBox(),
+      quickActionSurfaces.evaluateAll((elements) =>
+        elements.map((element) => {
+          const styles = getComputedStyle(element);
+          return {
+            backgroundColor: styles.backgroundColor,
+            borderColor: styles.borderColor,
+            boxShadow: styles.boxShadow,
+          };
+        }),
+      ),
+    ]);
+  expect(detailsBox).not.toBeNull();
+  expect(firstQuickActionBox).not.toBeNull();
+  expect(Math.abs(detailsBox!.y - firstQuickActionBox!.y)).toBeLessThanOrEqual(
+    1,
+  );
+  expect(quickActionStyles[0]).toEqual(quickActionStyles[1]);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const accountDimensions = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+  expect(accountDimensions.scrollWidth).toBeLessThanOrEqual(
+    accountDimensions.clientWidth,
+  );
 });
 
 test.describe.serial("authenticated session loop", () => {
