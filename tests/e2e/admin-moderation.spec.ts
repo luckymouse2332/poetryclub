@@ -102,8 +102,8 @@ async function createPublishedPoem(
   return id;
 }
 
-function cardByText(page: Page, text: string) {
-  return page.locator('[data-slot="card"]').filter({ hasText: text });
+function itemByText(page: Page, text: string) {
+  return page.locator('[data-slot="item"]').filter({ hasText: text });
 }
 
 async function openReasonDialog(
@@ -182,7 +182,7 @@ test.describe.serial("administrator authorization and governance", () => {
     ).toHaveCount(0);
 
     await adminPage.goto(`/admin/poems?q=${encodeURIComponent(poemTitle)}`);
-    const card = cardByText(adminPage, poemTitle);
+    const card = itemByText(adminPage, poemTitle);
     const hideButton = card.getByRole("button", { name: "隐藏", exact: true });
     await waitForHydratedLocator(hideButton);
     const adminCookies = await adminContext.cookies();
@@ -220,7 +220,7 @@ test.describe.serial("administrator authorization and governance", () => {
 
   test("user cards show the author's actual poem counts", async () => {
     await adminPage.goto(`/admin/users?q=${encodeURIComponent(memberEmail)}`);
-    const memberCard = cardByText(adminPage, memberEmail);
+    const memberCard = itemByText(adminPage, memberEmail);
 
     await expect(memberCard).toBeVisible();
     await expect(
@@ -230,14 +230,14 @@ test.describe.serial("administrator authorization and governance", () => {
 
   test("hiding is immediately private, survives author changes, and restore follows author status", async () => {
     await adminPage.goto(`/admin/poems?q=${encodeURIComponent(poemTitle)}`);
-    const card = cardByText(adminPage, poemTitle);
+    const card = itemByText(adminPage, poemTitle);
     const dialog = await openReasonDialog(
       adminPage,
       card.getByRole("button", { name: "隐藏", exact: true }),
     );
     await dialog.getByLabel("原因").fill(hiddenReason);
     await dialog.getByRole("button", { name: "确认隐藏" }).click();
-    await expect(cardByText(adminPage, poemTitle).getByText("已隐藏", { exact: true })).toBeVisible();
+    await expect(itemByText(adminPage, poemTitle).getByText("已隐藏", { exact: true })).toBeVisible();
 
     expect((await memberPage.request.get(`/poems/${poemId}`)).status()).toBe(404);
     await memberPage.goto("/poems");
@@ -259,7 +259,7 @@ test.describe.serial("administrator authorization and governance", () => {
     await adminPage.goto(`/admin/poems?q=${encodeURIComponent(poemTitle)}`);
     const restore = await openReasonDialog(
       adminPage,
-      cardByText(adminPage, poemTitle).getByRole("button", {
+      itemByText(adminPage, poemTitle).getByRole("button", {
         name: "恢复",
         exact: true,
       }),
@@ -267,7 +267,7 @@ test.describe.serial("administrator authorization and governance", () => {
     await restore.getByLabel("原因").fill("作者已完成调整");
     await restore.getByRole("button", { name: "确认恢复" }).click();
     await expect(
-      cardByText(adminPage, poemTitle).getByText("可见", { exact: true }),
+      itemByText(adminPage, poemTitle).getByText("可见", { exact: true }),
     ).toBeVisible();
     expect((await memberPage.request.get(`/poems/${poemId}`)).status()).toBe(200);
     expect(await countAuditEntries("poem_restored", poemId)).toBe(1);
@@ -288,7 +288,7 @@ test.describe.serial("administrator authorization and governance", () => {
     await waitForHydration(memberPage, "main form button[type=submit]");
 
     await adminPage.goto(`/admin/users?q=${encodeURIComponent(memberEmail)}`);
-    const card = cardByText(adminPage, memberEmail);
+    const card = itemByText(adminPage, memberEmail);
     const dialog = await openReasonDialog(
       adminPage,
       card.getByRole("button", { name: "禁用用户", exact: true }),
@@ -347,7 +347,7 @@ test.describe.serial("administrator authorization and governance", () => {
     expect(code?.trim()).toMatch(/^[A-Za-z0-9_-]{32,128}$/);
     expect(await auditContainsText(code!.trim())).toBe(false);
 
-    const firstCard = adminPage.locator('[data-slot="card"]').first();
+    const firstCard = adminPage.locator('[data-slot="item"]').first();
     const disable = await openReasonDialog(
       adminPage,
       firstCard.getByRole("button", { name: "停用邀请码" }),
@@ -435,7 +435,7 @@ test.describe.serial("administrator authorization and governance", () => {
       await adminPage.goto(`/admin/users?q=${encodeURIComponent(secondEmail)}`);
       const primaryCookies = await adminContext.cookies();
       const secondCookies = await secondContext.cookies();
-      const suspendSelfButton = cardByText(adminPage, secondEmail).getByRole(
+      const suspendSelfButton = itemByText(adminPage, secondEmail).getByRole(
         "button",
         { name: "禁用用户" },
       );
@@ -449,7 +449,7 @@ test.describe.serial("administrator authorization and governance", () => {
       await selfDialog.getByRole("button", { name: "取消" }).click();
       const selfDemotion = await openReasonDialog(
         adminPage,
-        cardByText(adminPage, secondEmail).getByRole("button", {
+        itemByText(adminPage, secondEmail).getByRole("button", {
           name: "降级为成员",
         }),
       );
@@ -479,7 +479,7 @@ test.describe.serial("administrator authorization and governance", () => {
       await adminPage.goto(`/admin/users?q=${encodeURIComponent(secondEmail)}`);
       const primaryDialog = await openReasonDialog(
         adminPage,
-        cardByText(adminPage, secondEmail).getByRole("button", {
+        itemByText(adminPage, secondEmail).getByRole("button", {
           name: "禁用用户",
         }),
       );
@@ -488,7 +488,7 @@ test.describe.serial("administrator authorization and governance", () => {
       await secondPage.goto(`/admin/users?q=${encodeURIComponent(E2E_ADMIN_EMAIL)}`);
       const secondDialog = await openReasonDialog(
         secondPage,
-        cardByText(secondPage, E2E_ADMIN_EMAIL).getByRole("button", {
+        itemByText(secondPage, E2E_ADMIN_EMAIL).getByRole("button", {
           name: "禁用用户",
         }),
       );

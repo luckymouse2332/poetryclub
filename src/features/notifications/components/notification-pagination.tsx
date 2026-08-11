@@ -1,6 +1,4 @@
-import Link from "next/link";
-
-import { Button } from "@/components/ui/button";
+import { PaginationNavigation } from "@/components/pagination-navigation";
 import type { NotificationFilter } from "@/server/validation/notifications";
 
 type NotificationPaginationProps = Readonly<{
@@ -24,27 +22,13 @@ export function NotificationPagination({
 }: NotificationPaginationProps) {
   if (pageCount <= 1) return null;
   return (
-    <nav
-      aria-label="通知分页"
-      className="mt-8 flex items-center justify-between gap-4 border-t border-border-subtle pt-6"
-    >
-      {page > 1 ? (
-        <Button asChild variant="secondary">
-          <Link href={pageHref(page - 1, filter)}>上一页</Link>
-        </Button>
-      ) : (
-        <span aria-hidden="true" />
-      )}
-      <p className="text-label text-subtle" aria-current="page">
-        第 {page} / {pageCount} 页
-      </p>
-      {page < pageCount ? (
-        <Button asChild variant="secondary">
-          <Link href={pageHref(page + 1, filter)}>下一页</Link>
-        </Button>
-      ) : (
-        <span aria-hidden="true" />
-      )}
-    </nav>
+    <PaginationNavigation
+      page={page}
+      pageCount={pageCount}
+      previousHref={page > 1 ? pageHref(page - 1, filter) : null}
+      nextHref={page < pageCount ? pageHref(page + 1, filter) : null}
+      ariaLabel="通知分页"
+      className="mt-8"
+    />
   );
 }

@@ -5,7 +5,12 @@ import {
   type Page,
 } from "@playwright/test";
 
-import { createTestInvitation } from "./helpers/database";
+import { E2E_ADMIN_EMAIL, E2E_ADMIN_PASSWORD } from "./global-setup";
+import {
+  createHomePoemVisibilityFixtures,
+  createTestInvitation,
+  deletePoemsByIds,
+} from "./helpers/database";
 
 const PASSWORD = "password123";
 
@@ -87,6 +92,86 @@ test("anonymous users cannot access poem management", async ({ page }) => {
   );
   expect(location.pathname).toBe("/login");
   expect(location.searchParams.get("next")).toBe("/account/poems");
+});
+
+test("own poems list adapts across the workspace breakpoint", async ({
+  page,
+}) => {
+  const fixtures = await createHomePoemVisibilityFixtures();
+
+  try {
+    const signInResponse = await page.request.post("/api/auth/sign-in/email", {
+      data: {
+        email: E2E_ADMIN_EMAIL,
+        password: E2E_ADMIN_PASSWORD,
+        rememberMe: false,
+      },
+    });
+    expect(signInResponse.status()).toBe(200);
+
+    await page.setViewportSize({ width: 1024, height: 704 });
+    await page.goto("/account/poems");
+    await expect(
+      page.getByRole("heading", { level: 1, name: "我的诗作" }),
+    ).toBeVisible();
+
+    const mediumLayout = await page.evaluate(() => ({
+      viewportWidth: document.documentElement.clientWidth,
+      pageWidth: document.documentElement.scrollWidth,
+      sidebarVisible: Array.from(document.querySelectorAll("aside")).some(
+        (element) => getComputedStyle(element).display !== "none",
+      ),
+      columnCount: getComputedStyle(
+        document.querySelector("article")!,
+      ).gridTemplateColumns
+        .split(" ")
+        .filter(Boolean).length,
+    }));
+    expect(mediumLayout.pageWidth).toBeLessThanOrEqual(
+      mediumLayout.viewportWidth,
+    );
+    expect(mediumLayout.sidebarVisible).toBe(false);
+    expect(mediumLayout.columnCount).toBe(1);
+    await expect(
+      page.getByRole("navigation", { name: "账户导航" }),
+    ).toBeVisible();
+
+    const mediumActionBoxes = await page
+      .getByRole("article")
+      .evaluateAll((articles) =>
+        articles.flatMap((article) =>
+          Array.from(article.querySelectorAll("a, button")).map((element) => {
+            const box = element.getBoundingClientRect();
+            return { left: box.left, right: box.right };
+          }),
+        ),
+      );
+    expect(mediumActionBoxes.length).toBeGreaterThan(0);
+    expect(
+      mediumActionBoxes.every(
+        (box) => box.left >= 0 && box.right <= mediumLayout.viewportWidth,
+      ),
+    ).toBe(true);
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/account/poems");
+    const wideLayout = await page.evaluate(() => ({
+      viewportWidth: document.documentElement.clientWidth,
+      pageWidth: document.documentElement.scrollWidth,
+      sidebarVisible: Array.from(document.querySelectorAll("aside")).some(
+        (element) => getComputedStyle(element).display !== "none",
+      ),
+      columnCount: getComputedStyle(
+        document.querySelector("article")!,
+      ).gridTemplateColumns
+        .split(" ")
+        .filter(Boolean).length,
+    }));
+    expect(wideLayout.pageWidth).toBeLessThanOrEqual(wideLayout.viewportWidth);
+    expect(wideLayout.sidebarVisible).toBe(true);
+    expect(wideLayout.columnCount).toBe(5);
+  } finally {
+    await deletePoemsByIds(fixtures.ids);
+  }
 });
 
 test.describe.serial("poem publishing and authorization loop", () => {
@@ -327,7 +412,7 @@ test.describe.serial("own poems list discoverability and inline actions", () => 
   /** 按标题定位管理列表卡片，避免其他草稿/作品导致按钮歧义。 */
   function cardByTitle(title: string) {
     return page
-      .locator('[data-slot="card"]')
+      .getByRole("article")
       .filter({ has: page.getByRole("heading", { name: title }) });
   }
 
@@ -369,6 +454,33 @@ test.describe.serial("own poems list discoverability and inline actions", () => 
       scrollWidth: document.documentElement.scrollWidth,
     }));
     expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(`/account/poems/${poemId}/edit`);
+    const accountNavigation = page.getByRole("navigation", { name: "账户导航" });
+    await expect(accountNavigation).toBeVisible();
+    const navigationBox = await accountNavigation.boundingBox();
+    const titleInput = page.getByLabel("标题");
+    const contextInput = page.getByLabel("创作背景");
+    const [titleInputBox, contextInputBox] = await Promise.all([
+      titleInput.boundingBox(),
+      contextInput.boundingBox(),
+    ]);
+    expect(navigationBox).not.toBeNull();
+    expect(navigationBox!.width).toBeGreaterThanOrEqual(200);
+    expect(titleInputBox).not.toBeNull();
+    expect(contextInputBox).not.toBeNull();
+    expect(contextInputBox!.x).toBeGreaterThan(titleInputBox!.x + titleInputBox!.width);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.reload();
+    const [mobileTitleBox, mobileContextBox] = await Promise.all([
+      titleInput.boundingBox(),
+      contextInput.boundingBox(),
+    ]);
+    expect(mobileTitleBox).not.toBeNull();
+    expect(mobileContextBox).not.toBeNull();
+    expect(mobileContextBox!.y).toBeGreaterThan(mobileTitleBox!.y + mobileTitleBox!.height);
   });
 
   test("publishing from the list card lands on the public page", async () => {

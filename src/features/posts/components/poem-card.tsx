@@ -1,64 +1,31 @@
 import Link from "next/link";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { formatPoemDate } from "@/features/posts/formatters";
 import type { PublicPoemSummary } from "@/server/services/poems";
 
-type PoemCardProps = Readonly<{
-  poem: PublicPoemSummary;
-  /** 标题层级：独立列表页用 h2，嵌入首页区块时用 h3 保持标题层级正确。 */
-  titleLevel?: "h2" | "h3";
-}>;
+type PoemCardProps = Readonly<{ poem: PublicPoemSummary; titleLevel?: "h2" | "h3" }>;
 
-/**
- * 公开诗作卡片：标题（链接）、作者与发布时间、短摘要与阅读入口。
- * 摘要是服务端截断的纯文本，用 `whitespace-pre-line` 保留必要换行，
- * 再用 `line-clamp` 控制高度避免卡片过高。
- */
+/** 公开诗作档案索引行：保留组件接口，视觉由卡片改为编辑式行。 */
 export function PoemCard({ poem, titleLevel = "h2" }: PoemCardProps) {
   const Title = titleLevel;
-
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
-          <Title className="text-body-lg font-semibold text-foreground">
-            <Link
-              href={`/poems/${poem.id}`}
-              className="rounded-sm no-underline transition-colors hover:text-primary"
-            >
-              {poem.title}
-            </Link>
-          </Title>
-        </CardTitle>
-        <CardDescription className="flex flex-wrap items-center gap-1.5">
-          <span>作者：{poem.authorName}</span>
-          <span aria-hidden="true"> · </span>
-          <span>发布于 {formatPoemDate(poem.publishedAt)}</span>
-          {poem.visibility === "members_only" ? (
-            <Badge variant="neutral">仅成员可见</Badge>
-          ) : null}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <p className="line-clamp-4 whitespace-pre-line text-body text-subtle">
-          {poem.excerpt}
-        </p>
-      </CardContent>
-      <CardFooter>
-        <Button asChild variant="ghost" size="sm">
-          <Link href={`/poems/${poem.id}`}>阅读全文</Link>
-        </Button>
-      </CardFooter>
-    </Card>
+    <article className="group grid gap-3 border-b border-border-subtle py-6 first:border-t md:grid-cols-[8rem_minmax(0,1fr)_11rem] md:gap-6">
+      <time dateTime={poem.publishedAt.toISOString()} className="text-label tabular-nums text-subtle">
+        {formatPoemDate(poem.publishedAt)}
+      </time>
+      <div className="min-w-0">
+        <Title className="font-serif text-section-title font-normal text-foreground">
+          <Link href={`/poems/${poem.id}`} className="transition-colors group-hover:text-seal-foreground focus-visible:text-seal-foreground">
+            《{poem.title}》
+          </Link>
+        </Title>
+        <p className="mt-2 line-clamp-2 whitespace-pre-line font-serif text-body leading-copy text-subtle">{poem.excerpt}</p>
+      </div>
+      <div className="flex flex-wrap items-start gap-2 md:justify-end md:text-right">
+        <span className="text-label text-subtle">{poem.authorName}</span>
+        {poem.visibility === "members_only" ? <Badge variant="neutral">成员可见</Badge> : null}
+      </div>
+    </article>
   );
 }

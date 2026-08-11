@@ -24,7 +24,7 @@ function NotificationActionButton({
       type="submit"
       disabled={pending}
       className={cn(
-        "flex w-full flex-col items-start text-left transition-colors hover:bg-accent focus-visible:bg-accent disabled:cursor-wait disabled:opacity-60",
+        "relative flex w-full flex-col items-start text-left transition-colors hover:bg-surface-muted/60 focus-visible:bg-surface-muted/60 disabled:cursor-wait disabled:opacity-60",
         variant === "preview" ? "px-3 py-3" : "px-4 py-4",
       )}
     >
@@ -47,7 +47,7 @@ function NotificationListItemContent({
       <span className="flex w-full items-center gap-2">
         {notification.unread ? (
           <span
-            className="size-2 shrink-0 rounded-full bg-seal"
+            className="h-5 w-0.5 shrink-0 rounded-full bg-seal"
             aria-label="未读"
           />
         ) : null}
@@ -61,7 +61,8 @@ function NotificationListItemContent({
       </span>
       <span
         className={cn(
-          "mt-1 line-clamp-2 w-full font-medium text-foreground",
+          "mt-1 line-clamp-2 w-full text-foreground",
+          notification.unread ? "font-semibold" : "font-medium",
           variant === "preview" ? "text-label" : "text-body",
         )}
       >
@@ -97,7 +98,7 @@ export function NotificationListItem({
   return (
     <li
       data-unread={notification.unread}
-      className="border-b border-border-subtle last:border-b-0 data-[unread=true]:bg-paper-aged/20"
+      className="border-b border-border-subtle last:border-b-0 data-[unread=true]:bg-seal-surface/40"
     >
       {action ? (
         <form action={action}>

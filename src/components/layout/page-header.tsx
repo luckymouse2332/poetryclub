@@ -30,10 +30,10 @@ function PageHeader({
       )}
     >
       {eyebrow ? (
-        <p className="text-label font-medium text-primary">{eyebrow}</p>
+        <p className="text-caption font-medium tracking-[0.16em] text-seal-foreground">{eyebrow}</p>
       ) : null}
       {typeof title === "string" ? (
-        <Heading className="text-page-title font-semibold tracking-tight text-foreground">
+        <Heading className="font-serif text-page-title font-normal tracking-[0.04em] text-foreground">
           {title}
         </Heading>
       ) : (

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   formatCreatedAt,
   getUserDisplayName,
+  getUserInitial,
   maskEmail,
 } from "@/features/auth/user-display";
 
@@ -51,6 +52,35 @@ describe("getUserDisplayName", () => {
 
   it("falls back to the full mask when the email is malformed too", () => {
     expect(getUserDisplayName({ name: "", email: "" })).toBe("***");
+  });
+});
+
+describe("getUserInitial", () => {
+  it.each([
+    ["张伟", "张"],
+    ["Lin Jiahe", "L"],
+    ["Alice", "A"],
+    ["Émile", "É"],
+    ["山田太郎", "山"],
+  ])("returns one visible grapheme from %s", (name, expected) => {
+    expect(getUserInitial({ name, email: "fallback@example.com" })).toBe(
+      expected,
+    );
+  });
+
+  it("keeps combining characters and emoji graphemes intact", () => {
+    expect(
+      getUserInitial({ name: "e\u0301clair", email: "fallback@example.com" }),
+    ).toBe("e\u0301");
+    expect(
+      getUserInitial({ name: "👩🏽‍💻 编者", email: "fallback@example.com" }),
+    ).toBe("👩🏽‍💻");
+  });
+
+  it("falls back to the first email grapheme for an empty name", () => {
+    expect(getUserInitial({ name: "   ", email: "alice@example.com" })).toBe(
+      "a",
+    );
   });
 });
 

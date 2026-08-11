@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Noto_Sans_SC, Noto_Serif_SC } from "next/font/google";
 
 import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
 import { AuthNavigation } from "@/features/auth/components/auth-navigation";
 import { cn } from "@/lib/utils";
 
@@ -46,7 +45,7 @@ export default function RootLayout({
       )}
     >
       <body className="flex min-h-full flex-col">
-        <SiteHeader navigation={<AuthNavigation />} />
+        <AuthNavigation />
         <main className="flex flex-1 flex-col">{children}</main>
         <SiteFooter />
       </body>

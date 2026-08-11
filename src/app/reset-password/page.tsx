@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
 
-import { PageContainer } from "@/components/layout/page-container";
-import { PageHeader } from "@/components/layout/page-header";
+import { AuthSplitShell } from "@/components/layout/auth-split-shell";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Surface } from "@/components/ui/surface";
 import { ResetPasswordForm } from "@/features/auth/components/reset-password-form";
@@ -36,27 +36,23 @@ export default async function ResetPasswordPage({
     : false;
 
   return (
-    <PageContainer
-      width="narrow"
-      className="flex flex-1 flex-col justify-center py-12 md:py-16"
+    <AuthSplitShell
+      eyebrow="账户恢复"
+      title="设置新密码"
+      description="重置成功后，所有旧登录会话都会失效。请使用新密码重新登录。"
+      note="新密码应只用于本站。完成重置后，其他设备需要重新登录。"
     >
-      <PageHeader
-        align="center"
-        eyebrow="账户恢复"
-        title="设置新密码"
-        description="重置成功后，所有旧登录会话都会失效。请使用新密码重新登录。"
-        className="mb-8"
-      />
-
       {tokenValid && token ? (
         <ResetPasswordForm token={token} />
       ) : (
         <Surface className="w-full text-center" aria-label="重置链接状态">
-          <p className="text-body text-foreground" role="alert">
+          <Alert variant="danger" role="alert" className="text-left">
+            <AlertDescription className="text-body">
             {error || token
               ? "这个重置链接无效、已过期或已经使用，请重新申请。"
               : "重置链接不完整，请重新申请密码重置邮件。"}
-          </p>
+            </AlertDescription>
+          </Alert>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Button asChild>
               <Link href="/forgot-password">重新申请</Link>
@@ -67,6 +63,6 @@ export default async function ResetPasswordPage({
           </div>
         </Surface>
       )}
-    </PageContainer>
+    </AuthSplitShell>
   );
 }

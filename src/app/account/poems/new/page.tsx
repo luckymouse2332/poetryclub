@@ -5,7 +5,9 @@ import Link from "next/link";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { AccountSectionNavigation } from "@/features/auth/components/account-secondary-navigation";
 import { createPoemAction } from "@/features/posts/actions";
 import { PoemForm } from "@/features/posts/components/poem-form";
 import { requireCurrentUser } from "@/server/auth/session";
@@ -29,13 +31,14 @@ export default async function NewPoemPage() {
           title="新建诗作"
           description="选择访问范围并保存为草稿，确认后再发布。"
         />
-        <div className="mt-8 rounded-md border border-danger bg-danger-surface p-4 text-label text-danger">
-          <p role="alert">
+        <AccountSectionNavigation />
+        <Alert variant="danger" className="mt-8 p-4">
+          <AlertDescription>
             你的账号已被禁用，目前只能浏览内容，不能新建诗作。
             {currentUser?.suspensionReason
               ? `原因：${currentUser.suspensionReason}`
               : null}
-          </p>
+          </AlertDescription>
           <div className="mt-4 flex flex-wrap gap-2">
             <Button asChild variant="secondary">
               <Link href="/account/poems">返回我的诗作</Link>
@@ -44,7 +47,7 @@ export default async function NewPoemPage() {
               <Link href="/account">查看账户</Link>
             </Button>
           </div>
-        </div>
+        </Alert>
       </PageContainer>
     );
   }
@@ -53,12 +56,13 @@ export default async function NewPoemPage() {
   const creationToken = randomUUID();
 
   return (
-    <PageContainer width="narrow">
+    <PageContainer>
       <PageHeader
         eyebrow="我的作品"
         title="新建诗作"
         description="选择访问范围并保存为草稿，确认后再发布。"
       />
+      <AccountSectionNavigation />
       <div className="mt-8">
         <PoemForm
           action={createPoemAction}

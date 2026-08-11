@@ -36,6 +36,31 @@ export function getUserDisplayName(
   return maskEmail(user.email);
 }
 
+function firstGrapheme(value: string): string | null {
+  const normalized = value.trim();
+  if (!normalized) return null;
+
+  if (typeof Intl.Segmenter === "function") {
+    const segments = new Intl.Segmenter(undefined, {
+      granularity: "grapheme",
+    }).segment(normalized);
+    const first = segments[Symbol.iterator]().next();
+    if (!first.done) return first.value.segment;
+  }
+
+  return Array.from(normalized)[0] ?? null;
+}
+
+/**
+ * 移动端账户入口只展示一个 Unicode 字素：优先显示名称，空名称回退邮箱。
+ * Intl.Segmenter 能保留组合字符和 emoji 字素；旧环境按 Unicode code point 回退。
+ */
+export function getUserInitial(
+  user: Pick<CurrentUser, "name" | "email">,
+): string {
+  return firstGrapheme(user.name) ?? firstGrapheme(user.email) ?? "";
+}
+
 const createdAtFormatter = new Intl.DateTimeFormat("zh-CN", {
   year: "numeric",
   month: "long",

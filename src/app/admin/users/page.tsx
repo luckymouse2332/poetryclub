@@ -39,8 +39,8 @@ export default async function AdminUsersPage({
     notFound();
   }
 
-  // 读取当前管理员身份，用于在列表中标记自身并隐藏自操作入口。
-  const admin = await requireAdminOrForbidden();
+  // 页面入口独立执行管理员授权，不能只依赖父布局。
+  await requireAdminOrForbidden();
 
   const activeFilter = Boolean(
     parsed.data.q ?? parsed.data.role ?? parsed.data.status,
@@ -83,22 +83,21 @@ export default async function AdminUsersPage({
       </div>
       <Section className="pb-0 pt-8">
         {result.items.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="divide-y divide-border-subtle">
             {result.items.map((user) => (
-              <AdminUserCard
+              <div
                 key={user.id}
-                user={user}
-                isSelf={user.id === admin.id}
-              />
+                className="[&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none"
+              >
+                <AdminUserCard user={user} />
+              </div>
             ))}
           </div>
         ) : (
           <Empty>
             <EmptyHeader>
               <EmptyTitle>没有符合条件的用户</EmptyTitle>
-              <EmptyDescription>
-                调整筛选条件后重新查找。
-              </EmptyDescription>
+              <EmptyDescription>调整筛选条件后重新查找。</EmptyDescription>
             </EmptyHeader>
           </Empty>
         )}

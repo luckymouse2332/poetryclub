@@ -113,6 +113,44 @@ export async function getUserIdByEmail(email: string): Promise<string> {
   }
 }
 
+export async function createUnreadNotificationFixture(
+  email: string,
+): Promise<string> {
+  const sql = postgres(databaseUrl(), { max: 1 });
+  try {
+    const users = await sql`select id from "user" where email = ${email} limit 1`;
+    const user = users[0];
+    if (!user) throw new Error(`Missing E2E user: ${email}`);
+
+    const id = randomUUID();
+    await sql`
+      insert into notification (
+        id, type, title, body, href, payload, dedupe_key, created_at
+      ) values (
+        ${id}, 'e2e.mobile-navigation', '移动导航未读提示',
+        '用于验证账户圆标和全站菜单的未读状态点。', '/notifications',
+        '{}'::jsonb, ${`e2e-mobile-navigation:${id}`}, now()
+      )
+    `;
+    await sql`
+      insert into notification_recipient (notification_id, user_id, read_at)
+      values (${id}, ${String(user.id)}, null)
+    `;
+    return id;
+  } finally {
+    await sql.end();
+  }
+}
+
+export async function deleteNotificationById(id: string): Promise<void> {
+  const sql = postgres(databaseUrl(), { max: 1 });
+  try {
+    await sql`delete from notification where id = ${id}`;
+  } finally {
+    await sql.end();
+  }
+}
+
 export async function getUserAuthorityByEmail(
   email: string,
 ): Promise<Readonly<{ id: string; role: string; status: string }>> {

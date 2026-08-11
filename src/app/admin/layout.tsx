@@ -1,4 +1,5 @@
-import { AdminNav } from "@/features/moderation/components/admin-nav";
+import { WorkspaceShell } from "@/components/layout/workspace-shell";
+import { ADMIN_NAV_ITEMS } from "@/features/moderation/components/admin-nav";
 import { requireAdminOrForbidden } from "@/features/moderation/require-admin";
 
 /**
@@ -14,9 +15,13 @@ export default async function AdminLayout({
   await requireAdminOrForbidden();
 
   return (
-    <div className="min-h-full">
-      <AdminNav />
+    <WorkspaceShell
+      title="管理工作区"
+      eyebrow="EDITORIAL DESK"
+      ariaLabel="管理后台导航"
+      items={ADMIN_NAV_ITEMS}
+    >
       {children}
-    </div>
+    </WorkspaceShell>
   );
 }

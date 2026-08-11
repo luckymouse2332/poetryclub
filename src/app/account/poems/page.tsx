@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -13,6 +14,7 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { AccountSectionNavigation } from "@/features/auth/components/account-secondary-navigation";
 import { OwnPoemCard } from "@/features/posts/components/own-poem-card";
 import { Pagination } from "@/features/posts/components/pagination";
 import { requireCurrentUser } from "@/server/auth/session";
@@ -66,31 +68,31 @@ export default async function AccountPoemsPage({
           ) : undefined
         }
       />
+      <AccountSectionNavigation />
 
       {suspended ? (
-        <p
-          role="alert"
-          className="mt-6 rounded-md border border-danger bg-danger-surface p-4 text-label text-danger"
-        >
-          你的账号已被禁用，写操作已关闭。
-          {currentUser?.suspensionReason
-            ? `原因：${currentUser.suspensionReason}`
-            : null}
-        </p>
+        <Alert variant="danger" className="mt-6 p-4">
+          <AlertDescription>
+            你的账号已被禁用，写操作已关闭。
+            {currentUser?.suspensionReason
+              ? `原因：${currentUser.suspensionReason}`
+              : null}
+          </AlertDescription>
+        </Alert>
       ) : null}
 
       {notice ? (
-        <p
-          role="status"
-          className="mt-6 rounded-md border border-success bg-success-surface p-3 text-label text-success"
-        >
-          {notice}
-        </p>
+        <Alert variant="success" role="status" className="mt-6">
+          <AlertDescription>{notice}</AlertDescription>
+        </Alert>
       ) : null}
 
       <Section className="pb-0 pt-8">
         {result.items.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2">
+          <div>
+            <div aria-hidden="true" className="hidden grid-cols-[minmax(12rem,1.5fr)_8rem_9rem_11rem_minmax(13rem,auto)] gap-5 border-b border-border-strong pb-3 text-caption font-medium tracking-wide text-subtle xl:grid">
+              <span>标题</span><span>状态</span><span>访问范围</span><span>更新时间</span><span className="text-right">操作</span>
+            </div>
             {result.items.map((poem) => (
               <OwnPoemCard key={poem.id} poem={poem} suspended={suspended} />
             ))}

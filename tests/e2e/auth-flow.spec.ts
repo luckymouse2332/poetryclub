@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
+import { E2E_ADMIN_EMAIL, E2E_ADMIN_PASSWORD } from "./global-setup";
 import { createTestInvitation } from "./helpers/database";
 
 const SENSITIVE_KEYS = ["token", "accessToken", "refreshToken", "idToken", "password"];
@@ -101,6 +102,192 @@ test("an invalid session cookie is treated as anonymous", async ({ page }) => {
   expect(new URL(page.url()).searchParams.get("next")).toBe("/account");
 });
 
+test("account overview aligns cards and uses one quick-action surface", async ({
+  page,
+}) => {
+  const signInResponse = await page.request.post("/api/auth/sign-in/email", {
+    data: {
+      email: E2E_ADMIN_EMAIL,
+      password: E2E_ADMIN_PASSWORD,
+      rememberMe: false,
+    },
+  });
+  expect(signInResponse.status()).toBe(200);
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/account");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "账户" }),
+  ).toBeVisible();
+
+  const accountDetailsSurface = page.locator(
+    'section[aria-labelledby="account-details-title"] > [data-slot="surface"]',
+  );
+  const quickActionSurfaces = page.locator(
+    'aside[aria-label="快捷操作"] > [data-slot="surface"]',
+  );
+  await expect(quickActionSurfaces).toHaveCount(2);
+  await expect(accountDetailsSurface).toHaveAttribute("data-variant", "paper");
+  expect(
+    await quickActionSurfaces.evaluateAll((elements) =>
+      elements.map((element) => element.getAttribute("data-variant")),
+    ),
+  ).toEqual(["paper", "paper"]);
+
+  const [detailsBox, firstQuickActionBox, quickActionStyles] =
+    await Promise.all([
+      accountDetailsSurface.boundingBox(),
+      quickActionSurfaces.first().boundingBox(),
+      quickActionSurfaces.evaluateAll((elements) =>
+        elements.map((element) => {
+          const styles = getComputedStyle(element);
+          return {
+            backgroundColor: styles.backgroundColor,
+            borderColor: styles.borderColor,
+            boxShadow: styles.boxShadow,
+          };
+        }),
+      ),
+    ]);
+  expect(detailsBox).not.toBeNull();
+  expect(firstQuickActionBox).not.toBeNull();
+  expect(Math.abs(detailsBox!.y - firstQuickActionBox!.y)).toBeLessThanOrEqual(
+    1,
+  );
+  expect(quickActionStyles[0]).toEqual(quickActionStyles[1]);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const accountDimensions = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+  expect(accountDimensions.scrollWidth).toBeLessThanOrEqual(
+    accountDimensions.clientWidth,
+  );
+});
+
+test("mobile member navigation separates global and account responsibilities", async ({
+  page,
+}) => {
+  const name = `林嘉禾${Math.floor(Math.random() * 100_000)}`;
+  const email = uniqueEmail("mobile-member-navigation");
+  const password = "password123";
+  const inviteCode = await createTestInvitation();
+  const signUpResponse = await page.request.post("/api/auth/sign-up/email", {
+    data: { name, email, password, inviteCode },
+  });
+  expect(signUpResponse.status()).toBe(200);
+  const signInResponse = await page.request.post("/api/auth/sign-in/email", {
+    data: { email, password, rememberMe: false },
+  });
+  expect(signInResponse.status()).toBe(200);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/account");
+  await waitForHydration(page, 'button[aria-label="打开全站导航"]');
+
+  const headerNavigation = page.getByRole("navigation", { name: "主导航" });
+  const accountTrigger = headerNavigation.getByRole("button", {
+    name: new RegExp(`${name}的账户菜单`),
+  });
+  await expect(accountTrigger.getByText("林", { exact: true })).toBeVisible();
+  await expect(
+    accountTrigger.locator('[data-unread-indicator="true"]'),
+  ).toHaveCount(0);
+
+  await headerNavigation
+    .getByRole("button", { name: "打开全站导航" })
+    .click();
+  const globalNavigation = page.getByRole("navigation", { name: "全站导航" });
+  await expect(page.locator('[data-slot="sheet-content"]')).toHaveAttribute(
+    "data-side",
+    "left",
+  );
+  await expect(globalNavigation.getByRole("link", { name: /通知/ })).toHaveCount(0);
+  await expect(globalNavigation.getByRole("link", { name: "管理" })).toHaveCount(0);
+  await expect(
+    globalNavigation.getByRole("button", { name: "管理后台" }),
+  ).toHaveCount(0);
+  await expect(globalNavigation.getByRole("link", { name: "我的" })).toHaveCount(0);
+  await page.keyboard.press("Escape");
+
+  await accountTrigger.click();
+  const accountMenu = page.getByRole("menu");
+  await expect(accountMenu.getByRole("menuitem", { name: /通知/ })).toContainText(
+    "无未读",
+  );
+  await expect(accountMenu.getByRole("menuitem", { name: "我的诗作" })).toBeVisible();
+  await expect(accountMenu.getByRole("menuitem", { name: "账户信息" })).toBeVisible();
+  await expect(accountMenu.getByRole("menuitem", { name: "账户安全" })).toBeVisible();
+  await expect(accountMenu.getByRole("menuitem", { name: "登出" })).toBeVisible();
+  await page.keyboard.press("Escape");
+
+  const [headingBox, sectionNavigationBox] = await Promise.all([
+    page.getByRole("heading", { level: 1, name: "账户" }).boundingBox(),
+    page.getByRole("navigation", { name: "账户导航" }).boundingBox(),
+  ]);
+  expect(headingBox).not.toBeNull();
+  expect(sectionNavigationBox).not.toBeNull();
+  expect(sectionNavigationBox!.y).toBeGreaterThan(
+    headingBox!.y + headingBox!.height,
+  );
+});
+
+test("administrator navigation stays reachable across Sheet and workspace breakpoints", async ({
+  page,
+}) => {
+  const signInResponse = await page.request.post("/api/auth/sign-in/email", {
+    data: {
+      email: E2E_ADMIN_EMAIL,
+      password: E2E_ADMIN_PASSWORD,
+      rememberMe: false,
+    },
+  });
+  expect(signInResponse.status()).toBe(200);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/admin");
+  await waitForHydration(page, 'button[aria-label="打开全站导航"]');
+  await expect(page.locator('nav[aria-label="管理后台导航"]:visible')).toHaveCount(0);
+
+  await page.getByRole("button", { name: "打开全站导航" }).click();
+  const globalNavigation = page.getByRole("navigation", { name: "全站导航" });
+  await globalNavigation.getByRole("button", { name: "管理后台" }).click();
+  const adminLinks = globalNavigation.getByRole("link", { name: /^管理：/ });
+  await expect(adminLinks).toHaveCount(6);
+  await expect(
+    globalNavigation.getByRole("link", { name: "管理：总览" }),
+  ).toHaveAttribute("aria-current", "page");
+  await globalNavigation.getByRole("link", { name: "管理：用户" }).click();
+  await expect(page).toHaveURL(/\/admin\/users$/);
+  await expect(globalNavigation).toBeHidden();
+
+  await page.setViewportSize({ width: 1024, height: 844 });
+  const compactAdminNavigation = page.locator(
+    'nav[aria-label="管理后台导航"]:visible',
+  );
+  await expect(compactAdminNavigation).toHaveCount(1);
+  await expect(compactAdminNavigation).toHaveAttribute("data-variant", "bar");
+  await expect(
+    compactAdminNavigation.locator('[data-slot="secondary-navigation-indicator"]'),
+  ).toHaveCount(1);
+
+  await page.setViewportSize({ width: 1280, height: 844 });
+  const desktopAdminNavigation = page.locator(
+    'nav[aria-label="管理后台导航"]:visible',
+  );
+  await expect(desktopAdminNavigation).toHaveCount(1);
+  await expect(desktopAdminNavigation).toHaveAttribute("data-variant", "bar");
+  await expect(
+    desktopAdminNavigation.getByRole("link", { name: "用户" }),
+  ).toHaveAttribute("aria-current", "page");
+  await expect(
+    desktopAdminNavigation
+      .getByRole("link", { name: "用户" })
+      .locator('[data-slot="secondary-navigation-indicator"]'),
+  ).toHaveCount(1);
+});
+
 test.describe.serial("authenticated session loop", () => {
   let page: Page;
   let sessionTokenValue: string;
@@ -169,14 +356,27 @@ test.describe.serial("authenticated session loop", () => {
     await myMenuTrigger.click();
     const myMenu = page.getByRole("menu");
     await expect(myMenu).toBeVisible();
+    const myMenuContent = page.locator('[data-slot="dropdown-menu-content"]');
+    await expect(myMenuContent).toHaveCSS(
+      "animation-name",
+      /dropdown-unfold-in/,
+    );
+    await expect(page.locator(
+      '[data-account-menu-backdrop="true"][data-variant="desktop"]',
+    )).toHaveCount(0);
+    await expect(myMenuContent).toHaveCSS(
+      "backdrop-filter",
+      "none",
+    );
     await expect(myMenu.getByRole("menuitem", { name: "我的诗作" })).toBeVisible();
-    await expect(myMenu.getByRole("menuitem", { name: "账户" })).toBeVisible();
+    await expect(myMenu.getByRole("menuitem", { name: "账户信息" })).toBeVisible();
+    await expect(myMenu.getByRole("menuitem", { name: "账户安全" })).toBeVisible();
     await expect(myMenu.getByRole("menuitem", { name: "登出" })).toBeVisible();
     await expect(myMenu.getByText("最近通知")).toHaveCount(0);
     await expect(nav.getByRole("link", { name: "登录" })).toHaveCount(0);
     await expect(nav.getByRole("link", { name: "注册" })).toHaveCount(0);
 
-    const accountLink = myMenu.getByRole("menuitem", { name: "账户" });
+    const accountLink = myMenu.getByRole("menuitem", { name: "账户信息" });
     const logoutButton = myMenu.getByRole("menuitem", { name: "登出" });
     const [accountLinkMetrics, logoutButtonMetrics] = await Promise.all([
       accountLink.evaluate((element) => {
@@ -230,15 +430,9 @@ test.describe.serial("authenticated session loop", () => {
     expect(hoveredLogoutStyle.backgroundColor).not.toBe(
       baseLogoutStyle.backgroundColor,
     );
-    expect(hoveredLogoutStyle.color).not.toBe(baseLogoutStyle.color);
+    expect(hoveredLogoutStyle.color).toBe(baseLogoutStyle.color);
     await page.mouse.move(0, 0);
     await page.keyboard.press("Escape");
-
-    const navigationList = nav.locator("ul");
-    const navigationItems = navigationList.locator(":scope > li:visible");
-    const navigationControls = navigationList.locator(
-      ":scope > li:visible a:visible, :scope > li:visible button:visible",
-    );
 
     for (const viewport of [
       { width: 320, height: 720 },
@@ -250,69 +444,82 @@ test.describe.serial("authenticated session loop", () => {
       { width: 1024, height: 900 },
     ]) {
       await page.setViewportSize(viewport);
-
-      const [listStyles, brandBox, listBox, itemBoxes, controlBoxes, pageWidth] =
-        await Promise.all([
-          navigationList.evaluate((element) => {
-            const styles = getComputedStyle(element);
-            return {
-              display: styles.display,
-              gridTemplateColumns: styles.gridTemplateColumns,
-            };
-          }),
-          nav.getByRole("link", { name: "回中诗社" }).boundingBox(),
-          navigationList.boundingBox(),
-          navigationItems.evaluateAll((elements) =>
-            elements.map((element) => {
-              const box = element.getBoundingClientRect();
-              return { x: box.x, y: box.y, width: box.width, height: box.height };
-            }),
-          ),
-          navigationControls.evaluateAll((elements) =>
-            elements.map((element) => {
-              const box = element.getBoundingClientRect();
-              return { x: box.x, y: box.y, width: box.width, height: box.height };
-            }),
-          ),
-          page.evaluate(() => document.documentElement.clientWidth),
-        ]);
-
-      expect(brandBox).not.toBeNull();
-      expect(listBox).not.toBeNull();
-      expect(controlBoxes).toHaveLength(4);
-      for (const box of controlBoxes) {
-        expect(box.height).toBeGreaterThanOrEqual(44);
-        expect(box.x).toBeGreaterThanOrEqual(0);
-        expect(box.x + box.width).toBeLessThanOrEqual(pageWidth);
-      }
-
-      const itemRows = new Set(itemBoxes.map((box) => Math.round(box.y))).size;
       if (viewport.width < 1024) {
-        expect(listStyles.display).toBe("grid");
-        if (viewport.width < 640) {
-          expect(listStyles.gridTemplateColumns.split(" ")).toHaveLength(3);
-          expect(itemRows).toBe(2);
-          const firstRowY = Math.min(
-            ...itemBoxes.map((box) => Math.round(box.y)),
-          );
-          expect(
-            itemBoxes.filter((box) => Math.round(box.y) === firstRowY),
-          ).toHaveLength(3);
-          expect(
-            itemBoxes.filter((box) => Math.round(box.y) !== firstRowY),
-          ).toHaveLength(1);
-        } else {
-          expect(itemRows).toBe(1);
-        }
-        expect(listBox!.height).toBeLessThanOrEqual(100);
-        expect(brandBox!.y + brandBox!.height).toBeLessThan(listBox!.y);
+        const mobileNav = page.getByRole("navigation", { name: "主导航" });
+        const menuTrigger = mobileNav.getByRole("button", {
+          name: "打开全站导航",
+        });
+        const accountTrigger = mobileNav.getByRole("button", {
+          name: new RegExp(`${displayName}的账户菜单`),
+        });
+        const brand = mobileNav.getByRole("link", { name: "回中诗社" });
+        const [navBox, menuBox, accountBox, brandBox] = await Promise.all([
+          mobileNav.boundingBox(),
+          menuTrigger.boundingBox(),
+          accountTrigger.boundingBox(),
+          brand.boundingBox(),
+        ]);
+        expect(navBox).not.toBeNull();
+        expect(menuBox).not.toBeNull();
+        expect(accountBox).not.toBeNull();
+        expect(brandBox).not.toBeNull();
+        expect(navBox!.height).toBe(64);
+        expect(menuBox!.height).toBeGreaterThanOrEqual(44);
+        expect(accountBox!.height).toBeGreaterThanOrEqual(44);
+        expect(
+          Math.abs(
+            brandBox!.x + brandBox!.width / 2 - viewport.width / 2,
+          ),
+        ).toBeLessThanOrEqual(1);
+        await expect(accountTrigger.getByText("诗", { exact: true })).toBeVisible();
       } else {
-        expect(listStyles.display).toBe("flex");
-        const brandCenter = brandBox!.y + brandBox!.height / 2;
-        const listCenter = listBox!.y + listBox!.height / 2;
-        expect(Math.abs(brandCenter - listCenter)).toBeLessThan(2);
+        const desktopNav = page.getByRole("navigation", { name: "主导航" });
+        await expect(
+          desktopNav.getByRole("button", { name: /^通知/ }),
+        ).toBeVisible();
+        await expect(
+          desktopNav.getByRole("button", { name: "我的" }),
+        ).toBeVisible();
       }
     }
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    const mobileMenuTrigger = page.getByRole("button", {
+      name: "打开全站导航",
+    });
+    await mobileMenuTrigger.click();
+    const globalNavigation = page.getByRole("navigation", {
+      name: "全站导航",
+    });
+    await expect(globalNavigation.getByRole("link", { name: /通知/ })).toHaveCount(0);
+    await expect(globalNavigation.getByRole("link", { name: "管理" })).toHaveCount(0);
+    await expect(globalNavigation.getByRole("link", { name: "我的" })).toHaveCount(0);
+    await page.keyboard.press("Escape");
+
+    const mobileAccountTrigger = page.getByRole("button", {
+      name: new RegExp(`${displayName}的账户菜单`),
+    });
+    await expect(
+      mobileAccountTrigger.locator('[data-unread-indicator="true"]'),
+    ).toHaveCount(0);
+    await mobileAccountTrigger.click();
+    const mobileAccountMenu = page.getByRole("menu");
+    await expect(
+      mobileAccountMenu.getByRole("menuitem", { name: "我的诗作" }),
+    ).toBeVisible();
+    await expect(
+      mobileAccountMenu.getByRole("menuitem", { name: /通知/ }),
+    ).toContainText("无未读");
+    await expect(
+      mobileAccountMenu.getByRole("menuitem", { name: "账户信息" }),
+    ).toBeVisible();
+    await expect(
+      mobileAccountMenu.getByRole("menuitem", { name: "账户安全" }),
+    ).toBeVisible();
+    await expect(
+      mobileAccountMenu.getByRole("menuitem", { name: "登出" }),
+    ).toBeVisible();
+    await page.keyboard.press("Escape");
 
     // The account page shows the safe profile fields.
     await expect(
@@ -332,7 +539,16 @@ test.describe.serial("authenticated session loop", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     const accountNavigation = page.getByRole("navigation", { name: "账户导航" });
     await expect(accountNavigation).toBeVisible();
-    await expect(accountNavigation.getByRole("link", { name: "账户" })).toHaveAttribute(
+    const [accountHeadingBox, accountNavigationBox] = await Promise.all([
+      page.getByRole("heading", { level: 1, name: "账户" }).boundingBox(),
+      accountNavigation.boundingBox(),
+    ]);
+    expect(accountHeadingBox).not.toBeNull();
+    expect(accountNavigationBox).not.toBeNull();
+    expect(accountNavigationBox!.y).toBeGreaterThan(
+      accountHeadingBox!.y + accountHeadingBox!.height,
+    );
+    await expect(accountNavigation.getByRole("link", { name: "账户信息" })).toHaveAttribute(
       "aria-current",
       "page",
     );
@@ -355,6 +571,42 @@ test.describe.serial("authenticated session loop", () => {
       accountDimensions.clientWidth,
     );
 
+    await page.setViewportSize({ width: 1024, height: 844 });
+    await page.goto("/account");
+    const compactAccountNavigation = page.locator(
+      'nav[aria-label="账户导航"]:visible',
+    );
+    await expect(compactAccountNavigation).toHaveCount(1);
+    await expect(compactAccountNavigation).toHaveAttribute(
+      "data-variant",
+      "bar",
+    );
+    await expect(
+      compactAccountNavigation.locator(
+        '[data-slot="secondary-navigation-indicator"]',
+      ),
+    ).toHaveCount(1);
+    const [compactAccountNavigationBox, compactAccountHeadingBox] =
+      await Promise.all([
+        compactAccountNavigation.boundingBox(),
+        page.getByRole("heading", { level: 1, name: "账户" }).boundingBox(),
+      ]);
+    expect(compactAccountNavigationBox).not.toBeNull();
+    expect(compactAccountHeadingBox).not.toBeNull();
+    expect(compactAccountNavigationBox!.y).toBeLessThan(
+      compactAccountHeadingBox!.y,
+    );
+
+    await page.setViewportSize({ width: 1280, height: 844 });
+    const desktopAccountNavigation = page.locator(
+      'nav[aria-label="账户导航"]:visible',
+    );
+    await expect(desktopAccountNavigation).toHaveCount(1);
+    await expect(desktopAccountNavigation).toHaveAttribute(
+      "data-variant",
+      "bar",
+    );
+
     // 精简首页不按认证态增加首屏按钮；登录态入口统一保留在刊头导航。
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
@@ -370,7 +622,11 @@ test.describe.serial("authenticated session loop", () => {
       "href",
       "/account/poems",
     );
-    await expect(homeMyMenu.getByRole("menuitem", { name: "账户" })).toBeVisible();
+    await expect(homeMyMenu.getByRole("menuitem", { name: "账户信息" })).toBeVisible();
+    await expect(homeMyMenu.getByRole("menuitem", { name: "账户安全" })).toHaveAttribute(
+      "href",
+      "/account/security",
+    );
     await expect(homeMyMenu.getByRole("menuitem", { name: "登出" })).toBeVisible();
     await expect(homeMain.getByText(/^欢迎回来/)).toHaveCount(0);
     await expect(homeMain.getByRole("link", { name: "写一首" })).toHaveCount(0);

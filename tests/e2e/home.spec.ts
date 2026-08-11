@@ -1,16 +1,29 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 import {
   createHomePoemVisibilityFixtures,
   deletePoemsByIds,
 } from "./helpers/database";
 
+async function waitForHydration(page: Page, selector: string) {
+  await page.waitForFunction((target) => {
+    const element = document.querySelector(target);
+    return Boolean(
+      element &&
+        Object.keys(element).some((key) => key.startsWith("__reactFiber$")),
+    );
+  }, selector);
+}
+
 test("home page shows the community identity without fake business content", async ({
   page,
 }) => {
   const browserErrors: string[] = [];
   page.on("console", (message) => {
-    if (message.type() === "error") browserErrors.push(message.text());
+    if (
+      message.type() === "error" &&
+      !message.text().includes("/_next/webpack-hmr")
+    ) browserErrors.push(message.text());
   });
   page.on("pageerror", (error) => browserErrors.push(error.message));
 
@@ -36,7 +49,7 @@ test("home page shows the community identity without fake business content", asy
   await expect(page.getByText("2021—2024级").first()).toBeVisible();
   await expect(
     page.getByRole("img", {
-      name: "暖色光影下，磨损的《杂诗集》与一本翻开的诗稿摆在深色桌面上",
+      name: "深色桌面上摆放着磨损的《杂诗集》和一本摊开的手写诗稿",
     }),
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: "关于回中诗社" })).toBeVisible();
@@ -231,81 +244,202 @@ test("site header navigation is present", async ({ page }) => {
   await expect(nav.getByRole("link")).toHaveCount(4);
 });
 
-test("about page records the notification and announcement milestone", async ({
+test("about page reads as prologue, past, present, future, and appendix", async ({
   page,
 }) => {
   await page.goto("/about");
 
   await expect(
-    page.getByRole("heading", { level: 3, name: "站内通知与系统公告" }),
+    page.getByRole("heading", { level: 1, name: "关于回中诗社" }),
+  ).toBeVisible();
+
+  await expect(page.locator("main h2")).toHaveText([
+    "四次迁徙",
+    "现在它向时间敞开",
+    "接下来准备做什么",
+    "更新记录",
+  ]);
+
+  const history = page.locator('section[aria-labelledby="history-title"]');
+  await expect(history.locator("ol > li")).toHaveCount(4);
+  await expect(history.getByText("2022", { exact: true })).toBeVisible();
+  await expect(history.getByText("2026", { exact: true })).toBeVisible();
+
+  const updates = page.locator('section[aria-labelledby="updates-title"]');
+  await expect(updates.locator("ol > li")).toHaveCount(5);
+  await expect(
+    updates.getByRole("heading", { level: 3, name: "站内通知与系统公告" }),
   ).toBeVisible();
   await expect(
-    page.getByText("完成系统公告草稿、受众快照、发布审计与成员详情阅读"),
+    updates.getByText(/当前记录更新到\s*M5 站内通知与系统公告/),
   ).toBeVisible();
-  await expect(
-    page.getByText(/当前记录已经更新到\s*M5 站内通知与系统公告/),
-  ).toBeVisible();
-  await expect(
-    page.getByText(/M5\s*完成后，路线会继续围绕站内阅读/),
-  ).toBeVisible();
+  await expect(updates.getByText("M0", { exact: true })).toHaveCount(0);
 });
 
-test("mobile header keeps the key navigation usable", async ({ page }) => {
+test("about page changes editorial rhythm without horizontal overflow", async ({
+  page,
+}) => {
+  const viewports = [
+    { width: 390, historyColumns: 1, presentColumns: 1, roadmapColumns: 1 },
+    { width: 768, historyColumns: 1, presentColumns: 2, roadmapColumns: 2 },
+    { width: 1280, historyColumns: 2, presentColumns: 3, roadmapColumns: 2 },
+    { width: 1440, historyColumns: 2, presentColumns: 3, roadmapColumns: 2 },
+  ];
+
+  for (const viewport of viewports) {
+    await page.setViewportSize({ width: viewport.width, height: 900 });
+    await page.goto("/about");
+
+    const layout = await page.evaluate(() => {
+      const historyEra = document.querySelector(
+        'section[aria-labelledby="history-title"] ol > li',
+      );
+      const presentGrid = document
+        .querySelector('section[aria-labelledby="present-title"] h2')
+        ?.closest("header")?.nextElementSibling;
+      const roadmap = document.querySelector(
+        'section[aria-labelledby="future-title"] ul',
+      );
+
+      const columnCount = (element: Element | null | undefined) =>
+        element
+          ? getComputedStyle(element).gridTemplateColumns.split(" ").length
+          : 0;
+
+      return {
+        overflow: document.documentElement.scrollWidth - window.innerWidth,
+        historyColumns: columnCount(historyEra),
+        presentColumns: columnCount(presentGrid),
+        roadmapColumns: columnCount(roadmap),
+      };
+    });
+
+    expect(layout.overflow).toBeLessThanOrEqual(0);
+    expect(layout.historyColumns).toBe(viewport.historyColumns);
+    expect(layout.presentColumns).toBe(viewport.presentColumns);
+    expect(layout.roadmapColumns).toBe(viewport.roadmapColumns);
+  }
+});
+
+test("mobile header keeps one centered row and an accessible global menu", async ({
+  page,
+}) => {
+  for (const viewport of [320, 375, 390, 430]) {
+    await page.setViewportSize({ width: viewport, height: 812 });
+    await page.goto("/");
+
+    const nav = page.getByRole("navigation", { name: "主导航" });
+    const menuTrigger = nav.getByRole("button", { name: "打开全站导航" });
+    const brandLink = nav.getByRole("link", { name: "回中诗社" });
+    const loginLink = nav.getByRole("link", { name: "登录" });
+    const [navBox, menuBox, brandBox, loginBox] = await Promise.all([
+      nav.boundingBox(),
+      menuTrigger.boundingBox(),
+      brandLink.boundingBox(),
+      loginLink.boundingBox(),
+    ]);
+
+    expect(navBox).not.toBeNull();
+    expect(menuBox).not.toBeNull();
+    expect(brandBox).not.toBeNull();
+    expect(loginBox).not.toBeNull();
+    expect(navBox!.height).toBe(64);
+    expect(menuBox!.width).toBeGreaterThanOrEqual(44);
+    expect(menuBox!.height).toBeGreaterThanOrEqual(44);
+    expect(loginBox!.width).toBeGreaterThanOrEqual(44);
+    expect(loginBox!.height).toBeGreaterThanOrEqual(44);
+    expect(
+      Math.abs(brandBox!.x + brandBox!.width / 2 - viewport / 2),
+    ).toBeLessThanOrEqual(1);
+    await expect(nav.getByRole("link", { name: "诗作" })).toHaveCount(0);
+    await expect(nav.getByRole("link", { name: "关于" })).toHaveCount(0);
+  }
+
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/");
+  await waitForHydration(page, 'button[aria-label="打开全站导航"]');
+  // 汉堡按钮打开后就地变成叉，因此按 aria-controls 定位同一个元素。
+  const menuTrigger = page.locator(
+    'button[aria-controls="mobile-site-navigation"]',
+  );
+  const menuTriggerBox = await menuTrigger.boundingBox();
+  expect(menuTriggerBox).not.toBeNull();
+  await menuTrigger.focus();
+  await menuTrigger.press("Enter");
+  await expect(menuTrigger).toHaveAttribute("aria-expanded", "true");
 
-  const nav = page.getByRole("navigation", { name: "主导航" });
-  const poemsLink = nav.getByRole("link", { name: "诗作" });
-  const aboutLink = nav.getByRole("link", { name: "关于" });
-  const loginLink = nav.getByRole("link", { name: "登录" });
-  await expect(poemsLink).toBeVisible();
-  await expect(aboutLink).toBeVisible();
-  await expect(loginLink).toBeVisible();
-
-  const [poemsBox, aboutBox, loginBox] = await Promise.all([
-    poemsLink.boundingBox(),
-    aboutLink.boundingBox(),
-    loginLink.boundingBox(),
+  const globalNavigation = page.getByRole("navigation", { name: "全站导航" });
+  const closeButton = page.getByRole("button", { name: "关闭全站导航" });
+  const sheet = page.locator('[data-slot="sheet-content"]');
+  const sheetOverlay = page.locator('[data-slot="sheet-overlay"]');
+  await expect(globalNavigation).toBeVisible();
+  await expect(closeButton).toBeFocused();
+  const closeButtonBox = await closeButton.boundingBox();
+  expect(closeButtonBox).not.toBeNull();
+  expect(closeButtonBox).toEqual(menuTriggerBox);
+  await expect(sheet).toHaveAttribute("data-side", "left");
+  await expect(sheet).toHaveCSS("animation-name", /navigation-sheet-in/);
+  const [headerBox, sheetBox] = await Promise.all([
+    page.locator('nav[aria-label="主导航"].lg\\:hidden').boundingBox(),
+    sheet.boundingBox(),
   ]);
-  expect(poemsBox).not.toBeNull();
-  expect(aboutBox).not.toBeNull();
-  expect(loginBox).not.toBeNull();
-  expect(poemsBox!.x + poemsBox!.width).toBeLessThanOrEqual(375);
-  expect(aboutBox!.x + aboutBox!.width).toBeLessThanOrEqual(375);
-  expect(loginBox!.x + loginBox!.width).toBeLessThanOrEqual(375);
+  expect(headerBox).not.toBeNull();
+  expect(sheetBox).not.toBeNull();
+  expect(sheetBox!.y).toBe(headerBox!.height);
+  await expect(sheetOverlay).toHaveCSS(
+    "backdrop-filter",
+    /blur\(4px\)/,
+  );
+  await expect(globalNavigation.getByRole("link", { name: "诗作" })).toBeVisible();
+  await expect(globalNavigation.getByRole("link", { name: "关于" })).toBeVisible();
+  await expect(globalNavigation.getByRole("link", { name: "通知" })).toHaveCount(0);
+  await expect(globalNavigation.getByRole("link", { name: "管理" })).toHaveCount(0);
+  await expect(globalNavigation.getByRole("link", { name: "我的" })).toHaveCount(0);
 
-  await poemsLink.click();
+  await closeButton.press("Tab");
+  await expect(globalNavigation.getByRole("link", { name: "诗作" })).toBeFocused();
+  await closeButton.focus();
+  await closeButton.press("Shift+Tab");
+  await expect(globalNavigation.getByRole("link", { name: "关于" })).toBeFocused();
+  await closeButton.focus();
+
+  await page.keyboard.press("Escape");
+  await expect(globalNavigation).toBeHidden();
+  await expect(menuTrigger).toBeFocused();
+  await expect(menuTrigger).toHaveAttribute("aria-expanded", "false");
+
+  await menuTrigger.click();
+  await sheetOverlay.click({ position: { x: 370, y: 100 } });
+  await expect(globalNavigation).toBeHidden();
+  await expect(menuTrigger).toBeFocused();
+
+  await menuTrigger.press("Space");
+  await globalNavigation.getByRole("link", { name: "诗作" }).click();
   await expect(page).toHaveURL("/poems");
+  await expect(globalNavigation).toBeHidden();
+
+  await page.getByRole("button", { name: "打开全站导航" }).click();
   await expect(
-    page.getByRole("navigation", { name: "主导航" }).getByRole("link", {
-      name: "诗作",
-    }),
+    page
+      .getByRole("navigation", { name: "全站导航" })
+      .getByRole("link", { name: "诗作" }),
   ).toHaveAttribute("aria-current", "page");
 
-  await page.goto("/");
-  await aboutLink.click();
-  await expect(page).toHaveURL("/about");
-  await expect(page).toHaveTitle(/关于/);
+  await page.setViewportSize({ width: 1024, height: 812 });
+  await expect(globalNavigation).toBeHidden();
+  await expect(
+    page
+      .getByRole("navigation", { name: "主导航" })
+      .getByRole("link", { name: "诗作" }),
+  ).toBeVisible();
 
-  const brandLink = nav.getByRole("link", { name: /回中诗社/ });
-  const hero = page.locator("#top");
-  const header = page.getByRole("banner");
-  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
-  await brandLink.click();
-  await expect(page).toHaveURL(/\/#top$/);
-  await expect
-    .poll(async () => Math.abs((await hero.boundingBox())?.y ?? 9999))
-    .toBeLessThan(2);
-  await expect
-    .poll(async () => (await header.boundingBox())?.y ?? 0)
-    .toBeLessThan(0);
-
-  // URL 已经是 #top 时也应再次触发，而不是变成无效链接。
-  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
-  await brandLink.click();
-  await expect
-    .poll(async () => Math.abs((await hero.boundingBox())?.y ?? 9999))
-    .toBeLessThan(2);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "打开全站导航" }).click();
+  await expect(sheet).toHaveCSS(
+    "animation-duration",
+    /^(?:0\.00001|1e-05)s$/,
+  );
 });
 
 test("site footer aligns brand, centered legal notice and policy links on one row", async ({
@@ -497,11 +631,8 @@ for (const viewport of [
             name: "初中三年留下的一些诗。",
           })
           .boundingBox();
-        const visualBox = await page
-          .getByRole("img", {
-            name: "暖色光影下，磨损的《杂诗集》与一本翻开的诗稿摆在深色桌面上",
-          })
-          .boundingBox();
+        const visual = page.locator("[data-home-visual]");
+        const visualBox = await visual.boundingBox();
         const aboutSection = page
           .getByRole("heading", { level: 2, name: "关于回中诗社" })
           .locator("xpath=ancestor::section");
@@ -539,20 +670,28 @@ for (const viewport of [
           Math.abs(contentLayout.paddingLeft - contentLayout.paddingRight),
         ).toBeLessThan(0.5);
 
-        expect(Math.abs(visualBox!.x)).toBeLessThan(1);
-        expect(Math.abs(visualBox!.width - viewport.width)).toBeLessThan(1);
         expect(titleBox!.x).toBeGreaterThanOrEqual(
           viewport.width >= 1024 ? 32 : viewport.width >= 640 ? 24 : 16,
         );
-        expect(titleBox!.y).toBeGreaterThanOrEqual(visualBox!.y);
-        expect(titleBox!.y + titleBox!.height).toBeLessThanOrEqual(
-          visualBox!.y + visualBox!.height,
+        const visualStyle = await visual.evaluate((element) => ({
+          backgroundImage: getComputedStyle(element).backgroundImage,
+          edgeTransform: getComputedStyle(element, "::before").transform,
+          edgeBackground: getComputedStyle(element, "::before").backgroundImage,
+        }));
+        expect(visualStyle.backgroundImage).toBe("none");
+        expect(visualStyle.edgeBackground).toContain("poetry-paper-edge-");
+        const hasGradient = await page.evaluate(() =>
+          [...document.styleSheets].some((styleSheet) => {
+            try {
+              return [...styleSheet.cssRules].some((rule) =>
+                rule.cssText.includes("linear-gradient"),
+              );
+            } catch {
+              return false;
+            }
+          }),
         );
-        expect(
-          await page
-            .locator("#top")
-            .evaluate((element) => getComputedStyle(element).clipPath),
-        ).toBe("none");
+        expect(hasGradient).toBe(false);
 
         const hasPageTransitionStyles = await page.evaluate(() =>
           [...document.styleSheets].some((styleSheet) => {
@@ -574,12 +713,19 @@ for (const viewport of [
             Math.abs(contentLayout.paddingLeft - expectedContentGutter),
           ).toBeLessThan(0.5);
           expect(latestSectionBox!.y).toBeLessThan(aboutSectionBox!.y);
+          expect(Math.abs(visualBox!.x)).toBeLessThan(1);
+          expect(Math.abs(visualBox!.width - viewport.width)).toBeLessThan(1);
+          expect(visualBox!.y).toBeGreaterThan(titleBox!.y + titleBox!.height);
+          expect(visualStyle.edgeTransform).toBe("none");
         } else {
           expect(visualBox!.height).toBeGreaterThanOrEqual(520);
+          expect(visualBox!.x).toBeGreaterThan(titleBox!.x + titleBox!.width);
+          expect(Math.abs(visualBox!.x + visualBox!.width - viewport.width)).toBeLessThan(1);
+          expect(visualStyle.edgeBackground).toContain("vertical-v2.png");
           expect(contentLayout.paddingLeft).toBeGreaterThanOrEqual(32);
           expect(contentLayout.paddingLeft).toBeLessThanOrEqual(48);
           expect(contentLayout.columnGap).toBeGreaterThanOrEqual(64);
-          expect(contentLayout.columnGap).toBeLessThanOrEqual(88);
+          expect(contentLayout.columnGap).toBeLessThanOrEqual(96);
           expect(latestSectionBox!.x).toBeLessThan(aboutSectionBox!.x);
           expect(
             Math.abs(
@@ -593,8 +739,8 @@ for (const viewport of [
           const latestColumnRatio =
             latestSectionBox!.width /
             (latestSectionBox!.width + aboutSectionBox!.width);
-          expect(latestColumnRatio).toBeGreaterThanOrEqual(0.4);
-          expect(latestColumnRatio).toBeLessThanOrEqual(0.42);
+          expect(latestColumnRatio).toBeGreaterThanOrEqual(0.42);
+          expect(latestColumnRatio).toBeLessThanOrEqual(0.46);
 
           const aboutCopy = aboutSection.locator(":scope > div");
           const aboutCopyLayout = await aboutCopy.evaluate((element) => ({

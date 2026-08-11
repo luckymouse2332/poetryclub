@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
@@ -63,12 +64,11 @@ export function ForgotPasswordForm() {
     <Surface className="w-full" aria-label="忘记密码表单">
       {submitted ? (
         <div className="space-y-5">
-          <p
-            className="rounded-md border border-success bg-success-surface p-4 text-body text-success"
-            role="status"
-          >
-            {UNIFORM_SUCCESS_MESSAGE}
-          </p>
+          <Alert variant="success" role="status" className="p-4 text-body">
+            <AlertDescription className="text-body">
+              {UNIFORM_SUCCESS_MESSAGE}
+            </AlertDescription>
+          </Alert>
           <Button asChild variant="secondary" className="w-full">
             <Link href="/login">返回登录</Link>
           </Button>
@@ -94,13 +94,9 @@ export function ForgotPasswordForm() {
           </FormField>
 
           {error ? (
-            <p
-              className="rounded-md border border-danger bg-danger-surface p-3 text-label text-danger"
-              role="alert"
-              aria-live="polite"
-            >
-              {error}
-            </p>
+            <Alert variant="danger" role="alert">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           ) : null}
 
           <Button className="w-full" type="submit" loading={pending} disabled={pending}>

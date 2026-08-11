@@ -1,53 +1,72 @@
-# 首页单图调整视觉 QA
+# M6.3 移动端导航浮层与动效 Design QA
 
-## 对照目标
+**Source visual truth**
 
-- 原桌面效果图：`C:\Users\mouse\Documents\Codex\2026-08-04\qing\outputs\huizhong-poetry-site\implementation-desktop-final.png`
-- 用户指定的新照片：`D:\OneDrive\桌面\海报\修改图.jpg`
-- 项目内资源：`D:\mouse\Projects\poetryclub\docs\mockups\诗集合照.jpg`
-- 最终生产截图：`D:\mouse\Projects\poetryclub\output\playwright\home-1536-viewport.png`
-- 并排证据：`D:\mouse\Projects\poetryclub\output\playwright\comparison-single-photo-1536.png`
-- 对照视口：1536 × 1024 CSS px，`deviceScaleFactor: 1`
-- 原效果图与实现截图均为 1536 × 1024 像素，无需密度归一化
-- 状态：匿名访问、浅色主题、页面顶部、无 hover 或 focus 的默认视觉状态
+- 用户反馈截图：`C:/Users/mouse/AppData/Local/Temp/codex-clipboard-7d971d05-09dd-4f8f-b8dc-abf859032cd9.png`，583 × 729px。截图记录了旧版账户菜单打开状态：页面内容不可辨认，头像旁存在无说明红点，菜单没有通知入口。
+- 用户明确要求：页面背景应保留并模糊；通知进入头像菜单并以文字解释状态；开合需要符合触发方向的位移与缩放，不只使用透明度变化。
 
-## 最终检查
+**Implementation evidence**
 
-- 字体与排版：沿用已通过 M3.1 验收的中文衬线标题、正文和无衬线导航。站名、年级、简介与阅读入口的层级、换行和字重保持稳定。
-- 间距与布局：1536 px 下照片从第 5 栅格列开始并延伸到视口右缘，位置接近原效果图；首页专用容器明确移除通用 `py-section`，照片紧接刊头下方。375 px 与 768 px 仍按简介、入口、照片的自然顺序排列。
-- 颜色与 Token：暖白背景、正文墨色、印章红链接和细分隔线继续使用项目语义 Token，没有新增渐变、阴影或装饰层。
-- 图片质量与资源：页面只使用用户指定的 1707 × 983 原始合照，复制前后 SHA-256 一致。`next/image` 保持原始宽高比，桌面和移动端均没有拉伸；封面和两页诗稿完整可见。
-- 文案与内容：照片 alt 准确说明深色桌面、《杂诗集》封面和展开的两页手写诗稿。最新诗作、关于内容和开发状态没有被本次视觉调整改写。
-- 交互与可访问性：生产截图覆盖 375、768、1024、1440、1536 像素视口，均无横向滚动；阅读入口焦点为 2 px 实线；浏览器 console error 与 page error 均为 0。
+- 修正后完整截图：`output/playwright/m6-3-account-menu-blur-notifications.png`，390 × 844px，CSS viewport 390 × 844，`deviceScaleFactor: 1`，管理员登录且有 28 条未读通知。
+- 左侧抽屉完整截图：`output/playwright/m6-3-global-drawer-left.png`，375 × 812px，CSS viewport 375 × 812，`deviceScaleFactor: 1`，匿名状态。
+- 源截图归一化：`output/playwright/m6-3-source-normalized.png`，将 583 × 729px 归一化为 390 × 488px。
+- 实现同区裁切：`output/playwright/m6-3-implementation-crop.png`，从实现截图顶部裁切 390 × 488px。
+- 同尺寸并排比较：`output/playwright/m6-3-before-after-account-menu.png`，780 × 488px；左侧为旧状态，右侧为修正后状态。
 
-## 比较历史
+**Full-view comparison evidence**
 
-第一次单图实现仍受 `max-w-content` 约束，1536 px 下照片只有约 702 × 403 像素，与原效果图的大幅右侧视觉相比过小，记录为 P2。随后将 Hero 改为完整宽度的左右 page-edge 加 12 栏网格，让照片延伸到视口边缘，最终尺寸为约 942 × 542 像素。
+旧状态的菜单之外只剩均匀纸色，页面内容及菜单与页面的空间关系消失。修正后首页标题、正文、锯齿纸边和诗集照片仍可辨认，但通过 4px 背景模糊与低透明墨色遮罩降低注意力；菜单继续保持暖纸表面和足够对比度，没有变成毛玻璃卡片。
 
-第二次对照发现 `PageContainer` 的 `py-0` 没有覆盖通用 `py-section`，浏览器实际仍有 64 px 顶部内边距，导致照片低于刊头且首屏分隔线过晚，记录为 P2。随后增加首页专用 `.homeContainer`，明确设置 `padding-block: 0`，并移除桌面 Hero 的额外上下内边距。
+头像旁的小红点已完全移除。账户菜单增加“通知”行，并以暗红文字直接显示“28 条未读”；无未读状态显示“无未读”。通知、账户和登出的行高、图标基线与分隔关系一致。
 
-第三次使用最新生产构建重新捕获全部视口。照片在桌面端紧接刊头、延伸至右缘，移动端完整按比例显示；并排全视图已足以判断本次唯一变化的首屏照片尺寸、裁切和区块节奏，因此没有另做局部裁切对照。未发现仍需修复的 P0、P1 或 P2。
+**Focused region comparison evidence**
 
-只读代码审查指出早期方案的 `100vw` 负外边距在传统滚动条环境中有潜在越界风险，因此没有保留该实现。最终网格只使用 Hero 自身的 `100%` 计算 page-edge，没有负外边距；复核同时把 `Image` 的 `sizes` 改为与 66vw / `calc(50vw + 11rem)` 实际布局相符，避免桌面端选择偏小的图片候选。
+并排图本身使用 390px 同宽的顶部菜单区域，账户圆标、菜单标题、通知状态、入口图标与页面背景均可直接辨认，因此没有再放大单一控件。旧状态的红点与新状态的“通知 28 条未读”在同一对照中足以判断语义改善。
 
-## Findings
+**Required fidelity surfaces**
 
-没有仍需处理的 P0、P1 或 P2 视觉问题。
+- Fonts and typography：继续使用现有宋体 / 人文字体层级；通知标题沿用菜单项字号，未读说明使用较小无衬线状态文字，没有新增品牌字体。
+- Spacing and layout rhythm：菜单仍从头像下方右对齐，宽度、内边距、44px 最低点击区和分隔节奏保持；新增通知行纳入同一列表，不改变 Header 高度。
+- Colors and visual tokens：背景遮罩使用现有墨色低透明度，菜单使用暖纸透明表面，未读文字使用印章红；不再用孤立红点表达状态。
+- Image quality and asset fidelity：首页照片和锯齿资产只作为被模糊的页面背景，没有替换、重采样或新增装饰图片。
+- Copy and content：通知入口明确使用“通知 / N 条未读 / 无未读”，其余账户入口与登出文案保持不变。
 
-## Open Questions
+**Interaction and accessibility evidence**
 
-无阻塞问题。
+- 全站抽屉使用 `navigation-drawer-in/out`，从顶栏下方由左向右推入和收回；原顶栏保留，关闭按钮与汉堡按钮具有相同边界，只在同一位置把三道杠切换为叉。
+- 账户菜单使用 `account-menu-in/out`，以上边缘为轴，通过纵向裁切和 `scaleY` 从上向下展开，关闭时反向收起。
+- 背景遮罩和菜单运动分别使用 180–240ms 的开合时间；`prefers-reduced-motion: reduce` 将动画与过渡压缩到 0.01ms。
+- 账户菜单通过 Escape 关闭后焦点归还头像触发器；点击模糊背景也可关闭。
+- 320、375、390、430 和 768px 的普通成员、管理员、有未读与无未读状态通过；全站菜单不再重复通知入口。
+- 桌面通知 Popover、账户菜单、注册、登录和登出回归通过；测试复用现有 `http://localhost:3000`，没有启动或重启服务器。
 
-## Implementation Checklist
+**Findings and comparison history**
 
-- [x] 双照片替换为一张用户指定合照
-- [x] `next/image`、准确 alt 与原始比例
-- [x] 桌面端大幅右侧视觉并延伸至视口边缘
-- [x] 移动端自然排列且无横向滚动
-- [x] 五档生产截图、焦点和控制台检查
+- Pass 1：[P1] 菜单打开后页面背景不可辨认，用户失去空间连续性；[P1] 孤立红点没有文字解释；[P2] 开合运动过于接近淡入淡出，触发方向不清楚。
+- Fix 1：增加保留页面的模糊遮罩和半透明暖纸表面；移除头像红点，将通知与明确未读文字移入账户菜单。
+- Pass 2：[P2] 初版动效方向与交互含义不符：Dropdown 从右上缩放，全站菜单从上方进入并复制顶栏。
+- Fix 2：Dropdown 改为从上向下展开；全站抽屉改为从左向右推入并始于顶栏下方，原顶栏和按钮位置保持。
+- Pass 3：同尺寸账户菜单并排图与左侧抽屉截图确认背景、信息层级和空间关系；浏览器计算样式确认动画名称、4px blur 和 reduced-motion 生效。没有剩余 P0、P1 或 P2 问题。
 
-## Follow-up Polish
+**Implementation checklist**
 
-当前没有影响交付的 P3 项。
+- [x] 页面背景保留、轻度压暗并模糊。
+- [x] 头像红点移除，通知入口与未读文字进入账户菜单。
+- [x] 全站抽屉从左向右推入，账户菜单从上向下展开。
+- [x] Escape、外部点击、焦点归还和 reduced-motion 正常。
+- [x] 桌面导航与通知行为保持。
+
+**Verification**
+
+- [x] `pnpm check:conventions`
+- [x] `pnpm typecheck`
+- [x] `pnpm lint`
+- [x] `pnpm test`：16 个测试文件、215 项测试通过。
+- [x] Playwright：完整认证流程 7 项、完整通知流程 4 项、移动抽屉 / 账户菜单 / reduced-motion 定向流程通过。
+- [x] `pnpm build`
+
+**Follow-up polish**
+
+- 当前没有需要阻止交付的 P3 项。
 
 final result: passed

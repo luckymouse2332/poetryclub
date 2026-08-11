@@ -1,0 +1,36 @@
+.unfold[data-slot][data-state="open"] {
+  transform-origin: top center;
+  animation: dropdown-unfold-in var(--motion-duration-slow) var(--motion-ease-enter) both;
+}
+
+.unfold[data-slot][data-state="closed"] {
+  transform-origin: top center;
+  animation: dropdown-unfold-out var(--motion-duration-fast) var(--motion-ease-exit) both;
+}
+
+@keyframes dropdown-unfold-in {
+  from {
+    opacity: .7;
+    /* Keep the shadow inside the animated clip instead of revealing it afterward. */
+    clip-path: inset(0 -4rem 100%);
+    transform: translateY(-.5rem) scaleY(.94);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(-4rem);
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes dropdown-unfold-out {
+  from {
+    opacity: 1;
+    clip-path: inset(-4rem);
+    transform: translateY(0) scaleY(1);
+  }
+  to {
+    opacity: .55;
+    clip-path: inset(0 -4rem 100%);
+    transform: translateY(-.375rem) scaleY(.96);
+  }
+}

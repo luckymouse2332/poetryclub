@@ -1,6 +1,4 @@
-import Link from "next/link";
-
-import { Button } from "@/components/ui/button";
+import { PaginationNavigation } from "@/components/pagination-navigation";
 
 type PaginationProps = Readonly<{
   /** 列表根路径（如 /poems），第 1 页链接保持干净 URL，其余带 ?page=N。 */
@@ -22,27 +20,12 @@ export function Pagination({ basePath, page, pageCount }: PaginationProps) {
     page - 1 <= 1 ? basePath : `${basePath}?page=${page - 1}`;
 
   return (
-    <nav
-      aria-label="分页"
-      className="flex items-center justify-between gap-4 border-t border-border-subtle pt-6"
-    >
-      {page > 1 ? (
-        <Button asChild variant="secondary">
-          <Link href={previousHref}>上一页</Link>
-        </Button>
-      ) : (
-        <span aria-hidden="true" />
-      )}
-      <p className="text-label text-subtle" aria-current="page">
-        第 {page} / {pageCount} 页
-      </p>
-      {page < pageCount ? (
-        <Button asChild variant="secondary">
-          <Link href={`${basePath}?page=${page + 1}`}>下一页</Link>
-        </Button>
-      ) : (
-        <span aria-hidden="true" />
-      )}
-    </nav>
+    <PaginationNavigation
+      page={page}
+      pageCount={pageCount}
+      previousHref={page > 1 ? previousHref : null}
+      nextHref={page < pageCount ? `${basePath}?page=${page + 1}` : null}
+      ariaLabel="分页"
+    />
   );
 }

@@ -1,27 +1,55 @@
 import { SiteNavLink } from "@/components/site-nav-link";
 
 type SiteHeaderProps = Readonly<{
-  /**
-   * 右侧导航插槽：承载认证导航等由外部注入的列表项（<li> 片段）。
-   * 该组件是纯 UI 边界，不读取会话、不依赖任何 feature 模块。
-   */
-  navigation?: React.ReactNode;
+  /** 桌面认证导航列表项（<li> 片段）。 */
+  desktopNavigation?: React.ReactNode;
+  /** 移动端左侧全站菜单触发器。 */
+  mobileMenu?: React.ReactNode;
+  /** 移动端右侧登录或账户入口。 */
+  mobileAccount?: React.ReactNode;
 }>;
 
-export function SiteHeader({ navigation }: SiteHeaderProps) {
+/** 不是上游组件：全站刊头的移动三段式与桌面编辑式导航骨架。 */
+export function SiteHeader({
+  desktopNavigation,
+  mobileMenu,
+  mobileAccount,
+}: SiteHeaderProps) {
   return (
-    <header className="border-b border-border-subtle bg-background">
+    <header className="bg-background lg:border-b lg:border-border-subtle">
       <nav
         aria-label="主导航"
-        className="mx-auto flex w-full max-w-content flex-col px-page py-4 lg:min-h-24 lg:flex-row lg:items-center lg:justify-between lg:gap-x-10 lg:py-0"
+        className="relative z-header h-[var(--mobile-header-height)] border-b border-border-subtle bg-background lg:hidden"
+      >
+        <div className="grid h-full grid-cols-[3rem_minmax(0,1fr)_3rem] items-center px-3">
+          <div className="flex size-12 items-center justify-center">
+            {mobileMenu}
+          </div>
+          <SiteNavLink
+            href="/#top"
+            match="none"
+            variant="brand"
+            className="min-w-0 justify-self-center whitespace-nowrap font-serif text-[1.25rem] font-normal tracking-[0.16em] text-foreground no-underline"
+          >
+            回中诗社
+          </SiteNavLink>
+          <div className="flex size-12 items-center justify-center justify-self-end">
+            {mobileAccount}
+          </div>
+        </div>
+      </nav>
+
+      <nav
+        aria-label="主导航"
+        className="mx-auto hidden min-h-24 w-full max-w-content items-center justify-between gap-x-10 px-page lg:flex"
       >
         <SiteNavLink
           href="/#top"
           variant="brand"
-          className="inline-flex min-h-control min-w-0 self-start items-center font-serif text-foreground no-underline lg:self-auto"
+          className="inline-flex min-h-control min-w-0 items-center font-serif text-foreground no-underline"
         >
           <span className="flex flex-col">
-            <span className="text-[1.7rem] font-normal leading-tight tracking-[0.18em] sm:text-[1.9rem]">
+            <span className="text-[1.9rem] font-normal leading-tight tracking-[0.18em]">
               回中诗社
             </span>
             <span className="mt-1 text-caption font-normal tracking-[0.08em] text-subtle">
@@ -29,7 +57,7 @@ export function SiteHeader({ navigation }: SiteHeaderProps) {
             </span>
           </span>
         </SiteNavLink>
-        <ul className="mt-4 grid w-full grid-cols-3 grid-rows-2 items-center gap-x-1 gap-y-0 border-t border-border-subtle pt-2 sm:grid-flow-col sm:grid-cols-none sm:grid-rows-none sm:auto-cols-fr sm:justify-end lg:mt-0 lg:flex lg:w-auto lg:flex-wrap lg:gap-x-5 lg:border-0 lg:pt-0">
+        <ul className="flex w-auto flex-wrap items-center justify-end gap-x-5">
           <li>
             <SiteNavLink
               href="/poems"
@@ -48,7 +76,7 @@ export function SiteHeader({ navigation }: SiteHeaderProps) {
               关于
             </SiteNavLink>
           </li>
-          {navigation}
+          {desktopNavigation}
         </ul>
       </nav>
     </header>

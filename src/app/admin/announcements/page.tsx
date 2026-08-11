@@ -56,9 +56,14 @@ export default async function AnnouncementsPage({
       </nav>
       <Section className="pb-0 pt-8">
         {result.items.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="divide-y divide-border-subtle">
             {result.items.map((item) => (
-              <AnnouncementCard key={item.id} announcement={item} />
+              <div
+                key={item.id}
+                className="[&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none"
+              >
+                <AnnouncementCard announcement={item} />
+              </div>
             ))}
           </div>
         ) : (

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
-import { PageContainer } from "@/components/layout/page-container";
-import { PageHeader } from "@/components/layout/page-header";
+import { AuthSplitShell } from "@/components/layout/auth-split-shell";
 import { AuthForm } from "@/features/auth/components/auth-form";
 import { getSafeRedirectPath } from "@/lib/safe-redirect";
 
@@ -24,23 +23,18 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const passwordReset = query.passwordReset === "success";
 
   return (
-    <PageContainer
-      width="narrow"
-      className="flex flex-1 flex-col justify-center py-12 md:py-16"
+    <AuthSplitShell
+      eyebrow="回到诗社"
+      title="加入回中诗社"
+      description="使用邮箱登录；新同学需要有效邀请码才能创建账号。"
+      note="这里保存三年里留下的诗和共同记忆。登录后可以管理自己的草稿，并阅读成员作品。"
     >
-      <PageHeader
-        align="center"
-        eyebrow="回到诗社"
-        title="加入回中诗社"
-        description="使用邮箱登录；新同学需要有效邀请码才能创建账号。"
-        className="mb-8"
-      />
       <AuthForm
         initialMode={initialMode}
         nextPath={nextPath}
         initialNotice={passwordReset ? "密码已重置，请使用新密码登录。" : undefined}
         cleanPasswordResetNotice={passwordReset}
       />
-    </PageContainer>
+    </AuthSplitShell>
   );
 }

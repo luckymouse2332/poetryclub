@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import homepagePoetryCollection from "../../public/homepage-poetry-collection.png";
+import poetryCollection from "../../public/poetry-collection.jpg";
 
 import { formatPoemIndexDate } from "@/features/posts/formatters";
 import { getContentReaderScope } from "@/server/policies/access";
@@ -16,26 +16,29 @@ export default async function HomePage() {
   return (
     <>
       <section id="top" aria-labelledby="home-title" className={styles.hero}>
-        <Image
-          src={homepagePoetryCollection}
-          alt="暖色光影下，磨损的《杂诗集》与一本翻开的诗稿摆在深色桌面上"
-          fill
-          preload
-          sizes="100vw"
-          className={styles.heroImage}
-        />
-        <div aria-hidden="true" className={styles.heroOverlay} />
         <div className={styles.heroContent}>
           <h1 id="home-title" className={styles.heroTitle}>
             初中三年留下的一些诗。
           </h1>
-          <span aria-hidden="true" className={styles.heroRule} />
+          <p className={styles.heroDescription}>
+            三年里随手写下的诗，以及一些只有我们还记得的事情。
+          </p>
           <Link href="/poems" className={styles.editorialLink}>
-            随便翻翻
+            <span className={styles.linkText}>随便翻翻</span>
             <span aria-hidden="true" className={styles.linkArrow}>
               →
             </span>
           </Link>
+        </div>
+        <div className={styles.heroImageFrame} data-home-visual>
+          <Image
+            src={poetryCollection}
+            alt="深色桌面上摆放着磨损的《杂诗集》和一本摊开的手写诗稿"
+            fill
+            preload
+            sizes="(min-width: 1024px) 58vw, 100vw"
+            className={styles.heroImage}
+          />
         </div>
       </section>
 
@@ -99,7 +102,7 @@ export default async function HomePage() {
             )}
 
             <Link href="/poems" className={styles.editorialLink}>
-              查看全部诗作
+              <span className={styles.linkText}>查看全部诗作</span>
               <span aria-hidden="true" className={styles.linkArrow}>
                 →
               </span>
@@ -133,6 +136,10 @@ export default async function HomePage() {
               <p className={styles.constructionNote}>
                 网站还没修完，不过诗已经能看，也能写了。
               </p>
+              <Link href="/about" className={styles.editorialLink}>
+                <span className={styles.linkText}>阅读诗社档案</span>
+                <span aria-hidden="true" className={styles.linkArrow}>→</span>
+              </Link>
             </div>
           </section>
         </div>

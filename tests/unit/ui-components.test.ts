@@ -16,6 +16,7 @@ import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -52,7 +53,9 @@ import {
 } from "@/components/ui/form-field";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
+import { PaginationNavigation } from "@/components/pagination-navigation";
 import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import { Surface } from "@/components/ui/surface";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -156,6 +159,98 @@ test("Badge 覆盖全部语义变体", () => {
   expect(markup(h(Badge, null, "状态"))).toBe(
     markup(h(Badge, { variant: "neutral" }, "状态")),
   );
+});
+
+test("Sheet 触发器保留按钮语义与 data-slot", () => {
+  const rendered = markup(
+    h(
+      Sheet,
+      null,
+      h(
+        SheetTrigger,
+        { asChild: true },
+        h("button", { type: "button", "aria-label": "打开全站导航" }, "菜单"),
+      ),
+    ),
+  );
+
+  expect(rendered).toContain('data-slot="sheet-trigger"');
+  expect(rendered).toContain('aria-label="打开全站导航"');
+});
+
+test("Alert 状态变体使用固定图标与单一 live role", () => {
+  const success = markup(
+    h(
+      Alert,
+      { variant: "success", role: "status" },
+      h(AlertDescription, null, "保存成功"),
+    ),
+  );
+  const warning = markup(
+    h(Alert, { variant: "warning" }, h(AlertDescription, null, "静态说明")),
+  );
+  const danger = markup(
+    h(
+      Alert,
+      { variant: "danger", role: "alert" },
+      h(AlertDescription, null, "保存失败"),
+    ),
+  );
+
+  expect(success).toContain('data-variant="success"');
+  expect(success).toContain('role="status"');
+  expect(success).not.toContain("aria-live");
+  expect(warning).toContain('data-variant="warning"');
+  expect(warning).not.toContain("role=");
+  expect(danger).toContain('data-variant="danger"');
+  expect(danger).toContain('role="alert"');
+  expect([success, warning, danger].every((value) => value.includes("<svg"))).toBe(true);
+});
+
+test("PaginationNavigation 在边界页只生成有效方向 href", () => {
+  const first = markup(
+    h(PaginationNavigation, {
+      page: 1,
+      pageCount: 3,
+      previousHref: null,
+      nextHref: "/poems?page=2",
+      ariaLabel: "分页",
+    }),
+  );
+  const middle = markup(
+    h(PaginationNavigation, {
+      page: 2,
+      pageCount: 3,
+      previousHref: "/poems",
+      nextHref: "/poems?page=3",
+      ariaLabel: "分页",
+    }),
+  );
+  const last = markup(
+    h(PaginationNavigation, {
+      page: 3,
+      pageCount: 3,
+      previousHref: "/poems?page=2",
+      nextHref: null,
+      ariaLabel: "分页",
+    }),
+  );
+
+  expect(first).not.toContain('href="/poems"');
+  expect(first).toContain('href="/poems?page=2"');
+  expect(middle).toContain('href="/poems"');
+  expect(middle).toContain('href="/poems?page=3"');
+  expect(last).toContain('href="/poems?page=2"');
+  expect(last).not.toContain('href="/poems?page=4"');
+});
+
+test("调用方字号覆盖会移除组件默认字号", () => {
+  const rendered = markup(
+    h(CardDescription, { className: "text-body" }, "说明"),
+  );
+
+  expect(rendered).toContain("text-body");
+  expect(rendered).not.toContain("text-label");
 });
 
 test("Input 与 Textarea 的默认、禁用与错误态", () => {

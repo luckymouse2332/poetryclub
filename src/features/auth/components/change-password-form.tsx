@@ -2,6 +2,7 @@
 
 import { type FormEvent, useState } from "react";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
@@ -151,22 +152,15 @@ export function ChangePasswordForm() {
         </FormField>
 
         {error ? (
-          <p
-            className="rounded-md border border-danger bg-danger-surface p-3 text-label text-danger"
-            role="alert"
-            aria-live="polite"
-          >
-            {error}
-          </p>
+          <Alert variant="danger" role="alert">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         ) : null}
 
         {notice ? (
-          <p
-            className="rounded-md border border-success bg-success-surface p-3 text-label text-success"
-            role="status"
-          >
-            {notice}
-          </p>
+          <Alert variant="success" role="status">
+            <AlertDescription>{notice}</AlertDescription>
+          </Alert>
         ) : null}
 
         <Button type="submit" loading={pending} disabled={pending}>
