@@ -101,6 +101,8 @@
 - `shadow-floating`：仅用于少量浮层，不用于普通内容卡片。
 - `shadow-focus`：品牌蓝焦点环；不得用 `outline: none` 后不提供替代焦点。
 - 不使用高对比黑色投影或拟物厚阴影。
+- 动效时长只使用 `fast 160ms`、`normal 220ms`、`slow 260ms`，进入和退出分别使用 `--motion-ease-enter`、`--motion-ease-exit`；组件级关键帧放在组件或共享 CSS Module。
+- 层级只使用 `floating 50`、`header 60`、`sheet 70`。普通页面内容不得创建额外任意层级；`globals.css` 只保留 Token、基础样式、Radix 通用浮层行为和 reduced-motion。
 
 ## 8. 响应式断点与页面宽度
 
@@ -109,18 +111,19 @@
 - `max-w-content` / `--content-max-width`：1120px，通用页面内容。
 - `max-w-reading` / `--reading-max-width`：720px，长文本。
 - `max-w-narrow` / `--narrow-max-width`：512px，认证表单和少量确认流程。
-- 成员与管理工作区在 `xl` 起使用约 224px 常驻导航和弹性主内容区；更小视口使用正文内或横向二级导航。
+- 成员与管理工作区在 `lg` 起统一使用页面顶层横向二级导航；账户页在更小视口保留正文内导航，管理入口则由全站 Sheet 承载。
 - 通用内容页使用 `PageContainer`。首页仍复用该组件，但允许通过局部样式放宽最大宽度，并由首页模块单独控制首屏和下半区页边距。
 - 移动端不得水平滚动，长邮箱、昵称、诗名和用户正文必须可换行。
 
 ## 9. 页面骨架与当前导航
 
-- `SiteHeader`：`lg` 以下固定为单行三段式刊头，左右使用相同宽度轨道，左侧汉堡按钮打开全站 Dialog，中间“回中诗社”保持几何居中，右侧匿名用户显示“登录”、登录用户显示单 Unicode 字素账户圆标。全站菜单只包含诗作、关于和正常管理员的管理入口；账户圆标打开通知、我的诗作、账户信息、账户安全和独立危险语义登出。移动端不在圆标旁使用无文字红点，通知入口以“无未读 / N 条未读”明确状态。全站抽屉保留原顶栏，只在汉堡按钮位置切换为叉，并从顶栏下方由左向右推入；账户菜单以上边缘为轴，从上向下展开。两者用半透明暖纸表面和轻度背景模糊保留页面空间关系，并在 reduced-motion 下取消位移与缩放。
+- `SiteHeader`：`lg` 以下固定为单行三段式刊头，左右使用相同宽度轨道，左侧汉堡按钮打开全站 Sheet，中间“回中诗社”保持几何居中，右侧匿名用户显示“登录”、登录用户显示单 Unicode 字素账户圆标。全站菜单只包含诗作、关于和正常管理员的管理入口；账户圆标打开通知、我的诗作、账户信息、账户安全和独立危险语义登出。有未读通知时，圆标右上角显示单个暗红点，菜单内继续显示“无未读 / N 条未读”。Sheet 保留原顶栏，遮罩与面板从顶栏下方开始，汉堡按钮原位切换为叉；打开时焦点留在该按钮上，Tab / Shift+Tab 进入导航边界，Escape、外部点击和路由跳转关闭后焦点回到触发器。账户菜单以上边缘为轴，从上向下展开。两者用半透明暖纸表面和轻度背景模糊保留页面空间关系，并在 reduced-motion 下取消位移与缩放。
 - `lg` 起保留既有桌面刊头：左侧站名与年级，右侧诗作、关于、通知、正常管理员的管理入口和“我的”菜单；桌面通知继续使用最近消息 Popover。导航显示不承担权限判断。
-- 账户页在 `xl` 以下把“我的诗作 / 账户信息 / 账户安全”放在页面标题之后，以细分隔线和印章红短线表达当前项；`xl` 起由工作区常驻侧栏承载，不在全站 Header 下重复显示。
+- 账户页在小于 `lg` 时把“我的诗作 / 账户信息 / 账户安全”放在页面标题之后；`lg` 起与管理后台统一使用页面顶层横向二级导航。桌面二级导航以衬线大字、上下细分隔线和印章红短线表达当前项，短线使用 React View Transition 在路由切换时平滑移动，并在 reduced motion 下取消时长。
 - `PageContainer`：统一最大宽度、响应式页边距和可选窄 / 阅读宽度。
 - `PageHeader`：eyebrow、标题、描述和可选 actions；标题层级由调用方指定。
 - `Section`：统一垂直节奏，可包含区块标题、描述和 actions。
+- 管理后台首页入口使用管理场景专用的 `AdminDashboardCard`，复用通用 Card 结构但不扩展其 API。卡片提供 paper、muted、plain 三种无边框表面层级，并以有间距的响应式网格排列；不得把这些业务样式并入通用 Card。
 - 首页首屏：小屏为上文下图并使用横向锯齿纸边，`lg` 起为左文右图并切换为竖向锯齿纸边；只使用 `poetry-collection.jpg`，不使用渐变遮罩。主操作和“查看全部诗作”采用文字链接，箭头在 hover / focus-visible 时轻微右移。
 - 首页最新诗作：日期、诗名、作者按响应式网格排列。反馈只作用于诗名文字与下划线，不给整行增加背景或阴影。
 - 首页关于区：与最新诗作并列或上下排列，正文和收录标准最大宽度为 43rem，保持长文可读宽度。
@@ -159,15 +162,31 @@
   用于需要标题、描述与页脚分区的卡片；不带 variant，承载层级由 Surface 负责，两者不互相替代。
 - Empty 包含真实标题、说明和可选操作；不得用假业务数据填充空白。
 
+### Alert
+
+- 变体：`default`、`success`、`warning`、`danger`；后三种分别固定使用成功、警告和错误 Lucide 图标。
+- Alert 不默认创建 live region。交互或异步错误显式使用 `role="alert"`，异步成功与非阻断状态变化使用 `role="status"`，不得再重复声明 `aria-live`；初始页面中的静态禁用、隐藏和治理原因说明不声明 live role。
+- 字段错误继续由 Field / FormField 承担，Badge、必填标记和普通内联状态文字不迁入 Alert。
+
+### Item / ItemGroup
+
+- 管理后台总览、用户、诗作、邀请码、公告和审计列表统一使用 `ItemGroup + ItemSeparator + Item`；条目内部按需要组合 ItemContent、ItemTitle、ItemDescription 和 ItemFooter。
+- Item 表达列表条目，不复用 Card 的分区语义，父容器不得通过 `data-slot="card"` 覆盖子组件内部样式。
+
+### Pagination
+
+- 通用展示组合 `PaginationNavigation` 只接收当前页、总页数、上一页 / 下一页 href、可访问名称和可选 className；不解析 feature 查询参数。
+- posts、notifications 和 moderation 各自保留 URL 与筛选参数生成逻辑，通过 shadcn Pagination 的 `asChild` 组合 Next.js Link；首页和末页不生成可点击的越界链接。
+
 ### 组件实现基线
 
 `src/components/ui` 同时存在两类组件，任何新增组件必须先归类再实现：
 
 | 类别 | 含义 | 组件 |
 | --- | --- | --- |
-| 上游同构 | 结构、`data-slot`、子组件与上游 shadcn/ui 一致，只把类名映射到本文件的 Token 并去掉 `dark:` 变体 | `card`、`empty`、`field`、`label`、`separator`、`spinner`、`dropdown-menu`、`popover`、`skeleton` |
-| 上游同构 + 项目变体 | 以上游为基线，额外增加项目需要的 cva 变体或行为 | `button`（variant/size/loading）、`badge`、`input`、`textarea`、`alert-dialog`（项目 Button 变体与语义 Token） |
-| 项目自有 | 上游没有对应组件，由本项目定义并负责维护 | `surface`、`form-field`、`icon-button`、`secondary-navigation`、`workspace-shell`、`workspace-navigation`、`auth-split-shell`、`site-header`、`mobile-global-navigation` |
+| 上游同构 | 结构、`data-slot`、子组件与上游 shadcn/ui 一致，只把类名映射到本文件的 Token 并去掉 `dark:` 变体 | `card`、`empty`、`field`、`item`、`label`、`pagination`、`separator`、`spinner`、`dropdown-menu`、`popover`、`skeleton` |
+| 上游同构 + 项目变体 | 以上游为基线，额外增加项目需要的 cva 变体或行为 | `button`（variant/size/loading）、`badge`、`input`、`textarea`、`alert`（success/warning/danger 固定图标且 role 由调用方声明）、`alert-dialog`（项目 Button 变体与语义 Token）、`dialog`、`sheet`（`overlayClassName`） |
+| 项目自有 | 上游没有对应组件，由本项目定义并负责维护 | `surface`、`form-field`、`icon-button`、`pagination-navigation`、`secondary-navigation`、`workspace-shell`、`auth-split-shell`、`site-header`、`mobile-global-navigation` |
 
 - 基线为 shadcn/ui new-york（配置见 `components.json`）。本文件定义的 Token 与状态规范优先于 shadcn 默认样式；
   每个文件顶部注释必须写明与上游的差异，项目自有组件必须在注释中明确声明「不是上游组件」。
@@ -182,6 +201,7 @@
 - 主要交互目标尽量达到 44×44px。
 - 表单 label 必须通过 `htmlFor` / `id` 关联；说明和错误通过 `aria-describedby` 关联。
 - 不以颜色作为唯一状态信息；动画尊重 `prefers-reduced-motion`。
+- 动态 Alert 按状态声明唯一的 `role="alert"` 或 `role="status"`，静态说明不创建 live region。
 - 使用语义化 heading、nav、main、section、form、dl；装饰元素从辅助技术隐藏。
 - 390px 至 1440px 不得因固定宽度、长文本或导航造成水平滚动。
 

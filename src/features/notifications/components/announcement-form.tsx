@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -84,17 +85,12 @@ export function AnnouncementForm({
   return (
     <form action={formAction} className="space-y-6">
       {state.message ? (
-        <p
+        <Alert
+          variant={state.status === "error" ? "danger" : "success"}
           role={state.status === "error" ? "alert" : "status"}
-          aria-live="polite"
-          className={
-            state.status === "error"
-              ? "rounded-md border border-danger bg-danger-surface p-3 text-label text-danger"
-              : "rounded-md border border-success bg-success-surface p-3 text-label text-success"
-          }
         >
-          {state.message}
-        </p>
+          <AlertDescription>{state.message}</AlertDescription>
+        </Alert>
       ) : null}
 
       <Surface variant="paper" padding="lg" className="space-y-6">

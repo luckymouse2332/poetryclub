@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Surface } from "@/components/ui/surface";
@@ -31,12 +32,9 @@ export default async function AccountPage() {
           description="查看当前登录身份。账户信息来自受保护的服务端会话。"
         />
         <AccountSectionNavigation />
-        <p
-          role="alert"
-          className="mt-6 rounded-md border border-danger bg-danger-surface p-4 text-label text-danger"
-        >
-          无法确认当前账号状态，请重新登录后再试。
-        </p>
+        <Alert variant="danger" role="alert" className="mt-6 p-4">
+          <AlertDescription>无法确认当前账号状态，请重新登录后再试。</AlertDescription>
+        </Alert>
       </PageContainer>
     );
   }
@@ -53,15 +51,14 @@ export default async function AccountPage() {
       <AccountSectionNavigation />
 
       {suspended ? (
-        <p
-          role="alert"
-          className="mt-6 rounded-md border border-danger bg-danger-surface p-4 text-label text-danger"
-        >
-          你的账号已被管理员禁用，目前只能浏览内容，不能新建、编辑、发布或删除诗作。
-          {currentUser.suspensionReason
-            ? `原因：${currentUser.suspensionReason}`
-            : null}
-        </p>
+        <Alert variant="danger" className="mt-6 p-4">
+          <AlertDescription>
+            你的账号已被管理员禁用，目前只能浏览内容，不能新建、编辑、发布或删除诗作。
+            {currentUser.suspensionReason
+              ? `原因：${currentUser.suspensionReason}`
+              : null}
+          </AlertDescription>
+        </Alert>
       ) : null}
 
       <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1.45fr)_minmax(17rem,0.55fr)]">

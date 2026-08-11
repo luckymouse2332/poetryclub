@@ -100,9 +100,9 @@ async function setPoemVisibility(
   await expect(page.getByText("修改已保存。")).toBeVisible();
 }
 
-function adminCardByTitle(page: Page, title: string) {
+function adminItemByTitle(page: Page, title: string) {
   return page
-    .locator('[data-slot="card"]')
+    .locator('[data-slot="item"]')
     .filter({ has: page.getByRole("heading", { name: title }) });
 }
 
@@ -292,7 +292,7 @@ test.describe.serial("member-only poem access control", () => {
     ).toBeVisible();
 
     await adminPage.goto(`/admin/poems?q=${encodeURIComponent(title)}`);
-    const card = adminCardByTitle(adminPage, title);
+    const card = adminItemByTitle(adminPage, title);
     await expect(card.getByText("仅成员可见", { exact: true })).toBeVisible();
     const hideDialog = await openReasonDialog(
       adminPage,
@@ -307,7 +307,7 @@ test.describe.serial("member-only poem access control", () => {
     await expect(authorPage.getByText("管理员已隐藏")).toBeVisible();
 
     await adminPage.goto(`/admin/poems?q=${encodeURIComponent(title)}`);
-    const hiddenCard = adminCardByTitle(adminPage, title);
+    const hiddenCard = adminItemByTitle(adminPage, title);
     const restoreDialog = await openReasonDialog(
       adminPage,
       hiddenCard.getByRole("button", { name: "恢复", exact: true }),

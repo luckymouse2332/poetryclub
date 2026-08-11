@@ -6,11 +6,8 @@ export default async function AccountLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <WorkspaceShell
-      title="个人工作区"
-      eyebrow="MEMBER DESK"
       ariaLabel="账户导航"
       items={ACCOUNT_NAV_ITEMS}
-      showMobileNavigation={false}
     >
       {children}
     </WorkspaceShell>

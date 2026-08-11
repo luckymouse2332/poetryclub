@@ -24,6 +24,8 @@ import {
 import { logoutAction } from "@/features/auth/actions";
 import { cn } from "@/lib/utils";
 
+import floatingStyles from "@/components/ui/floating-unfold.module.css";
+
 type AccountNavigationMenuProps = Readonly<{
   variant: "desktop" | "mobile";
   className?: string;
@@ -48,39 +50,25 @@ export function AccountNavigationMenu({
   const [open, setOpen] = useState(false);
   const isActive = pathname === "/account" || pathname.startsWith("/account/");
   const mobile = variant === "mobile";
+  const mobileTriggerLabel = `${displayName}的账户菜单${
+    unreadCount > 0 ? `，${unreadCount} 条未读通知` : ""
+  }`;
 
   useEffect(() => {
-    if (!mobile) return;
-
     const desktopQuery = window.matchMedia("(min-width: 1024px)");
-    const closeAtDesktop = (event: MediaQueryListEvent) => {
-      if (event.matches) setOpen(false);
-    };
-    desktopQuery.addEventListener("change", closeAtDesktop);
-    return () => desktopQuery.removeEventListener("change", closeAtDesktop);
-  }, [mobile]);
+    const closeAtBreakpoint = () => setOpen(false);
+    desktopQuery.addEventListener("change", closeAtBreakpoint);
+    return () => desktopQuery.removeEventListener("change", closeAtBreakpoint);
+  }, []);
 
   return (
-    <>
-      {mobile ? (
-        <div
-          aria-hidden="true"
-          data-mobile-account-backdrop="true"
-          data-state={open ? "open" : "closed"}
-          onPointerDown={() => setOpen(false)}
-          className={cn(
-            "mobile-account-backdrop pointer-events-none fixed inset-x-0 top-16 bottom-0 z-40 bg-foreground/10 opacity-0 backdrop-blur-[4px]",
-            open && "pointer-events-auto opacity-100",
-          )}
-        />
-      ) : null}
-      <DropdownMenu open={open} onOpenChange={setOpen}>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
           {mobile ? (
             <button
               type="button"
               data-active={isActive}
-              aria-label={`打开${displayName}的账户菜单`}
+              aria-label={`打开${mobileTriggerLabel}`}
               className="group relative flex size-12 items-center justify-center text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-seal focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <span
@@ -89,6 +77,13 @@ export function AccountNavigationMenu({
               >
                 {initial}
               </span>
+              {unreadCount > 0 ? (
+                <span
+                  aria-hidden="true"
+                  data-unread-indicator="true"
+                  className="pointer-events-none absolute top-1 right-1 size-2 rounded-full bg-seal ring-2 ring-background"
+                />
+              ) : null}
             </button>
           ) : (
             <button
@@ -108,9 +103,9 @@ export function AccountNavigationMenu({
         <DropdownMenuContent
           align="end"
           className={cn(
-            "w-64 p-2",
-            mobile &&
-              "mobile-account-menu border-border-strong bg-paper/94 backdrop-blur-xl",
+            floatingStyles.unfold,
+            "w-64 border-border-strong p-2",
+            mobile ? "bg-paper/94 backdrop-blur-xl" : "bg-paper",
           )}
         >
         <DropdownMenuLabel className="px-3 py-2">
@@ -180,7 +175,6 @@ export function AccountNavigationMenu({
           </form>
         </DropdownMenuItem>
         </DropdownMenuContent>
-      </DropdownMenu>
-    </>
+    </DropdownMenu>
   );
 }

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -70,24 +71,20 @@ export default async function AccountPoemsPage({
       <AccountSectionNavigation />
 
       {suspended ? (
-        <p
-          role="alert"
-          className="mt-6 rounded-md border border-danger bg-danger-surface p-4 text-label text-danger"
-        >
-          你的账号已被禁用，写操作已关闭。
-          {currentUser?.suspensionReason
-            ? `原因：${currentUser.suspensionReason}`
-            : null}
-        </p>
+        <Alert variant="danger" className="mt-6 p-4">
+          <AlertDescription>
+            你的账号已被禁用，写操作已关闭。
+            {currentUser?.suspensionReason
+              ? `原因：${currentUser.suspensionReason}`
+              : null}
+          </AlertDescription>
+        </Alert>
       ) : null}
 
       {notice ? (
-        <p
-          role="status"
-          className="mt-6 rounded-md border border-success bg-success-surface p-3 text-label text-success"
-        >
-          {notice}
-        </p>
+        <Alert variant="success" role="status" className="mt-6">
+          <AlertDescription>{notice}</AlertDescription>
+        </Alert>
       ) : null}
 
       <Section className="pb-0 pt-8">

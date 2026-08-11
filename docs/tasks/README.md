@@ -47,8 +47,10 @@
 | M6.1 | About 沿革叙事重构 | 已完成 | [M6.1-about-editorial-history.md](./M6.1-about-editorial-history.md) |
 | M6.2 | 移动端导航信息架构重构 | 已完成 | [M6.2-mobile-navigation-information-architecture.md](./M6.2-mobile-navigation-information-architecture.md) |
 | M6.3 | 移动端导航浮层与动效修正 | 已完成 | [M6.3-mobile-navigation-overlay-motion.md](./M6.3-mobile-navigation-overlay-motion.md) |
+| M6.4 | 管理 Sheet 与桌面 Dropdown 对齐 | 已完成 | [M6.4-admin-drawer-dropdown-parity.md](./M6.4-admin-drawer-dropdown-parity.md) |
 | CHORE-1 | 仓库工作流与发布规范 | 已完成 | [CHORE-1-repository-workflow-conventions.md](./CHORE-1-repository-workflow-conventions.md) |
 | CHORE-2 | 已合并分支清理与保留规则 | 已完成 | [CHORE-2-merged-branch-retention-policy.md](./CHORE-2-merged-branch-retention-policy.md) |
+| CHORE-style-architecture-consolidation | 样式架构收敛 | 已完成 | [CHORE-style-architecture-consolidation.md](./CHORE-style-architecture-consolidation.md) |
 | BUG-1 | 修复bug | 已完成 | [BUG-1-admin-user-poem-count-fix.md](./BUG-1-admin-user-poem-count-fix.md) |
 | BUG-2 | 生产 Compose 恢复变量插值修复 | 已完成 | [BUG-2-production-compose-recovery-env-interpolation.md](./BUG-2-production-compose-recovery-env-interpolation.md) |
 | BUG-3 | 生产环境文件 CRLF 构建修复 | 已完成 | [BUG-3-production-env-crlf-build.md](./BUG-3-production-env-crlf-build.md) |
@@ -56,6 +58,10 @@
 | BUG-5 | 账户子页面保留安全返回地址 | 已完成 | [BUG-5-account-return-path.md](./BUG-5-account-return-path.md) |
 | BUG-6 | 账户页卡片对齐与表面层级修复 | 已完成 | [BUG-6-account-card-alignment.md](./BUG-6-account-card-alignment.md) |
 | BUG-7 | 工作区中等视口溢出修复 | 已完成 | [BUG-7-workspace-medium-viewport-overflow.md](./BUG-7-workspace-medium-viewport-overflow.md) |
+| BUG-8 | Dropdown 阴影动画闪烁修复 | 已完成 | [BUG-8-dropdown-shadow-animation-flash.md](./BUG-8-dropdown-shadow-animation-flash.md) |
+| BUG-9 | 移动账户 Dropdown 遮罩移除 | 已完成 | [BUG-9-mobile-account-dropdown-backdrop-removal.md](./BUG-9-mobile-account-dropdown-backdrop-removal.md) |
+| BUG-10 | 桌面工作区二级导航统一 | 进行中 | [BUG-10-secondary-navigation-breakpoint-parity.md](./BUG-10-secondary-navigation-breakpoint-parity.md) |
+| BUG-11 | 管理导航密度与入口卡片样式 | 进行中 | [BUG-11-admin-navigation-density-card-styles.md](./BUG-11-admin-navigation-density-card-styles.md) |
 
 ## 约定
 

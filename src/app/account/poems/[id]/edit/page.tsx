@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { AccountSectionNavigation } from "@/features/auth/components/account-secondary-navigation";
 import { updatePoemAction } from "@/features/posts/actions";
@@ -108,10 +109,8 @@ export default async function EditPoemPage({
       </dl>
 
       {hidden && poem.moderationReason ? (
-        <p
-          role="status"
-          className="mt-6 rounded-md border border-danger bg-danger-surface p-4 text-label text-danger"
-        >
+        <Alert variant="danger" className="mt-6 p-4">
+          <AlertDescription>
           这首诗已被管理员隐藏，不会出现在首页、列表与详情中。
           <span className="mt-1 block">原因：{poem.moderationReason}</span>
           {poem.moderatedAt ? (
@@ -119,28 +118,25 @@ export default async function EditPoemPage({
               处理时间：{formatPoemDate(poem.moderatedAt)}
             </span>
           ) : null}
-        </p>
+          </AlertDescription>
+        </Alert>
       ) : null}
 
       {suspended ? (
-        <p
-          role="alert"
-          className="mt-6 rounded-md border border-danger bg-danger-surface p-4 text-label text-danger"
-        >
+        <Alert variant="danger" className="mt-6 p-4">
+          <AlertDescription>
           你的账号已被禁用，当前只能查看内容，不能保存修改或调整状态。
           {currentUser?.suspensionReason
             ? `原因：${currentUser.suspensionReason}`
             : null}
-        </p>
+          </AlertDescription>
+        </Alert>
       ) : null}
 
       {successNotice ? (
-        <p
-          role="status"
-          className="mt-6 rounded-md border border-success bg-success-surface p-3 text-label text-success"
-        >
-          {successNotice}
-        </p>
+        <Alert variant="success" role="status" className="mt-6">
+          <AlertDescription>{successNotice}</AlertDescription>
+        </Alert>
       ) : null}
 
       {suspended ? (

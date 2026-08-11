@@ -199,8 +199,15 @@ test("mobile member navigation separates global and account responsibilities", a
     .getByRole("button", { name: "打开全站导航" })
     .click();
   const globalNavigation = page.getByRole("navigation", { name: "全站导航" });
+  await expect(page.locator('[data-slot="sheet-content"]')).toHaveAttribute(
+    "data-side",
+    "left",
+  );
   await expect(globalNavigation.getByRole("link", { name: /通知/ })).toHaveCount(0);
   await expect(globalNavigation.getByRole("link", { name: "管理" })).toHaveCount(0);
+  await expect(
+    globalNavigation.getByRole("button", { name: "管理后台" }),
+  ).toHaveCount(0);
   await expect(globalNavigation.getByRole("link", { name: "我的" })).toHaveCount(0);
   await page.keyboard.press("Escape");
 
@@ -224,6 +231,61 @@ test("mobile member navigation separates global and account responsibilities", a
   expect(sectionNavigationBox!.y).toBeGreaterThan(
     headingBox!.y + headingBox!.height,
   );
+});
+
+test("administrator navigation stays reachable across Sheet and workspace breakpoints", async ({
+  page,
+}) => {
+  const signInResponse = await page.request.post("/api/auth/sign-in/email", {
+    data: {
+      email: E2E_ADMIN_EMAIL,
+      password: E2E_ADMIN_PASSWORD,
+      rememberMe: false,
+    },
+  });
+  expect(signInResponse.status()).toBe(200);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/admin");
+  await waitForHydration(page, 'button[aria-label="打开全站导航"]');
+  await expect(page.locator('nav[aria-label="管理后台导航"]:visible')).toHaveCount(0);
+
+  await page.getByRole("button", { name: "打开全站导航" }).click();
+  const globalNavigation = page.getByRole("navigation", { name: "全站导航" });
+  await globalNavigation.getByRole("button", { name: "管理后台" }).click();
+  const adminLinks = globalNavigation.getByRole("link", { name: /^管理：/ });
+  await expect(adminLinks).toHaveCount(6);
+  await expect(
+    globalNavigation.getByRole("link", { name: "管理：总览" }),
+  ).toHaveAttribute("aria-current", "page");
+  await globalNavigation.getByRole("link", { name: "管理：用户" }).click();
+  await expect(page).toHaveURL(/\/admin\/users$/);
+  await expect(globalNavigation).toBeHidden();
+
+  await page.setViewportSize({ width: 1024, height: 844 });
+  const compactAdminNavigation = page.locator(
+    'nav[aria-label="管理后台导航"]:visible',
+  );
+  await expect(compactAdminNavigation).toHaveCount(1);
+  await expect(compactAdminNavigation).toHaveAttribute("data-variant", "bar");
+  await expect(
+    compactAdminNavigation.locator('[data-slot="secondary-navigation-indicator"]'),
+  ).toHaveCount(1);
+
+  await page.setViewportSize({ width: 1280, height: 844 });
+  const desktopAdminNavigation = page.locator(
+    'nav[aria-label="管理后台导航"]:visible',
+  );
+  await expect(desktopAdminNavigation).toHaveCount(1);
+  await expect(desktopAdminNavigation).toHaveAttribute("data-variant", "bar");
+  await expect(
+    desktopAdminNavigation.getByRole("link", { name: "用户" }),
+  ).toHaveAttribute("aria-current", "page");
+  await expect(
+    desktopAdminNavigation
+      .getByRole("link", { name: "用户" })
+      .locator('[data-slot="secondary-navigation-indicator"]'),
+  ).toHaveCount(1);
 });
 
 test.describe.serial("authenticated session loop", () => {
@@ -294,6 +356,18 @@ test.describe.serial("authenticated session loop", () => {
     await myMenuTrigger.click();
     const myMenu = page.getByRole("menu");
     await expect(myMenu).toBeVisible();
+    const myMenuContent = page.locator('[data-slot="dropdown-menu-content"]');
+    await expect(myMenuContent).toHaveCSS(
+      "animation-name",
+      /dropdown-unfold-in/,
+    );
+    await expect(page.locator(
+      '[data-account-menu-backdrop="true"][data-variant="desktop"]',
+    )).toHaveCount(0);
+    await expect(myMenuContent).toHaveCSS(
+      "backdrop-filter",
+      "none",
+    );
     await expect(myMenu.getByRole("menuitem", { name: "我的诗作" })).toBeVisible();
     await expect(myMenu.getByRole("menuitem", { name: "账户信息" })).toBeVisible();
     await expect(myMenu.getByRole("menuitem", { name: "账户安全" })).toBeVisible();
@@ -495,6 +569,42 @@ test.describe.serial("authenticated session loop", () => {
     }));
     expect(accountDimensions.scrollWidth).toBeLessThanOrEqual(
       accountDimensions.clientWidth,
+    );
+
+    await page.setViewportSize({ width: 1024, height: 844 });
+    await page.goto("/account");
+    const compactAccountNavigation = page.locator(
+      'nav[aria-label="账户导航"]:visible',
+    );
+    await expect(compactAccountNavigation).toHaveCount(1);
+    await expect(compactAccountNavigation).toHaveAttribute(
+      "data-variant",
+      "bar",
+    );
+    await expect(
+      compactAccountNavigation.locator(
+        '[data-slot="secondary-navigation-indicator"]',
+      ),
+    ).toHaveCount(1);
+    const [compactAccountNavigationBox, compactAccountHeadingBox] =
+      await Promise.all([
+        compactAccountNavigation.boundingBox(),
+        page.getByRole("heading", { level: 1, name: "账户" }).boundingBox(),
+      ]);
+    expect(compactAccountNavigationBox).not.toBeNull();
+    expect(compactAccountHeadingBox).not.toBeNull();
+    expect(compactAccountNavigationBox!.y).toBeLessThan(
+      compactAccountHeadingBox!.y,
+    );
+
+    await page.setViewportSize({ width: 1280, height: 844 });
+    const desktopAccountNavigation = page.locator(
+      'nav[aria-label="账户导航"]:visible',
+    );
+    await expect(desktopAccountNavigation).toHaveCount(1);
+    await expect(desktopAccountNavigation).toHaveAttribute(
+      "data-variant",
+      "bar",
     );
 
     // 精简首页不按认证态增加首屏按钮；登录态入口统一保留在刊头导航。

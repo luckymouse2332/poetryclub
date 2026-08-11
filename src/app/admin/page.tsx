@@ -54,21 +54,23 @@ export default async function AdminDashboardPage() {
         title="管理后台"
         description={`欢迎回来，${getUserDisplayName(admin)}。这里管理诗作、用户与邀请码，所有变更都会写入审计日志。`}
       />
-      <div className="mt-8 divide-y divide-border-subtle border-y border-border-subtle [&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none">
+      <div className="divide-y divide-border-subtle">
         {SECTIONS.map((section) => (
-          <Card key={section.href}>
-            <CardHeader>
-              <CardTitle>
-                <Link
-                  href={section.href}
-                  className="rounded-sm no-underline transition-colors hover:text-primary"
-                >
-                  {section.title}
-                </Link>
-              </CardTitle>
-              <CardDescription>{section.description}</CardDescription>
-            </CardHeader>
-          </Card>
+          <div key={section.title} className="[&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none">
+            <Card key={section.href}>
+              <CardHeader>
+                <CardTitle>
+                  <Link
+                    href={section.href}
+                    className="rounded-sm no-underline transition-colors hover:text-primary"
+                  >
+                    {section.title}
+                  </Link>
+                </CardTitle>
+                <CardDescription>{section.description}</CardDescription>
+              </CardHeader>
+            </Card>{" "}
+          </div>
         ))}
       </div>
     </PageContainer>

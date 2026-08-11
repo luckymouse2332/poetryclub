@@ -358,7 +358,10 @@ test("mobile header keeps one centered row and an accessible global menu", async
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/");
   await waitForHydration(page, 'button[aria-label="打开全站导航"]');
-  const menuTrigger = page.locator('button[aria-label="打开全站导航"]');
+  // 汉堡按钮打开后就地变成叉，因此按 aria-controls 定位同一个元素。
+  const menuTrigger = page.locator(
+    'button[aria-controls="mobile-site-navigation"]',
+  );
   const menuTriggerBox = await menuTrigger.boundingBox();
   expect(menuTriggerBox).not.toBeNull();
   await menuTrigger.focus();
@@ -367,23 +370,23 @@ test("mobile header keeps one centered row and an accessible global menu", async
 
   const globalNavigation = page.getByRole("navigation", { name: "全站导航" });
   const closeButton = page.getByRole("button", { name: "关闭全站导航" });
+  const sheet = page.locator('[data-slot="sheet-content"]');
+  const sheetOverlay = page.locator('[data-slot="sheet-overlay"]');
   await expect(globalNavigation).toBeVisible();
   await expect(closeButton).toBeFocused();
   const closeButtonBox = await closeButton.boundingBox();
   expect(closeButtonBox).not.toBeNull();
   expect(closeButtonBox).toEqual(menuTriggerBox);
-  await expect(page.locator(".mobile-navigation-drawer")).toHaveCSS(
-    "animation-name",
-    "navigation-drawer-in",
-  );
-  const [headerBox, drawerBox] = await Promise.all([
+  await expect(sheet).toHaveAttribute("data-side", "left");
+  await expect(sheet).toHaveCSS("animation-name", /navigation-sheet-in/);
+  const [headerBox, sheetBox] = await Promise.all([
     page.locator('nav[aria-label="主导航"].lg\\:hidden').boundingBox(),
-    page.locator(".mobile-navigation-drawer").boundingBox(),
+    sheet.boundingBox(),
   ]);
   expect(headerBox).not.toBeNull();
-  expect(drawerBox).not.toBeNull();
-  expect(drawerBox!.y).toBe(headerBox!.height);
-  await expect(page.locator(".mobile-navigation-overlay")).toHaveCSS(
+  expect(sheetBox).not.toBeNull();
+  expect(sheetBox!.y).toBe(headerBox!.height);
+  await expect(sheetOverlay).toHaveCSS(
     "backdrop-filter",
     /blur\(4px\)/,
   );
@@ -393,10 +396,22 @@ test("mobile header keeps one centered row and an accessible global menu", async
   await expect(globalNavigation.getByRole("link", { name: "管理" })).toHaveCount(0);
   await expect(globalNavigation.getByRole("link", { name: "我的" })).toHaveCount(0);
 
+  await closeButton.press("Tab");
+  await expect(globalNavigation.getByRole("link", { name: "诗作" })).toBeFocused();
+  await closeButton.focus();
+  await closeButton.press("Shift+Tab");
+  await expect(globalNavigation.getByRole("link", { name: "关于" })).toBeFocused();
+  await closeButton.focus();
+
   await page.keyboard.press("Escape");
   await expect(globalNavigation).toBeHidden();
   await expect(menuTrigger).toBeFocused();
   await expect(menuTrigger).toHaveAttribute("aria-expanded", "false");
+
+  await menuTrigger.click();
+  await sheetOverlay.click({ position: { x: 370, y: 100 } });
+  await expect(globalNavigation).toBeHidden();
+  await expect(menuTrigger).toBeFocused();
 
   await menuTrigger.press("Space");
   await globalNavigation.getByRole("link", { name: "诗作" }).click();
@@ -421,7 +436,7 @@ test("mobile header keeps one centered row and an accessible global menu", async
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole("button", { name: "打开全站导航" }).click();
-  await expect(page.locator(".mobile-navigation-drawer")).toHaveCSS(
+  await expect(sheet).toHaveCSS(
     "animation-duration",
     /^(?:0\.00001|1e-05)s$/,
   );

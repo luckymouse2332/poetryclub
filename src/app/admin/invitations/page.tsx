@@ -54,13 +54,18 @@ export default async function AdminInvitationsPage({
 
       <Section title="邀请码列表" className="pb-0 pt-8">
         {result.items.length > 0 ? (
-          <div className="divide-y divide-border-subtle border-y border-border-subtle [&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none">
+          <div className="divide-y divide-border-subtle">
             {result.items.map((invitation) => (
-              <AdminInvitationCard
+              <div
                 key={invitation.id}
-                invitation={invitation}
-                now={new Date()}
-              />
+                className="[&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none"
+              >
+                <AdminInvitationCard
+                  key={invitation.id}
+                  invitation={invitation}
+                  now={new Date()}
+                />
+              </div>
             ))}
           </div>
         ) : (

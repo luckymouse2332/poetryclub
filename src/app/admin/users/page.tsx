@@ -83,22 +83,21 @@ export default async function AdminUsersPage({
       </div>
       <Section className="pb-0 pt-8">
         {result.items.length > 0 ? (
-          <div className="divide-y divide-border-subtle border-y border-border-subtle [&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none">
+          <div className="divide-y divide-border-subtle">
             {result.items.map((user) => (
-              <AdminUserCard
+              <div
                 key={user.id}
-                user={user}
-                isSelf={user.id === admin.id}
-              />
+                className="[&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none"
+              >
+                <AdminUserCard user={user} />
+              </div>
             ))}
           </div>
         ) : (
           <Empty>
             <EmptyHeader>
               <EmptyTitle>没有符合条件的用户</EmptyTitle>
-              <EmptyDescription>
-                调整筛选条件后重新查找。
-              </EmptyDescription>
+              <EmptyDescription>调整筛选条件后重新查找。</EmptyDescription>
             </EmptyHeader>
           </Empty>
         )}

@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -72,13 +73,9 @@ export function PoemForm({
       ) : null}
 
       {state.status === "error" && state.message ? (
-        <p
-          role="alert"
-          aria-live="polite"
-          className="rounded-md border border-danger bg-danger-surface p-3 text-label text-danger"
-        >
-          {state.message}
-        </p>
+        <Alert variant="danger" role="alert">
+          <AlertDescription>{state.message}</AlertDescription>
+        </Alert>
       ) : null}
 
       <div

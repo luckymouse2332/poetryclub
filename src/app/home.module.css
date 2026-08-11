@@ -43,7 +43,7 @@
   position: relative;
   min-height: clamp(20rem, 70vw, 30rem);
   overflow: hidden;
-  background: var(--palette-ink);
+  background: var(--foreground);
 }
 
 .heroImageFrame::before {

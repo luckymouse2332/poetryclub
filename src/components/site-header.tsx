@@ -16,9 +16,12 @@ export function SiteHeader({
   mobileAccount,
 }: SiteHeaderProps) {
   return (
-    <header className="border-b border-border-subtle bg-background">
-      <nav aria-label="主导航" className="lg:hidden">
-        <div className="grid h-16 grid-cols-[3rem_minmax(0,1fr)_3rem] items-center px-3">
+    <header className="bg-background lg:border-b lg:border-border-subtle">
+      <nav
+        aria-label="主导航"
+        className="relative z-header h-[var(--mobile-header-height)] border-b border-border-subtle bg-background lg:hidden"
+      >
+        <div className="grid h-full grid-cols-[3rem_minmax(0,1fr)_3rem] items-center px-3">
           <div className="flex size-12 items-center justify-center">
             {mobileMenu}
           </div>

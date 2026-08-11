@@ -119,7 +119,10 @@ function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="field-title"
-      className={`text-label ${cn("flex w-fit items-center gap-2 font-medium text-foreground", className)}`}
+      className={cn(
+        "flex w-fit items-center gap-2 text-label font-medium text-foreground",
+        className,
+      )}
       {...props}
     />
   );
@@ -129,7 +132,7 @@ function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
   return (
     <p
       data-slot="field-description"
-      className={`text-caption ${cn("text-muted-foreground", className)}`}
+      className={cn("text-caption text-muted-foreground", className)}
       {...props}
     />
   );
@@ -203,7 +206,7 @@ function FieldError({
     <div
       role="alert"
       data-slot="field-error"
-      className={`text-label ${cn("text-danger", className)}`}
+      className={cn("text-label text-danger", className)}
       {...props}
     >
       {content}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { getUserDisplayName } from "@/features/auth/user-display";
 import { getCurrentUser } from "@/server/auth/session";
@@ -26,15 +27,14 @@ export async function HomeHeroActions() {
   if (suspended || !currentUser) {
     return (
       <div className="basis-full">
-        <p
-          role="alert"
-          className="max-w-reading rounded-sm border border-danger bg-danger-surface p-4 text-label text-danger"
-        >
-          你的账号已被管理员禁用，目前只能浏览内容，不能新建或修改诗作。
-          {currentUser?.suspensionReason
-            ? `原因：${currentUser.suspensionReason}`
-            : null}
-        </p>
+        <Alert variant="danger" className="max-w-reading p-4">
+          <AlertDescription>
+            你的账号已被管理员禁用，目前只能浏览内容，不能新建或修改诗作。
+            {currentUser?.suspensionReason
+              ? `原因：${currentUser.suspensionReason}`
+              : null}
+          </AlertDescription>
+        </Alert>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Button asChild variant="secondary" size="sm">
             <Link href="/account/poems">我的诗作</Link>

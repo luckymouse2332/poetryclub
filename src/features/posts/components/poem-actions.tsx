@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import Link from "next/link";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -44,13 +45,9 @@ function ActionError({ state }: Readonly<{ state: PoemActionState }>) {
     return null;
   }
   return (
-    <p
-      role="alert"
-      aria-live="polite"
-      className="rounded-md border border-danger bg-danger-surface p-3 text-label text-danger"
-    >
-      {state.message}
-    </p>
+    <Alert variant="danger" role="alert">
+      <AlertDescription>{state.message}</AlertDescription>
+    </Alert>
   );
 }
 
@@ -153,9 +150,11 @@ export function PoemActions({
         )}
       </div>
       {hidden ? (
-        <p className="rounded-md border border-warning/30 bg-warning-surface p-3 text-label text-warning">
-          该作品已被管理员隐藏，不会对所有人可见；保存、撤回或重新发布都不会解除隐藏。
-        </p>
+        <Alert variant="warning">
+          <AlertDescription>
+            该作品已被管理员隐藏，不会对所有人可见；保存、撤回或重新发布都不会解除隐藏。
+          </AlertDescription>
+        </Alert>
       ) : null}
       {status === "draft" ? (
         <ActionError state={publishState} />

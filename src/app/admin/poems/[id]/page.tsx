@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import {
   hidePoemAction,
@@ -66,7 +67,8 @@ export default async function AdminPoemDetailPage({
         </div>
       </dl>
       {poem.moderationReason ? (
-        <div className="mt-6 rounded-md border border-danger bg-danger-surface p-4 text-label text-danger">
+        <Alert variant="danger" className="mt-6 p-4">
+          <AlertDescription>
           <p className="whitespace-pre-wrap">隐藏原因：{poem.moderationReason}</p>
           {poem.moderatedAt ? (
             <p className="mt-1">
@@ -74,7 +76,8 @@ export default async function AdminPoemDetailPage({
               {formatModerationDateTime(poem.moderatedAt)}
             </p>
           ) : null}
-        </div>
+          </AlertDescription>
+        </Alert>
       ) : null}
       <section className="mt-8" aria-labelledby="admin-poem-body">
         <h2 id="admin-poem-body" className="text-section-title font-semibold">

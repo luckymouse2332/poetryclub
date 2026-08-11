@@ -105,6 +105,11 @@ test("desktop notification popover stays synchronized and supports keyboard dism
     await notificationTrigger.press("Enter");
     const popover = inboxPage.locator('[data-slot="popover-content"]');
     await expect(popover).toBeVisible();
+    await expect(popover).toHaveCSS(
+      "animation-name",
+      /dropdown-unfold-in/,
+    );
+    await expect(popover).toHaveCSS("backdrop-filter", "none");
     await inboxPage.evaluate(() => {
       (
         window as Window & {
@@ -231,6 +236,7 @@ test("non-recipients cannot read member-only announcement details", async ({
 test("mobile notification state and admin entry stay inside their navigation roles", async ({
   page,
 }) => {
+  test.setTimeout(60_000);
   const notificationId = await createUnreadNotificationFixture(E2E_ADMIN_EMAIL);
 
   try {
@@ -263,7 +269,7 @@ test("mobile notification state and admin entry stay inside their navigation rol
       await expect(accountTrigger).toBeVisible();
       await expect(
         accountTrigger.locator('[data-unread-indicator="true"]'),
-      ).toHaveCount(0);
+      ).toHaveCount(1);
 
       await accountTrigger.click();
       const accountMenu = page.getByRole("menu");
@@ -271,22 +277,17 @@ test("mobile notification state and admin entry stay inside their navigation rol
         name: /通知.*[1-9]\d* 条未读/,
       });
       await expect(notificationItem).toHaveAttribute("href", "/notifications");
-      await expect(
-        page.locator('[data-mobile-account-backdrop="true"]'),
-      ).toHaveAttribute("data-state", "open");
-      await expect(page.locator(".mobile-account-menu")).toHaveCSS(
-        "animation-name",
-        "account-menu-in",
+      const mobileAccountBackdrop = page.locator(
+        '[data-account-menu-backdrop="true"]',
       );
-      await expect(
-        page.locator('[data-mobile-account-backdrop="true"]'),
-      ).toHaveCSS("backdrop-filter", /blur\(4px\)/);
+      await expect(mobileAccountBackdrop).toHaveCount(0);
+      await expect(page.locator('[data-slot="dropdown-menu-content"]')).toHaveCSS(
+        "animation-name",
+        /dropdown-unfold-in/,
+      );
       await page.keyboard.press("Escape");
       await expect(accountMenu).toBeHidden();
       await expect(accountTrigger).toBeFocused();
-      await expect(
-        page.locator('[data-mobile-account-backdrop="true"]'),
-      ).toHaveAttribute("data-state", "closed");
 
       await accountTrigger.click();
       await page.mouse.click(8, 100);
@@ -298,37 +299,108 @@ test("mobile notification state and admin entry stay inside their navigation rol
       const globalNavigation = page.getByRole("navigation", {
         name: "全站导航",
       });
+      const adminNavigationTrigger = globalNavigation.getByRole("button", {
+        name: "管理后台",
+      });
+      await expect(adminNavigationTrigger).toHaveAttribute(
+        "aria-expanded",
+        "false",
+      );
+      await expect(
+        globalNavigation.getByRole("link", { name: "管理：总览" }),
+      ).toBeHidden();
+      await adminNavigationTrigger.click();
+      await expect(adminNavigationTrigger).toHaveAttribute(
+        "aria-expanded",
+        "true",
+      );
       const links = globalNavigation.getByRole("link");
-      await expect(globalNavigation.getByRole("link", { name: "诗作" })).toBeVisible();
-      await expect(globalNavigation.getByRole("link", { name: "关于" })).toBeVisible();
+      await expect(
+        globalNavigation.getByRole("link", { name: "诗作", exact: true }),
+      ).toBeVisible();
+      await expect(
+        globalNavigation.getByRole("link", { name: "关于", exact: true }),
+      ).toBeVisible();
       await expect(globalNavigation.getByRole("link", { name: /通知/ })).toHaveCount(0);
-      await expect(globalNavigation.getByRole("link", { name: "管理" })).toHaveAttribute(
+      await expect(globalNavigation.getByText("管理后台", { exact: true })).toBeVisible();
+      await expect(globalNavigation.getByRole("link", { name: "管理：总览" })).toHaveAttribute(
         "href",
         "/admin",
       );
+      await expect(globalNavigation.getByRole("link", { name: "管理：诗作" })).toHaveAttribute(
+        "href",
+        "/admin/poems",
+      );
+      await expect(globalNavigation.getByRole("link", { name: "管理：审计" })).toHaveAttribute(
+        "href",
+        "/admin/audit",
+      );
+      await adminNavigationTrigger.click();
+      await expect(adminNavigationTrigger).toHaveAttribute(
+        "aria-expanded",
+        "false",
+      );
+      await expect(
+        globalNavigation.getByRole("link", { name: "管理：总览" }),
+      ).toBeHidden();
+      await adminNavigationTrigger.click();
       await expect(globalNavigation.getByRole("link", { name: "我的" })).toHaveCount(0);
       await expect(globalNavigation.getByRole("link", { name: "账户信息" })).toHaveCount(0);
       const linkHeights = await links.evaluateAll((elements) =>
         elements.map((element) => element.getBoundingClientRect().height),
       );
       expect(linkHeights.every((height) => height >= 44)).toBe(true);
-      await page.getByRole("button", { name: "关闭全站导航" }).click();
+      await page.mouse.click(viewport.width - 8, 120);
+      await expect(globalNavigation).toBeHidden();
+      await expect(
+        headerNavigation.getByRole("button", { name: "打开全站导航" }),
+      ).toBeFocused();
     }
 
     await page.goto("/");
+    await waitForHydration(page, 'button[aria-label="打开全站导航"]');
     await page.getByRole("button", { name: "打开全站导航" }).click();
+    await page.getByRole("button", { name: "管理后台" }).click();
     await page
       .getByRole("navigation", { name: "全站导航" })
-      .getByRole("link", { name: "管理" })
+      .getByRole("link", { name: "管理：总览" })
       .click();
     await page.waitForURL(/\/admin$/);
-    const adminNavigation = page.getByRole("navigation", {
+    await expect(page.getByRole("navigation", {
+      name: "管理后台导航",
+    })).toHaveCount(0);
+
+    await page.getByRole("button", { name: "打开全站导航" }).click();
+    const mobileAdminNavigation = page.getByRole("navigation", {
+      name: "全站导航",
+    });
+    await expect(
+      mobileAdminNavigation.getByRole("link", { name: "管理：总览" }),
+    ).toHaveAttribute("aria-current", "page");
+    await expect(
+      mobileAdminNavigation.getByRole("link", { name: "管理：审计" }),
+    ).toBeVisible();
+    await page.keyboard.press("Escape");
+
+    await page.setViewportSize({ width: 1024, height: 900 });
+    await page.goto("/admin");
+    const compactAdminNavigation = page.getByRole("navigation", {
       name: "管理后台导航",
     });
-    await expect(adminNavigation.getByRole("link", { name: "总览" })).toBeVisible();
-    await expect(adminNavigation.getByRole("link", { name: "审计" })).toBeVisible();
+    await expect(compactAdminNavigation.getByRole("link", { name: "总览" })).toBeVisible();
+    await expect(compactAdminNavigation.getByRole("link", { name: "审计" })).toBeVisible();
 
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/admin");
+    const desktopAdminNavigation = page.getByRole("navigation", {
+      name: "管理后台导航",
+    });
+    await expect(desktopAdminNavigation.getByRole("link", { name: "总览" })).toBeVisible();
+    await expect(desktopAdminNavigation.getByRole("link", { name: "审计" })).toBeVisible();
+
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
+    await waitForHydration(page, 'button[aria-label^="打开E2E 测试管理员的账户菜单"]');
     await page.getByRole("button", { name: /E2E 测试管理员的账户菜单/ }).click();
     await page.getByRole("menuitem", { name: /通知.*条未读/ }).click();
     await page.waitForURL("/notifications");

@@ -39,7 +39,7 @@ function PopoverContent({
         sideOffset={sideOffset}
         collisionPadding={collisionPadding}
         className={cn(
-          "z-50 origin-(--radix-popover-content-transform-origin) rounded-[10px] border border-border-strong bg-paper text-foreground shadow-floating outline-hidden",
+          "z-floating origin-(--radix-popover-content-transform-origin) rounded-md border border-border-strong bg-paper text-foreground shadow-floating outline-hidden",
           className,
         )}
         {...props}
@@ -58,7 +58,7 @@ function PopoverHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="popover-header"
-      className={cn("flex flex-col gap-1 text-sm", className)}
+      className={cn("flex flex-col gap-1 text-label", className)}
       {...props}
     />
   );

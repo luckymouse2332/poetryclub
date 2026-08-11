@@ -120,11 +120,11 @@ function AlertDialogTitle({
   return (
     <AlertDialogPrimitive.Title
       data-slot="alert-dialog-title"
-      className={`text-body-lg ${cn(
-        "font-semibold text-foreground",
+      className={cn(
+        "text-body-lg font-semibold text-foreground",
         "sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2",
         className,
-      )}`}
+      )}
       {...props}
     />
   );
@@ -137,7 +137,7 @@ function AlertDialogDescription({
   return (
     <AlertDialogPrimitive.Description
       data-slot="alert-dialog-description"
-      className={`text-label ${cn("text-muted-foreground", className)}`}
+      className={cn("text-label text-muted-foreground", className)}
       {...props}
     />
   );

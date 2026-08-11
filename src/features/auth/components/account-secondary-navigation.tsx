@@ -6,14 +6,14 @@ export const ACCOUNT_NAV_ITEMS = [
   { href: "/account/security", label: "账户安全", match: "prefix" },
 ] as const;
 
-/** 账户页正文内的移动 / 平板二级导航；桌面由 WorkspaceShell 常驻侧栏承载。 */
+/** 账户页正文内的移动二级导航；lg 起由 WorkspaceShell 统一承载。 */
 export function AccountSectionNavigation() {
   return (
     <SecondaryNavigation
       ariaLabel="账户导航"
       items={ACCOUNT_NAV_ITEMS}
       variant="embedded"
-      className="mt-6 xl:hidden"
+      className="mt-6 lg:hidden"
     />
   );
 }

@@ -68,7 +68,7 @@ function EmptyTitle({ className, ...props }: React.ComponentProps<"h3">) {
   return (
     <h3
       data-slot="empty-title"
-      className={`text-body ${cn("font-semibold text-foreground", className)}`}
+      className={cn("text-body font-semibold text-foreground", className)}
       {...props}
     />
   );
@@ -78,7 +78,7 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
   return (
     <p
       data-slot="empty-description"
-      className={`text-body ${cn("max-w-reading text-subtle", className)}`}
+      className={cn("max-w-reading text-body text-subtle", className)}
       {...props}
     />
   );
