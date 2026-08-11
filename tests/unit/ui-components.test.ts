@@ -53,13 +53,6 @@ import {
 } from "@/components/ui/form-field";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
-import {
-  Item,
-  ItemContent,
-  ItemGroup,
-  ItemSeparator,
-  ItemTitle,
-} from "@/components/ui/item";
 import { PaginationNavigation } from "@/components/pagination-navigation";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
@@ -212,30 +205,6 @@ test("Alert 状态变体使用固定图标与单一 live role", () => {
   expect(danger).toContain('data-variant="danger"');
   expect(danger).toContain('role="alert"');
   expect([success, warning, danger].every((value) => value.includes("<svg"))).toBe(true);
-});
-
-test("ItemGroup 使用显式条目与分隔线组合", () => {
-  const rendered = markup(
-    h(
-      ItemGroup,
-      null,
-      h(
-        Item,
-        { role: "listitem" },
-        h(ItemContent, null, h(ItemTitle, null, "第一项")),
-      ),
-      h(ItemSeparator, null),
-      h(
-        Item,
-        { role: "listitem" },
-        h(ItemContent, null, h(ItemTitle, null, "第二项")),
-      ),
-    ),
-  );
-
-  expect(rendered).toContain('data-slot="item-group"');
-  expect(rendered.match(/data-slot="item"/g)).toHaveLength(2);
-  expect(rendered).toContain('data-slot="item-separator"');
 });
 
 test("PaginationNavigation 在边界页只生成有效方向 href", () => {

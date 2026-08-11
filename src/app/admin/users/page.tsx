@@ -39,8 +39,8 @@ export default async function AdminUsersPage({
     notFound();
   }
 
-  // 读取当前管理员身份，用于在列表中标记自身并隐藏自操作入口。
-  const admin = await requireAdminOrForbidden();
+  // 页面入口独立执行管理员授权，不能只依赖父布局。
+  await requireAdminOrForbidden();
 
   const activeFilter = Boolean(
     parsed.data.q ?? parsed.data.role ?? parsed.data.status,

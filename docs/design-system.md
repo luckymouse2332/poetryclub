@@ -168,11 +168,6 @@
 - Alert 不默认创建 live region。交互或异步错误显式使用 `role="alert"`，异步成功与非阻断状态变化使用 `role="status"`，不得再重复声明 `aria-live`；初始页面中的静态禁用、隐藏和治理原因说明不声明 live role。
 - 字段错误继续由 Field / FormField 承担，Badge、必填标记和普通内联状态文字不迁入 Alert。
 
-### Item / ItemGroup
-
-- 管理后台总览、用户、诗作、邀请码、公告和审计列表统一使用 `ItemGroup + ItemSeparator + Item`；条目内部按需要组合 ItemContent、ItemTitle、ItemDescription 和 ItemFooter。
-- Item 表达列表条目，不复用 Card 的分区语义，父容器不得通过 `data-slot="card"` 覆盖子组件内部样式。
-
 ### Pagination
 
 - 通用展示组合 `PaginationNavigation` 只接收当前页、总页数、上一页 / 下一页 href、可访问名称和可选 className；不解析 feature 查询参数。
@@ -184,7 +179,7 @@
 
 | 类别 | 含义 | 组件 |
 | --- | --- | --- |
-| 上游同构 | 结构、`data-slot`、子组件与上游 shadcn/ui 一致，只把类名映射到本文件的 Token 并去掉 `dark:` 变体 | `card`、`empty`、`field`、`item`、`label`、`pagination`、`separator`、`spinner`、`dropdown-menu`、`popover`、`skeleton` |
+| 上游同构 | 结构、`data-slot`、子组件与上游 shadcn/ui 一致，只把类名映射到本文件的 Token 并去掉 `dark:` 变体 | `card`、`empty`、`field`、`label`、`pagination`、`separator`、`spinner`、`dropdown-menu`、`popover`、`skeleton` |
 | 上游同构 + 项目变体 | 以上游为基线，额外增加项目需要的 cva 变体或行为 | `button`（variant/size/loading）、`badge`、`input`、`textarea`、`alert`（success/warning/danger 固定图标且 role 由调用方声明）、`alert-dialog`（项目 Button 变体与语义 Token）、`dialog`、`sheet`（`overlayClassName`） |
 | 项目自有 | 上游没有对应组件，由本项目定义并负责维护 | `surface`、`form-field`、`icon-button`、`pagination-navigation`、`secondary-navigation`、`workspace-shell`、`auth-split-shell`、`site-header`、`mobile-global-navigation` |
 

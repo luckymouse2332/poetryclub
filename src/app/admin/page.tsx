@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { getUserDisplayName } from "@/features/auth/user-display";
+import { AdminDashboardCard } from "@/features/moderation/components/admin-dashboard-card";
 import { requireAdminOrForbidden } from "@/features/moderation/require-admin";
 
 export const metadata: Metadata = {
@@ -21,26 +15,31 @@ const SECTIONS = [
     href: "/admin/poems",
     title: "诗作治理",
     description: "隐藏或恢复诗作，查看作者状态与治理状态。",
+    tone: "paper",
   },
   {
     href: "/admin/users",
     title: "用户管理",
     description: "禁用 / 恢复账号，调整管理员角色。",
+    tone: "paper",
   },
   {
     href: "/admin/invitations",
     title: "邀请码",
     description: "创建受控注册邀请码，并管理其状态。",
+    tone: "muted",
   },
   {
     href: "/admin/announcements",
     title: "系统公告",
     description: "创建公告草稿、选择受众并发布站内消息。",
+    tone: "muted",
   },
   {
     href: "/admin/audit",
     title: "审计日志",
     description: "只读查看最近的管理动作记录。",
+    tone: "plain",
   },
 ] as const;
 
@@ -54,23 +53,9 @@ export default async function AdminDashboardPage() {
         title="管理后台"
         description={`欢迎回来，${getUserDisplayName(admin)}。这里管理诗作、用户与邀请码，所有变更都会写入审计日志。`}
       />
-      <div className="divide-y divide-border-subtle">
+      <div className="grid gap-4 md:grid-cols-2">
         {SECTIONS.map((section) => (
-          <div key={section.title} className="[&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none">
-            <Card key={section.href}>
-              <CardHeader>
-                <CardTitle>
-                  <Link
-                    href={section.href}
-                    className="rounded-sm no-underline transition-colors hover:text-primary"
-                  >
-                    {section.title}
-                  </Link>
-                </CardTitle>
-                <CardDescription>{section.description}</CardDescription>
-              </CardHeader>
-            </Card>{" "}
-          </div>
+          <AdminDashboardCard key={section.href} {...section} />
         ))}
       </div>
     </PageContainer>

@@ -6,10 +6,10 @@
 
 ## 范围
 
-- [x] 通过 shadcn/ui CLI 生成 Alert、Item / ItemGroup 和 Pagination，映射项目 Token、字号和圆角，移除 `dark:` 变体。
+- [x] 通过 shadcn/ui CLI 生成 Alert 和 Pagination，映射项目 Token、字号和圆角，移除 `dark:` 变体。
 - [x] Alert 提供 `default | success | warning | danger` 变体；迁移认证、诗作、账户、通知和管理功能中的完整状态提示框。
 - [x] 交互错误使用 `role="alert"`，异步成功使用 `role="status"`，静态说明不创建 live region；成功、警告和错误使用固定 Lucide 图标。
-- [x] 六组管理列表使用 `ItemGroup + ItemSeparator + Item`，相关 `Admin*Card` 内部组件改名为 `Admin*Item`，删除父容器对 Card 内部结构的样式覆盖。
+- [x] 统一六组管理列表的分隔、边框和操作区样式，保留现有业务组件与 Card 组合。
 - [x] 新增基于上游组件的 `PaginationNavigation`，接收 `page`、`pageCount`、`previousHref`、`nextHref`、`ariaLabel` 和 `className`；三个 feature 保留各自的查询参数和 URL 生成逻辑。
 - [x] 把移动导航、账户遮罩和共享下拉动效分别迁入对应 CSS Module，`globals.css` 只保留 Token、基础样式、Radix 通用浮层行为和 reduced-motion。
 - [x] 增加 fast / normal / slow 动效 Token、enter / exit easing，以及 floating / header / sheet 层级 Token，并替换对应任意值。
@@ -24,12 +24,12 @@
 
 ## 架构边界
 
-新增 UI 原语位于 `src/components/ui`，业务组合位于 `src/components` 或对应 feature。Pagination 展示组件不解析业务查询参数。管理 Item 只接收现有 DTO，不访问数据库。组件来源与变体登记遵守 `docs/design-system.md` 第 10 节基线表。
+新增 UI 原语位于 `src/components/ui`，业务组合位于 `src/components` 或对应 feature。Pagination 展示组件不解析业务查询参数。管理列表业务组件只接收现有 DTO，不访问数据库。组件来源与变体登记遵守 `docs/design-system.md` 第 10 节基线表。
 
 ## 验收条件
 
 - [x] Alert 的四种视觉变体及三类动态状态具有一致图标和正确 live-region 语义，不重复声明 `aria-live`。
-- [x] 六组管理列表具有 `item-group`、`item` 和 `item-separator` 语义结构，不再依赖 `data-slot="card"` 覆盖。
+- [x] 六组管理列表具有一致的分隔、边框与操作区结构，并保留正确的列表和链接语义。
 - [x] 三个分页调用方在首页、末页和中间页生成原有 URL，禁用边界不产生可点击链接。
 - [x] 组件级动效位于 CSS Module；全局文件只保留全局职责，reduced-motion 仍覆盖全部过渡和动画。
 - [x] fast 为 160ms、normal 为 220ms、slow 为 260ms；floating 为 50、header 为 60、sheet 为 70，并替换对应任意值。
@@ -40,15 +40,15 @@
 
 - 预期版本影响：`PATCH`
 - migration / 环境变量 / 部署顺序：无。
-- 兼容性与回滚边界：可按 Alert、Item、Pagination、动效 Token 四组分别回滚；外部 feature props 保持兼容。
+- 兼容性与回滚边界：可按 Alert、管理列表、Pagination、动效 Token 四组分别回滚；外部 feature props 保持兼容。
 
 ## 测试
 
-单元测试已覆盖 Alert 状态、Item 组合、Pagination 边界与 href、className 字号覆盖；相关 Playwright 已回归用户、诗作、邀请码、公告、审计、通知和导航。`check:conventions`、typecheck、lint、220 个单元测试和生产构建通过。
+单元测试已覆盖 Alert 状态、Pagination 边界与 href、className 字号覆盖；相关 Playwright 已回归用户、诗作、邀请码、公告、审计、通知和导航。`check:conventions`、typecheck、lint、单元测试和生产构建通过。
 
 ## 风险 / 回滚
 
-批量语义迁移可能改变测试定位，Item 结构也可能影响管理操作按钮布局。逐类迁移并在每类完成后执行单元测试和对应 E2E；分页 URL 通过现有 feature 生成函数保持不变。
+批量语义迁移可能改变测试定位，管理列表结构也可能影响操作按钮布局。逐类迁移并在每类完成后执行单元测试和对应 E2E；分页 URL 通过现有 feature 生成函数保持不变。
 
 ## 状态
 
