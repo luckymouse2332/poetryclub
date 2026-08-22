@@ -6,12 +6,12 @@
 
 ## 范围
 
-- [ ] 让管理与账户工作区在 1024px 起共用 `WorkspaceShell` 中同一套 `SecondaryNavigation`。
-- [ ] 按 `docs/mockups/目标.png` 统一桌面容器、衬线字号、间距、选中态和分隔线。
-- [ ] 使用 Next.js 16.2 与 React View Transition 提供的共享元素动效，让当前项短横线在路由切换时平滑移动，并尊重 reduced motion。
-- [ ] 删除不再使用的桌面侧栏导航组件与对应布局分支。
-- [ ] 将账户正文内导航限制在小于 1024px，避免桌面端重复渲染。
-- [ ] 更新响应式测试并完成 1024px、1280px 视觉 QA。
+- [x] 让管理与账户工作区在 1024px 起共用 `WorkspaceShell` 中同一套 `SecondaryNavigation`。
+- [x] 按 `docs/mockups/目标.png` 统一桌面容器、衬线字号、间距、选中态和分隔线。
+- [x] 使用 Next.js 16.2 与 React View Transition 提供的共享元素动效，让当前项短横线在路由切换时平滑移动，并尊重 reduced motion。
+- [x] 删除不再使用的桌面侧栏导航组件与对应布局分支。
+- [x] 将账户正文内导航限制在小于 1024px，避免桌面端重复渲染。
+- [x] 更新响应式测试并完成 1024px、1280px 视觉 QA。
 
 ## 非目标
 
@@ -26,13 +26,13 @@
 
 ## 验收条件
 
-- [ ] 1024px 与 1280px 下管理与账户页面的二级导航使用相同容器、间距、字号、选中态和横向滚动规则。
-- [ ] 桌面导航与 `docs/mockups/目标.png` 的上下分隔线、文字层级和印章红短横线一致。
-- [ ] 点击不同导航项时，当前项短横线产生共享元素切换动画；reduced motion 下动画时长归零。
-- [ ] 小于 1024px 的账户正文导航保持可用。
-- [ ] 每个视口只显示一套对应的二级导航。
-- [ ] 不再存在未使用的 `WorkspaceNavigation` 组件。
-- [ ] `pnpm typecheck`、`pnpm lint`、`pnpm test` 和相关 E2E 通过。
+- [x] 1024px 与 1280px 下管理与账户页面的二级导航使用相同容器、间距、字号、选中态和横向滚动规则。
+- [x] 桌面导航与 `docs/mockups/目标.png` 的上下分隔线、文字层级和印章红短横线一致。
+- [x] 点击不同导航项时，当前项短横线产生共享元素切换动画；reduced motion 下动画时长归零。
+- [x] 小于 1024px 的账户正文导航保持可用。
+- [x] 每个视口只显示一套对应的二级导航。
+- [x] 不再存在未使用的 `WorkspaceNavigation` 组件。
+- [x] `pnpm typecheck`、`pnpm lint`、`pnpm test` 和相关 E2E 通过。
 
 ## 发布影响
 
@@ -50,7 +50,7 @@
 
 ## 状态
 
-- 状态：`进行中`
+- 状态：`已完成`
 - 负责人：Codex
 - 分支：`feat/m6-0-sitewide-visual-redesign`
-- 完成日期：
+- 完成日期：2026-08-11

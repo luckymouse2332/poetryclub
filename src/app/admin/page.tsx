@@ -24,6 +24,12 @@ const SECTIONS = [
     tone: "paper",
   },
   {
+    href: "/admin/comments",
+    title: "评论治理",
+    description: "按治理状态查看、隐藏或恢复作品评论。",
+    tone: "paper",
+  },
+  {
     href: "/admin/invitations",
     title: "邀请码",
     description: "创建受控注册邀请码，并管理其状态。",

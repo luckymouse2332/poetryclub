@@ -9,7 +9,7 @@ const repoRoot = fileURLToPath(new URL("../", import.meta.url));
 
 const DECIMAL = "(?:0|[1-9]\\d*)";
 const WORK_BRANCH_PATTERN = new RegExp(
-  `^(feat|fix|docs|refactor|test|perf|build|ci|chore)\\/(m${DECIMAL}-${DECIMAL}|bug-${DECIMAL}|ops-${DECIMAL}|chore-${DECIMAL}|spike-${DECIMAL})-[a-z0-9]+(?:-[a-z0-9]+)*$`,
+  `^(feat|fix|docs|refactor|test|perf|build|ci|chore)\\/(m${DECIMAL}(?:-${DECIMAL})?|bug-${DECIMAL}|ops-${DECIMAL}|chore-${DECIMAL}|spike-${DECIMAL})-[a-z0-9]+(?:-[a-z0-9]+)*$`,
 );
 const RELEASE_BRANCH_PATTERN = new RegExp(
   `^release\\/v${DECIMAL}\\.${DECIMAL}\\.${DECIMAL}$`,
@@ -272,6 +272,7 @@ function selfTest() {
   for (const branch of [
     "master",
     "feat/m4-0-password-management-recovery",
+    "feat/m7-comments-and-replies",
     "chore/chore-1-repository-conventions",
     "release/v1.2.0",
     "hotfix/v1.1.1-password-reset-regression",
@@ -284,7 +285,7 @@ function selfTest() {
     "feat/content-access-control",
     "feat/M4.1-content-access-control",
     "feat/m05-01-leading-zero",
-    "feat/m7-0-new-stage",
+    "feat/m8-new-stage",
     "release/v01.2.0",
   ]) {
     expectInvalid(branch, () => validateBranchName(branch));

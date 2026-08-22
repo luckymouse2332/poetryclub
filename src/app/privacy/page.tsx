@@ -27,6 +27,9 @@ export default function PrivacyPage() {
             <li>
               服务端为保障安全，可能处理必要的请求元数据，但这些信息不会在浏览器中展示。
             </li>
+            <li>
+              发布诗作、评论或回复时，我们保存你提交的纯文本、作者账号关联、所属作品、创建与编辑时间；评论治理会保存状态、原因、操作时间和审计记录。
+            </li>
           </ul>
         </Section>
         <Section title="我们如何使用这些信息" className="py-8">
@@ -46,7 +49,7 @@ export default function PrivacyPage() {
         </Section>
         <Section title="发布公开内容时的提醒" className="py-8">
           <p className="text-body text-subtle">
-            未来开放作品与评论等功能后，请勿在公开发布的内容中提交敏感的个人信息。
+            作品、评论与回复可能按作品访问范围展示给游客或正常成员。请勿在这些内容中提交邮箱、联系方式、住址、账号凭据或其他敏感个人信息。评论通知不保存评论正文，也不会保存成员作品的受保护标题。
           </p>
         </Section>
         <Section title="政策变更" className="py-8">
@@ -55,7 +58,7 @@ export default function PrivacyPage() {
           </p>
         </Section>
       </div>
-      <p className="text-caption text-subtle">更新日期：2026年8月2日</p>
+      <p className="text-caption text-subtle">更新日期：2026年8月22日</p>
     </PageContainer>
   );
 }

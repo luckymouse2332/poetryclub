@@ -18,6 +18,13 @@ export type AuthoritativeUser = Readonly<{
   suspensionReason: string | null;
 }>;
 
+export type ContentViewer = Readonly<{
+  scope: ContentReaderScope;
+  userId: string | null;
+  role: "member" | "admin" | null;
+  status: "active" | "suspended" | null;
+}>;
+
 export class AccessControlError extends Error {
   constructor(
     public readonly code:
@@ -86,14 +93,25 @@ export async function requireAdmin(returnTo = "/admin"): Promise<AuthoritativeUs
  * Suspended accounts retain public/read-only access but do not count as active
  * members for member-only works.
  */
-export const getContentReaderScope = cache(
-  async (): Promise<ContentReaderScope> => {
+export const getContentViewer = cache(
+  async (): Promise<ContentViewer> => {
     const sessionUser = await getCurrentUser();
-    if (!sessionUser) return "anonymous";
-    const currentUser = await getAuthoritativeUser(sessionUser.id);
-    if (!currentUser || currentUser.status === "suspended") {
-      return currentUser ? "suspended" : "anonymous";
+    if (!sessionUser) {
+      return { scope: "anonymous", userId: null, role: null, status: null };
     }
-    return "active_member";
+    const currentUser = await getAuthoritativeUser(sessionUser.id);
+    if (!currentUser) {
+      return { scope: "anonymous", userId: null, role: null, status: null };
+    }
+    return {
+      scope: currentUser.status === "suspended" ? "suspended" : "active_member",
+      userId: currentUser.id,
+      role: currentUser.role,
+      status: currentUser.status,
+    };
   },
+);
+
+export const getContentReaderScope = cache(
+  async (): Promise<ContentReaderScope> => (await getContentViewer()).scope,
 );

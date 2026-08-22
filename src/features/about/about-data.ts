@@ -87,7 +87,7 @@ export const PROJECT_ERAS: readonly ProjectEra[] = [
       "到高中以后又把这个项目捡了起来，这次直接重新做成了现在的版本。账号、投稿、权限、通知这些东西也是这一版才真正补起来的。",
     record: [
       "这一次重新完成了登录、诗作草稿与发布、管理员审核。此外，还增加了邀请注册、邮箱验证、密码重置等之前没做过的新功能",
-      "当前版本又补上了持久化站内通知、系统公告和成员公告阅读。它就是现在访问到的回中诗社网站。",
+      "当前版本又补上了持久化站内通知、系统公告、作品评论和一级回复。它就是现在访问到的回中诗社网站。",
     ],
     technology: ["Next.js", "TypeScript", "PostgreSQL", "Drizzle ORM"],
   },
@@ -110,22 +110,11 @@ export const PRESENT_ROLES: readonly PresentRole[] = [
     label: "保持开放",
     title: "给偶然想起它的人留一个仍能打开的地址",
     description:
-      "网站现在还在更新。投稿、账号、通知这些先做完整，评论、点赞、诗集之类的功能后面再看大家是不是真用得上。",
+      "网站现在还在更新。投稿、账号、通知和评论先做完整，诗集之类的功能后面再看大家是不是真用得上。",
   },
 ];
 
 export const UPDATE_ENTRIES = [
-  {
-    milestone: "M0",
-    date: "2026.08.01",
-    title: "把项目重新搭起来",
-    summary:
-      "先确定当前版本的目录、数据和部署方式，让后面的功能不再建立在临时页面上。",
-    items: [
-      "完成 Next.js 与 TypeScript 工程基线",
-      "建立 PostgreSQL、版本化 migration、测试和容器部署流程",
-    ],
-  },
   {
     milestone: "M1",
     date: "2026.08.01",
@@ -188,15 +177,26 @@ export const UPDATE_ENTRIES = [
       "优化了下拉菜单的切换动画",
     ],
   },
+  {
+    milestone: "M7",
+    date: "2026.08.22",
+    title: "作品评论与一级回复",
+    summary:
+      "读者可以围绕作品留下纯文本评论和一级回复，评论访问、通知与管理员治理沿用作品的安全边界。",
+    items: [
+      "完成根评论、一级回复、编辑、软删除和游标分页",
+      "完成评论通知定位、评论计数和十秒发布冷却",
+      "完成管理员隐藏、恢复、原因通知与审计事务",
+    ],
+  },
 ] as const satisfies readonly UpdateEntry[];
 
 export const ROADMAP_ENTRIES: readonly RoadmapEntry[] = [
   {
-    status: "计划中",
-    title: "作品互动",
-    summary:
-      "在阅读作品的同时保留轻量的回应方式，逐步补充点赞、评论回复、收藏和分享。",
-    items: ["点赞", "评论回复", "收藏", "分享"],
+    status: "已完成",
+    title: "评论与一级回复",
+    summary: "在作品详情保留纯文本讨论，并提供通知定位和可追溯治理。",
+    items: ["根评论", "一级回复", "编辑与软删除", "评论治理"],
   },
   {
     status: "计划中",

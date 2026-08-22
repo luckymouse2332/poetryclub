@@ -1,24 +1,19 @@
 "use client";
 
-/** 不是上游组件：项目工作区的桌面常驻导航与移动二级导航。 */
+/** 不是上游组件：项目工作区的大屏常驻侧边导航。 */
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import type { SecondaryNavigationItem } from "@/components/secondary-navigation";
 import { cn } from "@/lib/utils";
-
-export type WorkspaceNavigationItem = Readonly<{
-  href: string;
-  label: string;
-  match?: "exact" | "prefix";
-}>;
 
 type WorkspaceNavigationProps = Readonly<{
   ariaLabel: string;
-  items: ReadonlyArray<WorkspaceNavigationItem>;
+  items: ReadonlyArray<SecondaryNavigationItem>;
 }>;
 
-function matchesPath(pathname: string, item: WorkspaceNavigationItem) {
+function matchesPath(pathname: string, item: SecondaryNavigationItem) {
   return item.match === "prefix"
     ? pathname === item.href || pathname.startsWith(`${item.href}/`)
     : pathname === item.href;
@@ -31,7 +26,7 @@ export function WorkspaceNavigation({
   const pathname = usePathname();
 
   return (
-    <nav aria-label={ariaLabel}>
+    <nav aria-label={ariaLabel} data-variant="sidebar">
       <ul className="space-y-1">
         {items.map((item) => {
           const active = matchesPath(pathname, item);
@@ -41,7 +36,7 @@ export function WorkspaceNavigation({
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative flex min-h-11 items-center border-l-2 border-transparent px-4 text-label font-medium text-subtle transition-colors hover:border-border-strong hover:text-foreground",
+                  "relative flex min-h-11 items-center border-l-2 border-transparent px-4 text-label font-medium text-subtle transition-colors hover:border-border-strong hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-seal focus-visible:ring-inset",
                   active && "border-seal bg-seal-surface text-seal-foreground",
                 )}
               >

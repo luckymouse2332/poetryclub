@@ -102,14 +102,16 @@ async function setPoemVisibility(
 
 function adminItemByTitle(page: Page, title: string) {
   return page
-    .locator('[data-slot="item"]')
+    .locator('[data-slot="item"], [data-slot="card"]')
     .filter({ has: page.getByRole("heading", { name: title }) });
 }
 
 function poemCardByTitle(page: Page, title: string) {
   return page
-    .locator('[data-slot="card"]')
-    .filter({ has: page.getByRole("heading", { name: title }) });
+    .getByRole("article")
+    .filter({
+      has: page.getByRole("heading", { name: `《${title}》`, exact: true }),
+    });
 }
 
 test.describe.serial("member-only poem access control", () => {
@@ -190,9 +192,9 @@ test.describe.serial("member-only poem access control", () => {
     ).toBeVisible();
 
     await readerPage.goto("/poems");
-    await expect(readerPage.getByText(title, { exact: true })).toBeVisible();
+    await expect(poemCardByTitle(readerPage, title)).toBeVisible();
     await expect(
-      poemCardByTitle(readerPage, title).getByText("仅成员可见", {
+      poemCardByTitle(readerPage, title).getByText("成员可见", {
         exact: true,
       }),
     ).toBeVisible();
@@ -202,7 +204,7 @@ test.describe.serial("member-only poem access control", () => {
     ).toBeVisible();
 
     await anonymousPage.goto("/poems");
-    await expect(anonymousPage.getByText(title, { exact: true })).toHaveCount(0);
+    await expect(poemCardByTitle(anonymousPage, title)).toHaveCount(0);
     await anonymousPage.goto("/");
     await expect(
       anonymousPage.getByRole("link", { name: `《${title}》`, exact: true }),
@@ -252,7 +254,7 @@ test.describe.serial("member-only poem access control", () => {
       anonymousPage.getByRole("heading", { level: 1, name: title }),
     ).toBeVisible();
     await anonymousPage.goto("/poems");
-    await expect(anonymousPage.getByText(title, { exact: true })).toBeVisible();
+    await expect(poemCardByTitle(anonymousPage, title)).toBeVisible();
 
     await setPoemVisibility(authorPage, poemId, "仅成员可见");
     await anonymousPage.goto(`/poems/${poemId}`);
@@ -262,7 +264,7 @@ test.describe.serial("member-only poem access control", () => {
       }),
     ).toBeVisible();
     await anonymousPage.goto("/poems");
-    await expect(anonymousPage.getByText(title, { exact: true })).toHaveCount(0);
+    await expect(poemCardByTitle(anonymousPage, title)).toHaveCount(0);
   });
 
   test("excludes suspended accounts from member works but keeps public reads", async () => {
@@ -270,7 +272,7 @@ test.describe.serial("member-only poem access control", () => {
     const memberResponse = await readerPage.goto(`/poems/${poemId}`);
     expect(memberResponse?.status()).toBe(404);
     await readerPage.goto("/poems");
-    await expect(readerPage.getByText(title, { exact: true })).toHaveCount(0);
+    await expect(poemCardByTitle(readerPage, title)).toHaveCount(0);
 
     await setPoemVisibility(authorPage, poemId, "公开");
     const publicResponse = await readerPage.goto(`/poems/${poemId}`);
@@ -279,7 +281,7 @@ test.describe.serial("member-only poem access control", () => {
       readerPage.getByRole("heading", { level: 1, name: title }),
     ).toBeVisible();
     await readerPage.goto("/poems");
-    await expect(readerPage.getByText(title, { exact: true })).toBeVisible();
+    await expect(poemCardByTitle(readerPage, title)).toBeVisible();
 
     await setUserSuspendedForTest(readerEmail, false);
     await setPoemVisibility(authorPage, poemId, "仅成员可见");

@@ -254,7 +254,7 @@ test("administrator navigation stays reachable across Sheet and workspace breakp
   const globalNavigation = page.getByRole("navigation", { name: "全站导航" });
   await globalNavigation.getByRole("button", { name: "管理后台" }).click();
   const adminLinks = globalNavigation.getByRole("link", { name: /^管理：/ });
-  await expect(adminLinks).toHaveCount(6);
+  await expect(adminLinks).toHaveCount(7);
   await expect(
     globalNavigation.getByRole("link", { name: "管理：总览" }),
   ).toHaveAttribute("aria-current", "page");
@@ -277,15 +277,26 @@ test("administrator navigation stays reachable across Sheet and workspace breakp
     'nav[aria-label="管理后台导航"]:visible',
   );
   await expect(desktopAdminNavigation).toHaveCount(1);
-  await expect(desktopAdminNavigation).toHaveAttribute("data-variant", "bar");
+  await expect(desktopAdminNavigation).toHaveAttribute(
+    "data-variant",
+    "sidebar",
+  );
   await expect(
     desktopAdminNavigation.getByRole("link", { name: "用户" }),
   ).toHaveAttribute("aria-current", "page");
-  await expect(
-    desktopAdminNavigation
-      .getByRole("link", { name: "用户" })
-      .locator('[data-slot="secondary-navigation-indicator"]'),
-  ).toHaveCount(1);
+  await expect(desktopAdminNavigation.getByRole("link")).toHaveCount(7);
+  const [desktopAdminNavigationBox, desktopAdminHeadingBox] =
+    await Promise.all([
+      desktopAdminNavigation.boundingBox(),
+      page
+        .getByRole("heading", { level: 1, name: "用户管理" })
+        .boundingBox(),
+    ]);
+  expect(desktopAdminNavigationBox).not.toBeNull();
+  expect(desktopAdminHeadingBox).not.toBeNull();
+  expect(desktopAdminNavigationBox!.x).toBeLessThan(
+    desktopAdminHeadingBox!.x,
+  );
 });
 
 test.describe.serial("authenticated session loop", () => {
@@ -604,8 +615,22 @@ test.describe.serial("authenticated session loop", () => {
     await expect(desktopAccountNavigation).toHaveCount(1);
     await expect(desktopAccountNavigation).toHaveAttribute(
       "data-variant",
-      "bar",
+      "sidebar",
     );
+    const [desktopAccountNavigationBox, desktopAccountHeadingBox] =
+      await Promise.all([
+        desktopAccountNavigation.boundingBox(),
+        page.getByRole("heading", { level: 1, name: "账户" }).boundingBox(),
+      ]);
+    expect(desktopAccountNavigationBox).not.toBeNull();
+    expect(desktopAccountHeadingBox).not.toBeNull();
+    expect(desktopAccountNavigationBox!.x).toBeLessThan(
+      desktopAccountHeadingBox!.x,
+    );
+    await expect(page.getByText("MEMBER DESK", { exact: true })).toBeVisible();
+    await expect(
+      page.getByText("成员工作区", { exact: true }),
+    ).toBeVisible();
 
     // 精简首页不按认证态增加首屏按钮；登录态入口统一保留在刊头导航。
     await page.setViewportSize({ width: 1440, height: 900 });

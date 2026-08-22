@@ -36,7 +36,7 @@ function createRedisConnection(
   return client;
 }
 
-async function getPublisher(): Promise<RedisClientType> {
+export async function getRedisCommandClient(): Promise<RedisClientType> {
   if (globalForNotificationRedis.notificationRedisPublisher?.isReady) {
     return globalForNotificationRedis.notificationRedisPublisher;
   }
@@ -65,7 +65,7 @@ export async function publishNotificationRealtime(
 ): Promise<void> {
   if (recipientIds.length === 0) return;
   try {
-    const publisher = await getPublisher();
+    const publisher = await getRedisCommandClient();
     const payload = JSON.stringify(event);
     await Promise.all(
       [...new Set(recipientIds)].map((userId) =>

@@ -336,3 +336,66 @@ export async function deletePoemsByIds(ids: ReadonlyArray<string>): Promise<void
     await sql.end();
   }
 }
+
+export async function createCommentPaginationFixtures(
+  poemId: string,
+  authorEmail: string,
+): Promise<
+  Readonly<{
+    oldestRootBody: string;
+    replyRootId: string;
+    oldestReplyBody: string;
+  }>
+> {
+  const sql = postgres(databaseUrl(), { max: 1 });
+  try {
+    const authors = await sql`
+      select id from "user" where email = ${authorEmail} limit 1
+    `;
+    const authorId = String(authors[0]?.id ?? "");
+    if (!authorId) throw new Error("Missing comment fixture author");
+
+    let oldestRootBody = "";
+    let replyRootId = "";
+    for (let index = 0; index < 12; index += 1) {
+      const id = randomUUID();
+      const body = `分页根评论-${index}-${id.slice(0, 8)}`;
+      if (index === 0) oldestRootBody = body;
+      if (index === 11) replyRootId = id;
+      const createdAt = new Date(Date.now() - (12 - index) * 60_000);
+      await sql`
+        insert into poem_comment (
+          id, poem_id, author_id, parent_id, root_id, depth, body,
+          creation_token, created_at, updated_at, last_activity_at
+        ) values (
+          ${id}, ${poemId}, ${authorId}, null, ${id}, 0, ${body},
+          ${randomUUID()}, ${createdAt}, ${createdAt}, ${createdAt}
+        )
+      `;
+    }
+
+    let oldestReplyBody = "";
+    for (let index = 0; index < 22; index += 1) {
+      const id = randomUUID();
+      const body = `分页回复-${index}-${id.slice(0, 8)}`;
+      if (index === 0) oldestReplyBody = body;
+      const createdAt = new Date(Date.now() - (22 - index) * 1_000);
+      await sql`
+        insert into poem_comment (
+          id, poem_id, author_id, parent_id, root_id, depth, body,
+          creation_token, created_at, updated_at, last_activity_at
+        ) values (
+          ${id}, ${poemId}, ${authorId}, ${replyRootId}, ${replyRootId}, 1,
+          ${body}, ${randomUUID()}, ${createdAt}, ${createdAt}, ${createdAt}
+        )
+      `;
+      await sql`
+        update poem_comment set last_activity_at = ${createdAt}
+        where id = ${replyRootId}
+      `;
+    }
+    return { oldestRootBody, replyRootId, oldestReplyBody };
+  } finally {
+    await sql.end();
+  }
+}

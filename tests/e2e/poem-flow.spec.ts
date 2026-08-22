@@ -77,7 +77,13 @@ async function selectVisibility(
 }
 
 function actionError(page: Page) {
-  return page.locator('main p[role="alert"]').filter({ hasText: "操作未完成" });
+  return page.locator('main [role="alert"]').filter({ hasText: "操作未完成" });
+}
+
+function publicPoemByTitle(page: Page, title: string) {
+  return page.getByRole("article").filter({
+    has: page.getByRole("heading", { name: `《${title}》`, exact: true }),
+  });
 }
 
 test("anonymous users cannot access poem management", async ({ page }) => {
@@ -168,6 +174,10 @@ test("own poems list adapts across the workspace breakpoint", async ({
     }));
     expect(wideLayout.pageWidth).toBeLessThanOrEqual(wideLayout.viewportWidth);
     expect(wideLayout.sidebarVisible).toBe(true);
+    expect(wideLayout.columnCount).toBeGreaterThan(1);
+    await expect(
+      page.getByRole("navigation", { name: "账户导航" }),
+    ).toHaveAttribute("data-variant", "sidebar");
     expect(wideLayout.columnCount).toBe(5);
   } finally {
     await deletePoemsByIds(fixtures.ids);
@@ -245,7 +255,7 @@ test.describe.serial("poem publishing and authorization loop", () => {
     const anonymousResponse = await anonymousDraft.request.get(`/poems/${poemId}`);
     expect(anonymousResponse.status()).toBe(404);
     await anonymousDraft.goto("/poems");
-    await expect(anonymousDraft.getByText(title, { exact: true })).toHaveCount(0);
+    await expect(publicPoemByTitle(anonymousDraft, title)).toHaveCount(0);
     await anonymousDraft.close();
 
     staleActionPage = await authorPage.context().newPage();
@@ -330,7 +340,7 @@ test.describe.serial("poem publishing and authorization loop", () => {
     expect(articleText?.replaceAll("\r\n", "\n")).toBe(body);
 
     await authorPage.goto("/poems");
-    await expect(authorPage.getByText(title, { exact: true })).toBeVisible();
+    await expect(publicPoemByTitle(authorPage, title)).toBeVisible();
     await expect(authorPage.getByText(body.slice(-35), { exact: false })).toHaveCount(0);
 
     await staleActionPage.getByRole("button", { name: "发布", exact: true }).click();
@@ -366,7 +376,7 @@ test.describe.serial("poem publishing and authorization loop", () => {
 
     expect((await authorPage.request.get(`/poems/${poemId}`)).status()).toBe(404);
     await authorPage.goto("/poems");
-    await expect(authorPage.getByText(title, { exact: true })).toHaveCount(0);
+    await expect(publicPoemByTitle(authorPage, title)).toHaveCount(0);
 
     await staleActionPage.getByRole("button", { name: "撤回", exact: true }).click();
     await expect(actionError(staleActionPage)).toContainText("操作未完成");

@@ -29,6 +29,22 @@ export const NOTIFICATION_DEFINITIONS = {
     category: "system",
     label: "系统公告",
   },
+  "comment.created": {
+    category: "interaction",
+    label: "作品评论",
+  },
+  "comment.replied": {
+    category: "interaction",
+    label: "评论回复",
+  },
+  "moderation.comment_hidden": {
+    category: "moderation",
+    label: "评论治理",
+  },
+  "moderation.comment_restored": {
+    category: "moderation",
+    label: "评论治理",
+  },
 } as const;
 
 export type KnownNotificationType = keyof typeof NOTIFICATION_DEFINITIONS;

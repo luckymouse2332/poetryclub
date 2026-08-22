@@ -23,7 +23,13 @@ export const userTargetIdSchema = z
   .max(128, "用户编号无效")
   .regex(/^[A-Za-z0-9_-]+$/, "用户编号无效");
 
-export const adminTargetTypeSchema = z.enum(["poem", "user", "invitation"]);
+export const adminTargetTypeSchema = z.enum([
+  "poem",
+  "user",
+  "invitation",
+  "announcement",
+  "comment",
+]);
 
 export const adminAuditActionSchema = z.enum([
   "poem_hidden",
@@ -34,6 +40,11 @@ export const adminAuditActionSchema = z.enum([
   "user_demoted",
   "invitation_created",
   "invitation_disabled",
+  "announcement_created",
+  "announcement_updated",
+  "announcement_published",
+  "comment_hidden",
+  "comment_restored",
 ]);
 
 export const userRoleSchema = z.enum(["member", "admin"]);

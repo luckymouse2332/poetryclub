@@ -24,6 +24,9 @@ export function PoemCard({ poem, titleLevel = "h2" }: PoemCardProps) {
       </div>
       <div className="flex flex-wrap items-start gap-2 md:justify-end md:text-right">
         <span className="text-label text-subtle">{poem.authorName}</span>
+        {typeof poem.commentCount === "number" ? (
+          <span className="text-label text-subtle">{poem.commentCount} 条评论</span>
+        ) : null}
         {poem.visibility === "members_only" ? <Badge variant="neutral">成员可见</Badge> : null}
       </div>
     </article>

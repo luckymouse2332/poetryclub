@@ -7,8 +7,6 @@ import {
 
 import styles from "./about-project-journal.module.css";
 
-const RECENT_UPDATE_ENTRIES = UPDATE_ENTRIES.slice(-5).reverse();
-
 export function AboutProjectJournal() {
   return (
     <article className={styles.page}>
@@ -142,8 +140,8 @@ export function AboutProjectJournal() {
             <p className={styles.sectionLabel}>未来 · 03</p>
             <h2 id="future-title">未来展望</h2>
             <p>
-              M5
-              完成后，路线会继续围绕站内阅读、作品整理和班级记忆展开。下面记录当前已经确定的方向，具体范围会在每个任务开始前再次确认。
+              M7
+              完成后，路线会继续围绕站内阅读、作品整理和班级记忆展开。下面记录已经完成和仍计划推进的方向，具体范围会在每个任务开始前再次确认。
             </p>
           </header>
 
@@ -170,13 +168,13 @@ export function AboutProjectJournal() {
               <h2 id="updates-title">更新记录</h2>
             </div>
             <p>
-              这里只保留最近五次值得记下的阶段，不展开每一次技术调整。当前记录更新到
-              M5 站内通知与系统公告。
+              这里从 M1 开始记录已经完成的主要阶段，不展开每一次技术调整。当前记录更新到
+              M7 作品评论与一级回复。
             </p>
           </header>
 
           <ol className={styles.updateList}>
-            {RECENT_UPDATE_ENTRIES.map((entry) => (
+            {UPDATE_ENTRIES.map((entry) => (
               <li key={entry.milestone}>
                 <div className={styles.updateMeta}>
                   <span>{entry.milestone}</span>

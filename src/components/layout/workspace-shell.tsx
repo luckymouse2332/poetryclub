@@ -1,10 +1,10 @@
 /** 不是上游组件：公共的成员与管理桌面工作区骨架。 */
 
-import { SecondaryNavigation } from "@/components/secondary-navigation";
 import {
-  WorkspaceNavigation,
-  type WorkspaceNavigationItem,
-} from "@/components/layout/workspace-navigation";
+  SecondaryNavigation,
+  type SecondaryNavigationItem,
+} from "@/components/secondary-navigation";
+import { WorkspaceNavigation } from "@/components/layout/workspace-navigation";
 
 type WorkspaceShellHeadingProps =
   | Readonly<{ title: string; eyebrow: string }>
@@ -12,7 +12,7 @@ type WorkspaceShellHeadingProps =
 
 type WorkspaceShellProps = Readonly<{
   ariaLabel: string;
-  items: ReadonlyArray<WorkspaceNavigationItem>;
+  items: ReadonlyArray<SecondaryNavigationItem>;
   showMobileNavigation?: boolean;
   children: React.ReactNode;
 }> &
@@ -32,7 +32,7 @@ export function WorkspaceShell({
         <SecondaryNavigation
           ariaLabel={ariaLabel}
           items={items}
-          className="xl:hidden"
+          className="hidden lg:block xl:hidden"
         />
       ) : null}
       <div className="mx-auto w-full max-w-[80rem] xl:grid xl:grid-cols-[14rem_minmax(0,1fr)] xl:gap-10 xl:px-page">

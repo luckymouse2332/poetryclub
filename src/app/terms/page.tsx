@@ -19,7 +19,7 @@ export default function TermsPage() {
       <div className="mt-8 divide-y divide-border-subtle">
         <Section title="当前可用的功能" className="py-8">
           <p className="text-body text-subtle">
-            目前已经开放账号注册、登录、账户页面，以及诗作的阅读、发布与撤回管理。评论与收藏仍在建设中，页面不会暗示这些功能当前可用。
+            目前已经开放账号注册、登录、账户页面、诗作的阅读与发布管理，以及作品评论和一级回复。点赞、收藏和分享仍未开放。
           </p>
         </Section>
         <Section title="账号与安全" className="py-8">
@@ -32,7 +32,7 @@ export default function TermsPage() {
         </Section>
         <Section title="发布内容的基本原则" className="py-8">
           <p className="text-body text-subtle">
-            未来发布的内容应是你有权分享的内容，尊重同学的隐私，不要提交骚扰、违法或泄露敏感信息的内容。
+            诗作、创作背景、评论与回复都应是你有权分享的内容。请尊重同学隐私，不要提交骚扰、违法、冒用他人身份或泄露敏感信息的内容。管理员可以填写原因后隐藏不合适的评论，作者删除评论后正文不能恢复。
           </p>
         </Section>
         <Section title="站点维护与变更" className="py-8">
@@ -41,7 +41,7 @@ export default function TermsPage() {
           </p>
         </Section>
       </div>
-      <p className="text-caption text-subtle">更新日期：2026年8月2日</p>
+      <p className="text-caption text-subtle">更新日期：2026年8月22日</p>
     </PageContainer>
   );
 }

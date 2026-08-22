@@ -254,9 +254,9 @@ test("about page reads as prologue, past, present, future, and appendix", async 
   ).toBeVisible();
 
   await expect(page.locator("main h2")).toHaveText([
-    "四次迁徙",
-    "现在它向时间敞开",
-    "接下来准备做什么",
+    "重写记录",
+    "当前状态",
+    "未来展望",
     "更新记录",
   ]);
 
@@ -265,13 +265,24 @@ test("about page reads as prologue, past, present, future, and appendix", async 
   await expect(history.getByText("2022", { exact: true })).toBeVisible();
   await expect(history.getByText("2026", { exact: true })).toBeVisible();
 
-  const updates = page.locator('section[aria-labelledby="updates-title"]');
-  await expect(updates.locator("ol > li")).toHaveCount(5);
+  const future = page.locator('section[aria-labelledby="future-title"]');
   await expect(
-    updates.getByRole("heading", { level: 3, name: "站内通知与系统公告" }),
+    future.getByText(/M7\s*完成后，路线会继续围绕站内阅读/),
+  ).toBeVisible();
+  await expect(future.getByText(/M5\s*完成后/)).toHaveCount(0);
+  await expect(
+    future.getByRole("heading", { level: 3, name: "作品互动" }),
+  ).toHaveCount(0);
+
+  const updates = page.locator('section[aria-labelledby="updates-title"]');
+  await expect(updates.locator("ol > li")).toHaveCount(7);
+  await expect(updates.locator("ol > li").first()).toContainText("M1");
+  await expect(updates.locator("ol > li").last()).toContainText("M7");
+  await expect(
+    updates.getByRole("heading", { level: 3, name: "作品评论与一级回复" }),
   ).toBeVisible();
   await expect(
-    updates.getByText(/当前记录更新到\s*M5 站内通知与系统公告/),
+    updates.getByText(/当前记录更新到\s*M7 作品评论与一级回复/),
   ).toBeVisible();
   await expect(updates.getByText("M0", { exact: true })).toHaveCount(0);
 });
@@ -577,7 +588,7 @@ for (const informationPage of [
       page.getByRole("heading", { level: 1, name: informationPage.title }),
     ).toBeVisible();
     await expect(page.getByRole("heading", { name: informationPage.copy })).toBeVisible();
-    await expect(page.getByText("更新日期：2026年8月2日")).toBeVisible();
+    await expect(page.getByText("更新日期：2026年8月22日")).toBeVisible();
 
     const dimensions = await page.evaluate(() => ({
       clientWidth: document.documentElement.clientWidth,
