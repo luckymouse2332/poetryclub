@@ -173,7 +173,11 @@ test("own poems list adapts across the workspace breakpoint", async ({
         .filter(Boolean).length,
     }));
     expect(wideLayout.pageWidth).toBeLessThanOrEqual(wideLayout.viewportWidth);
-    expect(wideLayout.sidebarVisible).toBe(false);
+    expect(wideLayout.sidebarVisible).toBe(true);
+    expect(wideLayout.columnCount).toBeGreaterThan(1);
+    await expect(
+      page.getByRole("navigation", { name: "账户导航" }),
+    ).toHaveAttribute("data-variant", "sidebar");
     expect(wideLayout.columnCount).toBe(5);
   } finally {
     await deletePoemsByIds(fixtures.ids);

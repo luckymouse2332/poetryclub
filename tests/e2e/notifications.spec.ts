@@ -387,6 +387,7 @@ test("mobile notification state and admin entry stay inside their navigation rol
     const compactAdminNavigation = page.getByRole("navigation", {
       name: "管理后台导航",
     });
+    await expect(compactAdminNavigation).toHaveAttribute("data-variant", "bar");
     await expect(compactAdminNavigation.getByRole("link", { name: "总览" })).toBeVisible();
     await expect(compactAdminNavigation.getByRole("link", { name: "审计" })).toBeVisible();
 
@@ -395,6 +396,10 @@ test("mobile notification state and admin entry stay inside their navigation rol
     const desktopAdminNavigation = page.getByRole("navigation", {
       name: "管理后台导航",
     });
+    await expect(desktopAdminNavigation).toHaveAttribute(
+      "data-variant",
+      "sidebar",
+    );
     await expect(desktopAdminNavigation.getByRole("link", { name: "总览" })).toBeVisible();
     await expect(desktopAdminNavigation.getByRole("link", { name: "审计" })).toBeVisible();
 

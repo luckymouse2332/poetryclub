@@ -64,6 +64,7 @@
 | BUG-9 | 移动账户 Dropdown 遮罩移除 | 已完成 | [BUG-9-mobile-account-dropdown-backdrop-removal.md](./BUG-9-mobile-account-dropdown-backdrop-removal.md) |
 | BUG-10 | 桌面工作区二级导航统一 | 已完成 | [BUG-10-secondary-navigation-breakpoint-parity.md](./BUG-10-secondary-navigation-breakpoint-parity.md) |
 | BUG-11 | 管理导航密度与入口卡片样式 | 已完成 | [BUG-11-admin-navigation-density-card-styles.md](./BUG-11-admin-navigation-density-card-styles.md) |
+| BUG-12 | 工作区导航断点恢复 | 已完成 | [BUG-12-workspace-navigation-breakpoint-restoration.md](./BUG-12-workspace-navigation-breakpoint-restoration.md) |
 
 ## 约定
 

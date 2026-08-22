@@ -1,69 +1,55 @@
-# M6.3 移动端导航浮层与动效 Design QA
+# BUG-12 工作区导航断点 Design QA
 
 **Source visual truth**
 
-- 用户反馈截图：`C:/Users/mouse/AppData/Local/Temp/codex-clipboard-7d971d05-09dd-4f8f-b8dc-abf859032cd9.png`，583 × 729px。截图记录了旧版账户菜单打开状态：页面内容不可辨认，头像旁存在无说明红点，菜单没有通知入口。
-- 用户明确要求：页面背景应保留并模糊；通知进入头像菜单并以文字解释状态；开合需要符合触发方向的位移与缩放，不只使用透明度变化。
+- 中等宽度参考图：`C:/Users/mouse/AppData/Local/Temp/codex-clipboard-053fc1cc-b295-49c5-9d02-52ac73bf00dc.png`，原始 2316 × 1524px。
+- 大屏参考图：`C:/Users/mouse/AppData/Local/Temp/codex-clipboard-37c134ba-f4d1-4413-94e1-2ee5b2747f88.png`，原始 3041 × 1582px。
+- 用户指定的视觉目标是响应式导航结构：中等宽度使用页面顶层横向二级导航，大屏使用正文左侧常驻导航。
 
 **Implementation evidence**
 
-- 修正后完整截图：`output/playwright/m6-3-account-menu-blur-notifications.png`，390 × 844px，CSS viewport 390 × 844，`deviceScaleFactor: 1`，管理员登录且有 28 条未读通知。
-- 左侧抽屉完整截图：`output/playwright/m6-3-global-drawer-left.png`，375 × 812px，CSS viewport 375 × 812，`deviceScaleFactor: 1`，匿名状态。
-- 源截图归一化：`output/playwright/m6-3-source-normalized.png`，将 583 × 729px 归一化为 390 × 488px。
-- 实现同区裁切：`output/playwright/m6-3-implementation-crop.png`，从实现截图顶部裁切 390 × 488px。
-- 同尺寸并排比较：`output/playwright/m6-3-before-after-account-menu.png`，780 × 488px；左侧为旧状态，右侧为修正后状态。
+- 中等宽度实现：`output/playwright/workspace-navigation-medium.png`，1158 × 762px，CSS viewport 1158 × 762，`deviceScaleFactor: 1`，管理员总览。
+- 大屏实现：`output/playwright/workspace-navigation-large.png`，1521 × 791px，CSS viewport 1521 × 791，`deviceScaleFactor: 1`，管理员总览。
+- 中等宽度参考图按 50% 归一化为 `output/playwright/workspace-navigation-medium-reference.png`，1158 × 762px；并排图为 `output/playwright/workspace-navigation-medium-comparison.png`。
+- 大屏参考图按 50% 归一化并按奇数宽度向上取整为 `output/playwright/workspace-navigation-large-reference.png`，1521 × 791px；并排图为 `output/playwright/workspace-navigation-large-comparison.png`。
+
+**State and interaction evidence**
+
+- 两个视口均为管理员登录后的 `/admin` 总览，活动项为“总览”。参考图使用用户账号，测试实现使用 E2E 管理员，因此欢迎语显示名不同。
+- 1158px 下只有 `data-variant="bar"` 的横向二级导航；1521px 下只有 `data-variant="sidebar"` 的左侧导航。
+- 大屏侧栏的“评论”入口可以进入 `/admin/comments`，页面导航过程中没有浏览器 console error 或 page error。
+- 390px、1024px、1280px 的账户与管理工作区相关 E2E 同时通过，页面无重复导航和水平溢出。
 
 **Full-view comparison evidence**
 
-旧状态的菜单之外只剩均匀纸色，页面内容及菜单与页面的空间关系消失。修正后首页标题、正文、锯齿纸边和诗集照片仍可辨认，但通过 4px 背景模糊与低透明墨色遮罩降低注意力；菜单继续保持暖纸表面和足够对比度，没有变成毛玻璃卡片。
+中等宽度并排图中，站点刊头、横向导航上下分隔线、导航文字节奏、活动短线、页面标题与两列入口卡片的结构一致。实现保留了 M7 新增的“评论”入口，因此导航比早期参考图多一项，这是产品内容更新，不是布局偏差。
 
-头像旁的小红点已完全移除。账户菜单增加“通知”行，并以暗红文字直接显示“28 条未读”；无未读状态显示“无未读”。通知、账户和登出的行高、图标基线与分隔关系一致。
+大屏并排图中，正文从横向导航切换为左侧约 224px 工作区导航；侧栏标题、纵向分隔线、当前项暖红底色和正文两列布局均与参考结构一致。实现增加“评论”入口后，侧栏共七项，卡片顺序也因评论治理入口插入而变化，属于 M7 的预期内容差异。
 
 **Focused region comparison evidence**
 
-并排图本身使用 390px 同宽的顶部菜单区域，账户圆标、菜单标题、通知状态、入口图标与页面背景均可直接辨认，因此没有再放大单一控件。旧状态的红点与新状态的“通知 28 条未读”在同一对照中足以判断语义改善。
+两张归一化并排图中的横向导航和完整侧栏均可清楚辨认，目标只涉及导航断点与主要区域比例，不包含需要放大的细小图标、图像资产或精细控件，因此无需额外局部裁切。
 
 **Required fidelity surfaces**
 
-- Fonts and typography：继续使用现有宋体 / 人文字体层级；通知标题沿用菜单项字号，未读说明使用较小无衬线状态文字，没有新增品牌字体。
-- Spacing and layout rhythm：菜单仍从头像下方右对齐，宽度、内边距、44px 最低点击区和分隔节奏保持；新增通知行纳入同一列表，不改变 Header 高度。
-- Colors and visual tokens：背景遮罩使用现有墨色低透明度，菜单使用暖纸透明表面，未读文字使用印章红；不再用孤立红点表达状态。
-- Image quality and asset fidelity：首页照片和锯齿资产只作为被模糊的页面背景，没有替换、重采样或新增装饰图片。
-- Copy and content：通知入口明确使用“通知 / N 条未读 / 无未读”，其余账户入口与登出文案保持不变。
-
-**Interaction and accessibility evidence**
-
-- 全站抽屉使用 `navigation-drawer-in/out`，从顶栏下方由左向右推入和收回；原顶栏保留，关闭按钮与汉堡按钮具有相同边界，只在同一位置把三道杠切换为叉。
-- 账户菜单使用 `account-menu-in/out`，以上边缘为轴，通过纵向裁切和 `scaleY` 从上向下展开，关闭时反向收起。
-- 背景遮罩和菜单运动分别使用 180–240ms 的开合时间；`prefers-reduced-motion: reduce` 将动画与过渡压缩到 0.01ms。
-- 账户菜单通过 Escape 关闭后焦点归还头像触发器；点击模糊背景也可关闭。
-- 320、375、390、430 和 768px 的普通成员、管理员、有未读与无未读状态通过；全站菜单不再重复通知入口。
-- 桌面通知 Popover、账户菜单、注册、登录和登出回归通过；测试复用现有 `http://localhost:3000`，没有启动或重启服务器。
+- Fonts and typography：沿用现有衬线刊头、页面标题和无衬线工作区标签；字号、字重、行高和活动项层级与参考图一致。
+- Spacing and layout rhythm：1158px 保持全宽横向导航，1521px 恢复 `14rem + minmax(0,1fr)` 两栏；侧栏、正文间距和卡片网格没有挤压或溢出。
+- Colors and visual tokens：继续使用暖纸背景、墨色正文、印章红活动态、现有边框与表面 Token，没有引入新颜色或渐变。
+- Image quality and asset fidelity：目标界面没有内容图片、插画或非标准图标，本次也没有新增或替换图像资产。
+- Copy and content：导航保留当前所有入口，并增加 M7 的“评论”；参考图与测试账号的显示名差异不影响导航视觉判断。
 
 **Findings and comparison history**
 
-- Pass 1：[P1] 菜单打开后页面背景不可辨认，用户失去空间连续性；[P1] 孤立红点没有文字解释；[P2] 开合运动过于接近淡入淡出，触发方向不清楚。
-- Fix 1：增加保留页面的模糊遮罩和半透明暖纸表面；移除头像红点，将通知与明确未读文字移入账户菜单。
-- Pass 2：[P2] 初版动效方向与交互含义不符：Dropdown 从右上缩放，全站菜单从上方进入并复制顶栏。
-- Fix 2：Dropdown 改为从上向下展开；全站抽屉改为从左向右推入并始于顶栏下方，原顶栏和按钮位置保持。
-- Pass 3：同尺寸账户菜单并排图与左侧抽屉截图确认背景、信息层级和空间关系；浏览器计算样式确认动画名称、4px blur 和 reduced-motion 生效。没有剩余 P0、P1 或 P2 问题。
+- Pass 1：在相同归一化视口和管理员总览状态下完成两组并排对照。没有发现 P0、P1 或 P2 差异；中屏横向导航与大屏侧栏的切换、区域比例和活动态均符合参考图。
+- 本轮没有因视觉比较产生需要再次修正的 P0、P1 或 P2 项。
 
 **Implementation checklist**
 
-- [x] 页面背景保留、轻度压暗并模糊。
-- [x] 头像红点移除，通知入口与未读文字进入账户菜单。
-- [x] 全站抽屉从左向右推入，账户菜单从上向下展开。
-- [x] Escape、外部点击、焦点归还和 reduced-motion 正常。
-- [x] 桌面导航与通知行为保持。
-
-**Verification**
-
-- [x] `pnpm check:conventions`
-- [x] `pnpm typecheck`
-- [x] `pnpm lint`
-- [x] `pnpm test`：16 个测试文件、215 项测试通过。
-- [x] Playwright：完整认证流程 7 项、完整通知流程 4 项、移动抽屉 / 账户菜单 / reduced-motion 定向流程通过。
-- [x] `pnpm build`
+- [x] 小于 1024px 保持既有移动导航职责。
+- [x] 1024px 至 1279px 只显示横向二级导航。
+- [x] 1280px 起只显示常驻左侧导航。
+- [x] 管理侧栏包含 M7 评论入口并保持活动路由语义。
+- [x] 相关交互、无溢出、控制台错误与响应式 E2E 通过。
 
 **Follow-up polish**
 
