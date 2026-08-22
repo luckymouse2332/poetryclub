@@ -254,7 +254,7 @@ test("administrator navigation stays reachable across Sheet and workspace breakp
   const globalNavigation = page.getByRole("navigation", { name: "全站导航" });
   await globalNavigation.getByRole("button", { name: "管理后台" }).click();
   const adminLinks = globalNavigation.getByRole("link", { name: /^管理：/ });
-  await expect(adminLinks).toHaveCount(6);
+  await expect(adminLinks).toHaveCount(7);
   await expect(
     globalNavigation.getByRole("link", { name: "管理：总览" }),
   ).toHaveAttribute("aria-current", "page");

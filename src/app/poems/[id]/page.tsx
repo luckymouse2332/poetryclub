@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
+import { randomUUID } from "node:crypto";
 import { notFound } from "next/navigation";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
+import { CommentSection } from "@/features/comments/components/comment-ui";
 import { MemberLoginGate } from "@/features/posts/components/member-login-gate";
 import { formatPoemDate } from "@/features/posts/formatters";
-import { getContentReaderScope } from "@/server/policies/access";
+import { getContentViewer } from "@/server/policies/access";
+import { countVisibleComments, listCommentRoots } from "@/server/services/comments";
 import { getPublishedPoemAccess } from "@/server/services/poems";
 import { poemIdSchema } from "@/server/validation/poems";
 
@@ -22,8 +25,8 @@ export async function generateMetadata({
   if (!parsedId.success) {
     return { title: "诗作" };
   }
-  const readerScope = await getContentReaderScope();
-  const result = await getPublishedPoemAccess(parsedId.data, readerScope);
+  const viewer = await getContentViewer();
+  const result = await getPublishedPoemAccess(parsedId.data, viewer.scope);
   return { title: result.kind === "visible" ? result.poem.title : "诗作" };
 }
 
@@ -36,8 +39,8 @@ export default async function PoemDetailPage({
     notFound();
   }
 
-  const readerScope = await getContentReaderScope();
-  const result = await getPublishedPoemAccess(parsedId.data, readerScope);
+  const viewer = await getContentViewer();
+  const result = await getPublishedPoemAccess(parsedId.data, viewer.scope);
   if (result.kind === "not_found") {
     notFound();
   }
@@ -68,6 +71,10 @@ export default async function PoemDetailPage({
   }
 
   const poem = result.poem;
+  const [commentPage, commentCount] = await Promise.all([
+    listCommentRoots(parsedId.data, viewer),
+    countVisibleComments(parsedId.data),
+  ]);
 
   return (
     <PageContainer width="reading">
@@ -125,6 +132,15 @@ export default async function PoemDetailPage({
           </p>
         </section>
       ) : null}
+
+      <CommentSection
+        poemId={poem.id}
+        initialPage={commentPage}
+        commentCount={commentCount}
+        canWrite={viewer.status === "active"}
+        isAuthenticated={viewer.userId !== null}
+        rootCreationToken={randomUUID()}
+      />
     </PageContainer>
   );
 }

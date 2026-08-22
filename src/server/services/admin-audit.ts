@@ -16,13 +16,16 @@ export type AdminAuditAction =
   | "invitation_disabled"
   | "announcement_created"
   | "announcement_updated"
-  | "announcement_published";
+  | "announcement_published"
+  | "comment_hidden"
+  | "comment_restored";
 
 export type AdminAuditTarget =
   | "poem"
   | "user"
   | "invitation"
-  | "announcement";
+  | "announcement"
+  | "comment";
 
 export type DatabaseTransaction = Parameters<
   Parameters<typeof db.transaction>[0]

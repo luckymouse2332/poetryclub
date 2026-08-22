@@ -17,7 +17,7 @@ import {
   type ContentReaderScope,
 } from "@/lib/poem-access";
 import { db } from "@/server/db";
-import { poem, user } from "@/server/db/schema";
+import { poem, poemComment, user } from "@/server/db/schema";
 import {
   POEM_PAGE_SIZE,
   type PoemInput,
@@ -36,6 +36,7 @@ export type PublicPoemSummary = Readonly<{
   authorName: string;
   publishedAt: Date;
   visibility: PoemVisibility;
+  commentCount?: number;
 }>;
 
 export type PublicPoemDetail = Readonly<{
@@ -136,6 +137,12 @@ export async function listPublishedPoems(
         authorName: user.name,
         publishedAt: poem.publishedAt,
         visibility: poem.visibility,
+        commentCount: sql<number>`(
+          select count(*)::int from ${poemComment}
+          where ${poemComment.poemId} = ${poem.id}
+            and ${poemComment.deletedAt} is null
+            and ${poemComment.moderationStatus} = 'visible'
+        )`,
       })
       .from(poem)
       .innerJoin(user, eq(poem.authorId, user.id))

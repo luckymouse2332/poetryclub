@@ -11,6 +11,7 @@
 - M4：成员账户、内容访问、互动和共同记忆整理能力；M4.0 已完成账户密码管理与找回，“内容访问权限”使用 M4.1。
 - M5：可扩展的站内通知、系统公告与在线实时唤醒能力。
 - M6：整站视觉语言、桌面工作区与浮层交互重构。
+- M7：围绕作品的评论、回复与互动治理能力。
 
 ## 当前任务
 
@@ -43,11 +44,12 @@
 | M5.0 | 可扩展站内通知与系统公告 | 已完成 | [M5.0-in-app-notifications.md](./M5.0-in-app-notifications.md) |
 | M5.1 | 站内通知交互与导航入口拆分 | 已完成 | [M5.1-navigation-information-architecture.md](./M5.1-navigation-information-architecture.md) |
 | M5.2 | 系统公告阅读页 | 已完成 | [M5.2-announcement-reader.md](./M5.2-announcement-reader.md) |
-| M6.0 | 整站视觉与交互重构 | 进行中 | [M6.0-sitewide-visual-redesign.md](./M6.0-sitewide-visual-redesign.md) |
+| M6.0 | 整站视觉与交互重构 | 已完成 | [M6.0-sitewide-visual-redesign.md](./M6.0-sitewide-visual-redesign.md) |
 | M6.1 | About 沿革叙事重构 | 已完成 | [M6.1-about-editorial-history.md](./M6.1-about-editorial-history.md) |
 | M6.2 | 移动端导航信息架构重构 | 已完成 | [M6.2-mobile-navigation-information-architecture.md](./M6.2-mobile-navigation-information-architecture.md) |
 | M6.3 | 移动端导航浮层与动效修正 | 已完成 | [M6.3-mobile-navigation-overlay-motion.md](./M6.3-mobile-navigation-overlay-motion.md) |
 | M6.4 | 管理 Sheet 与桌面 Dropdown 对齐 | 已完成 | [M6.4-admin-drawer-dropdown-parity.md](./M6.4-admin-drawer-dropdown-parity.md) |
+| M7 | 作品评论与一级回复 | 已完成 | [M7-comments-and-replies.md](./M7-comments-and-replies.md) |
 | CHORE-1 | 仓库工作流与发布规范 | 已完成 | [CHORE-1-repository-workflow-conventions.md](./CHORE-1-repository-workflow-conventions.md) |
 | CHORE-2 | 已合并分支清理与保留规则 | 已完成 | [CHORE-2-merged-branch-retention-policy.md](./CHORE-2-merged-branch-retention-policy.md) |
 | CHORE-style-architecture-consolidation | 样式架构收敛 | 已完成 | [CHORE-style-architecture-consolidation.md](./CHORE-style-architecture-consolidation.md) |
@@ -60,8 +62,8 @@
 | BUG-7 | 工作区中等视口溢出修复 | 已完成 | [BUG-7-workspace-medium-viewport-overflow.md](./BUG-7-workspace-medium-viewport-overflow.md) |
 | BUG-8 | Dropdown 阴影动画闪烁修复 | 已完成 | [BUG-8-dropdown-shadow-animation-flash.md](./BUG-8-dropdown-shadow-animation-flash.md) |
 | BUG-9 | 移动账户 Dropdown 遮罩移除 | 已完成 | [BUG-9-mobile-account-dropdown-backdrop-removal.md](./BUG-9-mobile-account-dropdown-backdrop-removal.md) |
-| BUG-10 | 桌面工作区二级导航统一 | 进行中 | [BUG-10-secondary-navigation-breakpoint-parity.md](./BUG-10-secondary-navigation-breakpoint-parity.md) |
-| BUG-11 | 管理导航密度与入口卡片样式 | 进行中 | [BUG-11-admin-navigation-density-card-styles.md](./BUG-11-admin-navigation-density-card-styles.md) |
+| BUG-10 | 桌面工作区二级导航统一 | 已完成 | [BUG-10-secondary-navigation-breakpoint-parity.md](./BUG-10-secondary-navigation-breakpoint-parity.md) |
+| BUG-11 | 管理导航密度与入口卡片样式 | 已完成 | [BUG-11-admin-navigation-density-card-styles.md](./BUG-11-admin-navigation-density-card-styles.md) |
 
 ## 约定
 

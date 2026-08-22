@@ -103,7 +103,9 @@ async function createPublishedPoem(
 }
 
 function itemByText(page: Page, text: string) {
-  return page.locator('[data-slot="item"]').filter({ hasText: text });
+  return page
+    .locator('[data-slot="item"], [data-slot="card"]')
+    .filter({ hasText: text });
 }
 
 async function openReasonDialog(
@@ -298,11 +300,11 @@ test.describe.serial("administrator authorization and governance", () => {
 
     await memberPage.getByRole("button", { name: "保存修改" }).click();
     await expect(
-      memberPage.locator('main [role="alert"]').filter({ hasText: "账号已被禁用" }),
+      memberPage.getByText("你的账号已被禁用", { exact: false }),
     ).toBeVisible();
     await memberPage.goto("/account");
     await expect(
-      memberPage.locator('main [role="alert"]').filter({ hasText: "异常写入行为测试" }),
+      memberPage.getByText("异常写入行为测试", { exact: false }),
     ).toBeVisible();
 
     const memberId = await getUserIdByEmail(memberEmail);
@@ -347,7 +349,7 @@ test.describe.serial("administrator authorization and governance", () => {
     expect(code?.trim()).toMatch(/^[A-Za-z0-9_-]{32,128}$/);
     expect(await auditContainsText(code!.trim())).toBe(false);
 
-    const firstCard = adminPage.locator('[data-slot="item"]').first();
+    const firstCard = adminPage.locator('[data-slot="card"]').first();
     const disable = await openReasonDialog(
       adminPage,
       firstCard.getByRole("button", { name: "停用邀请码" }),

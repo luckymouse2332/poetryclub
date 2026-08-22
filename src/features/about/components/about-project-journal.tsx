@@ -171,7 +171,7 @@ export function AboutProjectJournal() {
             </div>
             <p>
               这里只保留最近五次值得记下的阶段，不展开每一次技术调整。当前记录更新到
-              M5 站内通知与系统公告。
+              M7 作品评论与一级回复。
             </p>
           </header>
 

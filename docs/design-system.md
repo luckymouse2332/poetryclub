@@ -173,6 +173,14 @@
 - 通用展示组合 `PaginationNavigation` 只接收当前页、总页数、上一页 / 下一页 href、可访问名称和可选 className；不解析 feature 查询参数。
 - posts、notifications 和 moderation 各自保留 URL 与筛选参数生成逻辑，通过 shadcn Pagination 的 `asChild` 组合 Next.js Link；首页和末页不生成可点击的越界链接。
 
+### 评论与回复
+
+- 诗作详情的“评论与补充”使用现有 Textarea、Button、Alert、Dialog 和 AlertDialog 组合，不增加新的通用 UI 原语。
+- 根评论使用暖纸表面，一级回复在小屏缩进 16px、较宽视口缩进 32px；正文必须允许换行和长词断行，390px 下不能产生水平溢出。
+- 已删除和对当前读者隐藏的节点保留相同结构并显示明确占位。隐藏作者视图使用 warning Alert 呈现治理原因，不能只依靠颜色表达状态。
+- 回复与编辑在 Dialog 中完成，删除使用 AlertDialog 二次确认；成功后关闭浮层并把焦点交还触发器。pending 期间禁止重复提交，失败信息可在原操作位置重试。
+- 通知定位目标使用 `--seal-surface` 与 `--seal-foreground` 突出显示，并设置可编程焦点；滚动定位尊重浏览器的 reduced-motion 设置。
+
 ### 组件实现基线
 
 `src/components/ui` 同时存在两类组件，任何新增组件必须先归类再实现：
