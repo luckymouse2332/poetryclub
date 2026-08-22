@@ -627,6 +627,10 @@ test.describe.serial("authenticated session loop", () => {
     expect(desktopAccountNavigationBox!.x).toBeLessThan(
       desktopAccountHeadingBox!.x,
     );
+    await expect(page.getByText("MEMBER DESK", { exact: true })).toBeVisible();
+    await expect(
+      page.getByText("成员工作区", { exact: true }),
+    ).toBeVisible();
 
     // 精简首页不按认证态增加首屏按钮；登录态入口统一保留在刊头导航。
     await page.setViewportSize({ width: 1440, height: 900 });
