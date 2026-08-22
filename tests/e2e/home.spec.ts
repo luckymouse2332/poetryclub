@@ -265,6 +265,12 @@ test("about page reads as prologue, past, present, future, and appendix", async 
   await expect(history.getByText("2022", { exact: true })).toBeVisible();
   await expect(history.getByText("2026", { exact: true })).toBeVisible();
 
+  const future = page.locator('section[aria-labelledby="future-title"]');
+  await expect(
+    future.getByText(/M7\s*完成后，路线会继续围绕站内阅读/),
+  ).toBeVisible();
+  await expect(future.getByText(/M5\s*完成后/)).toHaveCount(0);
+
   const updates = page.locator('section[aria-labelledby="updates-title"]');
   await expect(updates.locator("ol > li")).toHaveCount(5);
   await expect(

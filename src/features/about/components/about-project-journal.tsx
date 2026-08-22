@@ -142,8 +142,8 @@ export function AboutProjectJournal() {
             <p className={styles.sectionLabel}>未来 · 03</p>
             <h2 id="future-title">未来展望</h2>
             <p>
-              M5
-              完成后，路线会继续围绕站内阅读、作品整理和班级记忆展开。下面记录当前已经确定的方向，具体范围会在每个任务开始前再次确认。
+              M7
+              完成后，路线会继续围绕站内阅读、作品整理和班级记忆展开。下面记录已经完成和仍计划推进的方向，具体范围会在每个任务开始前再次确认。
             </p>
           </header>
 
