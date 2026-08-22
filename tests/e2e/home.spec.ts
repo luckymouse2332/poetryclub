@@ -270,9 +270,14 @@ test("about page reads as prologue, past, present, future, and appendix", async 
     future.getByText(/M7\s*完成后，路线会继续围绕站内阅读/),
   ).toBeVisible();
   await expect(future.getByText(/M5\s*完成后/)).toHaveCount(0);
+  await expect(
+    future.getByRole("heading", { level: 3, name: "作品互动" }),
+  ).toHaveCount(0);
 
   const updates = page.locator('section[aria-labelledby="updates-title"]');
-  await expect(updates.locator("ol > li")).toHaveCount(5);
+  await expect(updates.locator("ol > li")).toHaveCount(7);
+  await expect(updates.locator("ol > li").first()).toContainText("M1");
+  await expect(updates.locator("ol > li").last()).toContainText("M7");
   await expect(
     updates.getByRole("heading", { level: 3, name: "作品评论与一级回复" }),
   ).toBeVisible();

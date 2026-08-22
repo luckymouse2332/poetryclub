@@ -110,22 +110,11 @@ export const PRESENT_ROLES: readonly PresentRole[] = [
     label: "保持开放",
     title: "给偶然想起它的人留一个仍能打开的地址",
     description:
-      "网站现在还在更新。投稿、账号、通知和评论先做完整，点赞、诗集之类的功能后面再看大家是不是真用得上。",
+      "网站现在还在更新。投稿、账号、通知和评论先做完整，诗集之类的功能后面再看大家是不是真用得上。",
   },
 ];
 
 export const UPDATE_ENTRIES = [
-  {
-    milestone: "M0",
-    date: "2026.08.01",
-    title: "把项目重新搭起来",
-    summary:
-      "先确定当前版本的目录、数据和部署方式，让后面的功能不再建立在临时页面上。",
-    items: [
-      "完成 Next.js 与 TypeScript 工程基线",
-      "建立 PostgreSQL、版本化 migration、测试和容器部署流程",
-    ],
-  },
   {
     milestone: "M1",
     date: "2026.08.01",
@@ -208,13 +197,6 @@ export const ROADMAP_ENTRIES: readonly RoadmapEntry[] = [
     title: "评论与一级回复",
     summary: "在作品详情保留纯文本讨论，并提供通知定位和可追溯治理。",
     items: ["根评论", "一级回复", "编辑与软删除", "评论治理"],
-  },
-  {
-    status: "计划中",
-    title: "作品互动",
-    summary:
-      "在评论之外继续评估更轻量的回应方式，是否实现取决于真实使用需求。",
-    items: ["点赞", "收藏", "分享"],
   },
   {
     status: "计划中",
