@@ -29,6 +29,7 @@ export const adminTargetTypeSchema = z.enum([
   "invitation",
   "announcement",
   "comment",
+  "collection",
 ]);
 
 export const adminAuditActionSchema = z.enum([
@@ -45,6 +46,8 @@ export const adminAuditActionSchema = z.enum([
   "announcement_published",
   "comment_hidden",
   "comment_restored",
+  "collection_hidden",
+  "collection_restored",
 ]);
 
 export const userRoleSchema = z.enum(["member", "admin"]);
@@ -54,6 +57,8 @@ export const userStatusSchema = z.enum(["active", "suspended"]);
 export const poemStatusSchema = z.enum(["draft", "published"]);
 
 export const poemModerationStatusSchema = z.enum(["visible", "hidden"]);
+
+export const collectionModerationStatusSchema = z.enum(["visible", "hidden"]);
 
 export const moderationReasonSchema = z
   .string()
@@ -141,6 +146,16 @@ export const restorePoemInputSchema = z.object({
   reason: moderationReasonSchema,
 });
 
+export const hideCollectionInputSchema = z.object({
+  targetId: uuidTargetIdSchema,
+  reason: moderationReasonSchema,
+});
+
+export const restoreCollectionInputSchema = z.object({
+  targetId: uuidTargetIdSchema,
+  reason: moderationReasonSchema,
+});
+
 export const suspendUserInputSchema = z.object({
   targetId: userTargetIdSchema,
   reason: moderationReasonSchema,
@@ -214,6 +229,8 @@ export const moderationPoemListInputSchema = z.object({
 
 export type HidePoemInput = z.infer<typeof hidePoemInputSchema>;
 export type RestorePoemInput = z.infer<typeof restorePoemInputSchema>;
+export type HideCollectionInput = z.infer<typeof hideCollectionInputSchema>;
+export type RestoreCollectionInput = z.infer<typeof restoreCollectionInputSchema>;
 export type SuspendUserInput = z.infer<typeof suspendUserInputSchema>;
 export type RestoreUserInput = z.infer<typeof restoreUserInputSchema>;
 export type UpdateUserRoleInput = z.infer<typeof updateUserRoleInputSchema>;

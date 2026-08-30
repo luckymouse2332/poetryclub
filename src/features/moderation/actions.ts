@@ -85,6 +85,8 @@ function revalidatePoemModeration(id: string): void {
   revalidatePath(`/poems/${id}`);
   revalidatePath("/account/poems");
   revalidatePath(`/account/poems/${id}/edit`);
+  revalidatePath("/collections");
+  revalidatePath("/collections/[id]", "layout");
   revalidatePath("/admin/poems");
   revalidatePath("/admin/audit");
   revalidatePath("/notifications");

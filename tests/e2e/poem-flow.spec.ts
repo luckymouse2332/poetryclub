@@ -477,7 +477,8 @@ test.describe.serial("own poems list discoverability and inline actions", () => 
       contextInput.boundingBox(),
     ]);
     expect(navigationBox).not.toBeNull();
-    expect(navigationBox!.width).toBeGreaterThanOrEqual(200);
+    // 14rem 侧栏扣除 1px 分隔线和 1.5rem 内边距后为 199px。
+    expect(navigationBox!.width).toBeGreaterThanOrEqual(199);
     expect(titleInputBox).not.toBeNull();
     expect(contextInputBox).not.toBeNull();
     expect(contextInputBox!.x).toBeGreaterThan(titleInputBox!.x + titleInputBox!.width);

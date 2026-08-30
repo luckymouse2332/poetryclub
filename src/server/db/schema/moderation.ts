@@ -27,6 +27,8 @@ export const adminAuditAction = pgEnum("admin_audit_action", [
   "announcement_published",
   "comment_hidden",
   "comment_restored",
+  "collection_hidden",
+  "collection_restored",
 ]);
 
 export const adminTargetType = pgEnum("admin_target_type", [
@@ -35,6 +37,7 @@ export const adminTargetType = pgEnum("admin_target_type", [
   "invitation",
   "announcement",
   "comment",
+  "collection",
 ]);
 
 export const invitation = pgTable(

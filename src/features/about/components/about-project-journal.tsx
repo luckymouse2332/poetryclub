@@ -140,7 +140,7 @@ export function AboutProjectJournal() {
             <p className={styles.sectionLabel}>未来 · 03</p>
             <h2 id="future-title">未来展望</h2>
             <p>
-              M7
+              M8
               完成后，路线会继续围绕站内阅读、作品整理和班级记忆展开。下面记录已经完成和仍计划推进的方向，具体范围会在每个任务开始前再次确认。
             </p>
           </header>
@@ -169,7 +169,7 @@ export function AboutProjectJournal() {
             </div>
             <p>
               这里从 M1 开始记录已经完成的主要阶段，不展开每一次技术调整。当前记录更新到
-              M7 作品评论与一级回复。
+              M8 诗作特辑与连续阅读。
             </p>
           </header>
 

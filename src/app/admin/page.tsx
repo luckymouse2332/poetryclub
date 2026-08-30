@@ -18,6 +18,12 @@ const SECTIONS = [
     tone: "paper",
   },
   {
+    href: "/admin/collections",
+    title: "特辑治理",
+    description: "隐藏或恢复成员整理的特辑，检查标题、简介与编排。",
+    tone: "paper",
+  },
+  {
     href: "/admin/users",
     title: "用户管理",
     description: "禁用 / 恢复账号，调整管理员角色。",
