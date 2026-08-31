@@ -68,6 +68,9 @@ export default async function AccountCollectionsPage({
       <Section className="pb-0 pt-8">
         {result.items.length ? (
           <div>
+            <div aria-hidden="true" className="hidden grid-cols-[minmax(12rem,1.5fr)_8rem_9rem_7rem_11rem_auto] gap-5 border-b border-border-strong pb-3 text-caption font-medium tracking-wide text-subtle xl:grid">
+              <span>标题</span><span>状态</span><span>访问范围</span><span>收录数量</span><span>更新时间</span><span className="text-right">操作</span>
+            </div>
             {result.items.map((collection) => (
               <OwnCollectionCard
                 key={collection.id}

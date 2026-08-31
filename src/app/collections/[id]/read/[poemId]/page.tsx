@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { randomUUID } from "node:crypto";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -6,9 +7,11 @@ import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CommentSection } from "@/features/comments/components/comment-ui";
 import { CollectionLoginGate } from "@/features/collections/components/collection-login-gate";
 import { formatPoemDate } from "@/features/posts/formatters";
 import { getContentViewer } from "@/server/policies/access";
+import { countVisibleComments, listCommentRoots } from "@/server/services/comments";
 import { getCollectionReadingItem } from "@/server/services/collections";
 import { collectionIdSchema } from "@/server/validation/collections";
 import { poemIdSchema } from "@/server/validation/poems";
@@ -56,6 +59,10 @@ export default async function CollectionReadingPage({ params }: ReadingPageProps
     );
   }
   const { collection, poem: current, previousPoemId, nextPoemId } = result.item;
+  const [commentPage, commentCount] = await Promise.all([
+    listCommentRoots(current.id, viewer),
+    countVisibleComments(current.id),
+  ]);
 
   return (
     <PageContainer width="reading">
@@ -96,21 +103,41 @@ export default async function CollectionReadingPage({ params }: ReadingPageProps
           <p className="mt-3 whitespace-pre-wrap text-body text-subtle">{current.context}</p>
         </section>
       ) : null}
-      <div className="mt-12 flex flex-wrap justify-between gap-3 border-t border-border-subtle pt-6">
+      <nav
+        aria-label="特辑阅读导航"
+        className="mt-12 flex flex-wrap justify-between gap-3 border-y border-border-subtle py-4"
+      >
         {previousPoemId ? (
           <Button asChild variant="secondary">
-            <Link href={`/collections/${collection.id}/read/${previousPoemId}`}>上一篇</Link>
+            <Link href={`/collections/${collection.id}/read/${previousPoemId}`}>
+              上一篇
+            </Link>
           </Button>
-        ) : <span />}
+        ) : (
+          <span />
+        )}
         <Button asChild variant="ghost">
           <Link href={`/collections/${collection.id}`}>返回目录</Link>
         </Button>
         {nextPoemId ? (
           <Button asChild variant="secondary">
-            <Link href={`/collections/${collection.id}/read/${nextPoemId}`}>下一篇</Link>
+            <Link href={`/collections/${collection.id}/read/${nextPoemId}`}>
+              下一篇
+            </Link>
           </Button>
-        ) : <span />}
-      </div>
+        ) : (
+          <span />
+        )}
+      </nav>
+      <CommentSection
+        poemId={current.id}
+        initialPage={commentPage}
+        commentCount={commentCount}
+        canWrite={viewer.status === "active"}
+        isAuthenticated={viewer.userId !== null}
+        rootCreationToken={randomUUID()}
+        loginNextPath={`/collections/${collection.id}/read/${current.id}`}
+      />
       <p className="mt-6 text-center text-label text-subtle">
         <Link href={`/poems/${current.id}`} className="underline underline-offset-4 hover:text-foreground">
           查看作品详情与评论

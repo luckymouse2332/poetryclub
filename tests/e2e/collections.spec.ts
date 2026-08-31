@@ -116,6 +116,9 @@ test.describe.serial("curated collection publishing and governance", () => {
     const collectionCard = adminPage
       .getByRole("article")
       .filter({ hasText: collectionTitle });
+    await expect(
+      adminPage.getByText("收录数量", { exact: true }),
+    ).toBeVisible();
     const publish = collectionCard.getByRole("button", {
       name: "发布",
       exact: true,
@@ -151,6 +154,16 @@ test.describe.serial("curated collection publishing and governance", () => {
     await expect(anonymousPage.getByText(`${firstTitle}第一行。`)).toBeVisible();
     await anonymousPage.getByRole("link", { name: "返回目录" }).click();
     await expect(anonymousPage).toHaveURL(`/collections/${collectionId}`);
+
+    await adminPage.goto(
+      `/collections/${collectionId}/read/${poemIds[1]}`,
+    );
+    await expect(adminPage.getByRole("heading", { name: "评论与补充" })).toBeVisible();
+    await expect(adminPage.getByLabel("评论内容")).toBeVisible();
+    await adminPage.getByLabel("评论内容").fill("特辑阅读评论回归测试");
+    await adminPage.getByRole("button", { name: "发布评论" }).click();
+    await expect(adminPage.getByText("评论已发布。", { exact: true })).toBeVisible();
+    await expect(adminPage.getByText("特辑阅读评论回归测试", { exact: true })).toBeVisible();
   });
 
   test("hides and restores the collection with an audited administrator reason", async () => {

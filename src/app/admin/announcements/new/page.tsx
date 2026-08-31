@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "新建系统公告" };
 
 export default function NewAnnouncementPage() {
   return (
-    <PageContainer width="narrow">
+    <PageContainer>
       <PageHeader
         eyebrow="系统公告"
         title="新建公告草稿"

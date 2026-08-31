@@ -45,6 +45,7 @@ function commentError(error: unknown): CommentActionState | null {
 function revalidateCommentViews(poemId: string, rootId?: string): void {
   revalidatePath("/poems");
   revalidatePath(`/poems/${poemId}`);
+  revalidatePath("/collections/[id]/read/[poemId]", "page");
   if (rootId) revalidatePath(`/poems/${poemId}/comments/${rootId}`);
   revalidatePath("/admin/comments");
   revalidatePath("/admin/audit");

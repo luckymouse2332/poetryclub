@@ -116,7 +116,7 @@ export default async function CollectionPage({
               <li key={item.poemId} className="py-5 pl-2 marker:text-subtle">
                 <Link
                   href={`/collections/${collection.id}/read/${item.poemId}`}
-                  className="font-serif text-body-lg text-foreground transition-colors hover:text-seal-foreground focus-visible:text-seal-foreground"
+                  className="font-serif text-body-lg text-foreground underline decoration-1 decoration-transparent underline-offset-[0.28em] transition-[color,text-decoration-color] duration-150 hover:text-seal-foreground hover:decoration-seal focus-visible:text-seal-foreground focus-visible:decoration-seal"
                 >
                   《{item.title}》
                 </Link>

@@ -390,6 +390,7 @@ export function CommentSection({
   canWrite,
   isAuthenticated,
   rootCreationToken,
+  loginNextPath,
 }: Readonly<{
   poemId: string;
   initialPage: CursorPage<CommentRootDto>;
@@ -397,6 +398,7 @@ export function CommentSection({
   canWrite: boolean;
   isAuthenticated: boolean;
   rootCreationToken: string;
+  loginNextPath?: string;
 }>) {
   const pageKey = initialPage.items
     .flatMap((root) => [root, ...root.replies])
@@ -428,7 +430,7 @@ export function CommentSection({
         ) : (
           <Alert>
             <AlertDescription>
-              登录后可以参与讨论。<Link className="ml-1 underline" href={`/login?next=${encodeURIComponent(`/poems/${poemId}`)}`}>前往登录</Link>
+              登录后可以参与讨论。<Link className="ml-1 underline" href={`/login?next=${encodeURIComponent(loginNextPath ?? `/poems/${poemId}`)}`}>前往登录</Link>
             </AlertDescription>
           </Alert>
         )}

@@ -65,8 +65,8 @@ export function CollectionActions({
   const buttonSize = compact ? "sm" : "default";
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
+    <div className={compact ? "min-w-0" : "space-y-3"}>
+      <div className="flex w-full flex-wrap items-center gap-2">
         {status === "draft" ? (
           <>
             <form action={publishAction}>

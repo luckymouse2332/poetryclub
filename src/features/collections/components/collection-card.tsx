@@ -8,7 +8,7 @@ export function CollectionCard({
   collection,
 }: Readonly<{ collection: PublishedCollectionSummary }>) {
   return (
-    <article className="group grid gap-3 border-b border-border-subtle py-6 first:border-t md:grid-cols-[8rem_minmax(0,1fr)_11rem] md:gap-6">
+    <article className="grid gap-3 border-b border-border-subtle py-6 first:border-t md:grid-cols-[8rem_minmax(0,1fr)_11rem] md:gap-6">
       <time
         dateTime={collection.publishedAt.toISOString()}
         className="text-label tabular-nums text-subtle"
@@ -19,7 +19,7 @@ export function CollectionCard({
         <h2 className="font-serif text-section-title font-normal text-foreground">
           <Link
             href={`/collections/${collection.id}`}
-            className="transition-colors group-hover:text-seal-foreground focus-visible:text-seal-foreground"
+            className="underline decoration-1 decoration-transparent underline-offset-[0.28em] transition-[color,text-decoration-color] duration-150 hover:text-seal-foreground hover:decoration-seal focus-visible:text-seal-foreground focus-visible:decoration-seal"
           >
             {collection.title}
           </Link>
