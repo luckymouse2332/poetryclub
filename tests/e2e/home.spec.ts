@@ -239,9 +239,10 @@ test("site header navigation is present", async ({ page }) => {
   await expect(brandLink).toHaveAttribute("href", "/#top");
   await expect(brandLink.getByText("2021—2024级")).toBeVisible();
   await expect(nav.getByRole("link", { name: "诗作" })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "特辑" })).toBeVisible();
   await expect(nav.getByRole("link", { name: "关于" })).toBeVisible();
   await expect(nav.getByRole("link", { name: "登录" })).toBeVisible();
-  await expect(nav.getByRole("link")).toHaveCount(4);
+  await expect(nav.getByRole("link")).toHaveCount(5);
 });
 
 test("about page reads as prologue, past, present, future, and appendix", async ({
@@ -267,7 +268,7 @@ test("about page reads as prologue, past, present, future, and appendix", async 
 
   const future = page.locator('section[aria-labelledby="future-title"]');
   await expect(
-    future.getByText(/M7\s*完成后，路线会继续围绕站内阅读/),
+    future.getByText(/M8\s*完成后，路线会继续围绕站内阅读/),
   ).toBeVisible();
   await expect(future.getByText(/M5\s*完成后/)).toHaveCount(0);
   await expect(
@@ -275,14 +276,14 @@ test("about page reads as prologue, past, present, future, and appendix", async 
   ).toHaveCount(0);
 
   const updates = page.locator('section[aria-labelledby="updates-title"]');
-  await expect(updates.locator("ol > li")).toHaveCount(7);
+  await expect(updates.locator("ol > li")).toHaveCount(8);
   await expect(updates.locator("ol > li").first()).toContainText("M1");
-  await expect(updates.locator("ol > li").last()).toContainText("M7");
+  await expect(updates.locator("ol > li").last()).toContainText("M8");
   await expect(
     updates.getByRole("heading", { level: 3, name: "作品评论与一级回复" }),
   ).toBeVisible();
   await expect(
-    updates.getByText(/当前记录更新到\s*M7 作品评论与一级回复/),
+    updates.getByText(/当前记录更新到\s*M8 诗作特辑与连续阅读/),
   ).toBeVisible();
   await expect(updates.getByText("M0", { exact: true })).toHaveCount(0);
 });
@@ -363,6 +364,7 @@ test("mobile header keeps one centered row and an accessible global menu", async
       Math.abs(brandBox!.x + brandBox!.width / 2 - viewport / 2),
     ).toBeLessThanOrEqual(1);
     await expect(nav.getByRole("link", { name: "诗作" })).toHaveCount(0);
+    await expect(nav.getByRole("link", { name: "特辑" })).toHaveCount(0);
     await expect(nav.getByRole("link", { name: "关于" })).toHaveCount(0);
   }
 
@@ -402,6 +404,7 @@ test("mobile header keeps one centered row and an accessible global menu", async
     /blur\(4px\)/,
   );
   await expect(globalNavigation.getByRole("link", { name: "诗作" })).toBeVisible();
+  await expect(globalNavigation.getByRole("link", { name: "特辑" })).toBeVisible();
   await expect(globalNavigation.getByRole("link", { name: "关于" })).toBeVisible();
   await expect(globalNavigation.getByRole("link", { name: "通知" })).toHaveCount(0);
   await expect(globalNavigation.getByRole("link", { name: "管理" })).toHaveCount(0);
@@ -588,7 +591,7 @@ for (const informationPage of [
       page.getByRole("heading", { level: 1, name: informationPage.title }),
     ).toBeVisible();
     await expect(page.getByRole("heading", { name: informationPage.copy })).toBeVisible();
-    await expect(page.getByText("更新日期：2026年8月22日")).toBeVisible();
+    await expect(page.getByText("更新日期：2026年8月30日")).toBeVisible();
 
     const dimensions = await page.evaluate(() => ({
       clientWidth: document.documentElement.clientWidth,

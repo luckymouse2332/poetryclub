@@ -337,6 +337,17 @@ export async function deletePoemsByIds(ids: ReadonlyArray<string>): Promise<void
   }
 }
 
+export async function deleteCollectionById(id: string): Promise<void> {
+  const sql = postgres(databaseUrl(), { max: 1 });
+  try {
+    await sql`delete from notification where target_type = 'collection' and target_id = ${id}`;
+    await sql`delete from admin_audit_log where target_type = 'collection' and target_id = ${id}`;
+    await sql`delete from poem_collection where id = ${id}`;
+  } finally {
+    await sql.end();
+  }
+}
+
 export async function createCommentPaginationFixtures(
   poemId: string,
   authorEmail: string,

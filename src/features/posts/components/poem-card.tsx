@@ -10,13 +10,16 @@ type PoemCardProps = Readonly<{ poem: PublicPoemSummary; titleLevel?: "h2" | "h3
 export function PoemCard({ poem, titleLevel = "h2" }: PoemCardProps) {
   const Title = titleLevel;
   return (
-    <article className="group grid gap-3 border-b border-border-subtle py-6 first:border-t md:grid-cols-[8rem_minmax(0,1fr)_11rem] md:gap-6">
+    <article className="grid gap-3 border-b border-border-subtle py-6 first:border-t md:grid-cols-[8rem_minmax(0,1fr)_11rem] md:gap-6">
       <time dateTime={poem.publishedAt.toISOString()} className="text-label tabular-nums text-subtle">
         {formatPoemDate(poem.publishedAt)}
       </time>
       <div className="min-w-0">
         <Title className="font-serif text-section-title font-normal text-foreground">
-          <Link href={`/poems/${poem.id}`} className="transition-colors group-hover:text-seal-foreground focus-visible:text-seal-foreground">
+          <Link
+            href={`/poems/${poem.id}`}
+            className="underline decoration-1 decoration-transparent underline-offset-[0.28em] transition-[color,text-decoration-color] duration-150 hover:text-seal-foreground hover:decoration-seal focus-visible:text-seal-foreground focus-visible:decoration-seal"
+          >
             《{poem.title}》
           </Link>
         </Title>

@@ -116,6 +116,8 @@ function revalidatePublicPoem(id: string): void {
   revalidatePath("/");
   revalidatePath("/poems");
   revalidatePath(`/poems/${id}`);
+  revalidatePath("/collections");
+  revalidatePath("/collections/[id]", "layout");
 }
 
 export async function createPoemAction(

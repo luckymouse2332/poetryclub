@@ -93,99 +93,110 @@ export function AnnouncementForm({
         </Alert>
       ) : null}
 
-      <Surface variant="paper" padding="lg" className="space-y-6">
-        <FormField
-          id="title"
-          label="公告标题"
-          required
-          disabled={pending}
-          error={state.fieldErrors?.title}
-        >
-          {(props) => (
-            <Input
-              {...props}
-              name="title"
-              maxLength={ANNOUNCEMENT_TITLE_MAX_LENGTH}
-              defaultValue={initialValues?.title}
-            />
-          )}
-        </FormField>
-
-        <FormField
-          id="body"
-          label="公告正文"
-          description="以纯文本发布，换行会原样保留。发布后不可修改。"
-          required
-          disabled={pending}
-          error={state.fieldErrors?.body}
-        >
-          {(props) => (
-            <Textarea
-              {...props}
-              name="body"
-              rows={10}
-              maxLength={ANNOUNCEMENT_BODY_MAX_LENGTH}
-              defaultValue={initialValues?.body}
-            />
-          )}
-        </FormField>
-
-        <FormField
-          id="href"
-          label="站内链接"
-          description="可选，只允许以 / 开头的站内相对路径，例如 /about。"
-          disabled={pending}
-          error={state.fieldErrors?.href}
-        >
-          {(props) => (
-            <Input
-              {...props}
-              name="href"
-              placeholder="/about"
-              defaultValue={initialValues?.href}
-            />
-          )}
-        </FormField>
-
-        <FieldSet data-invalid={Boolean(state.fieldErrors?.audience)}>
-          <FieldLegend variant="label">
-            发布受众 <span className="text-danger">*</span>
-          </FieldLegend>
-          <FieldDescription id="announcement-audience-description">
-            受众在发布时生成快照，之后新注册或状态变化的账号不会补收该公告。
-          </FieldDescription>
-          <RadioGroup
-            name="audience"
-            defaultValue={initialValues?.audience ?? "active_accounts"}
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(17rem,0.8fr)]">
+        <Surface variant="paper" padding="lg" className="space-y-6">
+          <FormField
+            id="title"
+            label="公告标题"
+            required
             disabled={pending}
-            aria-describedby="announcement-audience-description"
-            aria-invalid={Boolean(state.fieldErrors?.audience)}
+            error={state.fieldErrors?.title}
           >
-            {AUDIENCES.map((item) => (
-              <Field key={item.value} orientation="horizontal" className="items-start">
-                <RadioGroupItem
-                  id={`announcement-audience-${item.value}`}
-                  value={item.value}
-                  aria-label={item.title}
-                />
-                <FieldContent>
-                  <FieldLabel htmlFor={`announcement-audience-${item.value}`}>
-                    <FieldTitle>{item.title}</FieldTitle>
-                    <FieldDescription>{item.description}</FieldDescription>
-                  </FieldLabel>
-                </FieldContent>
-              </Field>
-            ))}
-          </RadioGroup>
-          {state.fieldErrors?.audience ? (
-            <FieldError>{state.fieldErrors.audience}</FieldError>
-          ) : null}
-        </FieldSet>
-      </Surface>
+            {(props) => (
+              <Input
+                {...props}
+                name="title"
+                maxLength={ANNOUNCEMENT_TITLE_MAX_LENGTH}
+                defaultValue={initialValues?.title}
+              />
+            )}
+          </FormField>
 
-      <Button type="submit" loading={pending}>
-        {pending ? "正在保存…" : submitLabel}
-      </Button>
+          <FormField
+            id="body"
+            label="公告正文"
+            description="以纯文本发布，换行会原样保留。发布后不可修改。"
+            required
+            disabled={pending}
+            error={state.fieldErrors?.body}
+          >
+            {(props) => (
+              <Textarea
+                {...props}
+                name="body"
+                rows={22}
+                maxLength={ANNOUNCEMENT_BODY_MAX_LENGTH}
+                defaultValue={initialValues?.body}
+                className="min-h-[30rem] resize-y font-serif text-body-lg leading-reading"
+              />
+            )}
+          </FormField>
+        </Surface>
+
+        <div className="space-y-4 lg:sticky lg:top-8">
+          <Surface variant="paper" padding="lg" className="space-y-6">
+            <FormField
+              id="href"
+              label="站内链接"
+              description="可选，只允许以 / 开头的站内相对路径，例如 /about。"
+              disabled={pending}
+              error={state.fieldErrors?.href}
+            >
+              {(props) => (
+                <Input
+                  {...props}
+                  name="href"
+                  placeholder="/about"
+                  defaultValue={initialValues?.href}
+                />
+              )}
+            </FormField>
+
+            <FieldSet data-invalid={Boolean(state.fieldErrors?.audience)}>
+              <FieldLegend variant="label">
+                发布受众 <span className="text-danger">*</span>
+              </FieldLegend>
+              <FieldDescription id="announcement-audience-description">
+                受众在发布时生成快照，之后新注册或状态变化的账号不会补收该公告。
+              </FieldDescription>
+              <RadioGroup
+                name="audience"
+                defaultValue={initialValues?.audience ?? "active_accounts"}
+                disabled={pending}
+                aria-describedby="announcement-audience-description"
+                aria-invalid={Boolean(state.fieldErrors?.audience)}
+              >
+                {AUDIENCES.map((item) => (
+                  <Field
+                    key={item.value}
+                    orientation="horizontal"
+                    className="items-start"
+                  >
+                    <RadioGroupItem
+                      id={`announcement-audience-${item.value}`}
+                      value={item.value}
+                      aria-label={item.title}
+                    />
+                    <FieldContent>
+                      <FieldLabel htmlFor={`announcement-audience-${item.value}`}>
+                        <FieldTitle>{item.title}</FieldTitle>
+                        <FieldDescription>{item.description}</FieldDescription>
+                      </FieldLabel>
+                    </FieldContent>
+                  </Field>
+                ))}
+              </RadioGroup>
+              {state.fieldErrors?.audience ? (
+                <FieldError>{state.fieldErrors.audience}</FieldError>
+              ) : null}
+            </FieldSet>
+          </Surface>
+
+          <Button type="submit" className="w-full" loading={pending}>
+            {pending ? "正在保存…" : submitLabel}
+          </Button>
+        </div>
+      </div>
     </form>
   );
 }

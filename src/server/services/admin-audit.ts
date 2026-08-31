@@ -18,14 +18,17 @@ export type AdminAuditAction =
   | "announcement_updated"
   | "announcement_published"
   | "comment_hidden"
-  | "comment_restored";
+  | "comment_restored"
+  | "collection_hidden"
+  | "collection_restored";
 
 export type AdminAuditTarget =
   | "poem"
   | "user"
   | "invitation"
   | "announcement"
-  | "comment";
+  | "comment"
+  | "collection";
 
 export type DatabaseTransaction = Parameters<
   Parameters<typeof db.transaction>[0]

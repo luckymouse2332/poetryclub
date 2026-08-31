@@ -45,6 +45,14 @@ export const NOTIFICATION_DEFINITIONS = {
     category: "moderation",
     label: "评论治理",
   },
+  "moderation.collection_hidden": {
+    category: "moderation",
+    label: "特辑治理",
+  },
+  "moderation.collection_restored": {
+    category: "moderation",
+    label: "特辑治理",
+  },
 } as const;
 
 export type KnownNotificationType = keyof typeof NOTIFICATION_DEFINITIONS;

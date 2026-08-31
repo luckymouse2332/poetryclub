@@ -12,6 +12,7 @@
 - M5：可扩展的站内通知、系统公告与在线实时唤醒能力。
 - M6：整站视觉语言、桌面工作区与浮层交互重构。
 - M7：围绕作品的评论、回复与互动治理能力。
+- M8：将已发布诗作编排为可连续阅读、具备访问控制和治理能力的特辑。
 
 ## 当前任务
 
@@ -50,6 +51,7 @@
 | M6.3 | 移动端导航浮层与动效修正 | 已完成 | [M6.3-mobile-navigation-overlay-motion.md](./M6.3-mobile-navigation-overlay-motion.md) |
 | M6.4 | 管理 Sheet 与桌面 Dropdown 对齐 | 已完成 | [M6.4-admin-drawer-dropdown-parity.md](./M6.4-admin-drawer-dropdown-parity.md) |
 | M7 | 作品评论与一级回复 | 已完成 | [M7-comments-and-replies.md](./M7-comments-and-replies.md) |
+| M8 | 诗作特辑与连续阅读 | 已完成 | [M8-curated-collections.md](./M8-curated-collections.md) |
 | CHORE-1 | 仓库工作流与发布规范 | 已完成 | [CHORE-1-repository-workflow-conventions.md](./CHORE-1-repository-workflow-conventions.md) |
 | CHORE-2 | 已合并分支清理与保留规则 | 已完成 | [CHORE-2-merged-branch-retention-policy.md](./CHORE-2-merged-branch-retention-policy.md) |
 | CHORE-style-architecture-consolidation | 样式架构收敛 | 已完成 | [CHORE-style-architecture-consolidation.md](./CHORE-style-architecture-consolidation.md) |

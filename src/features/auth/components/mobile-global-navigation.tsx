@@ -49,6 +49,7 @@ export function MobileGlobalNavigation({
 
   const items = [
     { href: "/poems", label: "诗作", match: "prefix" as const },
+    { href: "/collections", label: "特辑", match: "prefix" as const },
     { href: "/about", label: "关于", match: "exact" as const },
   ];
 

@@ -69,6 +69,15 @@ export function SiteHeader({
           </li>
           <li>
             <SiteNavLink
+              href="/collections"
+              match="prefix"
+              className="inline-flex min-h-control items-center justify-center whitespace-nowrap px-2 font-serif text-label tracking-[0.14em] text-foreground no-underline transition-colors hover:text-seal"
+            >
+              特辑
+            </SiteNavLink>
+          </li>
+          <li>
+            <SiteNavLink
               href="/about"
               match="exact"
               className="inline-flex min-h-control items-center justify-center whitespace-nowrap px-2 font-serif text-label tracking-[0.14em] text-foreground no-underline transition-colors hover:text-seal"

@@ -62,6 +62,8 @@ export const AUDIT_ACTION_LABELS = {
   announcement_published: "发布系统公告",
   comment_hidden: "隐藏评论",
   comment_restored: "恢复评论",
+  collection_hidden: "隐藏特辑",
+  collection_restored: "恢复特辑",
 } as const;
 
 export const AUDIT_TARGET_LABELS = {
@@ -70,4 +72,5 @@ export const AUDIT_TARGET_LABELS = {
   invitation: "邀请码",
   announcement: "系统公告",
   comment: "评论",
+  collection: "特辑",
 } as const;

@@ -87,7 +87,7 @@ export const PROJECT_ERAS: readonly ProjectEra[] = [
       "到高中以后又把这个项目捡了起来，这次直接重新做成了现在的版本。账号、投稿、权限、通知这些东西也是这一版才真正补起来的。",
     record: [
       "这一次重新完成了登录、诗作草稿与发布、管理员审核。此外，还增加了邀请注册、邮箱验证、密码重置等之前没做过的新功能",
-      "当前版本又补上了持久化站内通知、系统公告、作品评论和一级回复。它就是现在访问到的回中诗社网站。",
+      "当前版本又补上了持久化站内通知、系统公告、作品评论、一级回复和诗作特辑。它就是现在访问到的回中诗社网站。",
     ],
     technology: ["Next.js", "TypeScript", "PostgreSQL", "Drizzle ORM"],
   },
@@ -110,7 +110,7 @@ export const PRESENT_ROLES: readonly PresentRole[] = [
     label: "保持开放",
     title: "给偶然想起它的人留一个仍能打开的地址",
     description:
-      "网站现在还在更新。投稿、账号、通知和评论先做完整，诗集之类的功能后面再看大家是不是真用得上。",
+      "网站现在还在更新。投稿、账号、通知和评论已经补齐，相关诗作也可以整理成连续阅读的特辑。",
   },
 ];
 
@@ -189,6 +189,18 @@ export const UPDATE_ENTRIES = [
       "完成管理员隐藏、恢复、原因通知与审计事务",
     ],
   },
+  {
+    milestone: "M8",
+    date: "2026.08.30",
+    title: "诗作特辑与连续阅读",
+    summary:
+      "成员可以把相关的已发布诗作整理成有序特辑，公开与成员访问、失效作品过滤和管理员治理保持一致。",
+    items: [
+      "完成特辑草稿、发布、撤回、目录编排和分页管理",
+      "完成目录与逐篇连续阅读，并安全跳过当前不可读作品",
+      "完成特辑隐藏、恢复、最小通知与审计事务",
+    ],
+  },
 ] as const satisfies readonly UpdateEntry[];
 
 export const ROADMAP_ENTRIES: readonly RoadmapEntry[] = [
@@ -199,10 +211,10 @@ export const ROADMAP_ENTRIES: readonly RoadmapEntry[] = [
     items: ["根评论", "一级回复", "编辑与软删除", "评论治理"],
   },
   {
-    status: "计划中",
-    title: "诗集与特辑",
-    summary: "把相关诗作和文章组织成可以连续阅读的一组内容，例如《回中史记》。",
-    items: ["诗集", "特辑", "相关作品编排"],
+    status: "已完成",
+    title: "特辑",
+    summary: "把相关的已发布诗作组织成有序目录，并提供逐篇连续阅读。",
+    items: ["特辑草稿与发布", "诗作顺序编排", "连续阅读"],
   },
   {
     status: "计划中",

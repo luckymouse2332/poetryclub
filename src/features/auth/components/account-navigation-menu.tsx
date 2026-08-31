@@ -7,6 +7,7 @@ import {
   Bell,
   ChevronDown,
   FilePenLine,
+  Library,
   LogOut,
   ShieldCheck,
   UserRound,
@@ -113,7 +114,7 @@ export function AccountNavigationMenu({
             我的工作区
           </span>
           <span className="mt-0.5 block text-caption font-normal text-subtle">
-            {mobile ? "管理通知、账户与个人诗作" : "管理账户与个人诗作"}
+            {mobile ? "管理通知、账户、诗作与特辑" : "管理账户、诗作与特辑"}
           </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -138,6 +139,12 @@ export function AccountNavigationMenu({
             <Link href="/account/poems" className={menuLinkClassName}>
               <FilePenLine aria-hidden="true" />
               <span>我的诗作</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/account/collections" className={menuLinkClassName}>
+              <Library aria-hidden="true" />
+              <span>我的特辑</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
