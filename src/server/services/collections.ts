@@ -227,13 +227,17 @@ function eligiblePoemCondition(visibility: CollectionVisibility) {
 function correlatedEligibleItemCount() {
   return sql<number>`(
     select count(*)::int
-    from ${poemCollectionItem}
-    inner join ${poem} on ${poem.id} = ${poemCollectionItem.poemId}
-    where ${poemCollectionItem.collectionId} = ${poemCollection.id}
-      and ${poem.status} = 'published'
-      and ${poem.moderationStatus} = 'visible'
-      and ${poem.publishedAt} is not null
-      and (${poemCollection.visibility} = 'members_only' or ${poem.visibility} = 'public')
+    from "poem_collection_item" as eligible_item
+    inner join "poem" as eligible_poem
+      on eligible_poem."id" = eligible_item."poem_id"
+    where eligible_item."collection_id" = "poem_collection"."id"
+      and eligible_poem."status" = 'published'
+      and eligible_poem."moderation_status" = 'visible'
+      and eligible_poem."published_at" is not null
+      and (
+        "poem_collection"."visibility" = 'members_only'
+        or eligible_poem."visibility" = 'public'
+      )
   )`;
 }
 
