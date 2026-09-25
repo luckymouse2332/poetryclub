@@ -269,6 +269,9 @@ function expectInvalid(label, callback) {
 }
 
 function selfTest() {
+  const taskReadme = readFileSync(new URL("../docs/tasks/README.md", import.meta.url), "utf8");
+  const declaredStages = [...taskReadme.matchAll(/^- M(\d+)[：:]/gm)].map((match) => Number(match[1]));
+  const undeclaredStage = Math.max(0, ...declaredStages) + 1;
   for (const branch of [
     "master",
     "feat/m4-0-password-management-recovery",
@@ -285,7 +288,7 @@ function selfTest() {
     "feat/content-access-control",
     "feat/M4.1-content-access-control",
     "feat/m05-01-leading-zero",
-    "feat/m9-new-stage",
+    `feat/m${undeclaredStage}-new-stage`,
     "release/v01.2.0",
   ]) {
     expectInvalid(branch, () => validateBranchName(branch));

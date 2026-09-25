@@ -44,7 +44,7 @@ async function createPublishedPoem(page: Page, title: string): Promise<string> {
   await page.getByRole("button", { name: "保存草稿" }).click();
   await page.waitForURL(/\/account\/poems\/[0-9a-f-]+\/edit\?created=1$/);
   const id = new URL(page.url()).pathname.split("/")[3] ?? "";
-  await page.getByRole("button", { name: "发布", exact: true }).click();
+  await page.getByRole("button", { name: "保存并发布" }).click();
   await page.waitForURL(`/poems/${id}`);
   return id;
 }
@@ -86,7 +86,7 @@ test.describe.serial("curated collection publishing and governance", () => {
     await adminPage.getByRole("button", { name: "保存草稿" }).click();
     await adminPage.waitForURL(/\/account\/collections\/[0-9a-f-]+\/edit\?created=1$/);
     collectionId = new URL(adminPage.url()).pathname.split("/")[3] ?? "";
-    const editPagePublish = adminPage.getByRole("button", { name: "发布特辑" });
+    const editPagePublish = adminPage.getByRole("button", { name: "保存并发布特辑" });
     await expect(
       adminPage.getByRole("heading", { name: "发布状态" }),
     ).toBeVisible();
@@ -132,6 +132,18 @@ test.describe.serial("curated collection publishing and governance", () => {
     await adminPage.waitForURL(`/collections/${collectionId}`);
     await expect(adminPage.getByRole("heading", { level: 1, name: collectionTitle })).toBeVisible();
     await expect(adminPage.locator("main ol li").first()).toContainText(secondTitle);
+  });
+
+  test("publishes current unsaved collection edits after withdrawal", async () => {
+    await adminPage.goto(`/account/collections/${collectionId}/edit`);
+    const withdraw = adminPage.getByRole("button", { name: "撤回特辑" });
+    await waitForHydratedLocator(withdraw);
+    await withdraw.click();
+    await adminPage.waitForURL(`/account/collections/${collectionId}/edit?withdrawn=1`);
+    await adminPage.getByLabel("简介").fill("发布时修改的特辑简介。");
+    await adminPage.getByRole("button", { name: "保存并发布特辑" }).click();
+    await adminPage.waitForURL(`/collections/${collectionId}`);
+    await expect(adminPage.getByText("发布时修改的特辑简介。")).toBeVisible();
   });
 
   test("supports anonymous continuous reading, keyboard links and responsive widths", async () => {

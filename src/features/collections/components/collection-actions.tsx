@@ -21,6 +21,7 @@ import {
   withdrawCollectionAction,
   type CollectionActionState,
 } from "@/features/collections/actions";
+import { guardUnsavedFormSubmission } from "@/lib/use-unsaved-form-guard";
 
 const INITIAL_STATE: CollectionActionState = { status: "idle" };
 
@@ -40,6 +41,7 @@ export function CollectionActions({
   moderationStatus,
   availableItemCount,
   compact = false,
+  showPublish = true,
 }: Readonly<{
   id: string;
   status: "draft" | "published";
@@ -47,6 +49,7 @@ export function CollectionActions({
   moderationStatus: "visible" | "hidden";
   availableItemCount: number;
   compact?: boolean;
+  showPublish?: boolean;
 }>) {
   const [publishState, publishAction, publishPending] = useActionState(
     publishCollectionAction.bind(null, id),
@@ -69,7 +72,7 @@ export function CollectionActions({
       <div className="flex w-full flex-wrap items-center gap-2">
         {status === "draft" ? (
           <>
-            <form action={publishAction}>
+            {showPublish ? <form action={publishAction} onSubmit={guardUnsavedFormSubmission}>
               <Button
                 type="submit"
                 size={buttonSize}
@@ -77,7 +80,7 @@ export function CollectionActions({
               >
                 {publishPending ? "正在发布…" : compact ? "发布" : "发布特辑"}
               </Button>
-            </form>
+            </form> : null}
             {publishedAt === null ? (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -95,7 +98,7 @@ export function CollectionActions({
                   <ActionMessage state={deleteState} />
                   <AlertDialogFooter>
                     <AlertDialogCancel>取消</AlertDialogCancel>
-                    <form action={deleteAction}>
+                    <form action={deleteAction} onSubmit={guardUnsavedFormSubmission}>
                       <Button
                         type="submit"
                         variant="danger"
@@ -117,7 +120,7 @@ export function CollectionActions({
                 <Link href={`/collections/${id}`}>查看特辑</Link>
               </Button>
             ) : null}
-            <form action={withdrawAction}>
+            <form action={withdrawAction} onSubmit={guardUnsavedFormSubmission}>
               <Button
                 type="submit"
                 variant="danger"

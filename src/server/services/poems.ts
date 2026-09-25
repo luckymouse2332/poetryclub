@@ -355,6 +355,7 @@ export async function updateOwnPoem(
 export async function publishOwnDraft(
   id: string,
   authorId: string,
+  input?: PoemInput,
 ): Promise<Readonly<{
   publishedAt: Date;
   moderationStatus: PoemModerationStatus;
@@ -362,6 +363,7 @@ export async function publishOwnDraft(
   const updated = await db
     .update(poem)
     .set({
+      ...input,
       status: "published",
       publishedAt: sql`coalesce(${poem.publishedAt}, now())`,
       updatedAt: new Date(),

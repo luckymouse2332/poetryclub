@@ -112,6 +112,7 @@ export default async function EditCollectionPage({
           <CollectionForm
             action={updateCollectionAction.bind(null, collection.id)}
             submitLabel="保存修改"
+            canPublish={collection.status === "draft"}
             initialValues={{
               title: collection.title,
               description: collection.description ?? undefined,
@@ -133,6 +134,7 @@ export default async function EditCollectionPage({
             publishedAt={collection.publishedAt}
             moderationStatus={collection.moderationStatus}
             availableItemCount={collection.availableItemCount}
+            showPublish={false}
           />
         </Section>
       ) : null}

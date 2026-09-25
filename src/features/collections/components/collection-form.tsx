@@ -20,6 +20,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Surface } from "@/components/ui/surface";
 import { Textarea } from "@/components/ui/textarea";
 import type { CollectionActionState } from "@/features/collections/actions";
+import { useUnsavedFormGuard } from "@/lib/use-unsaved-form-guard";
 import {
   COLLECTION_DESCRIPTION_MAX_LENGTH,
   COLLECTION_TITLE_MAX_LENGTH,
@@ -34,6 +35,7 @@ export type CollectionFormAction = (
 type CollectionFormProps = Readonly<{
   action: CollectionFormAction;
   submitLabel: string;
+  canPublish?: boolean;
   creationToken?: string;
   initialValues?: Readonly<{
     title?: string;
@@ -47,20 +49,27 @@ const INITIAL_STATE: CollectionActionState = { status: "idle" };
 export function CollectionForm({
   action,
   submitLabel,
+  canPublish = false,
   creationToken,
   initialValues,
 }: CollectionFormProps) {
   const [state, formAction, isPending] = useActionState(action, INITIAL_STATE);
   const displayedValues = state.values ?? initialValues;
+  const { dirty, markDirty } = useUnsavedFormGuard();
 
   return (
-    <form action={formAction} className="space-y-6">
+    <form action={formAction} onInput={markDirty} onChange={markDirty} data-unsaved-editor={dirty ? "true" : undefined} className="space-y-6">
       {creationToken ? (
         <input type="hidden" name="creationToken" value={creationToken} />
       ) : null}
       {state.status === "error" && state.message ? (
         <Alert variant="danger" role="alert">
           <AlertDescription>{state.message}</AlertDescription>
+        </Alert>
+      ) : null}
+      {dirty ? (
+        <Alert variant="warning" role="status">
+          <AlertDescription>有未保存的修改。离开页面或执行状态操作前，请先保存。</AlertDescription>
         </Alert>
       ) : null}
       <div
@@ -149,9 +158,16 @@ export function CollectionForm({
               ) : null}
             </FieldSet>
           </Surface>
-          <Button type="submit" className="w-full" loading={isPending}>
-            {isPending ? "正在保存…" : submitLabel}
-          </Button>
+          <div className="space-y-2">
+            <Button type="submit" name="intent" value="save" className="w-full" loading={isPending}>
+              {isPending ? "正在处理…" : submitLabel}
+            </Button>
+            {canPublish ? (
+              <Button type="submit" name="intent" value="publish" variant="secondary" className="w-full" disabled={isPending}>
+                保存并发布特辑
+              </Button>
+            ) : null}
+          </div>
         </div>
       </div>
     </form>

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 
 import {
   AccessControlError,
@@ -167,7 +168,20 @@ export async function updatePoemAction(
     return validationState(previousState, input, values);
   }
 
+  const intent = z.enum(["save", "publish"]).safeParse(formData.get("intent"));
+  if (!intent.success) return { status: "error", message: "作品操作无效，请重试。" };
+
   try {
+    if (intent.data === "publish") {
+      const published = await publishOwnDraft(parsedId.data, currentUser.id, input.data);
+      revalidatePath("/account/poems");
+      revalidatePath(`/account/poems/${parsedId.data}/edit`);
+      revalidatePublicPoem(parsedId.data);
+      if (published.moderationStatus === "hidden") {
+        redirect(`/account/poems/${parsedId.data}/edit?published=1`);
+      }
+      redirect(`/poems/${parsedId.data}`);
+    }
     const status = await updateOwnPoem(parsedId.data, currentUser.id, input.data);
     revalidatePath("/account/poems");
     revalidatePath(`/account/poems/${parsedId.data}/edit`);

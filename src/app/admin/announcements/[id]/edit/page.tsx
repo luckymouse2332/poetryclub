@@ -3,14 +3,9 @@ import { notFound } from "next/navigation";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
-import { Section } from "@/components/layout/section";
 import { Surface } from "@/components/ui/surface";
-import {
-  publishAnnouncementAction,
-  updateAnnouncementAction,
-} from "@/features/notifications/announcement-actions";
+import { updateAnnouncementAction } from "@/features/notifications/announcement-actions";
 import { AnnouncementForm } from "@/features/notifications/components/announcement-form";
-import { AnnouncementPublishForm } from "@/features/notifications/components/announcement-publish-form";
 import { getAnnouncement } from "@/server/services/notifications";
 import { announcementIdSchema } from "@/server/validation/notifications";
 
@@ -52,6 +47,7 @@ export default async function EditAnnouncementPage({
           <AnnouncementForm
             action={updateAnnouncementAction.bind(null, announcement.id)}
             submitLabel="保存草稿"
+            canPublish
             initialValues={{
               title: announcement.title,
               body: announcement.body,
@@ -61,16 +57,6 @@ export default async function EditAnnouncementPage({
           />
         )}
       </div>
-      {!published ? (
-        <Section title="发布公告" className="pb-0 pt-10">
-          <p className="mb-4 text-body text-subtle">
-            发布会按当前受众生成通知，发布后不能修改、撤回或删除。
-          </p>
-          <AnnouncementPublishForm
-            action={publishAnnouncementAction.bind(null, announcement.id)}
-          />
-        </Section>
-      ) : null}
     </PageContainer>
   );
 }

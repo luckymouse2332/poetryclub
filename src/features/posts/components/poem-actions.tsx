@@ -21,6 +21,7 @@ import {
   withdrawPoemAction,
 } from "@/features/posts/actions";
 import type { PoemActionState } from "@/features/posts/actions";
+import { guardUnsavedFormSubmission } from "@/lib/use-unsaved-form-guard";
 
 type PoemActionsProps = Readonly<{
   id: string;
@@ -36,6 +37,7 @@ type PoemActionsProps = Readonly<{
    * 不影响 action 协议或安全语义。
    */
   compact?: boolean;
+  showPublish?: boolean;
 }>;
 
 const INITIAL_STATE: PoemActionState = { status: "idle" };
@@ -62,6 +64,7 @@ export function PoemActions({
   status,
   moderationStatus = "visible",
   compact = false,
+  showPublish = true,
 }: PoemActionsProps) {
   const [publishState, publishAction, publishPending] = useActionState(
     publishPoemAction.bind(null, id),
@@ -89,7 +92,7 @@ export function PoemActions({
       >
         {status === "draft" ? (
           <>
-            <form action={publishAction}>
+            {showPublish ? <form action={publishAction} onSubmit={guardUnsavedFormSubmission}>
               <Button
                 type="submit"
                 variant="primary"
@@ -98,7 +101,7 @@ export function PoemActions({
               >
                 {publishPending ? "正在发布…" : "发布"}
               </Button>
-            </form>
+            </form> : null}
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button type="button" variant="danger" size={buttonSize}>
@@ -115,7 +118,7 @@ export function PoemActions({
                 <ActionError state={deleteState} />
                 <AlertDialogFooter>
                   <AlertDialogCancel>取消</AlertDialogCancel>
-                  <form action={deleteAction}>
+                  <form action={deleteAction} onSubmit={guardUnsavedFormSubmission}>
                     <Button
                       type="submit"
                       variant="danger"
@@ -136,7 +139,7 @@ export function PoemActions({
                 <Link href={`/poems/${id}`}>查看作品页</Link>
               </Button>
             ) : null}
-            <form action={withdrawAction}>
+            <form action={withdrawAction} onSubmit={guardUnsavedFormSubmission}>
               <Button
                 type="submit"
                 variant="danger"

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 
 import type { AnnouncementActionState } from "@/features/notifications/announcement-action-state";
 import { requireAdmin } from "@/server/policies/access";
@@ -82,39 +83,25 @@ export async function updateAnnouncementAction(
   if (!parsedId.success) return { status: "error", message: "公告编号无效。" };
   const parsed = announcementInputSchema.safeParse(readInput(formData));
   if (!parsed.success) return validationState(parsed);
+  const intent = z.enum(["save", "publish"]).safeParse(formData.get("intent"));
+  if (!intent.success) return { status: "error", message: "公告操作无效，请重试。" };
   try {
-    await updateAnnouncementDraft(admin.id, parsedId.data, parsed.data);
+    if (intent.data === "publish") {
+      await publishAnnouncement(admin.id, parsedId.data, parsed.data);
+    } else {
+      await updateAnnouncementDraft(admin.id, parsedId.data, parsed.data);
+    }
   } catch (error) {
     const state = mutationState(error);
     if (state) return state;
     throw error;
   }
-  revalidatePath("/admin/announcements");
-  revalidatePath(`/admin/announcements/${parsedId.data}/edit`);
-  revalidatePath("/admin/audit");
-  return { status: "success", message: "公告草稿已保存。" };
-}
-
-export async function publishAnnouncementAction(
-  id: string,
-  _previous: AnnouncementActionState,
-  _formData: FormData,
-): Promise<AnnouncementActionState> {
-  void _formData;
-  const admin = await requireAdmin("/admin/announcements");
-  const parsedId = announcementIdSchema.safeParse(id);
-  if (!parsedId.success) return { status: "error", message: "公告编号无效。" };
-  try {
-    await publishAnnouncement(admin.id, parsedId.data);
-  } catch (error) {
-    const state = mutationState(error);
-    if (state) return state;
-    throw error;
+  if (intent.data === "publish") {
+    revalidatePath("/", "layout");
+    revalidatePath("/notifications");
   }
-  revalidatePath("/", "layout");
-  revalidatePath("/notifications");
   revalidatePath("/admin/announcements");
   revalidatePath(`/admin/announcements/${parsedId.data}/edit`);
   revalidatePath("/admin/audit");
-  return { status: "success", message: "公告已发布。" };
+  return { status: "success", message: intent.data === "publish" ? "公告已发布。" : "公告草稿已保存。" };
 }

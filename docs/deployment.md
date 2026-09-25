@@ -24,7 +24,7 @@ cp deploy/.env.production.example deploy/.env.production
 - `EMAIL_TRANSPORT` 在生产必须为 `resend`，并配置有效的 `RESEND_API_KEY` 与完成发信域名验证的 `EMAIL_FROM_ADDRESS`。发件人显示名称固定为“回中诗社”。
 - 不得提交该文件，也不得把值写入镜像或前端变量。
 
-应用启动时会校验邮件配置。生产缺少 Resend API Key、发件地址或尝试使用开发 / 测试 transport 时会直接失败，不会退化为在日志中打印重置链接。忘记密码的公开响应不等待邮件供应商返回，邮箱存在与否及邮件发送成败都不会改变页面提示；异步失败只记录不含邮箱、完整 token 或完整重置 URL 的服务端错误。
+应用启动时会校验邮件配置。生产缺少 Resend API Key、发件地址或尝试使用开发 / 测试 transport 时会直接失败，不会退化为在日志中打印重置链接或验证码。忘记密码和邮箱验证码发送的公开响应不等待邮件供应商返回，邮箱存在与否及异步发送成败都不会改变页面提示；异步失败只记录不含邮箱、完整 token、验证码或完整重置 URL 的服务端错误。
 
 ## 首次部署与更新
 
@@ -36,6 +36,8 @@ docker compose --env-file deploy/.env.production \
 ```
 
 Compose 会等待 PostgreSQL 和 Redis 健康，运行已提交的 Drizzle migration；只有 migration 成功且 Redis 健康后才启动应用，并把容器的 `3000` 端口发布为宿主机 `127.0.0.1:4000`。禁止用 `drizzle-kit push` 替代 migration。
+
+升级到 M9 邮箱验证时，必须先运行 `0008_grandfather-existing-email.sql`，再让新应用接收登录请求。该迁移将升级前已有密码凭据的账号标记为邮箱已验证，以保持原有密码登录能力；升级后创建的账号仍须使用邮件验证码验证。以上 Compose 顺序满足这一要求。首次部署没有旧账号时，迁移不修改任何用户。
 
 宿主机 Caddy 的站点配置应把请求代理到该回环地址，例如：
 

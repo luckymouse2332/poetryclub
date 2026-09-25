@@ -3,6 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { createTestInvitation, expirePasswordResetUrl } from "./helpers/database";
 import {
   countEmailTestMessages,
+  verifyTestEmail,
   waitForPasswordResetEmail,
 } from "./helpers/email-outbox";
 
@@ -73,6 +74,7 @@ test.describe.serial("password management and recovery loop", () => {
       },
     });
     expect(registered.status()).toBe(200);
+    await verifyTestEmail(request, email);
 
     currentPage = await browser.newPage();
     otherPage = await browser.newPage();
@@ -167,8 +169,8 @@ test.describe.serial("password management and recovery loop", () => {
     await otherPage.getByLabel("邮箱").fill(email);
     await otherPage.getByLabel("密码").fill(oldPassword);
     await otherPage.getByRole("button", { name: "登录", exact: true }).click();
-    await expect(otherPage.getByText("操作失败，请检查输入后重试。"))
-      .toBeVisible();
+    await expect(otherPage.locator('[data-slot="popover-anchor"][role="alert"]'))
+      .toContainText("邮箱或密码不正确");
 
     await otherPage.getByLabel("密码").fill(changedPassword);
     await otherPage.getByRole("button", { name: "登录", exact: true }).click();
@@ -258,8 +260,8 @@ test.describe.serial("password management and recovery loop", () => {
     await page.getByLabel("邮箱").fill(email);
     await page.getByLabel("密码").fill(changedPassword);
     await page.getByRole("button", { name: "登录", exact: true }).click();
-    await expect(page.getByText("操作失败，请检查输入后重试。"))
-      .toBeVisible();
+    await expect(page.locator('[data-slot="popover-anchor"][role="alert"]'))
+      .toContainText("邮箱或密码不正确");
 
     await page.getByLabel("密码").fill(resetPassword);
     await page.getByRole("button", { name: "登录", exact: true }).click();

@@ -167,6 +167,7 @@
 - 变体：`default`、`success`、`warning`、`danger`；后三种分别固定使用成功、警告和错误 Lucide 图标。
 - Alert 不默认创建 live region。交互或异步错误显式使用 `role="alert"`，异步成功与非阻断状态变化使用 `role="status"`，不得再重复声明 `aria-live`；初始页面中的静态禁用、隐藏和治理原因说明不声明 live role。
 - 字段错误继续由 Field / FormField 承担，Badge、必填标记和普通内联状态文字不迁入 Alert。
+- 认证表单的整体提交错误保留带 `role="alert"` 的 danger Alert，并以现有 shadcn/Radix Popover 在错误出现时强化提示；浮层可关闭，不能替代字段错误或成为唯一错误来源。
 
 ### Pagination
 

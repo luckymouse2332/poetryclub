@@ -72,7 +72,12 @@ describe("notifications and announcements", () => {
     announcementIds.push(announcementId);
     auditTargetIds.push(announcementId);
 
-    await publishAnnouncement(adminId, announcementId);
+    await publishAnnouncement(adminId, announcementId, {
+      title: "集成测试公告",
+      body: "公告正文",
+      href: "/notifications",
+      audience: "all_accounts",
+    });
 
     const rows = await sql`
       select a.status, a.notification_id, nr.user_id
@@ -114,11 +119,16 @@ describe("notifications and announcements", () => {
     announcementIds.push(announcementId);
     auditTargetIds.push(announcementId);
 
-    await publishAnnouncement(adminId, announcementId);
+    await publishAnnouncement(adminId, announcementId, {
+      title: "成员公告访问测试",
+      body: "发布时编辑后的正文。",
+      href: null,
+      audience: "active_members",
+    });
 
     await expect(openUserAnnouncement(recipientId, announcementId)).resolves.toMatchObject({
       id: announcementId,
-      body: "只有收件人可以看到这段正文。",
+      body: "发布时编辑后的正文。",
     });
     await expect(openUserAnnouncement(outsiderId, announcementId)).resolves.toBeNull();
   });

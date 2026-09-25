@@ -19,6 +19,7 @@ import {
   getUserIdByEmail,
   listOtherActiveAdmins,
 } from "./helpers/database";
+import { waitForEmailOtp } from "./helpers/email-outbox";
 
 const PASSWORD = "password123";
 
@@ -76,9 +77,10 @@ async function registerAndSignIn(
   await page.getByLabel("密码").fill(PASSWORD);
   await page.getByLabel("邀请码").fill(inviteCode);
   await page.getByRole("button", { name: "创建账号" }).click();
-  await expect(
-    page.getByText("注册请求已完成，请使用邮箱和密码登录。"),
-  ).toBeVisible();
+  const { otp } = await waitForEmailOtp(email);
+  await page.getByLabel("6 位邮箱验证码").fill(otp);
+  await page.getByRole("button", { name: "验证邮箱" }).click();
+  await expect(page.getByText("邮箱验证完成，请登录。")).toBeVisible();
   await page.getByLabel("邮箱").fill(email);
   await page.getByLabel("密码").fill(PASSWORD);
   await page.getByRole("button", { name: "登录", exact: true }).click();
@@ -97,7 +99,7 @@ async function createPublishedPoem(
   await page.getByRole("button", { name: "保存草稿" }).click();
   await page.waitForURL(/\/account\/poems\/[0-9a-f-]+\/edit\?created=1$/);
   const id = new URL(page.url()).pathname.split("/")[3] ?? "";
-  await page.getByRole("button", { name: "发布", exact: true }).click();
+  await page.getByRole("button", { name: "保存并发布" }).click();
   await page.waitForURL(`/poems/${id}`);
   return id;
 }
@@ -253,7 +255,7 @@ test.describe.serial("administrator authorization and governance", () => {
     await waitForHydration(memberPage, "main form button[type=submit]");
     await memberPage.getByRole("button", { name: "撤回", exact: true }).click();
     await memberPage.waitForURL(`/account/poems/${poemId}/edit?withdrawn=1`);
-    await memberPage.getByRole("button", { name: "发布", exact: true }).click();
+    await memberPage.getByRole("button", { name: "保存并发布" }).click();
     await memberPage.waitForURL(`/account/poems/${poemId}/edit?published=1`);
     expect((await memberPage.request.get(`/poems/${poemId}`)).status()).toBe(404);
     expect(await countAuditEntries("poem_hidden", poemId)).toBe(1);

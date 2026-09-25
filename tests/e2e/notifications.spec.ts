@@ -161,7 +161,8 @@ test("desktop notification popover stays synchronized and supports keyboard dism
     await expect(draftCard.getByRole("link", { name: "查看目标页面" })).toBeVisible();
     await expect(draftCard.getByRole("button", { name: /更多操作/ })).toHaveCount(0);
     await adminPage.goto(draftEditPath);
-    const publishButton = adminPage.getByRole("button", { name: "发布公告" });
+    await adminPage.getByLabel("公告正文").fill("发布时修改的正文。第二行内容用于摘要截断。");
+    const publishButton = adminPage.getByRole("button", { name: "保存并发布公告" });
     await expect(publishButton).toBeEnabled();
     await publishButton.click();
     await expect(adminPage.getByRole("heading", { level: 1, name: "已发布公告" })).toBeVisible();
@@ -194,6 +195,7 @@ test("desktop notification popover stays synchronized and supports keyboard dism
     await expect(inboxPage.getByRole("article", { name: title })).toContainText(
       "第二行内容用于摘要截断。",
     );
+    await expect(inboxPage.getByRole("article", { name: title })).toContainText("发布时修改的正文。");
     await expect
       .poll(
         async () =>
@@ -227,7 +229,7 @@ test("non-recipients cannot read member-only announcement details", async ({
   await page.getByRole("radio", { name: "正常成员" }).click();
   await page.getByRole("button", { name: "创建草稿" }).click();
   await page.waitForURL(/\/admin\/announcements\/[0-9a-f-]+\/edit\?created=1$/);
-  const publishButton = page.getByRole("button", { name: "发布公告" });
+  const publishButton = page.getByRole("button", { name: "保存并发布公告" });
   await publishButton.click();
   await expect(page.getByRole("heading", { level: 1, name: "已发布公告" })).toBeVisible();
   const announcementId = page
@@ -377,10 +379,13 @@ test("mobile notification state and admin entry stay inside their navigation rol
       name: "管理后台导航",
     })).toHaveCount(0);
 
+    await waitForHydration(page, 'button[aria-label="打开全站导航"]');
     await page.getByRole("button", { name: "打开全站导航" }).click();
     const mobileAdminNavigation = page.getByRole("navigation", {
       name: "全站导航",
     });
+    await expect(mobileAdminNavigation.getByRole("button", { name: "管理后台" }))
+      .toHaveAttribute("aria-expanded", "true");
     await expect(
       mobileAdminNavigation.getByRole("link", { name: "管理：总览" }),
     ).toHaveAttribute("aria-current", "page");

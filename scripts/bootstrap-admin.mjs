@@ -26,7 +26,7 @@ try {
     if (!guard[0]) throw new Error("admin_guard is missing; run migrations first");
 
     const users = await tx`
-      select id, role, status from "user" where lower(email) = ${email} limit 1 for update
+      select id, role, status, email_verified from "user" where lower(email) = ${email} limit 1 for update
     `;
     let target = users[0];
     let created = false;
@@ -50,7 +50,7 @@ try {
         insert into "user" (
           id, name, email, email_verified, created_at, updated_at, role, status
         ) values (
-          ${userId}, ${name}, ${email}, false, ${now}, ${now}, 'member', 'active'
+          ${userId}, ${name}, ${email}, true, ${now}, ${now}, 'member', 'active'
         )
       `;
       await tx`
@@ -60,17 +60,21 @@ try {
           ${randomUUID()}, ${userId}, 'credential', ${userId}, ${passwordHash}, ${now}, ${now}
         )
       `;
-      target = { id: userId, role: "member", status: "active" };
+      target = { id: userId, role: "member", status: "active", email_verified: true };
       created = true;
     }
 
     if (target.status !== "active") {
       throw new Error("The bootstrap target is suspended; restore it through another administrator");
     }
-    if (target.role === "admin") return { changed: false, created: false };
+    if (target.role === "admin") {
+      if (target.email_verified) return { changed: false, created: false, verified: false };
+      await tx`update "user" set email_verified = true, updated_at = now() where id = ${target.id}`;
+      return { changed: false, created: false, verified: true };
+    }
 
     await tx`
-      update "user" set role = 'admin', updated_at = now() where id = ${target.id}
+      update "user" set role = 'admin', email_verified = true, updated_at = now() where id = ${target.id}
     `;
     await tx`
       insert into admin_audit_log (
@@ -81,7 +85,7 @@ try {
         ${tx.json({ source: "bootstrap-cli", accountCreated: created })}
       )
     `;
-    return { changed: true, created };
+    return { changed: true, created, verified: true };
   });
 
   if (result.changed) {
@@ -90,6 +94,8 @@ try {
         ? "Initial administrator account created and promoted."
         : "Existing account promoted to administrator.",
     );
+  } else if (result.verified) {
+    console.log("Initial administrator email marked verified.");
   } else {
     console.log("Initial administrator already exists; no changes made.");
   }

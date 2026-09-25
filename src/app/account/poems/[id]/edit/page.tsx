@@ -166,6 +166,7 @@ export default async function EditPoemPage({
             <PoemForm
               action={updatePoemAction.bind(null, poem.id)}
               submitLabel="保存修改"
+              canPublish={!isPublished}
               initialValues={{
                 title: poem.title,
                 body: poem.body,
@@ -201,6 +202,7 @@ export default async function EditPoemPage({
                 id={poem.id}
                 status={poem.status}
                 moderationStatus={poem.moderationStatus}
+                showPublish={false}
               />
             </div>
           </section>

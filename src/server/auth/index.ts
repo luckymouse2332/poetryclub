@@ -3,6 +3,7 @@ import "server-only";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth/minimal";
+import { emailOTP } from "better-auth/plugins/email-otp";
 
 import {
   PASSWORD_MAX_LENGTH,
@@ -12,6 +13,7 @@ import { invitationRegistrationPlugin } from "@/server/auth/invitation-plugin";
 import { db } from "@/server/db";
 import * as schema from "@/server/db/schema";
 import { sendPasswordResetEmail } from "@/server/email/password-reset";
+import { sendEmailOtp } from "@/server/email/email-otp";
 import { getServerEnv } from "@/server/env";
 
 const env = getServerEnv();
@@ -45,6 +47,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
+    requireEmailVerification: true,
     minPasswordLength: PASSWORD_MIN_LENGTH,
     maxPasswordLength: PASSWORD_MAX_LENGTH,
     resetPasswordTokenExpiresIn: 60 * 60,
@@ -80,5 +83,20 @@ export const auth = betterAuth({
       },
     },
   },
-  plugins: [invitationRegistrationPlugin(), nextCookies()],
+  plugins: [
+    invitationRegistrationPlugin(),
+    emailOTP({
+      async sendVerificationOTP({ email, otp, type }) {
+        await sendEmailOtp({ to: email, otp, type });
+      },
+      sendVerificationOnSignUp: true,
+      disableSignUp: true,
+      storeOTP: "hashed",
+      otpLength: 6,
+      expiresIn: 5 * 60,
+      allowedAttempts: 3,
+      rateLimit: { window: 60, max: 3 },
+    }),
+    nextCookies(),
+  ],
 });

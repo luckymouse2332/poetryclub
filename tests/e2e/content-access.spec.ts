@@ -14,6 +14,7 @@ import {
   createTestInvitation,
   setUserSuspendedForTest,
 } from "./helpers/database";
+import { waitForEmailOtp } from "./helpers/email-outbox";
 
 const PASSWORD = "password123";
 
@@ -69,9 +70,10 @@ async function registerAndSignIn(
   await page.getByLabel("密码").fill(PASSWORD);
   await page.getByLabel("邀请码").fill(inviteCode);
   await page.getByRole("button", { name: "创建账号" }).click();
-  await expect(
-    page.getByText("注册请求已完成，请使用邮箱和密码登录。"),
-  ).toBeVisible();
+  const { otp } = await waitForEmailOtp(email);
+  await page.getByLabel("6 位邮箱验证码").fill(otp);
+  await page.getByRole("button", { name: "验证邮箱" }).click();
+  await expect(page.getByText("邮箱验证完成，请登录。")).toBeVisible();
   await page.getByLabel("邮箱").fill(email);
   await page.getByLabel("密码").fill(PASSWORD);
   await page.getByRole("button", { name: "登录", exact: true }).click();
@@ -182,7 +184,7 @@ test.describe.serial("member-only poem access control", () => {
   });
 
   test("publishes to active members while anonymous HTML stays content-free", async () => {
-    await authorPage.getByRole("button", { name: "发布", exact: true }).click();
+    await authorPage.getByRole("button", { name: "保存并发布" }).click();
     await authorPage.waitForURL(`/poems/${poemId}`);
     await expect(
       authorPage.getByRole("heading", { level: 1, name: title }),

@@ -94,7 +94,7 @@ export function ChangePasswordForm() {
 
   return (
     <Surface variant="paper" aria-label="修改密码表单">
-      <form className="space-y-5" onSubmit={handleSubmit} noValidate>
+      <form method="post" className="space-y-5" onSubmit={handleSubmit} noValidate>
         <FormField
           id="currentPassword"
           label="当前密码"

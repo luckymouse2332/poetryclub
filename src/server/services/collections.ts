@@ -786,8 +786,8 @@ export async function movePoemInCollection(
   poemId: string,
   ownerId: string,
   direction: CollectionMoveDirection,
-): Promise<void> {
-  await db.transaction(async (tx) => {
+): Promise<boolean> {
+  return db.transaction(async (tx) => {
     await lockOwnCollection(tx, collectionId, ownerId);
     const currentRows = await tx
       .select({ position: poemCollectionItem.position })
@@ -822,7 +822,7 @@ export async function movePoemInCollection(
       )
       .limit(1);
     const neighbor = neighborRows[0];
-    if (!neighbor) return;
+    if (!neighbor) return false;
     const maximum = await tx
       .select({ value: max(poemCollectionItem.position) })
       .from(poemCollectionItem)
@@ -859,20 +859,23 @@ export async function movePoemInCollection(
       .update(poemCollection)
       .set({ updatedAt: new Date() })
       .where(eq(poemCollection.id, collectionId));
+    return true;
   });
 }
 
 export async function publishOwnCollection(
   id: string,
   ownerId: string,
+  input?: CollectionInput,
 ): Promise<Readonly<{ moderationStatus: CollectionModerationStatus }>> {
   return db.transaction(async (tx) => {
     const collection = await lockOwnCollection(tx, id, ownerId);
     if (collection.status !== "draft") {
       throw new CollectionMutationError("invalid_transition");
     }
+    const visibility = input?.visibility ?? collection.visibility;
     if (
-      collection.visibility === "public" &&
+      visibility === "public" &&
       (await hasMembersOnlyItems(tx, id))
     ) {
       throw new CollectionMutationError("visibility_conflict");
@@ -884,7 +887,7 @@ export async function publishOwnCollection(
       .where(
         and(
           eq(poemCollectionItem.collectionId, id),
-          eligiblePoemCondition(collection.visibility),
+          eligiblePoemCondition(visibility),
         ),
       );
     if ((valid[0]?.value ?? 0) < 1) {
@@ -893,6 +896,7 @@ export async function publishOwnCollection(
     const updated = await tx
       .update(poemCollection)
       .set({
+        ...input,
         status: "published",
         publishedAt: sql`coalesce(${poemCollection.publishedAt}, now())`,
         updatedAt: new Date(),

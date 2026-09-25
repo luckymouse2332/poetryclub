@@ -787,6 +787,10 @@ test("site navigation and login form are keyboard reachable", async ({ page }) =
   await page.keyboard.press("Tab");
   await expect(signUpTab).toBeFocused();
   await page.keyboard.press("Tab");
+  await expect(page.getByRole("button", { name: "密码登录" })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("button", { name: "邮箱验证码登录" })).toBeFocused();
+  await page.keyboard.press("Tab");
   await expect(page.getByLabel("邮箱")).toBeFocused();
 });
 

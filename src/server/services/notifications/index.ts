@@ -583,16 +583,11 @@ async function listAnnouncementRecipientIds(
 export async function publishAnnouncement(
   adminId: string,
   id: string,
+  input: AnnouncementInput,
 ): Promise<void> {
   const dispatch = await db.transaction(async (tx) => {
     const rows = await tx
-      .select({
-        title: announcement.title,
-        body: announcement.body,
-        href: announcement.href,
-        audience: announcement.audience,
-        status: announcement.status,
-      })
+      .select({ status: announcement.status })
       .from(announcement)
       .where(eq(announcement.id, id))
       .for("update");
@@ -604,7 +599,7 @@ export async function publishAnnouncement(
 
     const recipientIds = await listAnnouncementRecipientIds(
       tx,
-      current.audience,
+      input.audience,
     );
     if (recipientIds.length === 0) {
       throw new AnnouncementMutationError("empty_audience");
@@ -612,13 +607,13 @@ export async function publishAnnouncement(
 
     const created = await createNotificationInTransaction(tx, {
       type: "system.announcement",
-      title: current.title,
-      body: current.body,
-      href: current.href,
+      title: input.title,
+      body: input.body,
+      href: input.href,
       actorId: adminId,
       targetType: "announcement",
       targetId: id,
-      payload: { announcementId: id, audience: current.audience },
+      payload: { announcementId: id, audience: input.audience },
       dedupeKey: `announcement:${id}:published`,
       recipientIds,
     });
@@ -626,6 +621,7 @@ export async function publishAnnouncement(
     const updated = await tx
       .update(announcement)
       .set({
+        ...input,
         status: "published",
         notificationId: created.notificationId,
         publishedAt,
@@ -643,7 +639,7 @@ export async function publishAnnouncement(
       targetId: id,
       reason: "发布系统公告",
       metadata: {
-        audience: current.audience,
+        audience: input.audience,
         notificationId: created.notificationId,
         recipientCount: recipientIds.length,
       },

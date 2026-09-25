@@ -74,7 +74,7 @@ export function ForgotPasswordForm() {
           </Button>
         </div>
       ) : (
-        <form className="space-y-5" onSubmit={handleSubmit} noValidate>
+        <form method="post" className="space-y-5" onSubmit={handleSubmit} noValidate>
           <FormField
             id="email"
             label="邮箱"

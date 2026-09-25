@@ -20,6 +20,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Surface } from "@/components/ui/surface";
 import { Textarea } from "@/components/ui/textarea";
 import type { PoemActionState } from "@/features/posts/actions";
+import { useUnsavedFormGuard } from "@/lib/use-unsaved-form-guard";
 import {
   BODY_MAX_LENGTH,
   CONTEXT_MAX_LENGTH,
@@ -35,6 +36,7 @@ export type PoemFormAction = (
 type PoemFormProps = Readonly<{
   action: PoemFormAction;
   submitLabel: string;
+  canPublish?: boolean;
   /** 仅新建草稿时传入，作为幂等键的 hidden 字段；编辑时保持 undefined。 */
   creationToken?: string;
   /** 编辑回填的初始值：最小字符串 props，不回传数据库实体或作者信息。 */
@@ -57,6 +59,7 @@ const INITIAL_STATE: PoemActionState = { status: "idle" };
 export function PoemForm({
   action,
   submitLabel,
+  canPublish = false,
   creationToken,
   initialValues,
 }: PoemFormProps) {
@@ -65,9 +68,10 @@ export function PoemForm({
     INITIAL_STATE,
   );
   const displayedValues = state.values ?? initialValues;
+  const { dirty, markDirty } = useUnsavedFormGuard();
 
   return (
-    <form action={formAction} className="space-y-6">
+    <form action={formAction} onInput={markDirty} onChange={markDirty} data-unsaved-editor={dirty ? "true" : undefined} className="space-y-6">
       {creationToken ? (
         <input type="hidden" name="creationToken" value={creationToken} />
       ) : null}
@@ -75,6 +79,11 @@ export function PoemForm({
       {state.status === "error" && state.message ? (
         <Alert variant="danger" role="alert">
           <AlertDescription>{state.message}</AlertDescription>
+        </Alert>
+      ) : null}
+      {dirty ? (
+        <Alert variant="warning" role="status">
+          <AlertDescription>有未保存的修改。离开页面或执行状态操作前，请先保存。</AlertDescription>
         </Alert>
       ) : null}
 
@@ -215,9 +224,16 @@ export function PoemForm({
             </FieldSet>
           </Surface>
 
-          <Button type="submit" className="w-full" loading={isPending}>
-            {isPending ? "正在保存…" : submitLabel}
-          </Button>
+          <div className="space-y-2">
+            <Button type="submit" name="intent" value="save" className="w-full" loading={isPending}>
+              {isPending ? "正在处理…" : submitLabel}
+            </Button>
+            {canPublish ? (
+              <Button type="submit" name="intent" value="publish" variant="secondary" className="w-full" disabled={isPending}>
+                保存并发布
+              </Button>
+            ) : null}
+          </div>
         </div>
       </div>
     </form>

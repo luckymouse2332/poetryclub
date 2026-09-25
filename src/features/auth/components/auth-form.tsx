@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Surface } from "@/components/ui/surface";
+import { AuthErrorPopover } from "@/features/auth/components/auth-error-popover";
+import { EmailCodeForm } from "@/features/auth/components/email-code-form";
 import {
   authClient,
   registerWithInvitation,
@@ -22,6 +24,7 @@ import {
 import { getSafeRedirectPath } from "@/lib/safe-redirect";
 
 type AuthMode = "sign-in" | "sign-up";
+type SignInMethod = "password" | "email-code";
 
 type AuthFormProps = Readonly<{
   initialMode?: AuthMode;
@@ -45,8 +48,12 @@ export function AuthForm({
     variant === "sign-in-only" ? "sign-in" : initialMode,
   );
   const [error, setError] = useState<string>();
+  const [errorOpen, setErrorOpen] = useState(false);
   const [notice, setNotice] = useState<string | undefined>(initialNotice);
   const [pending, setPending] = useState(false);
+  const [signInMethod, setSignInMethod] = useState<SignInMethod>("password");
+  const [verificationEmail, setVerificationEmail] = useState<string>();
+  const [verificationSent, setVerificationSent] = useState(false);
 
   useEffect(() => {
     if (!cleanPasswordResetNotice) return;
@@ -55,9 +62,20 @@ export function AuthForm({
     window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
   }, [cleanPasswordResetNotice]);
 
+  function showError(message: string) {
+    setError(message);
+    setErrorOpen(true);
+  }
+
+  function finishSignIn() {
+    router.replace(getSafeRedirectPath(nextPath));
+    router.refresh();
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(undefined);
+    setErrorOpen(false);
     setNotice(undefined);
 
     const formData = new FormData(event.currentTarget);
@@ -74,39 +92,39 @@ export function AuthForm({
     setPending(true);
 
     try {
-      let response;
-
       if (mode === "sign-up") {
         const result = signUpSchema.safeParse(input);
         if (!result.success) {
-          setError(result.error.issues[0]?.message ?? "请检查输入内容");
+          showError(result.error.issues[0]?.message ?? "请检查输入内容");
           return;
         }
-        response = await registerWithInvitation(result.data);
-      } else {
-        const result = signInSchema.safeParse(input);
-        if (!result.success) {
-          setError(result.error.issues[0]?.message ?? "请检查输入内容");
+        const response = await registerWithInvitation(result.data);
+        if (response.error) {
+          showError("注册未完成，请检查邀请码与输入内容后重试。");
           return;
         }
-        response = await authClient.signIn.email(result.data);
+        setVerificationEmail(result.data.email);
+        setVerificationSent(true);
+        return;
       }
-
+      const result = signInSchema.safeParse(input);
+      if (!result.success) {
+        showError(result.error.issues[0]?.message ?? "请检查输入内容");
+        return;
+      }
+      const response = await authClient.signIn.email(result.data);
+      if (response.error?.code === "EMAIL_NOT_VERIFIED") {
+        setVerificationEmail(result.data.email);
+        setVerificationSent(false);
+        return;
+      }
       if (response.error) {
-        setError("操作失败，请检查输入后重试。");
+        showError(response.error.status === 429 ? "尝试次数过多，请稍后再登录。" : "邮箱或密码不正确，请检查后重试。");
         return;
       }
-
-      if (mode === "sign-up") {
-        setMode("sign-in");
-        setNotice("注册请求已完成，请使用邮箱和密码登录。");
-        return;
-      }
-
-      router.replace(getSafeRedirectPath(nextPath));
-      router.refresh();
+      finishSignIn();
     } catch {
-      setError("暂时无法连接服务器，请稍后重试。");
+      showError("暂时无法连接服务器，请稍后重试。");
     } finally {
       setPending(false);
     }
@@ -115,7 +133,11 @@ export function AuthForm({
   function switchMode(nextMode: AuthMode) {
     setMode(nextMode);
     setError(undefined);
+    setErrorOpen(false);
     setNotice(undefined);
+    setVerificationEmail(undefined);
+    setVerificationSent(false);
+    setSignInMethod("password");
   }
 
   const content = (
@@ -153,12 +175,44 @@ export function AuthForm({
         </div>
       ) : null}
 
-      <form
-        id="auth-form-panel"
-        className={variant === "switchable" ? "mt-6 space-y-5" : "space-y-5"}
-        onSubmit={handleSubmit}
-        noValidate
-      >
+      <div id="auth-form-panel" className={variant === "switchable" ? "mt-6 space-y-5" : "space-y-5"}>
+        {mode === "sign-in" && !verificationEmail ? (
+          <div className="grid grid-cols-2 gap-2" aria-label="登录方式">
+            <Button type="button" variant={signInMethod === "password" ? "secondary" : "ghost"} aria-pressed={signInMethod === "password"} onClick={() => { setSignInMethod("password"); setError(undefined); }}>
+              密码登录
+            </Button>
+            <Button type="button" variant={signInMethod === "email-code" ? "secondary" : "ghost"} aria-pressed={signInMethod === "email-code"} onClick={() => { setSignInMethod("email-code"); setError(undefined); }}>
+              邮箱验证码登录
+            </Button>
+          </div>
+        ) : null}
+        {notice ? (
+          <Alert variant="success" role="status">
+            <AlertDescription>{notice}</AlertDescription>
+          </Alert>
+        ) : null}
+        {verificationEmail ? (
+          <>
+            <p className="text-label text-subtle">完成邮箱验证后即可使用账号。验证码有效期为 5 分钟。</p>
+            <EmailCodeForm
+              key={`verify-${verificationEmail}`}
+              mode="verify-email"
+              initialEmail={verificationEmail}
+              initialSent={verificationSent}
+              onSuccess={() => {
+                setVerificationEmail(undefined);
+                setVerificationSent(false);
+                setMode("sign-in");
+                setSignInMethod("password");
+                setNotice("邮箱验证完成，请登录。");
+              }}
+              onCancel={() => switchMode("sign-in")}
+            />
+          </>
+        ) : mode === "sign-in" && signInMethod === "email-code" ? (
+          <EmailCodeForm mode="sign-in" onSuccess={finishSignIn} onCancel={() => setSignInMethod("password")} />
+        ) : (
+      <form method="post" className="space-y-5" onSubmit={handleSubmit} noValidate>
         {mode === "sign-up" ? (
           <>
             <FormField id="name" label="昵称" required disabled={pending}>
@@ -237,22 +291,14 @@ export function AuthForm({
           </p>
         ) : null}
 
-        {error ? (
-          <Alert variant="danger" role="alert">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        ) : null}
-
-        {notice ? (
-          <Alert variant="success" role="status">
-            <AlertDescription>{notice}</AlertDescription>
-          </Alert>
-        ) : null}
+        <AuthErrorPopover message={error} open={errorOpen} onOpenChange={setErrorOpen} />
 
         <Button className="w-full" type="submit" loading={pending}>
           {pending ? "处理中…" : mode === "sign-up" ? "创建账号" : "登录"}
         </Button>
       </form>
+        )}
+      </div>
       {variant === "sign-in-only" ? (
         <p className="mt-4 text-center text-label text-subtle">
           还没有账号？

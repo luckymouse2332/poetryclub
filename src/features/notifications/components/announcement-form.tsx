@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ import {
   INITIAL_ANNOUNCEMENT_ACTION_STATE,
   type AnnouncementActionState,
 } from "@/features/notifications/announcement-action-state";
+import { useUnsavedFormGuard } from "@/lib/use-unsaved-form-guard";
 import {
   ANNOUNCEMENT_BODY_MAX_LENGTH,
   ANNOUNCEMENT_TITLE_MAX_LENGTH,
@@ -37,6 +38,7 @@ export type AnnouncementFormAction = (
 type AnnouncementFormProps = Readonly<{
   action: AnnouncementFormAction;
   submitLabel: string;
+  canPublish?: boolean;
   initialValues?: Readonly<{
     title: string;
     body: string;
@@ -75,21 +77,31 @@ const AUDIENCES = [
 export function AnnouncementForm({
   action,
   submitLabel,
+  canPublish = false,
   initialValues,
 }: AnnouncementFormProps) {
   const [state, formAction, pending] = useActionState(
     action,
     INITIAL_ANNOUNCEMENT_ACTION_STATE,
   );
+  const { dirty, markDirty, markClean } = useUnsavedFormGuard();
+  useEffect(() => {
+    if (state.status === "success") queueMicrotask(markClean);
+  }, [markClean, state.status]);
 
   return (
-    <form action={formAction} className="space-y-6">
+    <form action={formAction} onInput={markDirty} onChange={markDirty} data-unsaved-editor={dirty ? "true" : undefined} className="space-y-6">
       {state.message ? (
         <Alert
           variant={state.status === "error" ? "danger" : "success"}
           role={state.status === "error" ? "alert" : "status"}
         >
           <AlertDescription>{state.message}</AlertDescription>
+        </Alert>
+      ) : null}
+      {dirty ? (
+        <Alert variant="warning" role="status">
+          <AlertDescription>有未保存的修改。离开页面前请先保存草稿。</AlertDescription>
         </Alert>
       ) : null}
 
@@ -192,9 +204,16 @@ export function AnnouncementForm({
             </FieldSet>
           </Surface>
 
-          <Button type="submit" className="w-full" loading={pending}>
-            {pending ? "正在保存…" : submitLabel}
-          </Button>
+          <div className="space-y-2">
+            <Button type="submit" name="intent" value="save" className="w-full" loading={pending}>
+              {pending ? "正在处理…" : submitLabel}
+            </Button>
+            {canPublish ? (
+              <Button type="submit" name="intent" value="publish" variant="danger" className="w-full" disabled={pending}>
+                保存并发布公告
+              </Button>
+            ) : null}
+          </div>
         </div>
       </div>
     </form>

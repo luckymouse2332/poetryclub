@@ -11,6 +11,7 @@ import {
   createTestInvitation,
   deletePoemsByIds,
 } from "./helpers/database";
+import { waitForEmailOtp } from "./helpers/email-outbox";
 
 const PASSWORD = "password123";
 
@@ -44,9 +45,10 @@ async function registerAndSignIn(
   await page.getByLabel("密码").fill(PASSWORD);
   await page.getByLabel("邀请码").fill(inviteCode);
   await page.getByRole("button", { name: "创建账号" }).click();
-  await expect(
-    page.getByText("注册请求已完成，请使用邮箱和密码登录。"),
-  ).toBeVisible();
+  const { otp } = await waitForEmailOtp(email);
+  await page.getByLabel("6 位邮箱验证码").fill(otp);
+  await page.getByRole("button", { name: "验证邮箱" }).click();
+  await expect(page.getByText("邮箱验证完成，请登录。")).toBeVisible();
 
   await page.getByLabel("邮箱").fill(email);
   await page.getByLabel("密码").fill(PASSWORD);
@@ -273,7 +275,7 @@ test.describe.serial("poem publishing and authorization loop", () => {
     await expect(authorPage.getByLabel("标题")).toHaveValue(title);
 
     await authorPage.context().clearCookies();
-    await authorPage.getByRole("button", { name: "发布", exact: true }).click();
+    await authorPage.getByRole("button", { name: "保存并发布" }).click();
     await authorPage.waitForURL(/\/login\?next=%2Faccount%2Fpoems$/);
 
     await authorPage.context().addCookies([authorSessionCookie]);
@@ -299,10 +301,14 @@ test.describe.serial("poem publishing and authorization loop", () => {
     await authorPage.getByRole("button", { name: "保存修改" }).click();
     await expect(actionError(authorPage)).toContainText("操作未完成");
 
-    await authorPage.getByRole("button", { name: "发布", exact: true }).click();
+    await authorPage.getByRole("button", { name: "保存并发布" }).click();
     await expect(actionError(authorPage)).toContainText("操作未完成");
 
     await authorPage.getByRole("button", { name: "删除草稿" }).click();
+    authorPage.once("dialog", (dialog) => void dialog.dismiss());
+    await authorPage.getByRole("button", { name: "确认删除草稿" }).click();
+    await expect(authorPage.getByRole("alertdialog")).toBeVisible();
+    authorPage.once("dialog", (dialog) => void dialog.accept());
     await authorPage.getByRole("button", { name: "确认删除草稿" }).click();
     await expect(
       authorPage.getByRole("alertdialog").getByRole("alert"),
@@ -330,20 +336,22 @@ test.describe.serial("poem publishing and authorization loop", () => {
 
   test("publishes publicly, preserves full text, and rejects draft-only deletion", async () => {
     await gotoHydratedEdit(authorPage, poemId);
-    await authorPage.getByRole("button", { name: "发布", exact: true }).click();
+    const publishedBody = `${body}\n发布时新增的一行。`;
+    await authorPage.getByLabel("正文").fill(publishedBody);
+    await authorPage.getByRole("button", { name: "保存并发布" }).click();
     await authorPage.waitForURL(`/poems/${poemId}`);
 
     await expect(authorPage.getByRole("heading", { level: 1, name: title })).toBeVisible();
     const articleText = await authorPage.locator("article").textContent();
     // HTML form submission canonicalizes textarea line endings to CRLF. The
     // semantic line/blank-line structure must remain identical after display.
-    expect(articleText?.replaceAll("\r\n", "\n")).toBe(body);
+    expect(articleText?.replaceAll("\r\n", "\n")).toBe(publishedBody);
 
     await authorPage.goto("/poems");
     await expect(publicPoemByTitle(authorPage, title)).toBeVisible();
     await expect(authorPage.getByText(body.slice(-35), { exact: false })).toHaveCount(0);
 
-    await staleActionPage.getByRole("button", { name: "发布", exact: true }).click();
+    await staleActionPage.getByRole("button", { name: "保存并发布" }).click();
     await expect(actionError(staleActionPage)).toContainText("操作未完成");
     await staleActionPage.getByRole("button", { name: "删除草稿" }).click();
     await staleActionPage

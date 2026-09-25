@@ -13,6 +13,7 @@
 - M6：整站视觉语言、桌面工作区与浮层交互重构。
 - M7：围绕作品的评论、回复与互动治理能力。
 - M8：将已发布诗作编排为可连续阅读、具备访问控制和治理能力的特辑。
+- M9：优化账户与内容操作流程，消除未保存内容和状态反馈造成的误操作，并完善邮箱认证。
 
 ## 当前任务
 
@@ -53,6 +54,7 @@
 | M6.5 | 管理列表样式改版 | 已完成 | [M6.5-management-list-redesign.md](./M6.5-management-list-redesign.md) |
 | M7 | 作品评论与一级回复 | 已完成 | [M7-comments-and-replies.md](./M7-comments-and-replies.md) |
 | M8 | 诗作特辑与连续阅读 | 已完成 | [M8-curated-collections.md](./M8-curated-collections.md) |
+| M9.0 | 操作流程优化与重构 | 已完成 | [M9.0-operation-flow-optimization.md](./M9.0-operation-flow-optimization.md) |
 | CHORE-1 | 仓库工作流与发布规范 | 已完成 | [CHORE-1-repository-workflow-conventions.md](./CHORE-1-repository-workflow-conventions.md) |
 | CHORE-2 | 已合并分支清理与保留规则 | 已完成 | [CHORE-2-merged-branch-retention-policy.md](./CHORE-2-merged-branch-retention-policy.md) |
 | CHORE-style-architecture-consolidation | 样式架构收敛 | 已完成 | [CHORE-style-architecture-consolidation.md](./CHORE-style-architecture-consolidation.md) |

@@ -28,6 +28,12 @@ export function MemberLoginGate({ nextPath }: MemberLoginGateProps) {
         showCloseButton={false}
         overlayClassName="bg-paper/70 backdrop-blur-md"
         className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-md"
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          if (event.target instanceof HTMLElement) {
+            event.target.querySelector<HTMLInputElement>('input[name="email"]')?.focus();
+          }
+        }}
         onEscapeKeyDown={(event) => event.preventDefault()}
         onPointerDownOutside={(event) => event.preventDefault()}
         onInteractOutside={(event) => event.preventDefault()}

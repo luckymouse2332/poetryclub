@@ -61,12 +61,15 @@ src/
 ## 认证边界
 
 - 会话由 Better Auth 在服务端管理；客户端只得到受限的身份视图。
-- 邮箱密码注册、登录、修改密码和密码重置请求挂载在 `/api/auth/[...all]`；不启用 OAuth、Better Auth admin 插件或复杂权限组。
+- 邮箱密码注册、邮箱验证、密码与邮箱验证码登录、修改密码和密码重置请求挂载在 `/api/auth/[...all]`；不启用 OAuth、Better Auth admin 插件或复杂权限组。
 - M3 采用项目自有的 `member | admin` 最小角色与 `active | suspended` 状态。角色和状态是服务端控制字段，管理写操作走项目 policy/service，不暴露 Better Auth admin mutation endpoint。
 - M4.1 的作品访问范围使用 `public | members_only`。只有服务端重新确认状态为 `active` 的 member/admin 才能读取成员作品；suspended 账号保留公开和既有账户只读访问，但不能读取成员作品。
 - M7 评论继承所属诗作的访问范围。游客只读取公开作品评论，active member/admin 可以读取成员作品评论并写入；suspended 账号只能读取公开作品评论。评论 Server Actions 与两个只读 Route Handlers 都独立重新验证身份和作品访问权。
 - M8 特辑拥有独立的 `public | members_only` 范围。公开特辑只允许新增公开诗作；成员特辑允许 active member 当前可读的两类已发布作品。公开目录再次组合特辑和诗作的发布、治理与访问状态，失效项目不返回标题、占位或原始数量。
 - 公开注册必须提供有效邀请码。邀请码只保存 SHA-256 哈希；Better Auth Drizzle adapter 启用真实事务，注册的 user/account 创建与邀请码原子计数在同一事务提交或回滚。
+- 注册后由 Better Auth emailOTP 插件发送邮箱验证码；密码登录要求 `emailVerified`。验证码 5 分钟有效、最多尝试 3 次，存储值哈希化；登录验证码禁用自动注册，未注册邮箱的发送响应保持统一。既有未验证账户可通过收到的验证码完成验证。
+- 启用邮箱验证前先运行 `0008_grandfather-existing-email.sql`，只把升级前已有密码凭据的账号标记为已验证，维持旧版密码登录约定；升级后注册的账号保持未验证直到验证码通过。
+- 邮件验证码和密码重置链接复用同一事务邮件传输层。验证码只进入邮件正文和开发/测试邮件箱，不进入生产日志或客户端持久化；管理员 CLI 初始化的指定邮箱由可信运维入口标记为已验证。
 - 注册后不自动登录，以避免现阶段在既有邮箱注册时形成账号枚举差异；用户需显式登录。
 - 会话凭据只通过 HttpOnly Cookie 传递；认证 JSON 响应会移除 session token、provider token 和密码字段，避免暴露给浏览器脚本。
 - Better Auth 负责其认证端点的协议级输入校验、密码哈希、Cookie 和错误响应；项目自有写入口仍必须使用 Zod 并执行完整安全检查。
@@ -79,7 +82,7 @@ src/
 - 对象级授权逻辑集中在 `src/server/policies`，由服务端入口调用。
 - 作品读取策略集中在 `src/server/services/poems`，统一组合发布状态、管理员治理状态、发布时间和读取者访问范围；游客直达成员作品时只返回不含作品数据的登录门槛。
 - `requireActiveUser()` 和 `requireAdmin()` 根据会话用户 ID 重新读取数据库权威状态；suspended 用户保留会话和只读页面，但不能执行任何身份写操作，suspended admin 不能管理。
-- M4 已提供账户安全页和邮件密码重置；邮箱验证与独立会话管理页仍属于后续任务。
+- M4 已提供账户安全页和邮件密码重置；M9 提供邮箱验证与验证码登录，独立会话管理页仍属于后续任务。
 
 ## 数据库 / 事务 / migration 规则
 

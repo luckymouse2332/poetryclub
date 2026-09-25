@@ -317,17 +317,64 @@ export function CommentCard({
 function CommentRootList({
   poemId,
   initialPage,
+  revision,
 }: Readonly<{
   poemId: string;
   initialPage: CursorPage<CommentRootDto>;
+  revision: string;
 }>) {
   const [items, setItems] = useState(initialPage.items);
   const [nextCursor, setNextCursor] = useState(initialPage.nextCursor);
+  const [currentRevision, setCurrentRevision] = useState(revision);
+  const revisionRef = useRef(revision);
+  const loadedPages = useRef(1);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (revision === revisionRef.current) return;
+    revisionRef.current = revision;
+    const controller = new AbortController();
+    const restoreCount = loadedPages.current;
+    loadedPages.current = 1;
+    void (async () => {
+      await Promise.resolve();
+      if (controller.signal.aborted) return;
+      setCurrentRevision(revision);
+      setItems(initialPage.items);
+      setNextCursor(initialPage.nextCursor);
+      setLoadError(null);
+      if (restoreCount <= 1 || !initialPage.nextCursor) return;
+      setLoading(true);
+      let cursor: string | null = initialPage.nextCursor;
+      let refreshed = [...initialPage.items];
+      try {
+        for (let pageIndex = 1; pageIndex < restoreCount && cursor; pageIndex += 1) {
+          const response = await fetch(
+            `/api/poems/${encodeURIComponent(poemId)}/comments?cursor=${encodeURIComponent(cursor)}`,
+            { cache: "no-store", signal: controller.signal },
+          );
+          if (!response.ok) throw new Error("request failed");
+          const page = (await response.json()) as CursorPage<CommentRootDto>;
+          const seen = new Set(refreshed.map((root) => root.id));
+          refreshed = [...refreshed, ...page.items.filter((root) => !seen.has(root.id))];
+          cursor = page.nextCursor;
+          if (controller.signal.aborted) return;
+          loadedPages.current = pageIndex + 1;
+          setItems(refreshed);
+          setNextCursor(cursor);
+        }
+      } catch {
+        if (!controller.signal.aborted) setLoadError("评论已更新，但更多评论暂时无法恢复，请重试。");
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
+    })();
+    return () => controller.abort();
+  }, [initialPage, poemId, revision]);
+
   async function loadMore() {
-    if (!nextCursor || loading) return;
+    if (!nextCursor || loading || currentRevision !== revision) return;
     setLoading(true);
     setLoadError(null);
     try {
@@ -337,8 +384,12 @@ function CommentRootList({
       );
       if (!response.ok) throw new Error("request failed");
       const page = (await response.json()) as CursorPage<CommentRootDto>;
-      setItems((current) => [...current, ...page.items]);
+      setItems((current) => {
+        const seen = new Set(current.map((root) => root.id));
+        return [...current, ...page.items.filter((root) => !seen.has(root.id))];
+      });
       setNextCursor(page.nextCursor);
+      loadedPages.current += 1;
     } catch {
       setLoadError("更多评论暂时无法加载，请重试。" );
     } finally {
@@ -349,9 +400,9 @@ function CommentRootList({
   return (
     <>
       <div className="mt-8 space-y-5">
-        {items.length === 0 ? (
+        {(currentRevision === revision ? items : initialPage.items).length === 0 ? (
           <p className="py-6 text-center text-subtle">还没有评论。</p>
-        ) : items.map((root) => (
+        ) : (currentRevision === revision ? items : initialPage.items).map((root) => (
           <div key={root.id} className="space-y-3">
             <CommentCard comment={root} />
             {root.replies.map((reply) => <CommentCard key={reply.id} comment={reply} />)}
@@ -372,7 +423,7 @@ function CommentRootList({
           <AlertDescription>{loadError}</AlertDescription>
         </Alert>
       ) : null}
-      {nextCursor ? (
+      {(currentRevision === revision ? nextCursor : initialPage.nextCursor) ? (
         <div className="mt-6 flex justify-center">
           <Button type="button" variant="secondary" loading={loading} onClick={loadMore}>
             {loading ? "正在加载…" : "加载更多评论"}
@@ -435,7 +486,7 @@ export function CommentSection({
           </Alert>
         )}
       </div>
-      <CommentRootList key={pageKey} poemId={poemId} initialPage={initialPage} />
+      <CommentRootList poemId={poemId} initialPage={initialPage} revision={pageKey} />
     </section>
   );
 }
