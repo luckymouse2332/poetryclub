@@ -42,7 +42,7 @@ export function AdminUserCard({ user, isSelf = false }: AdminUserCardProps) {
             {user.name}
           </h2>
         </CardTitle>
-        <CardDescription className="flex flex-wrap items-center gap-1.5">
+        <CardDescription className="flex flex-wrap items-center gap-2">
           <Badge variant={isAdmin ? "primary" : "neutral"}>
             {ROLE_LABELS[user.role]}
           </Badge>
@@ -74,55 +74,56 @@ export function AdminUserCard({ user, isSelf = false }: AdminUserCardProps) {
           </div>
         </dl>
         {user.suspensionReason ? (
-          <p className="mt-3 whitespace-pre-wrap rounded-md border border-danger/30 bg-danger-surface p-3 text-label text-danger">
+          <p className="mt-3 whitespace-pre-wrap break-words rounded-md border border-danger/30 bg-danger-surface p-3 text-label text-danger">
             禁用原因：{user.suspensionReason}
           </p>
         ) : null}
       </CardContent>
-      <CardFooter className="flex flex-wrap items-center gap-2">
-        {suspended ? (
-          <AdminReasonActionDialog
-            action={restoreUserAction.bind(null, user.id)}
-            triggerLabel="恢复用户"
-            title="恢复这个用户？"
-            description="恢复后该用户重新获得完整访问权限。此操作属于管理变更，会记入审计日志。"
-            confirmLabel="确认恢复"
-            confirmBusyLabel="正在恢复…"
-          />
-        ) : (
-          <AdminReasonActionDialog
-            action={suspendUserAction.bind(null, user.id)}
-            triggerLabel="禁用用户"
-            title="禁用这个用户？"
-            description="禁用后该用户保留只读访问，不能创建、编辑、发布或删除诗作。系统始终保留至少一名正常管理员。"
-            confirmLabel="确认禁用"
-            confirmBusyLabel="正在禁用…"
-          />
-        )}
-        {!isSelf && !isAdmin ? (
-          <AdminReasonActionDialog
-            action={updateUserRoleAction.bind(null, user.id, "admin")}
-            triggerLabel="提升为管理员"
-            triggerVariant="secondary"
-            confirmVariant="primary"
-            title="提升为管理员？"
-            description="该用户将获得管理后台权限，可以治理诗作、管理用户与邀请码。所有操作都会写入审计日志。"
-            confirmLabel="确认提升"
-            confirmBusyLabel="正在提升…"
-          />
-        ) : null}
-        {!isSelf && isAdmin ? (
-          <AdminReasonActionDialog
-            action={updateUserRoleAction.bind(null, user.id, "member")}
-            triggerLabel="降级为成员"
-            triggerVariant="secondary"
-            title="降级为成员？"
-            description="该用户将失去管理后台权限。系统始终保留至少一名正常管理员，降级前会校验。"
-            confirmLabel="确认降级"
-            confirmBusyLabel="正在降级…"
-          />
-        ) : null}
-      </CardFooter>
+      {!isSelf ? (
+        <CardFooter className="flex flex-wrap items-center gap-2 pt-3">
+          {suspended ? (
+            <AdminReasonActionDialog
+              action={restoreUserAction.bind(null, user.id)}
+              triggerLabel="恢复用户"
+              title="恢复这个用户？"
+              description="恢复后该用户重新获得完整访问权限。此操作属于管理变更，会记入审计日志。"
+              confirmLabel="确认恢复"
+              confirmBusyLabel="正在恢复…"
+            />
+          ) : (
+            <AdminReasonActionDialog
+              action={suspendUserAction.bind(null, user.id)}
+              triggerLabel="禁用用户"
+              title="禁用这个用户？"
+              description="禁用后该用户保留只读访问，不能创建、编辑、发布或删除诗作。系统始终保留至少一名正常管理员。"
+              confirmLabel="确认禁用"
+              confirmBusyLabel="正在禁用…"
+            />
+          )}
+          {isAdmin ? (
+            <AdminReasonActionDialog
+              action={updateUserRoleAction.bind(null, user.id, "member")}
+              triggerLabel="降级为成员"
+              triggerVariant="secondary"
+              title="降级为成员？"
+              description="该用户将失去管理后台权限。系统始终保留至少一名正常管理员，降级前会校验。"
+              confirmLabel="确认降级"
+              confirmBusyLabel="正在降级…"
+            />
+          ) : (
+            <AdminReasonActionDialog
+              action={updateUserRoleAction.bind(null, user.id, "admin")}
+              triggerLabel="提升为管理员"
+              triggerVariant="secondary"
+              confirmVariant="primary"
+              title="提升为管理员？"
+              description="该用户将获得管理后台权限，可以治理诗作、管理用户与邀请码。所有操作都会写入审计日志。"
+              confirmLabel="确认提升"
+              confirmBusyLabel="正在提升…"
+            />
+          )}
+        </CardFooter>
+      ) : null}
     </Card>
   );
 }

@@ -38,7 +38,7 @@ export function AdminInvitationCard({
         <CardTitle>
           <h2 className="text-body-lg font-semibold text-foreground">邀请码</h2>
         </CardTitle>
-        <CardDescription className="flex flex-wrap items-center gap-1.5">
+        <CardDescription className="flex flex-wrap items-center gap-2">
           {disabled ? <Badge variant="danger">已停用</Badge> : null}
           {!disabled && expired ? <Badge variant="warning">已过期</Badge> : null}
           {!disabled && !expired && usedUp ? (
@@ -80,8 +80,8 @@ export function AdminInvitationCard({
           ) : null}
         </dl>
       </CardContent>
-      <CardFooter className="flex flex-wrap items-center gap-2">
-        {!disabled && !expired && !usedUp ? (
+      {!disabled && !expired && !usedUp ? (
+        <CardFooter className="flex flex-wrap items-center gap-2 pt-3">
           <AdminReasonActionDialog
             action={disableInvitationAction.bind(null, invitation.id)}
             triggerLabel="停用邀请码"
@@ -90,8 +90,8 @@ export function AdminInvitationCard({
             confirmLabel="确认停用"
             confirmBusyLabel="正在停用…"
           />
-        ) : null}
-      </CardFooter>
+        </CardFooter>
+      ) : null}
     </Card>
   );
 }

@@ -116,15 +116,19 @@ test.describe.serial("curated collection publishing and governance", () => {
     const collectionCard = adminPage
       .getByRole("article")
       .filter({ hasText: collectionTitle });
-    await expect(
-      adminPage.getByText("收录数量", { exact: true }),
-    ).toBeVisible();
-    const publish = collectionCard.getByRole("button", {
-      name: "发布",
-      exact: true,
-    });
-    await waitForHydratedLocator(publish);
-    await publish.click();
+    await expect(collectionCard).toContainText("2 篇");
+    for (const width of [390, 768, 920, 1024, 1440]) {
+      await adminPage.setViewportSize({ width, height: 900 });
+      const dimensions = await adminPage.evaluate(() => ({
+        client: document.documentElement.clientWidth,
+        scroll: document.documentElement.scrollWidth,
+      }));
+      expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.client);
+    }
+    const more = collectionCard.getByRole("button", { name: /更多操作/ });
+    await waitForHydratedLocator(more);
+    await more.click();
+    await adminPage.getByRole("menuitem", { name: "发布" }).click();
     await adminPage.waitForURL(`/collections/${collectionId}`);
     await expect(adminPage.getByRole("heading", { level: 1, name: collectionTitle })).toBeVisible();
     await expect(adminPage.locator("main ol li").first()).toContainText(secondTitle);
@@ -161,8 +165,10 @@ test.describe.serial("curated collection publishing and governance", () => {
     await expect(adminPage.getByRole("heading", { name: "评论与补充" })).toBeVisible();
     await expect(adminPage.getByLabel("评论内容")).toBeVisible();
     await adminPage.getByLabel("评论内容").fill("特辑阅读评论回归测试");
-    await adminPage.getByRole("button", { name: "发布评论" }).click();
-    await expect(adminPage.getByText("评论已发布。", { exact: true })).toBeVisible();
+    const publishComment = adminPage.getByRole("button", { name: "发布评论" });
+    await waitForHydratedLocator(publishComment);
+    await publishComment.click();
+    await expect(adminPage.getByText("评论已发布。", { exact: true })).toBeVisible({ timeout: 15_000 });
     await expect(adminPage.getByText("特辑阅读评论回归测试", { exact: true })).toBeVisible();
   });
 

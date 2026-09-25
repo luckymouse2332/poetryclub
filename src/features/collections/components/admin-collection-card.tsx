@@ -14,9 +14,9 @@ export function AdminCollectionCard({
 }: Readonly<{ collection: AdminCollectionSummary }>) {
   const hidden = collection.moderationStatus === "hidden";
   return (
-    <article className="grid gap-4 border-b border-border-subtle py-5 first:border-t md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+    <article className="grid min-w-0 gap-4 border-b border-border-subtle py-5 first:border-t md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-6">
       <div className="min-w-0">
-        <h2 className="font-serif text-body-lg text-foreground">
+        <h2 className="break-words font-serif text-body-lg text-foreground">
           <Link href={`/admin/collections/${collection.id}`} className="hover:text-seal-foreground">
             {collection.title}
           </Link>
@@ -31,12 +31,12 @@ export function AdminCollectionCard({
           <span>更新于 {formatModerationDate(collection.updatedAt)}</span>
         </div>
         {collection.moderationReason ? (
-          <p className="mt-2 line-clamp-2 whitespace-pre-wrap text-label text-danger">
+          <p className="mt-2 line-clamp-2 whitespace-pre-wrap break-words text-label text-danger">
             隐藏原因：{collection.moderationReason}
           </p>
         ) : null}
       </div>
-      <div className="flex flex-wrap gap-2 md:justify-end">
+      <div className="flex shrink-0 items-center gap-2 md:justify-end">
         {hidden ? (
           <AdminReasonActionDialog
             action={restoreCollectionAction.bind(null, collection.id)}

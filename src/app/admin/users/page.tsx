@@ -40,7 +40,7 @@ export default async function AdminUsersPage({
   }
 
   // 页面入口独立执行管理员授权，不能只依赖父布局。
-  await requireAdminOrForbidden();
+  const currentAdmin = await requireAdminOrForbidden();
 
   const activeFilter = Boolean(
     parsed.data.q ?? parsed.data.role ?? parsed.data.status,
@@ -89,7 +89,7 @@ export default async function AdminUsersPage({
                 key={user.id}
                 className="[&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none"
               >
-                <AdminUserCard user={user} />
+                <AdminUserCard user={user} isSelf={user.id === currentAdmin.id} />
               </div>
             ))}
           </div>

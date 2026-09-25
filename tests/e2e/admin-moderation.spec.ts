@@ -371,6 +371,10 @@ test.describe.serial("administrator authorization and governance", () => {
       const secondId = await getUserIdByEmail(secondEmail);
 
       await adminPage.goto(`/admin/users?q=${encodeURIComponent(secondEmail)}`);
+      const userCard = itemByText(adminPage, secondEmail);
+      await expect(userCard.getByRole("button", { name: "禁用用户" })).toBeVisible();
+      await expect(userCard.getByRole("button", { name: "提升为管理员" })).toBeVisible();
+      await expect(userCard.getByRole("button", { name: /更多操作/ })).toHaveCount(0);
       await submitReasonDialog(
         adminPage,
         "提升为管理员",

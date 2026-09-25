@@ -30,7 +30,7 @@ export function AdminAuditCard({ entry }: AdminAuditCardProps) {
             {AUDIT_ACTION_LABELS[entry.action]}
           </h2>
         </CardTitle>
-        <CardDescription className="flex flex-wrap items-center gap-1.5">
+        <CardDescription className="flex flex-wrap items-center gap-2">
           <Badge variant="neutral">{AUDIT_TARGET_LABELS[entry.targetType]}</Badge>
           <span>管理员：{entry.adminName}</span>
           <span aria-hidden="true"> · </span>
@@ -48,7 +48,7 @@ export function AdminAuditCard({ entry }: AdminAuditCardProps) {
           {entry.reason ? (
             <div className="flex flex-wrap items-baseline gap-x-2">
               <dt className="shrink-0 text-subtle">原因</dt>
-              <dd className="whitespace-pre-wrap font-medium text-foreground">
+              <dd className="whitespace-pre-wrap break-words font-medium text-foreground">
                 {entry.reason}
               </dd>
             </div>

@@ -53,13 +53,13 @@ export function AdminCommentCard({
           {deleted ? "正文已由作者清空。" : comment.body}
         </p>
         {comment.moderationReason ? (
-          <p className="rounded-md border border-danger/30 bg-danger-surface p-3 text-label text-danger">
+          <p className="break-words rounded-md border border-danger/30 bg-danger-surface p-3 text-label text-danger">
             隐藏原因：{comment.moderationReason}
           </p>
         ) : null}
       </CardContent>
       {!deleted ? (
-        <CardFooter>
+        <CardFooter className="pt-3">
           {hidden ? (
             <AdminReasonActionDialog
               action={restoreCommentAction.bind(null, comment.id)}

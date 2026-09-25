@@ -154,6 +154,13 @@ test("desktop notification popover stays synchronized and supports keyboard dism
     await adminPage.getByRole("radio", { name: "全部正常账号" }).click();
     await adminPage.getByRole("button", { name: "创建草稿" }).click();
     await adminPage.waitForURL(/\/admin\/announcements\/[0-9a-f-]+\/edit\?created=1$/);
+    const draftEditPath = new URL(adminPage.url()).pathname;
+    await adminPage.goto("/admin/announcements?status=draft");
+    const draftCard = adminPage.locator('[data-slot="card"]').filter({ hasText: title });
+    await expect(draftCard.getByRole("link", { name: "编辑与发布" })).toBeVisible();
+    await expect(draftCard.getByRole("link", { name: "查看目标页面" })).toBeVisible();
+    await expect(draftCard.getByRole("button", { name: /更多操作/ })).toHaveCount(0);
+    await adminPage.goto(draftEditPath);
     const publishButton = adminPage.getByRole("button", { name: "发布公告" });
     await expect(publishButton).toBeEnabled();
     await publishButton.click();

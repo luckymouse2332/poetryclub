@@ -137,7 +137,7 @@ test("own poems list adapts across the workspace breakpoint", async ({
       mediumLayout.viewportWidth,
     );
     expect(mediumLayout.sidebarVisible).toBe(false);
-    expect(mediumLayout.columnCount).toBe(1);
+    expect(mediumLayout.columnCount).toBe(2);
     await expect(
       page.getByRole("navigation", { name: "账户导航" }),
     ).toBeVisible();
@@ -178,7 +178,7 @@ test("own poems list adapts across the workspace breakpoint", async ({
     await expect(
       page.getByRole("navigation", { name: "账户导航" }),
     ).toHaveAttribute("data-variant", "sidebar");
-    expect(wideLayout.columnCount).toBe(5);
+    expect(wideLayout.columnCount).toBe(2);
   } finally {
     await deletePoemsByIds(fixtures.ids);
   }
@@ -426,13 +426,13 @@ test.describe.serial("own poems list discoverability and inline actions", () => 
       .filter({ has: page.getByRole("heading", { name: title }) });
   }
 
-  /** 打开列表并等待状态按钮（useActionState 表单）完成 hydration。 */
+  /** 打开列表并等待行操作菜单完成 hydration。 */
   async function gotoListHydrated(): Promise<void> {
     await page.goto("/account/poems");
-    await waitForHydration(page, "main form button[type=submit]");
+    await waitForHydration(page, "main button[aria-label^='更多操作：']");
   }
 
-  test("draft card shows 编辑/发布/删除草稿 directly on the list", async () => {
+  test("draft row keeps edit visible and groups state actions in a menu", async () => {
     await registerAndSignIn(page, authorName, authorEmail);
     await page.goto("/account/poems/new");
     await waitForHydration(page, "form button[type=submit]");
@@ -448,22 +448,28 @@ test.describe.serial("own poems list discoverability and inline actions", () => 
     await gotoListHydrated();
     const card = cardByTitle(draftTitle);
     await expect(card.getByRole("link", { name: "编辑" })).toBeVisible();
-    await expect(
-      card.getByRole("button", { name: "发布", exact: true }),
-    ).toBeVisible();
-    await expect(card.getByRole("button", { name: "删除草稿" })).toBeVisible();
-    await expect(card.getByRole("link", { name: "查看作品页" })).toHaveCount(0);
-    await expect(
-      card.getByRole("button", { name: "撤回", exact: true }),
-    ).toHaveCount(0);
+    const more = card.getByRole("button", { name: /更多操作/ });
+    await more.click();
+    await expect(page.getByRole("menuitem", { name: "发布" })).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: "删除草稿" })).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: "查看作品页" })).toHaveCount(0);
+    await page.keyboard.press("Escape");
+    await expect(more).toBeFocused();
+    await more.click();
+    await page.getByRole("menuitem", { name: "删除草稿" }).click();
+    const deleteDialog = page.getByRole("alertdialog");
+    await expect(deleteDialog).toBeVisible();
+    await deleteDialog.getByRole("button", { name: "取消" }).click();
+    await expect(more).toBeFocused();
 
-    // 390px 下卡片操作区换行排列，页面不产生水平滚动。
-    await page.setViewportSize({ width: 390, height: 844 });
-    const dimensions = await page.evaluate(() => ({
-      clientWidth: document.documentElement.clientWidth,
-      scrollWidth: document.documentElement.scrollWidth,
-    }));
-    expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+    for (const width of [390, 768, 920, 1024, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      const dimensions = await page.evaluate(() => ({
+        clientWidth: document.documentElement.clientWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+      }));
+      expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+    }
 
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto(`/account/poems/${poemId}/edit`);
@@ -496,9 +502,8 @@ test.describe.serial("own poems list discoverability and inline actions", () => 
 
   test("publishing from the list card lands on the public page", async () => {
     await gotoListHydrated();
-    await cardByTitle(draftTitle)
-      .getByRole("button", { name: "发布", exact: true })
-      .click();
+    await cardByTitle(draftTitle).getByRole("button", { name: /更多操作/ }).click();
+    await page.getByRole("menuitem", { name: "发布" }).click();
     await page.waitForURL(`/poems/${poemId}`);
     await expect(
       page.getByRole("heading", { level: 1, name: draftTitle }),
@@ -507,21 +512,17 @@ test.describe.serial("own poems list discoverability and inline actions", () => 
     await gotoListHydrated();
     const card = cardByTitle(draftTitle);
     await expect(card.getByRole("link", { name: "编辑" })).toBeVisible();
-    await expect(card.getByRole("link", { name: "查看作品页" })).toBeVisible();
-    await expect(
-      card.getByRole("button", { name: "撤回", exact: true }),
-    ).toBeVisible();
-    await expect(
-      card.getByRole("button", { name: "发布", exact: true }),
-    ).toHaveCount(0);
-    await expect(card.getByRole("button", { name: "删除草稿" })).toHaveCount(0);
+    await card.getByRole("button", { name: /更多操作/ }).click();
+    await expect(page.getByRole("menuitem", { name: "查看作品页" })).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: "撤回" })).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: "发布" })).toHaveCount(0);
+    await expect(page.getByRole("menuitem", { name: "删除草稿" })).toHaveCount(0);
   });
 
   test("withdrawing from the list card returns the work to draft", async () => {
     await gotoListHydrated();
-    await cardByTitle(draftTitle)
-      .getByRole("button", { name: "撤回", exact: true })
-      .click();
+    await cardByTitle(draftTitle).getByRole("button", { name: /更多操作/ }).click();
+    await page.getByRole("menuitem", { name: "撤回" }).click();
     await page.waitForURL(`/account/poems/${poemId}/edit?withdrawn=1`);
     await expect(
       page.getByText("作品已撤回，回到草稿状态，仅自己可见。"),
@@ -530,9 +531,9 @@ test.describe.serial("own poems list discoverability and inline actions", () => 
 
     await gotoListHydrated();
     const card = cardByTitle(draftTitle);
-    await expect(
-      card.getByRole("button", { name: "发布", exact: true }),
-    ).toBeVisible();
-    await expect(card.getByRole("link", { name: "查看作品页" })).toHaveCount(0);
+    await card.getByRole("button", { name: /更多操作/ }).click();
+    await expect(page.getByRole("menuitem", { name: "发布" })).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: "查看作品页" })).toHaveCount(0);
+    await expect(page.getByRole("menuitem", { name: "删除草稿" })).toHaveCount(0);
   });
 });

@@ -50,6 +50,7 @@
 | M6.2 | 移动端导航信息架构重构 | 已完成 | [M6.2-mobile-navigation-information-architecture.md](./M6.2-mobile-navigation-information-architecture.md) |
 | M6.3 | 移动端导航浮层与动效修正 | 已完成 | [M6.3-mobile-navigation-overlay-motion.md](./M6.3-mobile-navigation-overlay-motion.md) |
 | M6.4 | 管理 Sheet 与桌面 Dropdown 对齐 | 已完成 | [M6.4-admin-drawer-dropdown-parity.md](./M6.4-admin-drawer-dropdown-parity.md) |
+| M6.5 | 管理列表样式改版 | 已完成 | [M6.5-management-list-redesign.md](./M6.5-management-list-redesign.md) |
 | M7 | 作品评论与一级回复 | 已完成 | [M7-comments-and-replies.md](./M7-comments-and-replies.md) |
 | M8 | 诗作特辑与连续阅读 | 已完成 | [M8-curated-collections.md](./M8-curated-collections.md) |
 | CHORE-1 | 仓库工作流与发布规范 | 已完成 | [CHORE-1-repository-workflow-conventions.md](./CHORE-1-repository-workflow-conventions.md) |

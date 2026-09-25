@@ -18,6 +18,7 @@ import {
 import { CollectionActions } from "@/features/collections/components/collection-actions";
 import { CollectionForm } from "@/features/collections/components/collection-form";
 import { CollectionItemAction } from "@/features/collections/components/collection-item-actions";
+import { CollectionItemMenuAction } from "@/features/collections/components/collection-item-menu-action";
 import { formatPoemDate } from "@/features/posts/formatters";
 import { requireCurrentUser } from "@/server/auth/session";
 import { getAuthoritativeUser } from "@/server/policies/access";
@@ -145,8 +146,8 @@ export default async function EditCollectionPage({
           <div className="divide-y divide-border-subtle border-y border-border-subtle">
             {items.items.map((item) => (
               <article key={item.poemId} className="grid gap-3 py-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
-                <div>
-                  <h3 className="font-serif text-body-lg text-foreground">
+                  <div className="min-w-0">
+                    <h3 className="break-words font-serif text-body-lg text-foreground">
                     {item.available ? `《${item.title}》` : "作品当前不可用"}
                   </h3>
                   <p className="mt-1 text-label text-subtle">
@@ -157,7 +158,7 @@ export default async function EditCollectionPage({
                   <div className="flex flex-wrap justify-start gap-2 md:justify-end">
                     <CollectionItemAction action={moveCollectionItemAction.bind(null, collection.id, item.poemId, "up")} label="上移" busyLabel="移动中…" variant="ghost" />
                     <CollectionItemAction action={moveCollectionItemAction.bind(null, collection.id, item.poemId, "down")} label="下移" busyLabel="移动中…" variant="ghost" />
-                    <CollectionItemAction action={removeCollectionItemAction.bind(null, collection.id, item.poemId)} label="移除" busyLabel="移除中…" variant="danger" />
+                    <CollectionItemMenuAction action={removeCollectionItemAction.bind(null, collection.id, item.poemId)} title={item.title ?? "不可用作品"} />
                   </div>
                 ) : null}
               </article>
