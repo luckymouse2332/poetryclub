@@ -1,0 +1,23 @@
+import { afterEach, expect, it, vi } from "vitest";
+import { listenForNotificationChanges } from "@/features/notifications/realtime-client";
+afterEach(() => vi.useRealTimers());
+it("coalesces recovery and delivery and removes all listeners on cleanup", () => {
+  vi.useFakeTimers();
+  const stream = Object.assign(new EventTarget(), { close: vi.fn() });
+  const win = new EventTarget();
+  const doc = Object.assign(new EventTarget(), { visibilityState: "visible" });
+  const refresh = vi.fn(); const unavailable = vi.fn();
+  const stop = listenForNotificationChanges(stream, refresh, unavailable, win, doc);
+  for (const event of ["open", "ready", "notification", "notification"]) stream.dispatchEvent(new Event(event));
+  vi.advanceTimersByTime(100);
+  expect(refresh).toHaveBeenCalledTimes(1);
+  stream.dispatchEvent(new Event("error"));
+  expect(unavailable).toHaveBeenLastCalledWith(true);
+  win.dispatchEvent(new Event("focus")); vi.advanceTimersByTime(100);
+  expect(refresh).toHaveBeenCalledTimes(2);
+  stream.dispatchEvent(new Event("ready")); stop();
+  doc.dispatchEvent(new Event("visibilitychange"));
+  stream.dispatchEvent(new Event("notification")); vi.runAllTimers();
+  expect(refresh).toHaveBeenCalledTimes(2);
+  expect(stream.close).toHaveBeenCalledOnce();
+});

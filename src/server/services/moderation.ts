@@ -1,3 +1,4 @@
+import { requireAdminMutation } from "@/server/policies/admin-mutation";
 import "server-only";
 
 import { randomBytes, randomUUID } from "node:crypto";
@@ -18,7 +19,6 @@ import { hashInvitationCode } from "@/server/auth/invitation-plugin";
 import { db } from "@/server/db";
 import {
   adminAuditLog,
-  adminGuard,
   invitation,
   poem,
   user,
@@ -327,6 +327,7 @@ export async function hidePoem(
   reason: string,
 ): Promise<boolean> {
   const result = await db.transaction(async (tx) => {
+    await requireAdminMutation(tx, adminId);
     const changed = await tx
       .update(poem)
       .set({
@@ -387,6 +388,7 @@ export async function restorePoem(
   reason: string,
 ): Promise<boolean> {
   const result = await db.transaction(async (tx) => {
+    await requireAdminMutation(tx, adminId);
     const changed = await tx
       .update(poem)
       .set({
@@ -441,17 +443,6 @@ export async function restorePoem(
   return result.changed;
 }
 
-async function lockAdminGuard(
-  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
-): Promise<void> {
-  const guard = await tx
-    .select({ id: adminGuard.id })
-    .from(adminGuard)
-    .where(eq(adminGuard.id, 1))
-    .for("update");
-  if (!guard[0]) throw new ModerationMutationError("concurrent_conflict");
-}
-
 async function assertAnotherActiveAdmin(
   tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
 ): Promise<void> {
@@ -472,7 +463,7 @@ export async function setUserSuspended(
 ): Promise<boolean> {
   if (adminId === targetId) throw new ModerationMutationError("self_operation");
   const result = await db.transaction(async (tx) => {
-    await lockAdminGuard(tx);
+    await requireAdminMutation(tx, adminId);
     const targets = await tx
       .select({ role: user.role, status: user.status })
       .from(user)
@@ -549,7 +540,7 @@ export async function setUserRole(
     throw new ModerationMutationError("self_operation");
   }
   const result = await db.transaction(async (tx) => {
-    await lockAdminGuard(tx);
+    await requireAdminMutation(tx, adminId);
     const targets = await tx
       .select({ role: user.role, status: user.status })
       .from(user)
@@ -608,6 +599,7 @@ export async function createInvitation(
   const id = randomUUID();
   const code = randomBytes(32).toString("base64url");
   await db.transaction(async (tx) => {
+    await requireAdminMutation(tx, adminId);
     await tx.insert(invitation).values({
       id,
       codeHash: hashInvitationCode(code),
@@ -636,6 +628,7 @@ export async function disableInvitation(
   reason: string,
 ): Promise<boolean> {
   return db.transaction(async (tx) => {
+    await requireAdminMutation(tx, adminId);
     const changed = await tx
       .update(invitation)
       .set({ disabledAt: new Date(), disabledBy: adminId })

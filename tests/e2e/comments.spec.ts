@@ -84,6 +84,28 @@ function commentByText(page: Page, text: string): Locator {
   return page.getByRole("article").filter({ hasText: text }).first();
 }
 
+test("three consecutive comments rotate tokens after every success", async ({ page }) => {
+  await signInAdmin(page);
+  const poemId = await createPublishedPoem(page, uniqueValue("连续提交"));
+  try {
+    const form = page.locator("form").filter({ has: page.getByRole("button", { name: "发布评论", exact: true }) });
+    const token = form.locator('input[name="creationToken"]');
+    const tokens = new Set<string>();
+    for (let index = 0; index < 3; index++) {
+      // Exercise the actual ten-second server cooldown between distinct writes.
+      if (index) await page.waitForTimeout(10_100);
+      const before = await token.inputValue(); tokens.add(before);
+      const body = uniqueValue(`连续评论${index}`);
+      await form.getByLabel("评论内容").fill(body);
+      await form.getByRole("button", { name: "发布评论", exact: true }).click();
+      await expect(page.getByText(body, { exact: true })).toBeVisible();
+      await expect(form.getByLabel("评论内容")).toHaveValue("");
+      await expect(token).not.toHaveValue(before);
+    }
+    expect(tokens.size).toBe(3);
+  } finally { await deletePoemsByIds([poemId]); }
+});
+
 async function openReasonDialog(page: Page, trigger: Locator): Promise<Locator> {
   await trigger.click();
   const dialog = page.getByRole("alertdialog");
@@ -266,6 +288,11 @@ test.describe.serial("M7 comments and first-level replies", () => {
     await readerPage.getByRole("button", { name: "加载更多评论" }).click();
     await expect(readerPage.getByText(fixtures.oldestRootBody, { exact: true }))
       .toBeVisible();
+    await commentByText(readerPage, fixtures.oldestRootBody).getByRole("button", { name: "编辑", exact: true }).click();
+    const olderRootEditor = readerPage.getByRole("dialog");
+    await olderRootEditor.getByLabel("评论内容").fill(`${fixtures.oldestRootBody} edited`);
+    await olderRootEditor.getByRole("button", { name: "保存修改" }).click();
+    await expect(readerPage.getByText(`${fixtures.oldestRootBody} edited`, { exact: true })).toBeVisible();
 
     await readerPage.goto(
       `/poems/${poemId}/comments/${fixtures.replyRootId}`,
@@ -276,6 +303,11 @@ test.describe.serial("M7 comments and first-level replies", () => {
     await readerPage.getByRole("button", { name: "加载更早回复" }).click();
     await expect(readerPage.getByText(fixtures.oldestReplyBody, { exact: true }))
       .toBeVisible();
+    await commentByText(readerPage, fixtures.oldestReplyBody).getByRole("button", { name: "编辑", exact: true }).click();
+    const olderReplyEditor = readerPage.getByRole("dialog");
+    await olderReplyEditor.getByLabel("评论内容").fill(`${fixtures.oldestReplyBody} edited`);
+    await olderReplyEditor.getByRole("button", { name: "保存修改" }).click();
+    await expect(readerPage.getByText(`${fixtures.oldestReplyBody} edited`, { exact: true })).toBeVisible();
 
     for (const width of [390, 1024, 1440]) {
       await readerPage.setViewportSize({ width, height: 900 });

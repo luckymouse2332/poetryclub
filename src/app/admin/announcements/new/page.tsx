@@ -1,3 +1,4 @@
+import { requireAdminOrForbidden } from "@/features/moderation/require-admin";
 import type { Metadata } from "next";
 
 import { PageContainer } from "@/components/layout/page-container";
@@ -7,7 +8,8 @@ import { AnnouncementForm } from "@/features/notifications/components/announceme
 
 export const metadata: Metadata = { title: "新建系统公告" };
 
-export default function NewAnnouncementPage() {
+export default async function NewAnnouncementPage() {
+  await requireAdminOrForbidden();
   return (
     <PageContainer>
       <PageHeader

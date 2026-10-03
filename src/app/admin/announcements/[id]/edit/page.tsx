@@ -1,3 +1,4 @@
+import { requireAdminOrForbidden } from "@/features/moderation/require-admin";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -18,6 +19,7 @@ type EditAnnouncementPageProps = Readonly<{
 export default async function EditAnnouncementPage({
   params,
 }: EditAnnouncementPageProps) {
+  await requireAdminOrForbidden();
   const parsedId = announcementIdSchema.safeParse((await params).id);
   if (!parsedId.success) notFound();
   const announcement = await getAnnouncement(parsedId.data);

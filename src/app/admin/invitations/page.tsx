@@ -1,3 +1,4 @@
+import { requireAdminOrForbidden } from "@/features/moderation/require-admin";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -27,6 +28,7 @@ type AdminInvitationsPageProps = Readonly<{
 export default async function AdminInvitationsPage({
   searchParams,
 }: AdminInvitationsPageProps) {
+  await requireAdminOrForbidden();
   const query = await searchParams;
   const parsedPage = moderationPageSchema.safeParse(query.page);
   if (!parsedPage.success) {

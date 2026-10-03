@@ -1,3 +1,4 @@
+import { requireAdminOrForbidden } from "@/features/moderation/require-admin";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -19,6 +20,7 @@ export const metadata: Metadata = { title: "特辑管理详情" };
 export default async function AdminCollectionDetailPage({
   params,
 }: Readonly<{ params: Promise<{ id: string }> }>) {
+  await requireAdminOrForbidden();
   const parsed = collectionIdSchema.safeParse((await params).id);
   if (!parsed.success) notFound();
   const collection = await getAdminCollection(parsed.data);

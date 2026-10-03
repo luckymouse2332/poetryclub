@@ -1,3 +1,5 @@
+import { requireAdminMutation } from "@/server/policies/admin-mutation";
+import type { DatabaseTransaction } from "@/server/db/types";
 import "server-only";
 
 import { randomUUID } from "node:crypto";
@@ -29,7 +31,6 @@ import {
   user,
 } from "@/server/db/schema";
 import {
-  type DatabaseTransaction,
   writeAdminAudit,
 } from "@/server/services/admin-audit";
 import {
@@ -1003,6 +1004,7 @@ export async function setCollectionHidden(
   hidden: boolean,
 ): Promise<boolean> {
   const result = await db.transaction(async (tx) => {
+    await requireAdminMutation(tx, adminId);
     const expected = hidden ? "visible" : "hidden";
     const desired = hidden ? "hidden" : "visible";
     const changed = await tx

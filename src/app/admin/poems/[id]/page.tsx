@@ -1,3 +1,4 @@
+import { requireAdminOrForbidden } from "@/features/moderation/require-admin";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -28,6 +29,7 @@ type AdminPoemDetailPageProps = Readonly<{
 export default async function AdminPoemDetailPage({
   params,
 }: AdminPoemDetailPageProps) {
+  await requireAdminOrForbidden();
   const parsedId = uuidTargetIdSchema.safeParse((await params).id);
   if (!parsedId.success) notFound();
   const poem = await getAdminPoem(parsedId.data);

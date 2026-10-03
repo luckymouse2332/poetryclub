@@ -118,6 +118,69 @@ afterAll(async () => {
   await sql.end();
 });
 
+describe("thread concurrency and bounded previews", () => {
+  it("keeps latest-three previews independently bounded for every root", async () => {
+    const author = await createUser();
+    const poemId = await createPoem(author);
+    const roots: string[] = [];
+    for (let index = 0; index < 3; index++) {
+      const root = await addComment(author, poemId, null, `root ${index}`);
+      roots.push(root);
+      for (let reply = 0; reply < 5; reply++) await addComment(author, poemId, root, `reply ${reply}`);
+    }
+    const page = await listCommentRoots(poemId, viewer("anonymous", null, null));
+    expect(page.items).toHaveLength(3);
+    for (const root of page.items) {
+      expect(roots).toContain(root.id);
+      expect(root.replyCount).toBe(5);
+      expect(root.replies.map((reply) => reply.body)).toEqual(["reply 2", "reply 3", "reply 4"]);
+    }
+  });
+
+  it("does not move activity backwards when an older transaction finishes later", async () => {
+    const author = await createUser();
+    const poemId = await createPoem(author);
+    const root = await addComment(author, poemId, null, "root");
+    const [before] = await sql`update poem_comment set last_activity_at=now() + interval '1 minute'
+      where id=${root} returning last_activity_at::text as activity`;
+    await addComment(author, poemId, root, "older transaction reply");
+    const rows = await sql`select last_activity_at::text as activity from poem_comment where id=${root}`;
+    expect(rows[0]?.activity).toBe(before?.activity);
+  });
+
+  it("rechecks parent state after waiting for the root lock", async () => {
+    const author = await createUser();
+    const poemId = await createPoem(author);
+    const root = await addComment(author, poemId, null, "root");
+    let pending!: Promise<unknown>;
+    await sql.begin(async (tx) => {
+      await tx`select id from poem_comment where id=${root} for update`;
+      pending = addComment(author, poemId, root, "must not be inserted").then(
+        () => "unexpected success", (error: unknown) => error,
+      );
+      await vi.waitFor(async () => {
+        await tx`select pg_stat_clear_snapshot()`;
+        const waiters = await tx`select 1 from pg_stat_activity where datname=current_database()
+          and wait_event_type='Lock' and query like '%poem_comment%' and pid<>pg_backend_pid()`;
+        expect(waiters.length).toBeGreaterThan(0);
+      });
+      await tx`update poem_comment set deleted_at=now(), body='' where id=${root}`;
+    });
+    expect(await pending).toMatchObject({ code: "invalid_transition" });
+    expect(await sql`select id from poem_comment where parent_id=${root}`).toHaveLength(0);
+  });
+
+  it("concurrent retries create one comment and one notification", async () => {
+    const owner = await createUser();
+    const author = await createUser();
+    const poemId = await createPoem(owner);
+    const token = randomUUID();
+    const ids = await Promise.all(Array.from({ length: 3 }, () => addComment(author, poemId, null, "same request", token)));
+    expect(new Set(ids).size).toBe(1);
+    expect(await sql`select id from notification where target_type='comment' and target_id=${ids[0]!}`).toHaveLength(1);
+  });
+});
+
 describe("comment creation and access", () => {
   it("creates idempotently, limits depth, and rejects cross-poem replies", async () => {
     const poemAuthor = await createUser();

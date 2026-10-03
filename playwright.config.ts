@@ -1,6 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
 import { EMAIL_TEST_OUTBOX_PATH } from "./tests/e2e/helpers/email-outbox";
+import { configureTestEnvironment } from "./scripts/test-environment.mjs";
+
+configureTestEnvironment();
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:4000";
 const webServerUrl = new URL(baseURL);
@@ -35,6 +38,7 @@ export default defineConfig({
           url: baseURL,
           reuseExistingServer: false,
           env: {
+            DATABASE_URL: process.env.DATABASE_URL!,
             BETTER_AUTH_URL: baseURL,
             REDIS_URL: process.env.REDIS_URL ?? "redis://127.0.0.1:6379",
             EMAIL_TRANSPORT: "test",

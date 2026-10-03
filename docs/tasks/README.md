@@ -77,3 +77,4 @@
 - 每个任务一个文件，命名为 `<编号>-<英文短名>.md`。已有历史文件名保留，新文件的短名只使用小写英文字母、数字和连字符。
 - 状态取值：`待办` / `进行中` / `已完成` / `已阻塞`。
 - 任务模板见 [template.md](./template.md)。
+`n| BUG-13 | 仓库安全与可靠性审查 | 进行中 | [BUG-13-repository-safety-audit.md](./BUG-13-repository-safety-audit.md) |

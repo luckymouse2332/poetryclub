@@ -14,6 +14,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { NotificationListItem } from "@/features/notifications/components/notification-list-item";
 import type { NotificationView } from "@/features/notifications/formatters";
+import { listenForNotificationChanges } from "@/features/notifications/realtime-client";
 import { cn } from "@/lib/utils";
 
 import floatingStyles from "@/components/ui/floating-unfold.module.css";
@@ -46,24 +47,7 @@ export function NotificationPopover({
 
   useEffect(() => {
     const stream = new EventSource("/api/notifications/stream");
-    const refresh = () => {
-      setStreamError(false);
-      router.refresh();
-    };
-    const handleOpen = () => setStreamError(false);
-    const handleUnavailable = () => setStreamError(true);
-    const handleError = () => setStreamError(true);
-    stream.addEventListener("notification", refresh);
-    stream.addEventListener("open", handleOpen);
-    stream.addEventListener("unavailable", handleUnavailable);
-    stream.addEventListener("error", handleError);
-    return () => {
-      stream.removeEventListener("notification", refresh);
-      stream.removeEventListener("open", handleOpen);
-      stream.removeEventListener("unavailable", handleUnavailable);
-      stream.removeEventListener("error", handleError);
-      stream.close();
-    };
+    return listenForNotificationChanges(stream, () => router.refresh(), setStreamError);
   }, [router]);
 
   return (

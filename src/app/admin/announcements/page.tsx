@@ -1,3 +1,4 @@
+import { requireAdminOrForbidden } from "@/features/moderation/require-admin";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -26,6 +27,7 @@ type AnnouncementsPageProps = Readonly<{
 export default async function AnnouncementsPage({
   searchParams,
 }: AnnouncementsPageProps) {
+  await requireAdminOrForbidden();
   const parsed = announcementListInputSchema.safeParse(await searchParams);
   if (!parsed.success) notFound();
   const result = await listAnnouncements(parsed.data);

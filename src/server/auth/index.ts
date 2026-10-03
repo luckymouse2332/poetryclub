@@ -3,6 +3,7 @@ import "server-only";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth/minimal";
+import { createAuthMiddleware } from "better-auth/api";
 import { emailOTP } from "better-auth/plugins/email-otp";
 
 import {
@@ -23,6 +24,14 @@ export const auth = betterAuth({
   appName: "回中诗社",
   baseURL: env.BETTER_AUTH_URL,
   secret: env.BETTER_AUTH_SECRET,
+  disabledPaths: ["/update-user"],
+  hooks: {
+    before: createAuthMiddleware(async (context) => {
+      if (context.path === "/change-password") {
+        return { context: { body: { ...context.body, revokeOtherSessions: true } } };
+      }
+    }),
+  },
   database: drizzleAdapter(db, {
     provider: "pg",
     schema,

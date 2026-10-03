@@ -175,7 +175,7 @@ test("desktop notification popover stays synchronized and supports keyboard dism
         window as Window & {
           __emitNotificationStreamEvent?: (type: string) => void;
         }
-      ).__emitNotificationStreamEvent?.("notification");
+      ).__emitNotificationStreamEvent?.("ready");
     });
 
     await expect

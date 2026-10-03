@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -72,9 +73,8 @@ export default async function CommentThreadPage({
       </div>
       <div className="mt-6">
         <CommentThread
-          key={[thread.root, ...thread.replies]
-            .map((comment) => `${comment.id}:${comment.editedAt}:${comment.placeholder}`)
-            .join("|")}
+          key={thread.root.id}
+          revision={randomUUID()}
           poemId={parsedPoemId.data}
           root={thread.root}
           initialReplies={thread.replies}

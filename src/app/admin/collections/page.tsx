@@ -1,3 +1,4 @@
+import { requireAdminOrForbidden } from "@/features/moderation/require-admin";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -22,6 +23,7 @@ export default async function AdminCollectionsPage({
 }: Readonly<{
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }>) {
+  await requireAdminOrForbidden();
   const query = await searchParams;
   const parsedPage = moderationPageSchema.safeParse(query.page);
   if (!parsedPage.success) notFound();

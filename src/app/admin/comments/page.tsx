@@ -1,3 +1,4 @@
+import { requireAdminOrForbidden } from "@/features/moderation/require-admin";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -25,6 +26,7 @@ type AdminCommentsPageProps = Readonly<{
 export default async function AdminCommentsPage({
   searchParams,
 }: AdminCommentsPageProps) {
+  await requireAdminOrForbidden();
   const parsed = moderationCommentListInputSchema.safeParse(await searchParams);
   if (!parsed.success) notFound();
   const result = await listAdminComments(parsed.data);
