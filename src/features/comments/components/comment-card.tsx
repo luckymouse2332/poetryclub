@@ -203,14 +203,16 @@ export function CommentCard({
     <article
       id={`comment-${comment.id}`}
       tabIndex={focused ? -1 : undefined}
-      className={`rounded-lg border p-4 outline-none transition-colors ${
+      data-slot="comment"
+      data-depth={comment.depth}
+      className={`min-w-0 border-t px-4 py-5 outline-none transition-colors first:border-t-0 sm:px-6 lg:px-8 ${
         focused
           ? "border-seal-foreground bg-seal-surface"
-          : "border-border-subtle bg-paper"
-      } ${comment.depth > 0 ? "ml-4 sm:ml-8" : ""}`}
+          : "border-border-subtle bg-transparent"
+      } ${comment.depth > 0 ? "ml-4 border-l sm:ml-6" : ""}`}
     >
       <header className="flex flex-wrap items-baseline justify-between gap-2 text-label">
-        <span className="font-medium text-foreground">{comment.authorName}</span>
+        <span className="min-w-0 break-words font-medium text-foreground">{comment.authorName}</span>
         <span className="text-subtle">
           <time dateTime={comment.createdAt}>{formatCommentTime(comment.createdAt)}</time>
           {comment.editedAt ? " · 已编辑" : null}

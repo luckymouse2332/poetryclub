@@ -105,8 +105,8 @@ export function AnnouncementForm({
         </Alert>
       ) : null}
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(17rem,0.8fr)]">
-        <Surface variant="paper" padding="lg" className="space-y-6">
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(17rem,0.8fr)]">
+        <Surface variant="paper" className="space-y-6">
           <FormField
             id="title"
             label="公告标题"
@@ -139,14 +139,14 @@ export function AnnouncementForm({
                 rows={22}
                 maxLength={ANNOUNCEMENT_BODY_MAX_LENGTH}
                 defaultValue={initialValues?.body}
-                className="min-h-[30rem] resize-y font-serif text-body-lg leading-reading"
+                className="h-80 min-h-48 resize-y text-body leading-reading sm:h-[30rem]"
               />
             )}
           </FormField>
         </Surface>
 
-        <div className="space-y-4 lg:sticky lg:top-8">
-          <Surface variant="paper" padding="lg" className="space-y-6">
+        <div className="space-y-4 xl:sticky xl:top-8">
+          <Surface variant="paper" className="space-y-6">
             <FormField
               id="href"
               label="站内链接"
@@ -182,7 +182,7 @@ export function AnnouncementForm({
                   <Field
                     key={item.value}
                     orientation="horizontal"
-                    className="items-start"
+                    className="items-start border-l-2 border-l-transparent px-3 py-4 transition-colors has-[[data-state=checked]]:border-l-primary has-[[data-state=checked]]:bg-accent [&>[data-slot=radio-group-item]]:mt-1"
                   >
                     <RadioGroupItem
                       id={`announcement-audience-${item.value}`}

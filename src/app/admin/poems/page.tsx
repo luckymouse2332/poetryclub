@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
+import { Surface } from "@/components/ui/surface";
 import {
   Empty,
   EmptyDescription,
@@ -80,27 +81,29 @@ export default async function AdminPoemsPage({
         />
       </div>
       <Section className="pb-0 pt-8">
-        {result.items.length > 0 ? (
-          <div className="divide-y divide-border-subtle">
-            {result.items.map((poem) => (
-              <div
-                key={poem.id}
-                className="[&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none"
-              >
-                <AdminPoemCard poem={poem} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <Empty>
-            <EmptyHeader>
-              <EmptyTitle>没有符合条件的诗作</EmptyTitle>
-              <EmptyDescription>
-                调整筛选条件后重新查找，或等待新的作品发布。
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        )}
+        <Surface variant="paper" padding="none" data-slot="directory-surface">
+          {result.items.length > 0 ? (
+            <div className="divide-y divide-border-subtle">
+              {result.items.map((poem) => (
+                <div
+                  key={poem.id}
+                  className="[&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none"
+                >
+                  <AdminPoemCard poem={poem} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Empty className="border-0 px-4 sm:px-6 lg:px-8">
+              <EmptyHeader>
+                <EmptyTitle>没有符合条件的诗作</EmptyTitle>
+                <EmptyDescription>
+                  调整筛选条件后重新查找，或等待新的作品发布。
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          )}
+        </Surface>
       </Section>
       <AdminPagination
         basePath="/admin/poems"

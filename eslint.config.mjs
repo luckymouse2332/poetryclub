@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Playwright rewrites these generated reports while browser checks run.
+    "playwright-report/**",
+    "test-results/**",
+    "output/playwright/**",
     // Local agent runtimes are not application source and may be mounted or
     // removed independently of the repository checkout.
     ".agents/**",

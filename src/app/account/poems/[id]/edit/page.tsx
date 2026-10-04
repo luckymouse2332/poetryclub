@@ -142,16 +142,16 @@ export default async function EditPoemPage({
       {suspended ? (
         <div className="mt-8 space-y-6">
           <div>
-            <h2 className="text-section-title font-semibold text-foreground">
+            <h2 className="font-serif text-section-title font-medium text-foreground">
               正文
             </h2>
-            <article className="mt-3 whitespace-pre-wrap rounded-lg border border-border-subtle bg-paper p-6 font-serif text-body text-foreground shadow-card">
+            <article className="mt-3 whitespace-pre-wrap border-y border-border-subtle bg-paper px-4 py-6 font-serif text-body text-foreground sm:px-6 lg:px-8">
               {poem.body}
             </article>
           </div>
           {poem.context ? (
             <div>
-              <h2 className="text-section-title font-semibold text-foreground">
+              <h2 className="font-serif text-section-title font-medium text-foreground">
                 创作背景
               </h2>
               <p className="mt-3 whitespace-pre-wrap text-body text-subtle">
@@ -185,7 +185,7 @@ export default async function EditPoemPage({
           >
             <h2
               id="poem-status-actions-title"
-              className="text-section-title font-semibold text-foreground"
+              className="font-serif text-section-title font-medium text-foreground"
             >
               状态操作
             </h2>

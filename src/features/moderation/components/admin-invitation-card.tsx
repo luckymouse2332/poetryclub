@@ -33,8 +33,8 @@ export function AdminInvitationCard({
   const usedUp = !disabled && invitation.usedCount >= invitation.maxUses;
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="gap-4">
+      <CardHeader className="border-b-0 pb-0">
         <CardTitle>
           <h2 className="text-body-lg font-semibold text-foreground">邀请码</h2>
         </CardTitle>
@@ -81,7 +81,7 @@ export function AdminInvitationCard({
         </dl>
       </CardContent>
       {!disabled && !expired && !usedUp ? (
-        <CardFooter className="flex flex-wrap items-center gap-2 pt-3">
+        <CardFooter className="flex flex-wrap items-center gap-2 border-t-0 pt-0">
           <AdminReasonActionDialog
             action={disableInvitationAction.bind(null, invitation.id)}
             triggerLabel="停用邀请码"

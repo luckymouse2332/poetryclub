@@ -91,13 +91,13 @@ export default async function CollectionReadingPage({ params }: ReadingPageProps
       </dl>
       <article
         aria-label={current.title}
-        className="mt-10 whitespace-pre-wrap border-l border-border-subtle pl-6 font-serif text-body-lg leading-reading text-foreground md:pl-10"
+        className="mt-8 whitespace-pre-wrap border-y border-border bg-paper px-4 py-10 font-serif text-body-lg leading-loose text-foreground sm:px-6 lg:px-8 sm:py-12"
       >
         {current.body}
       </article>
       {current.context ? (
         <section aria-labelledby="collection-poem-context" className="mt-8">
-          <h2 id="collection-poem-context" className="text-section-title font-semibold text-foreground">
+          <h2 id="collection-poem-context" className="font-serif text-section-title font-medium text-foreground">
             创作背景
           </h2>
           <p className="mt-3 whitespace-pre-wrap text-body text-subtle">{current.context}</p>

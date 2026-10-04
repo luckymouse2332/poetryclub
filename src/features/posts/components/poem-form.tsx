@@ -89,9 +89,9 @@ export function PoemForm({
 
       <div
         key={state.revision ?? 0}
-        className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(17rem,0.8fr)]"
+        className="grid items-start gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(17rem,0.8fr)]"
       >
-        <Surface variant="paper" padding="lg" className="space-y-6">
+        <Surface variant="paper" className="space-y-6">
           <FormField
             id="title"
             label="标题"
@@ -125,14 +125,14 @@ export function PoemForm({
                 rows={22}
                 maxLength={BODY_MAX_LENGTH}
                 defaultValue={displayedValues?.body}
-                className="min-h-[30rem] resize-y font-serif text-body-lg leading-reading"
+                className="h-80 min-h-48 resize-y font-serif text-body-lg leading-reading sm:h-[30rem]"
               />
             )}
           </FormField>
         </Surface>
 
-        <div className="space-y-4 lg:sticky lg:top-8">
-          <Surface variant="paper" padding="lg" className="space-y-6">
+        <div className="space-y-4 xl:sticky xl:top-8">
+          <Surface variant="paper" className="space-y-6">
             <FormField
               id="context"
               label="创作背景"
@@ -187,7 +187,7 @@ export function PoemForm({
             aria-describedby="visibility-description"
             aria-invalid={Boolean(state.fieldErrors?.visibility)}
           >
-            <Field orientation="horizontal" className="items-start">
+            <Field orientation="horizontal" className="items-start border-l-2 border-l-transparent px-3 py-4 transition-colors has-[[data-state=checked]]:border-l-primary has-[[data-state=checked]]:bg-accent [&>[data-slot=radio-group-item]]:mt-1">
               <RadioGroupItem
                 value="public"
                 id="visibility-public"
@@ -202,7 +202,7 @@ export function PoemForm({
                 </FieldLabel>
               </FieldContent>
             </Field>
-            <Field orientation="horizontal" className="items-start">
+            <Field orientation="horizontal" className="items-start border-l-2 border-l-transparent px-3 py-4 transition-colors has-[[data-state=checked]]:border-l-primary has-[[data-state=checked]]:bg-accent [&>[data-slot=radio-group-item]]:mt-1">
               <RadioGroupItem
                 value="members_only"
                 id="visibility-members"

@@ -1,5 +1,8 @@
 "use client";
 
+/** M6.7 paper journal: shape, spacing, typography and state styling redesigned; upstream structure and public API preserved. */
+
+
 import * as React from "react";
 import { AlertDialog as AlertDialogPrimitive } from "radix-ui";
 
@@ -11,9 +14,9 @@ import { Button } from "@/components/ui/button";
  * 保留上游结构、`data-slot`、`asChild` 与 `cn()` 约定。
  *
  * 与上游的差异：
- * 1. 类名映射到 `docs/design-system.md` 的语义 Token：遮罩用 `bg-foreground/50`
- *    （上游 `bg-black/50`）、浮层内容用 `bg-surface` + `shadow-floating`
- *    （上游 `bg-background` + `shadow-lg`）、媒体占位用 `bg-surface-muted`
+ * 1. 类名映射到 `docs/design-system.md` 的语义 Token：遮罩用 `bg-overlay/50`
+ *    （上游 `bg-black/50`）、浮层内容用 `bg-paper` + `shadow-floating`
+ *    （上游 `bg-background` + `shadow-lg`）、媒体占位用透明底和细边界
  *    （上游 `bg-muted`）；去掉上游的 `dark:` 变体。
  * 2. Action / Cancel 默认变体改用项目 Button 的变体名：Action 默认 `primary`、
  *    Cancel 默认 `ghost`（上游为 `default` / `outline`，本项目不存在这两个变体）。
@@ -52,7 +55,7 @@ function AlertDialogOverlay({
   return (
     <AlertDialogPrimitive.Overlay
       data-slot="alert-dialog-overlay"
-      className={cn("fixed inset-0 z-50 bg-foreground/50", className)}
+      className={cn("fixed inset-0 z-50 bg-overlay/50", className)}
       {...props}
     />
   );
@@ -72,7 +75,7 @@ function AlertDialogContent({
         data-slot="alert-dialog-content"
         data-size={size}
         className={cn(
-          "group/alert-dialog-content fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border border-border-subtle bg-surface p-6 text-foreground shadow-floating data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-lg",
+          "group/alert-dialog-content fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] max-h-[calc(100dvh-2rem)] overflow-y-auto gap-6 rounded-floating border border-border-strong bg-paper p-6 sm:p-8 text-foreground shadow-floating data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-lg",
           className,
         )}
         {...props}
@@ -89,7 +92,7 @@ function AlertDialogHeader({
     <div
       data-slot="alert-dialog-header"
       className={cn(
-        "grid grid-rows-[auto_1fr] place-items-center gap-1.5 text-center has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr] has-data-[slot=alert-dialog-media]:gap-x-6 sm:group-data-[size=default]/alert-dialog-content:place-items-start sm:group-data-[size=default]/alert-dialog-content:text-left sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr]",
+        "grid grid-rows-[auto_1fr] place-items-start gap-3 text-left has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr] has-data-[slot=alert-dialog-media]:gap-x-6 sm:group-data-[size=default]/alert-dialog-content:place-items-start sm:group-data-[size=default]/alert-dialog-content:text-left sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr]",
         className,
       )}
       {...props}
@@ -105,7 +108,7 @@ function AlertDialogFooter({
     <div
       data-slot="alert-dialog-footer"
       className={cn(
-        "flex flex-col-reverse gap-2 group-data-[size=sm]/alert-dialog-content:grid group-data-[size=sm]/alert-dialog-content:grid-cols-2 sm:flex-row sm:justify-end",
+        "flex flex-col-reverse gap-3 border-t border-border pt-5 group-data-[size=sm]/alert-dialog-content:grid group-data-[size=sm]/alert-dialog-content:grid-cols-2 sm:flex-row sm:justify-end",
         className,
       )}
       {...props}
@@ -121,7 +124,7 @@ function AlertDialogTitle({
     <AlertDialogPrimitive.Title
       data-slot="alert-dialog-title"
       className={cn(
-        "text-body-lg font-semibold text-foreground",
+        "font-serif text-section-title font-semibold text-foreground",
         "sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2",
         className,
       )}
@@ -151,7 +154,7 @@ function AlertDialogMedia({
     <div
       data-slot="alert-dialog-media"
       className={cn(
-        "mb-2 inline-flex size-16 items-center justify-center rounded-md bg-surface-muted sm:group-data-[size=default]/alert-dialog-content:row-span-2 *:[svg:not([class*='size-'])]:size-8",
+        "mb-2 inline-flex size-12 items-center justify-center border border-border bg-transparent sm:group-data-[size=default]/alert-dialog-content:row-span-2 *:[svg:not([class*='size-'])]:size-8",
         className,
       )}
       {...props}

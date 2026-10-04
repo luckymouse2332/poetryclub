@@ -66,7 +66,7 @@ export default async function AccountPage() {
           <Surface variant="paper">
             <h2
               id="account-details-title"
-              className="font-serif text-section-title font-normal tracking-[0.04em] text-foreground"
+              className="font-serif text-section-title font-medium text-foreground"
             >
               基本信息
             </h2>
@@ -111,7 +111,7 @@ export default async function AccountPage() {
         <aside aria-label="快捷操作" className="space-y-4 lg:sticky lg:top-8">
           <Surface variant="paper" className="space-y-4">
             <div>
-              <h2 className="font-serif text-body-lg text-foreground">我的作品</h2>
+              <h2 className="font-serif text-body-lg font-medium text-foreground">我的作品</h2>
               <p className="mt-2 text-label text-subtle">
                 {suspended ? "账号禁用期间只能浏览已有内容。" : "管理草稿、发布状态与作品访问范围。"}
               </p>
@@ -122,7 +122,7 @@ export default async function AccountPage() {
           </Surface>
           <Surface variant="paper" className="space-y-4">
             <div>
-              <h2 className="font-serif text-body-lg text-foreground">账户安全</h2>
+              <h2 className="font-serif text-body-lg font-medium text-foreground">账户安全</h2>
               <p className="mt-2 text-label text-subtle">修改密码并撤销其他设备上的登录会话。</p>
             </div>
             <Button asChild variant="secondary" className="w-full">

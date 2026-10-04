@@ -61,7 +61,7 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <Surface className="w-full" aria-label="忘记密码表单">
+    <Surface variant="paper" className="w-full" aria-label="忘记密码表单">
       {submitted ? (
         <div className="space-y-5">
           <Alert variant="success" role="status" className="p-4 text-body">
@@ -103,7 +103,7 @@ export function ForgotPasswordForm() {
             {pending ? "正在提交…" : "发送重置邮件"}
           </Button>
           <p className="text-center text-label text-subtle">
-            <Link className="text-link" href="/login">
+            <Link className="inline-flex min-h-control items-center text-primary underline underline-offset-4 hover:text-primary-hover" href="/login">
               返回登录
             </Link>
           </p>

@@ -1,3 +1,5 @@
+/** M6.7 paper journal: shape, spacing, typography and state styling redesigned; upstream structure and public API preserved. */
+
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -12,18 +14,18 @@ import { cn } from "@/lib/utils";
  * 没有层级变体，且把内边距分散到 CardHeader / CardContent / CardFooter，
  * 与本项目「整块表面 + 统一 padding」的用法不同，因此两者并存而不是互相替代。
  */
-const surfaceVariants = cva("rounded-lg border text-foreground", {
+const surfaceVariants = cva("rounded-none border-y text-foreground", {
   variants: {
     variant: {
-      default: "border-border-subtle bg-surface shadow-card",
-      paper: "border-border-subtle bg-paper shadow-card",
-      muted: "border-border bg-surface-muted",
+      default: "border-border bg-surface",
+      paper: "border-border bg-paper",
+      muted: "border-border-strong bg-surface-muted",
     },
     padding: {
       none: "",
       sm: "p-4",
-      md: "p-6",
-      lg: "p-8",
+      md: "p-4 sm:p-6 lg:px-8",
+      lg: "p-4 sm:p-8 sm:px-6 lg:px-8",
     },
   },
   defaultVariants: {

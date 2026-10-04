@@ -16,11 +16,11 @@ export function OwnPoemCard({ poem, suspended = false }: OwnPoemCardProps) {
   const hidden = poem.moderationStatus === "hidden";
 
   return (
-    <article className="grid min-w-0 gap-4 border-b border-border-subtle py-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-6">
+    <article className="grid min-w-0 gap-4 bg-transparent px-0 py-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-6">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-          <h2 className="min-w-0 break-words font-serif text-body-lg text-foreground">
-            <Link href={`/account/poems/${poem.id}/edit`} className="hover:text-seal-foreground">
+          <h2 className="min-w-0 break-words font-serif text-body-lg font-medium text-foreground">
+            <Link href={`/account/poems/${poem.id}/edit`} className="hover:text-primary">
               {poem.title}
             </Link>
           </h2>

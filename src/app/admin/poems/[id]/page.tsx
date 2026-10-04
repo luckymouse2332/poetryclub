@@ -82,16 +82,16 @@ export default async function AdminPoemDetailPage({
         </Alert>
       ) : null}
       <section className="mt-8" aria-labelledby="admin-poem-body">
-        <h2 id="admin-poem-body" className="text-section-title font-semibold">
+        <h2 id="admin-poem-body" className="font-serif text-section-title font-medium">
           正文
         </h2>
-        <article className="mt-3 whitespace-pre-wrap rounded-lg border border-border-subtle bg-paper p-6 font-serif text-body shadow-card">
+        <article className="mt-3 whitespace-pre-wrap border-y border-border-subtle bg-paper px-4 py-6 font-serif text-body sm:px-6 lg:px-8">
           {poem.body}
         </article>
       </section>
       {poem.context ? (
         <section className="mt-8" aria-labelledby="admin-poem-context">
-          <h2 id="admin-poem-context" className="text-section-title font-semibold">
+          <h2 id="admin-poem-context" className="font-serif text-section-title font-medium">
             创作背景
           </h2>
           <p className="mt-3 whitespace-pre-wrap text-body text-subtle">{poem.context}</p>

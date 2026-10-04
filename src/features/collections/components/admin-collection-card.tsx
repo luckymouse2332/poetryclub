@@ -14,10 +14,10 @@ export function AdminCollectionCard({
 }: Readonly<{ collection: AdminCollectionSummary }>) {
   const hidden = collection.moderationStatus === "hidden";
   return (
-    <article className="grid min-w-0 gap-4 border-b border-border-subtle py-5 first:border-t md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-6">
+    <article className="grid min-w-0 gap-4 bg-transparent py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-6">
       <div className="min-w-0">
-        <h2 className="break-words font-serif text-body-lg text-foreground">
-          <Link href={`/admin/collections/${collection.id}`} className="hover:text-seal-foreground">
+        <h2 className="break-words text-body-lg font-semibold text-foreground">
+          <Link href={`/admin/collections/${collection.id}`} className="hover:text-primary">
             {collection.title}
           </Link>
         </h2>

@@ -45,7 +45,7 @@ export default async function ResetPasswordPage({
       {tokenValid && token ? (
         <ResetPasswordForm token={token} />
       ) : (
-        <Surface className="w-full text-center" aria-label="重置链接状态">
+        <Surface variant="paper" className="w-full text-center" aria-label="重置链接状态">
           <Alert variant="danger" role="alert" className="text-left">
             <AlertDescription className="text-body">
             {error || token

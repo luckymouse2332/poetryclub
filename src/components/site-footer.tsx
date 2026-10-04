@@ -18,8 +18,8 @@ export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-border-subtle bg-surface">
-      <div className="mx-auto flex w-full max-w-content flex-col items-center gap-2 px-page py-6 text-center lg:grid lg:grid-cols-3 lg:items-center lg:gap-4 lg:text-left">
+    <footer className="border-t border-border-subtle bg-background">
+      <div className="mx-auto flex w-full max-w-content flex-col items-center gap-2 px-page py-8 text-center lg:grid lg:grid-cols-3 lg:items-center lg:gap-4 lg:text-left">
         <div className="min-w-0 lg:justify-self-start">
           <p className="text-label font-medium tracking-widest text-foreground">
             回中诗社
@@ -46,7 +46,7 @@ export function SiteFooter() {
             <li key={link.href}>
               <Link
                 href={link.href}
-                className="inline-flex min-h-control items-center rounded-md px-2 text-label text-primary underline hover:text-primary-hover"
+                className="inline-flex min-h-control items-center rounded-md px-2 text-label text-subtle no-underline hover:text-primary"
               >
                 {link.label}
               </Link>

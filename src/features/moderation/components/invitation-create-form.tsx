@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
@@ -43,35 +44,30 @@ export function InvitationCreateForm() {
   return (
     <form action={formAction} className="space-y-6">
       {state.status === "error" && state.message ? (
-        <p
-          role="alert"
-          aria-live="polite"
-          className="rounded-md border border-danger bg-danger-surface p-3 text-label text-danger"
-        >
-          {state.message}
-        </p>
+        <Alert variant="danger" role="alert">
+          <AlertDescription>{state.message}</AlertDescription>
+        </Alert>
       ) : null}
 
       {state.status === "success" && code ? (
-        <div
-          role="status"
-          className="rounded-md border border-success bg-success-surface p-4"
-        >
-          <p className="text-label text-success">{state.message}</p>
-          <p className="mt-3 break-all rounded-md border border-border-subtle bg-paper px-3 py-2 font-mono text-body text-foreground">
-            {code}
-          </p>
-          <div className="mt-3">
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={copyCode}
-            >
-              {copied ? "已复制" : "复制邀请码"}
-            </Button>
-          </div>
-        </div>
+        <Alert variant="success" role="status">
+          <AlertDescription>
+            <p className="text-label text-success">{state.message}</p>
+            <p className="mt-3 break-all border border-input bg-paper px-3 py-2 font-mono text-body text-foreground">
+              {code}
+            </p>
+            <div className="mt-3">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={copyCode}
+              >
+                {copied ? "已复制" : "复制邀请码"}
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
       ) : null}
 
       <Surface variant="paper" padding="lg" className="space-y-6">

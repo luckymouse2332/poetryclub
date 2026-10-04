@@ -1,5 +1,8 @@
 "use client";
 
+/** M6.7 paper journal: shape, spacing, typography and state styling redesigned; upstream structure and public API preserved. */
+
+
 import * as React from "react";
 import { X } from "lucide-react";
 import { Dialog as SheetPrimitive } from "radix-ui";
@@ -38,7 +41,7 @@ function SheetOverlay({
   return (
     <SheetPrimitive.Overlay
       data-slot="sheet-overlay"
-      className={cn("fixed inset-0 z-sheet bg-foreground/20", className)}
+      className={cn("fixed inset-0 z-sheet bg-overlay/20", className)}
       {...props}
     />
   );
@@ -71,7 +74,7 @@ function SheetContent({
             data-slot="sheet-overlay"
             data-state={overlayState}
             className={cn(
-              "fixed inset-0 z-sheet bg-foreground/20",
+              "fixed inset-0 z-sheet bg-overlay/20",
               overlayClassName,
             )}
           />
@@ -83,7 +86,7 @@ function SheetContent({
         data-slot="sheet-content"
         data-side={side}
         className={cn(
-          "fixed z-sheet flex flex-col gap-4 bg-background text-foreground shadow-floating outline-none",
+          "fixed z-sheet flex flex-col gap-0 bg-paper text-foreground shadow-floating outline-none",
           side === "right" &&
             "top-0 right-0 bottom-0 h-full w-3/4 border-l sm:max-w-sm",
           side === "left" &&
@@ -96,7 +99,7 @@ function SheetContent({
       >
         {children}
         {showCloseButton ? (
-          <SheetPrimitive.Close className="absolute top-4 right-4 rounded-md p-1 text-subtle transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none">
+          <SheetPrimitive.Close className="absolute top-2 right-2 flex size-control items-center justify-center rounded-md text-subtle transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none">
             <X aria-hidden="true" className="size-4" />
             <span className="sr-only">关闭</span>
           </SheetPrimitive.Close>
@@ -110,7 +113,7 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sheet-header"
-      className={cn("flex flex-col gap-1.5 p-4", className)}
+      className={cn("flex flex-col gap-3 border-b border-border p-6 pr-14", className)}
       {...props}
     />
   );
@@ -120,7 +123,7 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sheet-footer"
-      className={cn("mt-auto flex flex-col gap-2 p-4", className)}
+      className={cn("mt-auto flex flex-col gap-3 border-t border-border p-6", className)}
       {...props}
     />
   );
@@ -133,7 +136,7 @@ function SheetTitle({
   return (
     <SheetPrimitive.Title
       data-slot="sheet-title"
-      className={cn("text-body font-semibold text-foreground", className)}
+      className={cn("font-serif text-section-title font-semibold text-foreground", className)}
       {...props}
     />
   );
@@ -146,7 +149,7 @@ function SheetDescription({
   return (
     <SheetPrimitive.Description
       data-slot="sheet-description"
-      className={cn("text-label text-muted-foreground", className)}
+      className={cn("text-label leading-relaxed text-subtle", className)}
       {...props}
     />
   );

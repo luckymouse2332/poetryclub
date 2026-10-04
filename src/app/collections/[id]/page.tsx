@@ -6,6 +6,7 @@ import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { Surface } from "@/components/ui/surface";
 import {
   Empty,
   EmptyDescription,
@@ -103,37 +104,39 @@ export default async function CollectionPage({
       <section aria-labelledby="collection-directory-title" className="mt-12">
         <h2
           id="collection-directory-title"
-          className="font-serif text-section-title font-normal text-foreground"
+          className="font-serif text-section-title font-medium text-foreground"
         >
           目录
         </h2>
-        {directory.items.length > 0 ? (
-          <ol
-            start={(directory.page - 1) * 12 + 1}
-            className="mt-4 list-decimal divide-y divide-border-subtle border-y border-border-subtle pl-10"
-          >
-            {directory.items.map((item) => (
-              <li key={item.poemId} className="py-5 pl-2 marker:text-subtle">
-                <Link
-                  href={`/collections/${collection.id}/read/${item.poemId}`}
-                  className="font-serif text-body-lg text-foreground underline decoration-1 decoration-transparent underline-offset-[0.28em] transition-[color,text-decoration-color] duration-150 hover:text-seal-foreground hover:decoration-seal focus-visible:text-seal-foreground focus-visible:decoration-seal"
-                >
-                  《{item.title}》
-                </Link>
-                <span className="ml-3 text-label text-subtle">{item.authorName}</span>
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <Empty className="mt-6">
-            <EmptyHeader>
-              <EmptyTitle>当前没有可读作品</EmptyTitle>
-              <EmptyDescription>
-                已撤回、被隐藏或访问范围不兼容的作品不会显示。
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        )}
+        <Surface variant="paper" padding="none" data-slot="directory-surface" className="mt-8 px-4 sm:px-6 lg:px-8">
+          {directory.items.length > 0 ? (
+            <ol
+              start={(directory.page - 1) * 12 + 1}
+              className="list-decimal divide-y divide-border-subtle pl-6"
+            >
+              {directory.items.map((item) => (
+                <li key={item.poemId} className="py-5 pl-2 marker:text-subtle">
+                  <Link
+                    href={`/collections/${collection.id}/read/${item.poemId}`}
+                    className="block min-h-control content-center wrap-anywhere font-serif text-body-lg text-foreground underline decoration-1 decoration-transparent underline-offset-4 transition-colors hover:text-primary hover:decoration-primary focus-visible:text-primary focus-visible:decoration-primary"
+                  >
+                    《{item.title}》
+                  </Link>
+                  <span className="ml-3 text-label text-subtle">{item.authorName}</span>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <Empty className="border-0">
+              <EmptyHeader>
+                <EmptyTitle>当前没有可读作品</EmptyTitle>
+                <EmptyDescription>
+                  已撤回、被隐藏或访问范围不兼容的作品不会显示。
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          )}
+        </Surface>
         <Pagination
           basePath={`/collections/${collection.id}`}
           page={directory.page}

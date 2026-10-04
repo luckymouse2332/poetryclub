@@ -31,7 +31,7 @@ function Section({
             <div className="max-w-reading space-y-1">
               {title ? (
                 typeof title === "string" ? (
-                  <Heading className="font-serif text-section-title font-normal tracking-[0.04em] text-foreground">
+                  <Heading className="font-serif text-section-title font-medium text-foreground">
                     {title}
                   </Heading>
                 ) : (

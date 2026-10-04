@@ -99,7 +99,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   }
 
   return (
-    <Surface className="w-full" aria-label="重置密码表单">
+    <Surface variant="paper" className="w-full" aria-label="重置密码表单">
       <form method="post" className="space-y-5" onSubmit={handleSubmit} noValidate>
         <FormField
           id="newPassword"

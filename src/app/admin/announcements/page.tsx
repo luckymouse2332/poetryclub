@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
+import { Surface } from "@/components/ui/surface";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -57,25 +58,27 @@ export default async function AnnouncementsPage({
         </Button>
       </nav>
       <Section className="pb-0 pt-8">
-        {result.items.length > 0 ? (
-          <div className="divide-y divide-border-subtle">
-            {result.items.map((item) => (
-              <div
-                key={item.id}
-                className="[&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none"
-              >
-                <AnnouncementCard announcement={item} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <Empty>
-            <EmptyHeader>
-              <EmptyTitle>还没有公告</EmptyTitle>
-              <EmptyDescription>创建第一份草稿后，会显示在这里。</EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        )}
+        <Surface variant="paper" padding="none" data-slot="directory-surface">
+          {result.items.length > 0 ? (
+            <div className="divide-y divide-border-subtle">
+              {result.items.map((item) => (
+                <div
+                  key={item.id}
+                  className="[&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none"
+                >
+                  <AnnouncementCard announcement={item} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Empty className="border-0 px-4 sm:px-6 lg:px-8">
+              <EmptyHeader>
+                <EmptyTitle>还没有公告</EmptyTitle>
+                <EmptyDescription>创建第一份草稿后，会显示在这里。</EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          )}
+        </Surface>
       </Section>
       <AdminPagination
         basePath="/admin/announcements"

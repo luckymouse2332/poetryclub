@@ -1,3 +1,5 @@
+/** M6.7 paper journal: shape, spacing, typography and state styling redesigned; upstream structure and public API preserved. */
+
 import * as React from "react";
 
 import {
@@ -46,14 +48,14 @@ function FormField({
     [descriptionId, errorId].filter(Boolean).join(" ") || undefined;
 
   return (
-    <Field className={className}>
+    <Field data-invalid={Boolean(error)} data-disabled={disabled || undefined} className={className}>
       <FieldLabel
         htmlFor={id}
         className={disabled ? "text-muted-foreground" : undefined}
       >
         {label}
         {required ? (
-          <span className="text-danger" aria-hidden="true">
+          <span className="ml-1 text-caption font-normal text-danger" aria-hidden="true">
             {" "}
             *
           </span>

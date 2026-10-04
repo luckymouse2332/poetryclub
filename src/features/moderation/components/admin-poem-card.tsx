@@ -34,10 +34,10 @@ export function AdminPoemCard({ poem }: AdminPoemCardProps) {
   const hidden = poem.moderationStatus === "hidden";
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="gap-4">
+      <CardHeader className="border-b-0 pb-0">
         <CardTitle>
-          <h2 className="break-words text-body-lg font-semibold text-foreground">
+          <h2 className="break-words font-serif text-body-lg font-medium text-foreground">
             <Link
               href={`/admin/poems/${poem.id}`}
               className="rounded-sm no-underline transition-colors hover:text-primary"
@@ -73,7 +73,7 @@ export function AdminPoemCard({ poem }: AdminPoemCardProps) {
           </div>
         </dl>
         {poem.moderationReason ? (
-          <div className="mt-3 rounded-md border border-danger/30 bg-danger-surface p-3 text-label text-danger">
+          <div className="mt-3 border-l-2 border-danger bg-transparent px-4 py-2 text-label text-danger">
             <p className="whitespace-pre-wrap break-words">隐藏原因：{poem.moderationReason}</p>
             {poem.moderatedAt ? (
               <p className="mt-1">
@@ -84,7 +84,7 @@ export function AdminPoemCard({ poem }: AdminPoemCardProps) {
           </div>
         ) : null}
       </CardContent>
-      <CardFooter className="flex flex-wrap items-center gap-2 pt-3">
+      <CardFooter className="flex flex-wrap items-center gap-2 border-t-0 pt-0">
         {hidden ? (
           <AdminReasonActionDialog
             action={restorePoemAction.bind(null, poem.id)}

@@ -58,7 +58,7 @@ export default async function PoemDetailPage({
             description="登录后继续阅读"
           />
           <div className="mt-6 h-20 rounded-lg border border-border-subtle bg-surface-muted" />
-          <article className="mt-8 space-y-4 rounded-lg border border-border-subtle bg-paper p-6 shadow-card md:p-8">
+          <article className="mt-8 space-y-4 border-y border-border bg-paper px-4 py-10 shadow-card sm:px-6 lg:px-8 md:py-8">
             <div className="h-4 w-4/5 rounded bg-surface-muted" />
             <div className="h-4 w-full rounded bg-surface-muted" />
             <div className="h-4 w-3/5 rounded bg-surface-muted" />
@@ -114,7 +114,7 @@ export default async function PoemDetailPage({
 
       <article
         aria-label={poem.title}
-        className="mt-10 whitespace-pre-wrap border-l border-border-subtle pl-6 font-serif text-body-lg leading-reading text-foreground md:pl-10"
+        className="mt-8 whitespace-pre-wrap border-y border-border bg-paper px-4 py-10 font-serif text-body-lg leading-loose text-foreground sm:px-6 lg:px-8 sm:py-12"
       >
         {poem.body}
       </article>
@@ -123,7 +123,7 @@ export default async function PoemDetailPage({
         <section aria-labelledby="poem-context-title" className="mt-8">
           <h2
             id="poem-context-title"
-            className="text-section-title font-semibold text-foreground"
+            className="font-serif text-section-title font-medium text-foreground"
           >
             创作背景
           </h2>

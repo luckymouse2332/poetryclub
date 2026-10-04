@@ -410,7 +410,7 @@ test.describe.serial("poem publishing and authorization loop", () => {
     ).toBe(404);
 
     await authorPage.getByRole("button", { name: "我的" }).click();
-    await authorPage.getByRole("button", { name: "登出" }).click();
+    await authorPage.getByRole("menuitem", { name: "登出" }).click();
     await authorPage.waitForURL("/");
     await authorPage.goto("/account/poems");
     await authorPage.waitForURL(/\/login\?next=%2Faccount%2Fpoems$/);

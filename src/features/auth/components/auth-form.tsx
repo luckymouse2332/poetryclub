@@ -144,7 +144,7 @@ export function AuthForm({
     <>
       {variant === "switchable" ? (
         <div
-          className="grid grid-cols-2 gap-1 rounded-md bg-surface-muted p-1"
+          className="grid grid-cols-2 gap-1 border-b border-border bg-transparent pb-2"
           role="tablist"
           aria-label="选择登录或注册"
         >
@@ -156,7 +156,7 @@ export function AuthForm({
             aria-controls="auth-form-panel"
             onClick={() => switchMode("sign-in")}
             disabled={pending}
-            className="w-full aria-selected:bg-paper aria-selected:text-foreground aria-selected:shadow-card"
+            className="w-full aria-selected:bg-transparent aria-selected:text-foreground aria-selected:underline aria-selected:decoration-seal aria-selected:underline-offset-8"
           >
             登录
           </Button>
@@ -168,7 +168,7 @@ export function AuthForm({
             aria-controls="auth-form-panel"
             onClick={() => switchMode("sign-up")}
             disabled={pending}
-            className="w-full aria-selected:bg-paper aria-selected:text-foreground aria-selected:shadow-card"
+            className="w-full aria-selected:bg-transparent aria-selected:text-foreground aria-selected:underline aria-selected:decoration-seal aria-selected:underline-offset-8"
           >
             注册
           </Button>
@@ -285,7 +285,7 @@ export function AuthForm({
 
         {mode === "sign-in" ? (
           <p className="text-right text-label">
-            <Link className="text-link" href="/forgot-password">
+            <Link className="inline-flex min-h-control items-center text-primary underline underline-offset-4 hover:text-primary-hover" href="/forgot-password">
               忘记密码？
             </Link>
           </p>
@@ -303,7 +303,7 @@ export function AuthForm({
         <p className="mt-4 text-center text-label text-subtle">
           还没有账号？
           <Link
-            className="ml-1 text-link"
+            className="ml-1 inline-flex min-h-control items-center text-primary underline underline-offset-4 hover:text-primary-hover"
             href={`/login?mode=sign-up&next=${encodeURIComponent(
               getSafeRedirectPath(nextPath),
             )}`}
@@ -320,7 +320,7 @@ export function AuthForm({
       {content}
     </div>
   ) : (
-    <Surface className="w-full" aria-label="认证表单">
+    <Surface variant="paper" className="w-full" aria-label="认证表单">
       {content}
     </Surface>
   );

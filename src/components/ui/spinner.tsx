@@ -1,3 +1,5 @@
+/** M6.7 paper journal: shape, spacing, typography and state styling redesigned; upstream structure and public API preserved. */
+
 import { Loader2Icon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -10,9 +12,11 @@ import { cn } from "@/lib/utils";
 function Spinner({ className, ...props }: React.ComponentProps<"svg">) {
   return (
     <Loader2Icon
+      data-slot="spinner"
+      strokeWidth={1.5}
       role="status"
-      aria-label="Loading"
-      className={cn("size-4 animate-spin", className)}
+      aria-label="加载中"
+      className={cn("size-[18px] animate-spin text-current motion-reduce:animate-none", className)}
       {...props}
     />
   );

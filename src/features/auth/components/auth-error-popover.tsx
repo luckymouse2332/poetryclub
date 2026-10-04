@@ -17,7 +17,7 @@ export function AuthErrorPopover({
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverAnchor asChild>
-        <Alert variant="danger" role="alert" className="border-2 shadow-card">
+        <Alert variant="danger" role="alert">
           <AlertTitle>操作未完成</AlertTitle>
           <AlertDescription>{message}</AlertDescription>
         </Alert>
@@ -26,7 +26,7 @@ export function AuthErrorPopover({
         side="top"
         align="center"
         onOpenAutoFocus={(event) => event.preventDefault()}
-        className="w-[min(24rem,calc(100vw-2rem))] border-danger bg-danger-surface p-4 text-danger shadow-floating"
+        className="w-[min(24rem,calc(100vw-2rem))] border-danger bg-paper p-4 text-danger"
       >
         <p className="font-medium">请检查后重试</p>
         <p className="mt-2 text-label leading-copy">{message}</p>

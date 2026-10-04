@@ -26,10 +26,10 @@ export function AdminCommentCard({
   const hidden = comment.moderationStatus === "hidden";
   const deleted = comment.deletedAt !== null;
   return (
-    <Card>
-      <CardHeader>
+    <Card className="gap-4">
+      <CardHeader className="border-b-0 pb-0">
         <CardTitle>
-          <h2 className="text-body-lg font-semibold text-foreground">
+          <h2 className="font-sans text-body-lg font-semibold text-foreground">
             {comment.depth === 0 ? "根评论" : "一级回复"} · {comment.authorName}
           </h2>
         </CardTitle>
@@ -59,7 +59,7 @@ export function AdminCommentCard({
         ) : null}
       </CardContent>
       {!deleted ? (
-        <CardFooter className="pt-3">
+        <CardFooter className="border-t-0 pt-0">
           {hidden ? (
             <AdminReasonActionDialog
               action={restoreCommentAction.bind(null, comment.id)}

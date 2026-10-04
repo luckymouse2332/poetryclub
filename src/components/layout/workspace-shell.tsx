@@ -27,7 +27,7 @@ export function WorkspaceShell({
   children,
 }: WorkspaceShellProps) {
   return (
-    <div className="min-h-full">
+    <div className="min-h-full bg-background">
       {showMobileNavigation ? (
         <SecondaryNavigation
           ariaLabel={ariaLabel}
@@ -35,15 +35,15 @@ export function WorkspaceShell({
           className="hidden lg:block xl:hidden"
         />
       ) : null}
-      <div className="mx-auto w-full max-w-[80rem] xl:grid xl:grid-cols-[14rem_minmax(0,1fr)] xl:gap-10 xl:px-page">
-        <aside className="hidden border-r border-border-subtle py-section pr-6 xl:block">
-          <div className="sticky top-8">
+      <div className="mx-auto w-full max-w-[88rem] xl:grid xl:grid-cols-[14rem_minmax(0,1fr)] xl:gap-8 xl:px-page">
+        <aside className="hidden py-section xl:block">
+          <div className="sticky top-8 border-t border-border pt-6">
             {title && eyebrow ? (
               <>
-                <p className="text-caption font-medium tracking-[0.16em] text-seal-foreground">
+                <p className="text-caption tracking-widest text-subtle">
                   {eyebrow}
                 </p>
-                <p className="mt-2 mb-8 font-serif text-section-title text-foreground">
+                <p className="mt-2 mb-6 font-serif text-body-lg font-medium text-foreground">
                   {title}
                 </p>
               </>

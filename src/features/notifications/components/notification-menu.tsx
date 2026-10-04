@@ -31,7 +31,7 @@ function NotificationUnreadDot({ unreadCount }: { unreadCount: number }) {
   return unreadCount > 0 ? (
     <span
       aria-hidden="true"
-      className="ml-1 size-1.5 shrink-0 rounded-full bg-seal"
+      className="ml-1 size-1.5 shrink-0 rounded-full bg-primary"
     />
   ) : null;
 }
@@ -55,7 +55,7 @@ export function NotificationPopover({
       <PopoverTrigger asChild>
         <button
           type="button"
-          className={cn(className, "data-[state=open]:text-seal-foreground")}
+          className={cn(className, "data-[state=open]:text-primary")}
           aria-label={`通知，${unreadCount} 条未读`}
         >
           通知

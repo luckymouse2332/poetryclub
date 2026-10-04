@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useActionState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import {
   AlertDialog,
@@ -128,13 +129,9 @@ function AdminReasonDialogContent({
       </AlertDialogHeader>
       <form action={formAction} className="space-y-4">
         {state.status === "error" && state.message ? (
-          <p
-            role="alert"
-            aria-live="polite"
-            className="rounded-md border border-danger bg-danger-surface p-3 text-label text-danger"
-          >
-            {state.message}
-          </p>
+          <Alert variant="danger" role="alert">
+            <AlertDescription>{state.message}</AlertDescription>
+          </Alert>
         ) : null}
         <fieldset disabled={isPending} className="space-y-4">
           <FormField

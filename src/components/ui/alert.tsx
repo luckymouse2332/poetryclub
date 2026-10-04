@@ -1,3 +1,5 @@
+/** M6.7 paper journal: shape, spacing, typography and state styling redesigned; upstream structure and public API preserved. */
+
 import * as React from "react";
 import { CircleAlert, CircleCheck, TriangleAlert } from "lucide-react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -9,14 +11,14 @@ import { cn } from "@/lib/utils";
  * Alert 本身不默认创建 live region；调用方按动态状态显式设置 role。
  */
 const alertVariants = cva(
-  "relative grid w-full grid-cols-[0_1fr] items-start gap-y-0.5 rounded-md border px-4 py-3 text-label has-[>svg]:grid-cols-[1rem_1fr] has-[>svg]:gap-x-3 [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current",
+  "relative grid w-full grid-cols-[0_1fr] items-start gap-y-2 rounded-none border-y border-l-2 border-r-0 px-4 py-4 text-label has-[>svg]:grid-cols-[1rem_1fr] has-[>svg]:gap-x-3 [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current",
   {
     variants: {
       variant: {
-        default: "border-border-strong bg-paper text-foreground",
-        success: "border-success/30 bg-success-surface text-success",
-        warning: "border-warning/30 bg-warning-surface text-warning",
-        danger: "border-danger/30 bg-danger-surface text-danger",
+        default: "border-border border-l-primary bg-paper text-foreground",
+        success: "border-border-subtle border-l-success bg-transparent text-success",
+        warning: "border-border-subtle border-l-warning bg-transparent text-warning",
+        danger: "border-border-subtle border-l-danger bg-transparent text-danger",
       },
     },
     defaultVariants: {
@@ -61,7 +63,7 @@ function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="alert-title"
       className={cn(
-        "col-start-2 min-h-4 font-medium tracking-tight",
+        "col-start-2 min-h-4 font-semibold tracking-wide",
         className,
       )}
       {...props}
@@ -77,7 +79,7 @@ function AlertDescription({
     <div
       data-slot="alert-description"
       className={cn(
-        "col-start-2 grid justify-items-start gap-1 text-label text-current [&_p]:leading-relaxed",
+        "col-start-2 min-w-0 text-label leading-copy text-current [&_p+p]:mt-2",
         className,
       )}
       {...props}

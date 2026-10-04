@@ -1,51 +1,50 @@
 .hero {
   display: grid;
-  min-height: min(48rem, calc(100svh - 6rem));
-  background: var(--paper);
-  border-bottom: 1px solid var(--border-subtle);
+  width: min(calc(100% - 2 * var(--space-page-gutter)), var(--content-max-width) - 2 * var(--space-page-gutter));
+  margin: 0 auto;
+  gap: var(--space-8);
+  border-bottom: 1px solid var(--border);
 }
-
 .heroContent {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: clamp(3.5rem, 12vw, 6rem) var(--space-page-gutter) clamp(2.5rem, 8vw, 4rem);
+  padding-block: var(--space-6);
 }
-
-.heroTitle,
-.heroDescription,
-.sectionTitle,
-.criteriaTitle,
-.poemTitle,
-.aboutCopy,
-.editorialLink,
-.emptyState {
-  font-family: var(--font-serif), "Songti SC", SimSun, serif;
+.heroEyebrow {
+  margin-bottom: var(--space-6);
+  color: var(--seal);
+  font-size: var(--font-size-label);
+  letter-spacing: 0.12em;
 }
-
 .heroTitle {
-  max-width: 12em;
-  font-size: clamp(2.35rem, 7vw, 3.6rem);
-  font-weight: 400;
-  letter-spacing: 0.08em;
-  line-height: 1.32;
+  max-width: 10em;
+  font-family: var(--font-serif), SimSun, serif;
+  font-size: clamp(2rem, 4.2vw, 3.2rem);
+  font-weight: 500;
+  line-height: 1.55;
+  text-wrap: balance;
 }
-
+.heroTitlePhrase {
+  display: inline-block;
+  white-space: nowrap;
+}
 .heroDescription {
   max-width: 28rem;
-  margin-top: clamp(1.5rem, 4vw, 2.25rem);
+  margin-top: var(--space-6);
   color: var(--text-secondary);
-  font-size: var(--font-size-body-lg);
+  font-size: var(--font-size-body);
   line-height: 1.9;
 }
-
 .heroImageFrame {
   position: relative;
-  min-height: clamp(20rem, 70vw, 30rem);
+  min-width: 0;
+  width: 100%;
+  min-height: 17rem;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
-  background: var(--foreground);
+  background: var(--surface-muted);
 }
-
 .heroImageFrame::before {
   position: absolute;
   z-index: 1;
@@ -53,153 +52,210 @@
   left: 0;
   width: 100%;
   height: 4rem;
-  background: url("/poetry-paper-edge-horizontal-v2.png") center bottom / 100% 100% no-repeat;
+  background: var(--background);
+  mask: url("/poetry-paper-edge-horizontal-v2.png") center bottom / 100% 100% no-repeat;
   content: "";
   pointer-events: none;
 }
-
 .heroImage {
   object-fit: cover;
   object-position: 54% center;
 }
-
 .editorialLink {
   display: inline-flex;
   width: fit-content;
   min-height: var(--control-height);
-  margin-top: 1.5rem;
   align-items: center;
   gap: var(--space-3);
-  color: var(--seal-foreground);
+  margin-top: var(--space-6);
+  color: var(--foreground);
+  font-family: var(--font-serif), SimSun, serif;
   font-size: var(--font-size-body);
-  letter-spacing: 0.08em;
   text-decoration: none;
 }
-
 .linkText {
   text-decoration: underline transparent 1px;
-  text-underline-offset: 0.35em;
-  transition: text-decoration-color 160ms ease;
+  text-underline-offset: 0.3em;
+  transition: text-decoration-color var(--motion-duration-fast) ease;
 }
-
-.editorialLink:hover .linkText,
-.editorialLink:focus-visible .linkText {
-  text-decoration-color: var(--seal);
+.editorialLink:hover .linkText, .editorialLink:focus-visible .linkText {
+  text-decoration-color: currentColor;
 }
-
 .linkArrow {
   display: inline-block;
-  transition: transform 160ms ease;
+  transition: transform var(--motion-duration-fast) ease;
 }
-.editorialLink:hover .linkArrow,
-.editorialLink:focus-visible .linkArrow { transform: translateX(0.35rem); }
-
+.editorialLink:hover .linkArrow, .editorialLink:focus-visible .linkArrow {
+  transform: translateX(0.25rem);
+}
 .contentRegion {
-  padding-block: clamp(3.5rem, 7vw, 6.5rem);
+  padding-block: var(--space-12) var(--space-section);
 }
-
 .contentGrid {
   display: grid;
   width: 100%;
-  max-width: 77.5rem;
-  margin: 0 auto;
+  max-width: var(--content-max-width);
+  margin-inline: auto;
   padding-inline: var(--space-page-gutter);
-  gap: clamp(3.5rem, 8vw, 6rem);
+  gap: var(--space-12);
+  align-items: start;
 }
-
-.index, .about { min-width: 0; }
-.index { container-type: inline-size; }
-
+.index, .about {
+  min-width: 0;
+}
 .sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-serif), SimSun, serif;
   font-size: var(--font-size-section-title);
-  font-weight: 400;
-  letter-spacing: 0.12em;
+  font-weight: 500;
 }
-
-.sectionTitle::after {
-  display: block;
-  width: 2.5rem;
-  height: 1px;
-  margin-top: var(--space-4);
-  background: var(--seal);
+.sectionTitle::before {
   content: "";
+  width: 1.5rem;
+  height: 2px;
+  background: var(--seal);
 }
-
 .poemList {
-  margin-block: var(--space-6) var(--space-8);
-  border-top: 1px solid var(--border-subtle);
+  margin-top: var(--space-4);
+  list-style: none;
 }
-
 .poemIndexRow {
   display: grid;
-  grid-template-columns: 4.25rem minmax(0, 1fr);
-  gap: .35rem var(--space-3);
-  align-items: baseline;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  padding-block: var(--space-6);
   border-bottom: 1px solid var(--border-subtle);
-  padding-block: var(--space-4);
 }
-
-.poemDate, .poemAuthor {
+.poemDate {
   color: var(--text-secondary);
-  font-family: var(--font-sans), sans-serif;
   font-size: var(--font-size-caption);
+  font-variant-numeric: tabular-nums;
 }
-
-.poemTitle { min-width: 0; font-size: var(--font-size-body); font-weight: 400; }
+.poemTitle {
+  min-width: 0;
+  font-family: var(--font-serif), SimSun, serif;
+  font-size: var(--font-size-body-lg);
+  line-height: var(--line-height-reading);
+}
 .poemLink {
   display: block;
+  width: 100%;
+  min-height: var(--control-height);
   overflow: hidden;
-  color: inherit;
-  text-decoration: underline transparent 1px;
   text-overflow: ellipsis;
-  text-underline-offset: .28em;
   white-space: nowrap;
-  transition: color 160ms ease, text-decoration-color 160ms ease;
+  line-height: var(--control-height);
+  color: var(--foreground);
+  text-decoration: underline transparent 1px;
+  text-underline-offset: 0.3em;
+  transition: color var(--motion-duration-fast), text-decoration-color var(--motion-duration-fast);
 }
-.poemLink:hover, .poemLink:focus-visible { color: var(--seal-foreground); text-decoration-color: var(--seal); }
-.poemAuthor { display: flex; grid-column: 2; gap: .35rem; min-width: 0; overflow: hidden; }
-.poemAuthorName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.poemVisibilityLabel, .poemVisibilitySeparator { flex: 0 0 auto; white-space: nowrap; }
-
+.poemLink:hover, .poemLink:focus-visible {
+  color: var(--primary);
+  text-decoration-color: var(--primary);
+}
+.poemAuthor {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-label);
+}
+.poemAuthorName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.poemVisibilitySeparator, .poemVisibilityLabel {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+.poemVisibilitySeparator {
+  color: var(--muted-foreground);
+}
+.poemVisibilityLabel {
+  color: var(--primary);
+  font-size: var(--font-size-caption);
+}
 .emptyState {
-  margin-block: var(--space-6) var(--space-8);
-  border-block: 1px solid var(--border-subtle);
-  padding-block: 1.25rem;
+  margin-top: var(--space-6);
+  padding-block: var(--space-8);
+  color: var(--text-secondary);
+  font-size: var(--font-size-body);
+}
+.aboutCopy {
+  margin-top: var(--space-6);
+  color: var(--text-secondary);
+  font-size: var(--font-size-label);
+  line-height: 1.9;
+}
+.aboutCopy > * + * {
+  margin-top: var(--space-6);
+}
+.criteriaTitle {
+  color: var(--foreground);
+  font-size: var(--font-size-body);
+  font-weight: 600;
+}
+.criteriaList {
+  margin-top: var(--space-3);
+  padding-left: var(--space-6);
+  list-style: decimal;
+}
+.criteriaList li + li {
+  margin-top: var(--space-2);
+}
+.constructionNote {
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--border-strong);
   color: var(--text-secondary);
 }
-
-.aboutCopy {
-  display: grid;
-  max-width: 43rem;
-  margin-top: var(--space-6);
-  gap: var(--space-6);
-  line-height: 1.95;
+@media (min-width: 40rem) {
+  .heroContent {
+    padding-block: var(--space-8);
+  }
+  .poemIndexRow {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 12rem);
+  }
+  .poemDate {
+    grid-column: 1 / -1;
+  }
+  .poemAuthor {
+    align-self: center;
+    justify-content: end;
+    max-width: 12rem;
+  }
 }
-
-.criteriaTitle { margin-bottom: var(--space-3); font-size: var(--font-size-body); font-weight: 600; letter-spacing: .08em; }
-.criteriaList { padding-left: 2em; list-style-type: cjk-ideographic; }
-.constructionNote { color: var(--seal-foreground); }
-.aboutCopy .editorialLink { margin-top: 0; }
-
-@container (min-width: 25rem) {
-  .poemIndexRow { grid-template-columns: 4.5rem minmax(0, 1fr) minmax(6rem, 12rem); gap: var(--space-4); }
-  .poemAuthor { grid-column: 3; justify-content: flex-end; text-align: right; }
-}
-
 @media (min-width: 64rem) {
-  .hero { grid-template-columns: minmax(24rem, 42%) minmax(0, 58%); min-height: clamp(34rem, 67svh, 48rem); }
-  .heroContent { padding: clamp(4rem, 7vw, 7rem) clamp(3rem, 6vw, 6.5rem); }
+  .hero {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    min-height: 24rem;
+  }
   .heroImageFrame {
-    min-height: 100%;
+    min-height: 24rem;
   }
   .heroImageFrame::before {
     top: 0;
     left: -4rem;
     width: 5rem;
     height: 100%;
-    background-image: url("/poetry-paper-edge-vertical-v2.png");
+    mask-image: url("/poetry-paper-edge-vertical-v2.png");
+  }
+  .contentGrid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .index, .about {
+    padding: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editorialLink:hover .linkArrow,
+  .editorialLink:focus-visible .linkArrow {
     transform: none;
   }
-  .heroImage { object-position: 52% center; }
-  .contentGrid { grid-template-columns: minmax(24rem, .44fr) minmax(0, .56fr); }
 }

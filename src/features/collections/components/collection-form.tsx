@@ -74,9 +74,9 @@ export function CollectionForm({
       ) : null}
       <div
         key={state.revision ?? 0}
-        className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(17rem,0.8fr)]"
+        className="grid items-start gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(17rem,0.8fr)]"
       >
-        <Surface variant="paper" padding="lg" className="space-y-6">
+        <Surface variant="paper" className="space-y-6">
           <FormField
             id="title"
             label="标题"
@@ -113,8 +113,8 @@ export function CollectionForm({
           </FormField>
         </Surface>
 
-        <div className="space-y-4 lg:sticky lg:top-8">
-          <Surface variant="paper" padding="lg">
+        <div className="space-y-4 xl:sticky xl:top-8">
+          <Surface variant="paper">
             <FieldSet data-invalid={Boolean(state.fieldErrors?.visibility)}>
               <FieldLegend variant="label">
                 访问范围 <span className="text-danger">*</span>
@@ -129,7 +129,7 @@ export function CollectionForm({
                 aria-describedby="collection-visibility-description"
                 aria-invalid={Boolean(state.fieldErrors?.visibility)}
               >
-                <Field orientation="horizontal" className="items-start">
+                <Field orientation="horizontal" className="items-start border-l-2 border-l-transparent px-3 py-4 transition-colors has-[[data-state=checked]]:border-l-primary has-[[data-state=checked]]:bg-accent [&>[data-slot=radio-group-item]]:mt-1">
                   <RadioGroupItem value="public" id="visibility-public" />
                   <FieldContent>
                     <FieldLabel htmlFor="visibility-public">
@@ -138,7 +138,7 @@ export function CollectionForm({
                     </FieldLabel>
                   </FieldContent>
                 </Field>
-                <Field orientation="horizontal" className="items-start">
+                <Field orientation="horizontal" className="items-start border-l-2 border-l-transparent px-3 py-4 transition-colors has-[[data-state=checked]]:border-l-primary has-[[data-state=checked]]:bg-accent [&>[data-slot=radio-group-item]]:mt-1">
                   <RadioGroupItem
                     value="members_only"
                     id="visibility-members"

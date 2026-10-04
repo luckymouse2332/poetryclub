@@ -16,7 +16,7 @@ export default function TermsPage() {
         title="使用条款"
         description="回中诗社面向校园用户的使用条款。本页只说明当前真实可用的能力，不伪装尚未实现的功能。"
       />
-      <div className="mt-8 divide-y divide-border-subtle">
+      <div className="mt-8 divide-y divide-border-subtle border-y border-border-subtle bg-paper px-4 sm:px-6 lg:px-8">
         <Section title="当前可用的功能" className="py-8">
           <p className="text-body text-subtle">
             目前已经开放账号注册、登录、账户页面、诗作的阅读与发布管理、作品评论和一级回复，以及诗作特辑的整理与连续阅读。点赞、收藏和分享仍未开放。
@@ -41,7 +41,7 @@ export default function TermsPage() {
           </p>
         </Section>
       </div>
-      <p className="text-caption text-subtle">更新日期：2026年8月30日</p>
+      <p className="mt-6 text-caption text-subtle">更新日期：2026年8月30日</p>
     </PageContainer>
   );
 }

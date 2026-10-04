@@ -25,14 +25,14 @@ function CommentRootList({
 
   return (
     <>
-      <div className="mt-8 space-y-5">
+      <div className="mt-6 space-y-6">
         {items.length === 0 ? (
           <p className="py-6 text-center text-subtle">还没有评论。</p>
         ) : items.map((root) => (
-          <div key={root.id} className="space-y-3">
+          <div key={root.id} data-slot="comment-thread" className="min-w-0 border-y border-border-subtle bg-paper">
             <CommentCard comment={root} />
             {root.replies.map((reply) => <CommentCard key={reply.id} comment={reply} />)}
-            <div className="flex justify-end">
+            <div className="flex justify-end px-4 pb-4 sm:px-6 lg:px-8">
               <Button asChild variant="ghost" size="sm">
                 <Link href={`/poems/${poemId}/comments/${root.id}`}>
                   {root.replyCount > root.replies.length
@@ -78,9 +78,9 @@ export function CommentSection({
   loginNextPath?: string;
 }>) {
   return (
-    <section aria-labelledby="comments-title" className="mt-14 border-t border-border-subtle pt-8">
+    <section aria-labelledby="comments-title" className="mt-12 border-t border-border-subtle pt-8">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <h2 id="comments-title" className="font-serif text-section-title text-foreground">
+        <h2 id="comments-title" className="font-serif text-section-title font-medium text-foreground">
           评论与补充
         </h2>
         <span className="text-label text-subtle">{commentCount} 条可见评论</span>
@@ -99,7 +99,7 @@ export function CommentSection({
         ) : (
           <Alert>
             <AlertDescription>
-              登录后可以参与讨论。<Link className="ml-1 underline" href={`/login?next=${encodeURIComponent(loginNextPath ?? `/poems/${poemId}`)}`}>前往登录</Link>
+              登录后可以参与讨论。<Link className="ml-2 inline-flex min-h-control items-center underline" href={`/login?next=${encodeURIComponent(loginNextPath ?? `/poems/${poemId}`)}`}>前往登录</Link>
             </AlertDescription>
           </Alert>
         )}
@@ -144,17 +144,17 @@ export function CommentThread({
   }, [focusId]);
 
   return (
-    <div className="space-y-4">
+    <div data-slot="comment-thread" className="min-w-0 border-y border-border-subtle bg-paper">
       <CommentCard comment={root} focused={focusId === root.id} />
       {cursor ? (
-        <div className="flex justify-center">
+        <div className="flex justify-center p-4">
           <Button type="button" variant="secondary" loading={loading} onClick={loadEarlier}>
             {loading ? "正在加载…" : "加载更早回复"}
           </Button>
         </div>
       ) : null}
       {error ? (
-        <Alert variant="danger" role="alert">
+        <Alert variant="danger" role="alert" className="mx-4 w-auto sm:mx-6">
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : null}

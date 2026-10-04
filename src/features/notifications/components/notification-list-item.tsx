@@ -23,9 +23,10 @@ function NotificationActionButton({
     <button
       type="submit"
       disabled={pending}
+      aria-busy={pending || undefined}
       className={cn(
         "relative flex w-full flex-col items-start text-left transition-colors hover:bg-surface-muted/60 focus-visible:bg-surface-muted/60 disabled:cursor-wait disabled:opacity-60",
-        variant === "preview" ? "px-3 py-3" : "px-4 py-4",
+        variant === "preview" ? "px-3 py-3" : "px-4 py-4 sm:px-6 lg:px-8",
       )}
     >
       <NotificationListItemContent
@@ -47,7 +48,7 @@ function NotificationListItemContent({
       <span className="flex w-full items-center gap-2">
         {notification.unread ? (
           <span
-            className="h-5 w-0.5 shrink-0 rounded-full bg-seal"
+            className="size-2 shrink-0 rounded-full bg-seal"
             aria-label="未读"
           />
         ) : null}
@@ -61,7 +62,7 @@ function NotificationListItemContent({
       </span>
       <span
         className={cn(
-          "mt-1 line-clamp-2 w-full text-foreground",
+          "mt-2 line-clamp-2 w-full font-serif text-foreground",
           notification.unread ? "font-semibold" : "font-medium",
           variant === "preview" ? "text-label" : "text-body",
         )}
@@ -98,7 +99,7 @@ export function NotificationListItem({
   return (
     <li
       data-unread={notification.unread}
-      className="border-b border-border-subtle last:border-b-0 data-[unread=true]:bg-seal-surface/40"
+      className="border-b border-border-subtle last:border-b-0 border-l-2 border-l-transparent data-[unread=true]:border-l-seal data-[unread=true]:bg-paper"
     >
       {action ? (
         <form action={action}>
@@ -111,7 +112,7 @@ export function NotificationListItem({
         <div
           className={cn(
             "flex w-full flex-col items-start text-left",
-            variant === "preview" ? "px-3 py-3" : "px-4 py-4",
+            variant === "preview" ? "px-3 py-3" : "px-4 py-4 sm:px-6 lg:px-8",
           )}
         >
           <NotificationListItemContent

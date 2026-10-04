@@ -71,7 +71,7 @@ export default async function NotificationsPage({
 
       <Section className="pb-0 pt-8">
         {result.items.length > 0 ? (
-          <ul className="border-y border-border-subtle" aria-label="通知列表">
+          <ul className="overflow-hidden border-y border-border-subtle bg-paper" aria-label="通知列表">
             {result.items.map((item) => (
               <NotificationListItem
                 key={item.id}
@@ -80,7 +80,7 @@ export default async function NotificationsPage({
             ))}
           </ul>
         ) : (
-          <Empty>
+          <Empty className="bg-paper px-4 sm:px-6 lg:px-8">
             <EmptyHeader>
               <EmptyTitle>
                 {parsed.data.filter === "unread" ? "没有未读通知" : "还没有通知"}

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
+import { Surface } from "@/components/ui/surface";
 import {
   Empty,
   EmptyDescription,
@@ -36,17 +37,19 @@ export default async function AdminCollectionsPage({
         title="特辑治理"
         description="查看成员整理的特辑，隐藏或恢复不适合展示的标题、简介和编排。"
       />
-      <Section className="pb-0 pt-8">
-        {result.items.length ? (
-          <div>{result.items.map((collection) => <AdminCollectionCard key={collection.id} collection={collection} />)}</div>
-        ) : (
-          <Empty>
-            <EmptyHeader>
-              <EmptyTitle>还没有特辑</EmptyTitle>
-              <EmptyDescription>成员创建特辑后会出现在这里。</EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        )}
+      <Section className="py-0">
+        <Surface variant="paper" padding="none" data-slot="directory-surface" className="px-4 sm:px-6 lg:px-8">
+          {result.items.length ? (
+            <div className="divide-y divide-border-subtle">{result.items.map((collection) => <AdminCollectionCard key={collection.id} collection={collection} />)}</div>
+          ) : (
+            <Empty className="border-0">
+              <EmptyHeader>
+                <EmptyTitle>还没有特辑</EmptyTitle>
+                <EmptyDescription>成员创建特辑后会出现在这里。</EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          )}
+        </Surface>
       </Section>
       <AdminPagination basePath="/admin/collections" page={result.page} pageCount={result.pageCount} query={{}} />
     </PageContainer>

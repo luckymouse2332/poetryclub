@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
+import { Surface } from "@/components/ui/surface";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -66,31 +67,33 @@ export default async function AccountCollectionsPage({
         </Alert>
       ) : null}
       <Section className="pb-0 pt-8">
-        {result.items.length ? (
-          <div className="border-t border-border-strong">
-            {result.items.map((collection) => (
-              <OwnCollectionCard
-                key={collection.id}
-                collection={collection}
-                suspended={suspended}
-              />
-            ))}
-          </div>
-        ) : (
-          <Empty>
-            <EmptyHeader>
-              <EmptyTitle>还没有特辑</EmptyTitle>
-              <EmptyDescription>
-                新建草稿后，可以从已发布诗作中整理目录。
-              </EmptyDescription>
-            </EmptyHeader>
-            {!suspended ? (
-              <EmptyContent>
-                <Button asChild><Link href="/account/collections/new">新建特辑</Link></Button>
-              </EmptyContent>
-            ) : null}
-          </Empty>
-        )}
+        <Surface variant="paper" padding="none" data-slot="directory-surface" className="px-4 sm:px-6 lg:px-8">
+          {result.items.length ? (
+            <div className="divide-y divide-border-subtle">
+              {result.items.map((collection) => (
+                <OwnCollectionCard
+                  key={collection.id}
+                  collection={collection}
+                  suspended={suspended}
+                />
+              ))}
+            </div>
+          ) : (
+            <Empty className="border-0">
+              <EmptyHeader>
+                <EmptyTitle>还没有特辑</EmptyTitle>
+                <EmptyDescription>
+                  新建草稿后，可以从已发布诗作中整理目录。
+                </EmptyDescription>
+              </EmptyHeader>
+              {!suspended ? (
+                <EmptyContent>
+                  <Button asChild><Link href="/account/collections/new">新建特辑</Link></Button>
+                </EmptyContent>
+              ) : null}
+            </Empty>
+          )}
+        </Surface>
       </Section>
       <Pagination basePath="/account/collections" page={result.page} pageCount={result.pageCount} />
     </PageContainer>

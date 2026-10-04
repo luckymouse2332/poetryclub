@@ -23,8 +23,8 @@ type AdminAuditCardProps = Readonly<{
  */
 export function AdminAuditCard({ entry }: AdminAuditCardProps) {
   return (
-    <Card>
-      <CardHeader>
+    <Card className="gap-4">
+      <CardHeader className="border-b-0 pb-0">
         <CardTitle>
           <h2 className="text-body-lg font-semibold text-foreground">
             {AUDIT_ACTION_LABELS[entry.action]}

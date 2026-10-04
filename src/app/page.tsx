@@ -17,8 +17,9 @@ export default async function HomePage() {
     <>
       <section id="top" aria-labelledby="home-title" className={styles.hero}>
         <div className={styles.heroContent}>
-          <h1 id="home-title" className={styles.heroTitle}>
-            初中三年留下的一些诗。
+          <p className={styles.heroEyebrow}>回中三班 · 2021—2024级</p>
+          <h1 id="home-title" aria-label="初中三年留下的一些诗。" className={styles.heroTitle}>
+            <span className={styles.heroTitlePhrase}>初中三年留下的</span><span className={styles.heroTitlePhrase}>一些诗。</span>
           </h1>
           <p className={styles.heroDescription}>
             三年里随手写下的诗，以及一些只有我们还记得的事情。
@@ -36,7 +37,7 @@ export default async function HomePage() {
             alt="深色桌面上摆放着磨损的《杂诗集》和一本摊开的手写诗稿"
             fill
             preload
-            sizes="(min-width: 1024px) 58vw, 100vw"
+            sizes="(min-width: 1280px) 540px, (min-width: 1024px) 45vw, 100vw"
             className={styles.heroImage}
           />
         </div>

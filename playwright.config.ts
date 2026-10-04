@@ -36,6 +36,7 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: false,
     env: {
+      POETRYCLUB_E2E: "1",
       DATABASE_URL: process.env.DATABASE_URL!,
       BETTER_AUTH_URL: baseURL,
       REDIS_URL: process.env.REDIS_URL ?? "redis://127.0.0.1:6379",

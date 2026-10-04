@@ -1,5 +1,8 @@
 "use client";
 
+/** M6.7 paper journal: shape, spacing, typography and state styling redesigned; upstream structure and public API preserved. */
+
+
 import * as React from "react";
 import { useMemo } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -15,9 +18,8 @@ import { cn } from "@/lib/utils";
  * `data-slot`、`role` 与 `errors` 去重逻辑照搬上游。
  *
  * 与上游的差异：
- * 1. 纵向 Field 沿用项目既有的 `space-y-1.5` 垂直节奏，而不是上游的 `flex flex-col gap-3`；
- *    改为上游节奏会把表单行距从 0.375rem 拉到 0.75rem，属于视觉变更，需要单独的设计任务。
- *    因此 label 仍是行内元素、必填星号紧跟标签文字。
+ * 1. M6.7 将纵向字段改为 flex/gap-2；分组标题加细线，说明与错误独立排版。
+ *    标签保持必填标记的关联，单选标签的标题与说明纵向排列。
  * 2. 字号与颜色映射到设计系统 Token，并去掉上游的 `dark:` 变体。
  *
  * 项目字号已注册进 `src/lib/utils.ts` 的 tailwind-merge 配置，
@@ -27,7 +29,7 @@ function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
   return (
     <fieldset
       data-slot="field-set"
-      className={cn("flex flex-col gap-6", className)}
+      className={cn("flex flex-col gap-8", className)}
       {...props}
     />
   );
@@ -43,7 +45,7 @@ function FieldLegend({
       data-slot="field-legend"
       data-variant={variant}
       className={cn(
-        "mb-3 font-medium text-foreground",
+        "mb-4 w-full border-b border-border pb-3 font-medium text-foreground",
         "data-[variant=legend]:text-body",
         "data-[variant=label]:text-label",
         className,
@@ -58,7 +60,7 @@ function FieldGroup({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="field-group"
       className={cn(
-        "group/field-group flex w-full flex-col gap-6 [&>[data-slot=field-group]]:gap-4",
+        "group/field-group flex w-full flex-col gap-8 [&>[data-slot=field-group]]:gap-4",
         className,
       )}
       {...props}
@@ -69,9 +71,9 @@ function FieldGroup({ className, ...props }: React.ComponentProps<"div">) {
 const fieldVariants = cva("group/field w-full data-[invalid=true]:text-danger", {
   variants: {
     orientation: {
-      vertical: "space-y-1.5",
+      vertical: "flex flex-col gap-2",
       horizontal:
-        "flex flex-row items-center gap-3 [&>[data-slot=field-label]]:flex-auto",
+        "flex flex-row items-start gap-3 [&>[data-slot=field-label]]:flex-auto",
     },
   },
   defaultVariants: {
@@ -100,7 +102,7 @@ function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="field-content"
       className={cn(
-        "group/field-content flex flex-1 flex-col gap-1.5",
+        "group/field-content flex min-w-0 flex-1 flex-col gap-2",
         className,
       )}
       {...props}
@@ -112,7 +114,7 @@ function FieldLabel({
   className,
   ...props
 }: React.ComponentProps<typeof Label>) {
-  return <Label data-slot="field-label" className={className} {...props} />;
+  return <Label data-slot="field-label" className={cn("flex flex-wrap items-baseline gap-1.5 has-[>[data-slot=field-title]]:flex-col has-[>[data-slot=field-title]]:items-start", className)} {...props} />;
 }
 
 function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
@@ -132,7 +134,7 @@ function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
   return (
     <p
       data-slot="field-description"
-      className={cn("text-caption text-muted-foreground", className)}
+      className={cn("text-label font-normal leading-relaxed text-subtle", className)}
       {...props}
     />
   );
@@ -206,7 +208,7 @@ function FieldError({
     <div
       role="alert"
       data-slot="field-error"
-      className={cn("text-label text-danger", className)}
+      className={cn("border-l-2 border-danger pl-3 text-label leading-relaxed text-danger", className)}
       {...props}
     >
       {content}

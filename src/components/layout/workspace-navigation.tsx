@@ -4,6 +4,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ViewTransition } from "react";
 
 import type { SecondaryNavigationItem } from "@/components/secondary-navigation";
 import { cn } from "@/lib/utils";
@@ -36,11 +37,16 @@ export function WorkspaceNavigation({
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative flex min-h-11 items-center border-l-2 border-transparent px-4 text-label font-medium text-subtle transition-colors hover:border-border-strong hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-seal focus-visible:ring-inset",
-                  active && "border-seal bg-seal-surface text-seal-foreground",
+                  "relative flex min-h-11 items-center border-l-2 border-transparent px-4 font-serif text-body text-subtle no-underline transition-colors hover:bg-paper hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
+                  active && "bg-paper text-foreground",
                 )}
               >
                 {item.label}
+                {active ? (
+                  <ViewTransition name="workspace-navigation-indicator" share="navigation-marker" default="none">
+                    <span aria-hidden="true" data-slot="workspace-navigation-indicator" className="absolute -left-0.5 inset-y-0 w-0.5 bg-seal" />
+                  </ViewTransition>
+                ) : null}
               </Link>
             </li>
           );

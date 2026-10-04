@@ -7,7 +7,7 @@ export default async function AccountLayout({
   return (
     <WorkspaceShell
       title="成员工作区"
-      eyebrow="MEMBER DESK"
+      eyebrow="我的诗社"
       ariaLabel="账户导航"
       items={ACCOUNT_NAV_ITEMS}
     >

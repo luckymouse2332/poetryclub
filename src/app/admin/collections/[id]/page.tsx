@@ -46,7 +46,7 @@ export default async function AdminCollectionDetailPage({
       </dl>
       {collection.description ? (
         <section className="mt-8" aria-labelledby="admin-collection-description">
-          <h2 id="admin-collection-description" className="text-section-title font-semibold">简介</h2>
+          <h2 id="admin-collection-description" className="font-serif text-section-title font-medium">简介</h2>
           <p className="mt-3 whitespace-pre-wrap text-body text-foreground">{collection.description}</p>
         </section>
       ) : null}

@@ -35,10 +35,10 @@ export function AdminUserCard({ user, isSelf = false }: AdminUserCardProps) {
   const isAdmin = user.role === "admin";
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="gap-4">
+      <CardHeader className="border-b-0 pb-0">
         <CardTitle>
-          <h2 className="text-body-lg font-semibold text-foreground">
+          <h2 className="font-sans text-body-lg font-semibold text-foreground">
             {user.name}
           </h2>
         </CardTitle>
@@ -74,13 +74,13 @@ export function AdminUserCard({ user, isSelf = false }: AdminUserCardProps) {
           </div>
         </dl>
         {user.suspensionReason ? (
-          <p className="mt-3 whitespace-pre-wrap break-words rounded-md border border-danger/30 bg-danger-surface p-3 text-label text-danger">
+          <p className="mt-3 whitespace-pre-wrap break-words border-l-2 border-danger bg-transparent px-4 py-2 text-label text-danger">
             禁用原因：{user.suspensionReason}
           </p>
         ) : null}
       </CardContent>
       {!isSelf ? (
-        <CardFooter className="flex flex-wrap items-center gap-2 pt-3">
+        <CardFooter className="flex flex-wrap items-center gap-2 border-t-0 pt-0">
           {suspended ? (
             <AdminReasonActionDialog
               action={restoreUserAction.bind(null, user.id)}

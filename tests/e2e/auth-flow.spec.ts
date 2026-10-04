@@ -93,7 +93,7 @@ test("anonymous home navigation shows only implemented public entries", async ({
   await expect(nav.getByRole("link", { name: "注册" })).toHaveCount(0);
   await expect(nav.getByRole("link", { name: "账户" })).toHaveCount(0);
   await expect(nav.getByRole("link", { name: "我的诗作" })).toHaveCount(0);
-  await expect(nav.getByRole("button", { name: "登出" })).toHaveCount(0);
+  await expect(page.getByRole("menuitem", { name: "登出" })).toHaveCount(0);
 });
 
 test("anonymous /account is server-redirected to /login with a safe next parameter", async ({
@@ -434,6 +434,8 @@ test.describe.serial("authenticated session loop", () => {
 
     const accountLink = myMenu.getByRole("menuitem", { name: "账户信息" });
     const logoutButton = myMenu.getByRole("menuitem", { name: "登出" });
+    // Measure after the entrance transform reaches the full click target size.
+    await expect.poll(() => logoutButton.evaluate((element) => element.getBoundingClientRect().height)).toBe(44);
     const [accountLinkMetrics, logoutButtonMetrics] = await Promise.all([
       accountLink.evaluate((element) => {
         const styles = getComputedStyle(element);
@@ -463,6 +465,10 @@ test.describe.serial("authenticated session loop", () => {
       }),
     ]);
     expect(logoutButtonMetrics.height).toBeGreaterThanOrEqual(44);
+    expect(logoutButtonMetrics.height).toBe(accountLinkMetrics.height);
+    expect(logoutButtonMetrics.paddingLeft).toBe(accountLinkMetrics.paddingLeft);
+    expect(logoutButtonMetrics.paddingRight).toBe(accountLinkMetrics.paddingRight);
+    expect(await logoutButton.evaluate((element) => element.tagName)).toBe("BUTTON");
     expect(logoutButtonMetrics.fontFamily).toBe(accountLinkMetrics.fontFamily);
     expect(logoutButtonMetrics.fontSize).toBe(accountLinkMetrics.fontSize);
     expect(logoutButtonMetrics.lineHeight).toBe(accountLinkMetrics.lineHeight);
@@ -483,6 +489,7 @@ test.describe.serial("authenticated session loop", () => {
         color: styles.color,
       };
     });
+    await myMenu.screenshot({ animations: "disabled", path: "output/playwright/paper-journal/1440-account-menu-logout.png" });
     expect(hoveredLogoutStyle.backgroundColor).not.toBe(
       baseLogoutStyle.backgroundColor,
     );
@@ -575,6 +582,12 @@ test.describe.serial("authenticated session loop", () => {
     await expect(
       mobileAccountMenu.getByRole("menuitem", { name: "登出" }),
     ).toBeVisible();
+    const mobileLogout = mobileAccountMenu.getByRole("menuitem", { name: "登出" });
+    const mobileAccountLink = mobileAccountMenu.getByRole("menuitem", { name: "账户信息" });
+    await expect.poll(() => mobileLogout.evaluate((element) => element.getBoundingClientRect().height)).toBe(44);
+    expect((await mobileLogout.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    expect((await mobileLogout.boundingBox())!.height).toBe((await mobileAccountLink.boundingBox())!.height);
+    await mobileAccountMenu.screenshot({ animations: "disabled", path: "output/playwright/paper-journal/390-account-menu-logout.png" });
     await page.keyboard.press("Escape");
 
     // The account page shows the safe profile fields.
@@ -672,7 +685,7 @@ test.describe.serial("authenticated session loop", () => {
     expect(desktopAccountNavigationBox!.x).toBeLessThan(
       desktopAccountHeadingBox!.x,
     );
-    await expect(page.getByText("MEMBER DESK", { exact: true })).toBeVisible();
+    await expect(page.getByText("我的诗社", { exact: true })).toBeVisible();
     await expect(
       page.getByText("成员工作区", { exact: true }),
     ).toBeVisible();
@@ -712,17 +725,21 @@ test.describe.serial("authenticated session loop", () => {
     await myTrigger.click();
     const myMenu = page.getByRole("menu");
     await expect(myMenu).toBeVisible();
-    await myMenu.getByRole("menuitem", { name: "登出" }).click();
-    await page.waitForURL("/");
-    await page.reload();
+    const signOutResponse = page.waitForResponse((response) =>
+      new URL(response.url()).pathname === "/api/auth/sign-out" && response.request().method() === "POST",
+    );
+    await myMenu.getByRole("menuitem", { name: "登出" }).focus();
+    await page.keyboard.press("Enter");
+    expect((await signOutResponse).status()).toBe(200);
 
-    // Navigation returns to the anonymous state.
+    // Wait for the button's own navigation, including a same-URL document load.
     const nav = page.getByRole("navigation", { name: "主导航" });
     await expect(nav.getByRole("link", { name: "登录" })).toBeVisible();
+    await expect(page).toHaveURL("/");
     await expect(nav.getByRole("link", { name: "注册" })).toHaveCount(0);
     await expect(nav.getByRole("link", { name: "账户" })).toHaveCount(0);
     await expect(nav.getByRole("link", { name: "我的诗作" })).toHaveCount(0);
-    await expect(nav.getByRole("button", { name: "登出" })).toHaveCount(0);
+    await expect(page.getByRole("menuitem", { name: "登出" })).toHaveCount(0);
 
     // Double POST to the sign-out endpoint is stable and idempotent.
     const results = await page.evaluate(async () => {

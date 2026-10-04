@@ -36,14 +36,14 @@ export function AdminFilterForm({
     <form
       method="get"
       action={basePath}
-      className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-end"
+      className="flex flex-col gap-4 border-y border-border py-5 lg:flex-row lg:flex-wrap lg:items-end"
     >
       <input type="hidden" name="page" value="1" />
       {selects.map((select) => (
         <div key={select.name} className="min-w-0 flex-1 lg:max-w-44">
           <label
             htmlFor={`filter-${select.name}`}
-            className="mb-1 block text-caption font-medium text-subtle"
+            className="mb-2 block text-label font-medium text-foreground"
           >
             {select.label}
           </label>
@@ -65,7 +65,7 @@ export function AdminFilterForm({
       <div className="min-w-0 flex-1">
         <label
           htmlFor="filter-q"
-          className="mb-1 block text-caption font-medium text-subtle"
+          className="mb-2 block text-label font-medium text-foreground"
         >
           搜索
         </label>

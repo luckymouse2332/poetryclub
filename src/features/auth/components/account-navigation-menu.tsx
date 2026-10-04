@@ -36,7 +36,7 @@ type AccountNavigationMenuProps = Readonly<{
 }>;
 
 const desktopTriggerClassName =
-  "group relative inline-flex min-h-control items-center justify-center whitespace-nowrap px-1 font-serif text-label tracking-[0.14em] text-foreground no-underline transition-colors hover:text-seal focus-visible:text-seal data-[active=true]:text-seal-foreground data-[state=open]:text-seal-foreground after:absolute after:inset-x-2 after:bottom-1 after:h-0.5 after:bg-seal after:opacity-0 after:transition-opacity data-[active=true]:after:opacity-100 data-[state=open]:after:opacity-100";
+  "group relative inline-flex min-h-control items-center justify-center whitespace-nowrap px-4 font-serif text-body text-subtle no-underline transition-colors hover:text-primary focus-visible:text-primary data-[active=true]:underline data-[active=true]:decoration-seal data-[active=true]:underline-offset-8 data-[active=true]:text-primary data-[state=open]:underline data-[state=open]:decoration-seal data-[state=open]:underline-offset-8 data-[state=open]:text-primary";
 
 const menuLinkClassName = "w-full";
 
@@ -70,11 +70,11 @@ export function AccountNavigationMenu({
               type="button"
               data-active={isActive}
               aria-label={`打开${mobileTriggerLabel}`}
-              className="group relative flex size-12 items-center justify-center text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-seal focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="group relative flex size-12 items-center justify-center text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <span
                 aria-hidden="true"
-                className="flex size-9 items-center justify-center rounded-full border border-border-strong bg-paper font-serif text-label leading-none text-foreground transition-colors group-data-[state=open]:border-seal group-data-[state=open]:text-seal-foreground"
+                className="flex size-9 items-center justify-center rounded-full border border-input bg-transparent text-label font-semibold leading-none text-primary transition-colors group-data-[state=open]:border-primary group-data-[state=open]:text-primary"
               >
                 {initial}
               </span>
@@ -110,7 +110,7 @@ export function AccountNavigationMenu({
           )}
         >
         <DropdownMenuLabel className="px-3 py-2">
-          <span className="block font-serif text-body text-foreground">
+          <span className="block text-body text-foreground">
             我的工作区
           </span>
           <span className="mt-0.5 block text-caption font-normal text-subtle">
@@ -127,7 +127,7 @@ export function AccountNavigationMenu({
                 <span
                   className={cn(
                     "ml-auto text-caption tabular-nums text-subtle",
-                    unreadCount > 0 && "text-seal-foreground",
+                    unreadCount > 0 && "text-primary",
                   )}
                 >
                   {unreadCount > 0 ? `${unreadCount} 条未读` : "无未读"}
@@ -161,8 +161,8 @@ export function AccountNavigationMenu({
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild variant="destructive">
-          <form action={logoutAction} className="w-full">
+        <form action={logoutAction} className="w-full">
+          <DropdownMenuItem asChild variant="destructive">
             <button
               type="submit"
               onClick={async (event) => {
@@ -174,13 +174,13 @@ export function AccountNavigationMenu({
                 });
                 if (response.ok) window.location.assign("/");
               }}
-              className="flex min-h-11 w-full items-center gap-3 px-3 py-2 text-left"
+              className="w-full text-left"
             >
               <LogOut aria-hidden="true" className="size-4" />
               登出
             </button>
-          </form>
-        </DropdownMenuItem>
+          </DropdownMenuItem>
+        </form>
         </DropdownMenuContent>
     </DropdownMenu>
   );

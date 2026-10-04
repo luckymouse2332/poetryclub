@@ -17,7 +17,7 @@ import {
 } from "@/server/services/notifications";
 
 const navigationLinkClassName =
-  "inline-flex min-h-control items-center justify-center whitespace-nowrap px-2 font-serif text-label tracking-[0.14em] text-foreground no-underline transition-colors hover:text-seal";
+  "inline-flex min-h-control items-center justify-center whitespace-nowrap px-4 font-serif text-body text-subtle no-underline transition-colors hover:text-seal";
 
 /**
  * 认证导航（Server Component）：服务端读取最小用户视图和现有通知状态，
@@ -37,7 +37,7 @@ export async function AuthNavigation() {
         mobileAccount={
           <Link
             href="/login"
-            className="flex size-12 items-center justify-center text-label font-medium text-foreground no-underline transition-colors hover:text-seal-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-seal focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="flex size-12 items-center justify-center text-label font-medium text-foreground no-underline transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             登录
           </Link>

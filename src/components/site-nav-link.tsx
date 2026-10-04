@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type {} from "react/canary";
+import { ViewTransition } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -75,6 +77,11 @@ export function SiteNavLink({
       )}
     >
       {children}
+      {variant === "navigation" && isActive ? (
+        <ViewTransition name="primary-navigation-indicator" share="navigation-marker" default="none">
+          <span aria-hidden="true" data-slot="primary-navigation-indicator" className={styles.indicator} />
+        </ViewTransition>
+      ) : null}
     </Link>
   );
 }

@@ -52,6 +52,8 @@
 | M6.3 | 移动端导航浮层与动效修正 | 已完成 | [M6.3-mobile-navigation-overlay-motion.md](./M6.3-mobile-navigation-overlay-motion.md) |
 | M6.4 | 管理 Sheet 与桌面 Dropdown 对齐 | 已完成 | [M6.4-admin-drawer-dropdown-parity.md](./M6.4-admin-drawer-dropdown-parity.md) |
 | M6.5 | 管理列表样式改版 | 已完成 | [M6.5-management-list-redesign.md](./M6.5-management-list-redesign.md) |
+| M6.6 | 全站现代社区界面重设计 | 已完成 | [M6.6-modern-community-redesign.md](./M6.6-modern-community-redesign.md) |
+| M6.7 | 校园纸本诗刊与全基础组件重设计 | 已完成 | [M6.7-paper-poetry-journal.md](./M6.7-paper-poetry-journal.md) |
 | M7 | 作品评论与一级回复 | 已完成 | [M7-comments-and-replies.md](./M7-comments-and-replies.md) |
 | M8 | 诗作特辑与连续阅读 | 已完成 | [M8-curated-collections.md](./M8-curated-collections.md) |
 | M9.0 | 操作流程优化与重构 | 已完成 | [M9.0-operation-flow-optimization.md](./M9.0-operation-flow-optimization.md) |
@@ -71,6 +73,15 @@
 | BUG-10 | 桌面工作区二级导航统一 | 已完成 | [BUG-10-secondary-navigation-breakpoint-parity.md](./BUG-10-secondary-navigation-breakpoint-parity.md) |
 | BUG-11 | 管理导航密度与入口卡片样式 | 已完成 | [BUG-11-admin-navigation-density-card-styles.md](./BUG-11-admin-navigation-density-card-styles.md) |
 | BUG-12 | 工作区导航断点恢复 | 已完成 | [BUG-12-workspace-navigation-breakpoint-restoration.md](./BUG-12-workspace-navigation-breakpoint-restoration.md) |
+| BUG-14 | 首页省略号与锯齿页边恢复 | 已完成 | [BUG-14-home-ellipsis-paper-edge.md](./BUG-14-home-ellipsis-paper-edge.md) |
+| BUG-15 | 首页首屏上下留白移除 | 已完成 | [BUG-15-home-hero-vertical-spacing.md](./BUG-15-home-hero-vertical-spacing.md) |
+| BUG-16 | 认证页桌面左右布局 | 已完成 | [BUG-16-auth-desktop-split-layout.md](./BUG-16-auth-desktop-split-layout.md) |
+| BUG-17 | 管理列表重复分隔线移除 | 已完成 | [BUG-17-admin-list-internal-rules.md](./BUG-17-admin-list-internal-rules.md) |
+| BUG-18 | 账户登出菜单项高度修复 | 已完成 | [BUG-18-account-logout-menu-sizing.md](./BUG-18-account-logout-menu-sizing.md) |
+| M6.8 | 纸刊界面一致性与留白收尾 | 已完成 | [M6.8-paper-journal-consistency.md](./M6.8-paper-journal-consistency.md) |
+
+| M6.9 | 背景与纸面层次增强 | 已完成 | [M6.9-paper-surface-contrast.md](./M6.9-paper-surface-contrast.md) |
+| M6.10 | 导航跳转动画 | 已完成 | [M6.10-navigation-transitions.md](./M6.10-navigation-transitions.md) |
 
 ## 约定
 
