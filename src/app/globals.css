@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 :root {
+  color-scheme: light;
   /* Concrete color values live only in this palette. */
   --palette-page: #f3eee4;
   --palette-surface: #faf7f0;
@@ -132,6 +133,49 @@
   --line-height-copy: 1.7;
   --line-height-reading: 1.8;
   --line-height-compact: 1.5;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --palette-page: #182029;
+  --palette-surface: #222c38;
+  --palette-surface-muted: #313d4a;
+  --palette-paper: #2c3745;
+  --palette-paper-aged: #25313e;
+  --palette-ink: #e7edf3;
+  --palette-ink-secondary: #b6c2cf;
+  --palette-ink-muted: #aebccb;
+  --palette-ink-inverse: #182630;
+  --palette-overlay: #0a0f14;
+  --palette-action-50: #283c45;
+  --palette-action-100: #344d59;
+  --palette-action-300: #708c98;
+  --palette-action-500: #aac4cf;
+  --palette-action-600: #aac4cf;
+  --palette-action-700: #c0d5dd;
+  --palette-action-800: #d5e5eb;
+  --palette-seal-50: #47393a;
+  --palette-seal-300: #a77c6e;
+  --palette-seal-500: #d5a18f;
+  --palette-seal-700: #e4baaa;
+  --palette-success-50: #293e39;
+  --palette-success-300: #779b88;
+  --palette-success-600: #abcdb8;
+  --palette-warning-50: #413e32;
+  --palette-warning-300: #af996c;
+  --palette-warning-600: #dfc28d;
+  --palette-danger-50: #46333c;
+  --palette-danger-300: #b48088;
+  --palette-danger-600: #eda9a9;
+  --palette-danger-700: #f3bbbb;
+  --palette-border: #546779;
+  --palette-border-light: #3e4e5e;
+  --palette-border-strong: #788ca0;
+  --palette-input: #8da3b7;
+  --palette-disabled: #313d4a;
+  --palette-disabled-foreground: #aebccb;
+  --elevation-floating: 0 8px 24px rgb(0 0 0 / 28%);
+  --elevation-focus: 0 0 0 2px rgb(170 196 207 / 28%);
 }
 
 @theme inline {

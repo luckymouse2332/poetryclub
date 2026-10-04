@@ -82,6 +82,7 @@
 
 | M6.9 | 背景与纸面层次增强 | 已完成 | [M6.9-paper-surface-contrast.md](./M6.9-paper-surface-contrast.md) |
 | M6.10 | 导航跳转动画 | 已完成 | [M6.10-navigation-transitions.md](./M6.10-navigation-transitions.md) |
+| M6.11 | 深色模式切换 | 已完成 | [M6.11-dark-mode.md](./M6.11-dark-mode.md) |
 
 ## 约定
 

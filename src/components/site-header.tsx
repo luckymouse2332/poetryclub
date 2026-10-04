@@ -1,4 +1,5 @@
 import { SiteNavLink } from "@/components/site-nav-link";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 type SiteHeaderProps = Readonly<{
   /** 桌面认证导航列表项（<li> 片段）。 */
@@ -21,9 +22,10 @@ export function SiteHeader({
         aria-label="主导航"
         className="relative z-header h-[var(--mobile-header-height)] border-b border-border-subtle bg-background lg:hidden"
       >
-        <div className="grid h-full grid-cols-[3rem_minmax(0,1fr)_3rem] items-center px-3">
-          <div className="flex size-12 items-center justify-center">
+        <div className="grid h-full grid-cols-[6rem_minmax(0,1fr)_6rem] items-center px-3">
+          <div className="flex items-center">
             {mobileMenu}
+            <ThemeToggle />
           </div>
           <SiteNavLink
             href="/#top"
@@ -86,6 +88,7 @@ export function SiteHeader({
             </SiteNavLink>
           </li>
           {desktopNavigation}
+          <li><ThemeToggle /></li>
         </ul>
       </nav>
     </header>

@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
+import { ThemeInitialization, ThemeToggle } from "@/components/theme-toggle";
 
 import "./globals.css";
 
@@ -20,8 +21,12 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <html lang="zh-CN">
+    <html lang="zh-CN" suppressHydrationWarning>
+      <head>
+        <ThemeInitialization />
+      </head>
       <body>
+        <div className="fixed right-4 top-4"><ThemeToggle /></div>
         <div className="flex min-h-screen items-center justify-center bg-background p-6 text-foreground">
           <div className="text-center">
             <h1 className="font-serif text-section-title font-medium">出了点问题</h1>

@@ -12,7 +12,7 @@
 
 ## 2. 配色与语义 Token
 
-具体色值只定义在 `src/app/globals.css` 的 `:root` 色板。组件使用语义 Token，不在 TSX 中写具体颜色或任意颜色类，不添加逐组件 dark 变体。
+具体色值只定义在 `src/app/globals.css` 的 `:root` 浅色色板及 `:root[data-theme="dark"]` 深色色板。组件使用语义 Token，不在 TSX 中写具体颜色或任意颜色类，不添加逐组件 dark 变体。
 
 | 语义 | Token | 色值 | 用途 |
 | --- | --- | --- | --- |
@@ -36,7 +36,23 @@
 
 状态浅背景分别使用 success-surface、warning-surface、danger-surface、seal-surface；状态必须同时包含文字、图标或 aria 语义。seal 与 danger 不得互换。导航选中与通知未读使用 seal 编辑印记，不借用危险颜色。
 
-遮罩使用独立 overlay Token，沿用墨色及组件原有透明度。
+M6.11 增加深色模式，按用户反馈采用墨蓝灰，撤销最初的暖棕方案。字体、形态与留白沿用纸刊基线，真实照片不做滤镜。
+
+| 深色语义 | 色值 |
+| --- | --- |
+| 页面 / Header / Footer | #182029 |
+| 内容纸面 / Card / 输入框 / 浮层 | #2C3745 |
+| 通用表面 / 次级表面 | #222C38 / #313D4A |
+| 正文 / 辅助文字 / 占位 | #E7EDF3 / #B6C2CF / #AEBCCB |
+| 主操作 / hover / active | #AAC4CF / #C0D5DD / #D5E5EB |
+| 按钮文字 | #182630 |
+| 印记 / 成功 / 提醒 / 危险 | #D5A18F / #ABCDB8 / #DFC28D / #EDA9A9 |
+| 边框 / 弱分隔 / 输入边界 | #546779 / #3E4E5E / #8DA3B7 |
+| 遮罩 | #0A0F14，使用组件原有透明度 |
+
+遮罩使用独立 overlay Token，浅色为原墨色，深色为深墨蓝，避免亮文字色导致遮罩泛白。深浅切换只替换语义色板，无主内容淡入、位移或整页过渡。
+
+深色色板对纸面的对比度：正文 10.24:1，辅助文字 6.67:1，占位文字 6.24:1，印记与状态文字至少 5.36:1；输入边界 4.63:1。主操作和危险按钮文字分别为 8.47:1、7.98:1。浏览器用实际计算样式验证这些阈值。
 
 ## 3. 字体
 
@@ -103,6 +119,8 @@ M6.10 导航跳转使用 Next 的 React ViewTransition，仅主导航、二级�
 
 SiteHeader 为文字刊头：站名宋体、班级年级说明、文字导航与当前项短印章红线。删除图标色块品牌。移动保留三段式居中刊头、Sheet、账户圆标、Escape、路由关闭与焦点回归。
 
+深浅切换器使用现有 IconButton 与日/月图标，桌面位于导航末尾，手机位于菜单右侧；左右各留 96px 保持品牌居中，按钮至少 44px。首次访问跟随系统，手动选择存入本机 poetryclub-theme，刷新、路由与跨标签保留；存储受限时当前标签仍可切换。固定 head 脚本仅输出到首屏服务端 HTML，在水合前应用主题；水合后移除，客户端路由不插入不可执行的 script。html 仅容忍初始化属性变化，不抑制其他组件水合错误。
+
 PageHeader 使用中文眉题、宋体标题与无衬线说明。WorkspaceShell xl 起侧栏，以细线和中文名称分区；当前导航使用侧线而非圆角底块。认证页在 1024px 起使用左侧说明、右侧纸面表单的双栏布局，中间以细线分隔；小屏保持窄版单列，表单宽度不超过 narrow Token。
 
 首页保留真实照片、近期三篇诗作与真实收录标准，双栏导读、无框章节和目录索引。About 保留序言、过去、现在、未来、附录真实历史，用宋体与不同编辑节奏叙事。
@@ -150,7 +168,7 @@ SiteFooter 保留品牌、年级、居中版权与 ICP 备案、政策链接。�
 
 管理列表的行间横线由列表容器统一负责。组合 Card 的 Header / Footer 移除行内边界与额外分隔 padding，以 16px 组间距区分标题、资料和操作，避免一行被多条横线割裂；独立 Card 分区保持默认设计。
 
-组件来源：除 Surface、FormField、IconButton 外，其余基础组件均为既有 shadcn 上游组件。pagination-navigation、secondary-navigation、workspace-shell、auth-split-shell、site-header、mobile-global-navigation 是项目组合组件，不是上游组件。M6.10 后续按用户要求移除 page-transition 布局组合，仅保留导航选中线动画；现有 22 个基础组件基线不变。
+组件来源：除 Surface、FormField、IconButton 外，其余基础组件均为既有 shadcn 上游组件。pagination-navigation、secondary-navigation、workspace-shell、auth-split-shell、site-header、mobile-global-navigation、theme-toggle 是项目组合组件，不是上游组件。theme-toggle 复用现有 IconButton，不新增原语。M6.10 后续按用户要求移除 page-transition 布局组合，仅保留导航选中线动画；现有 22 个基础组件基线不变。
 
 新增上游组件必须使用 pnpm dlx shadcn@latest add，再映射 Token、去掉 dark 变体、保留 data-slot/asChild/cn 约定。无头原语统一 radix-ui。自有组件注释声明“不是上游组件”并登记基线。当前无新增通用原语。
 
@@ -162,7 +180,7 @@ SiteFooter 保留品牌、年级、居中版权与 ICP 备案、政策链接。�
 
 ## 12. 实施与验证
 
-不增加虚假业务内容或未实现功能入口。此阶段不增加深色模式。页面样式留在组件或 CSS Module，不把业务布局写进 globals。新视觉基线由 M6.7 记录，旧现代卡片和版式测试按本规范更新，权限与操作断言保持有效。
+不增加虚假业务内容或未实现功能入口。M6.11 按用户明确要求增加深色模式，替代此前不提供深色模式的范围限制。页面样式留在组件或 CSS Module，不把业务布局写进 globals。新视觉基线由 M6.7 记录，旧现代卡片和版式测试按本规范更新，权限与操作断言保持有效。
 
 运行 check:conventions、typecheck、lint、test、E2E 与 build。浏览器检查覆盖公开、成员、管理页面及五个验收尺寸，截图保存于 output/playwright/paper-journal。E2E 使用专用测试库及 .next/e2e 构建目录，避免与普通开发服务共用缓存锁。
 
