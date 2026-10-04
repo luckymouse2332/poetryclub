@@ -21,6 +21,7 @@
     "hooks:install": "node scripts/setup-git-hooks.mjs",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:migrate:test": "node scripts/migrate-test-database.mjs",
     "db:check": "drizzle-kit check",
     "db:studio": "drizzle-kit studio",
     "admin:bootstrap": "node scripts/bootstrap-admin.mjs",

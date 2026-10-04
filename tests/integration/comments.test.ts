@@ -119,6 +119,23 @@ afterAll(async () => {
 });
 
 describe("thread concurrency and bounded previews", () => {
+  it("rejects creation when a poem was withdrawn while waiting for its publication lock", async () => {
+    const author = await createUser();
+    const poemId = await createPoem(author);
+    let pending!: Promise<unknown>;
+    await sql.begin(async (tx) => {
+      await tx`select id from poem where id=${poemId} for update`;
+      pending = addComment(author, poemId, null, "must not persist").catch((error: unknown) => error);
+      await vi.waitFor(async () => {
+        await tx`select pg_stat_clear_snapshot()`;
+        expect(await tx`select 1 from pg_stat_activity where datname=current_database()
+          and wait_event_type='Lock' and query like '%poem%' and pid<>pg_backend_pid()`).not.toHaveLength(0);
+      });
+      await tx`update poem set status='draft' where id=${poemId}`;
+    });
+    expect(await pending).toMatchObject({ code: "not_found" });
+    expect(await sql`select id from poem_comment where poem_id=${poemId}`).toHaveLength(0);
+  });
   it("keeps latest-three previews independently bounded for every root", async () => {
     const author = await createUser();
     const poemId = await createPoem(author);

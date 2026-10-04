@@ -1,4 +1,6 @@
 import "server-only";
+import { randomUUID } from "node:crypto";
+import { publishNotificationRealtime } from "./realtime";
 import { db } from "@/server/db";
 import { announcement, notification, notificationRecipient } from "@/server/db/schema";
 import { and, count, desc, eq, isNull, sql, type SQL } from "drizzle-orm";
@@ -121,125 +123,89 @@ export async function getUnreadNotificationCount(userId: string): Promise<number
   return rows[0]?.value ?? 0;
 }
 
-export async function openUserNotification(
-  userId: string,
-  notificationId: string,
-): Promise<string | null> {
-  return db.transaction(async (tx) => {
-    const rows = await tx
-      .select({
-        type: notification.type,
-        targetType: notification.targetType,
-        targetId: notification.targetId,
-        href: notification.href,
-      })
-      .from(notificationRecipient)
-      .innerJoin(
-        notification,
-        eq(notificationRecipient.notificationId, notification.id),
-      )
-      .where(
-        and(
-          eq(notificationRecipient.userId, userId),
-          eq(notificationRecipient.notificationId, notificationId),
-        ),
-      )
-      .limit(1);
-    const row = rows[0];
-    if (!row) throw new NotificationMutationError("not_found");
-    await tx
-      .update(notificationRecipient)
-      .set({ readAt: new Date() })
-      .where(
-        and(
-          eq(notificationRecipient.userId, userId),
-          eq(notificationRecipient.notificationId, notificationId),
-          isNull(notificationRecipient.readAt),
-        ),
-      );
-    return getNotificationOpenHref(row);
+/** A read receipt only emits a wakeup after its durable update commits. */
+async function publishInboxChange(userId: string): Promise<void> {
+  await publishNotificationRealtime([userId], {
+    id: randomUUID(), type: "inbox.changed", createdAt: new Date().toISOString(),
   });
 }
 
-export async function openUserAnnouncement(
-  userId: string,
-  announcementId: string,
-): Promise<UserAnnouncementDetail | null> {
-  return db.transaction(async (tx) => {
-    const rows = await tx
-      .select({
-        id: announcement.id,
-        title: announcement.title,
-        body: announcement.body,
-        href: announcement.href,
-        createdAt: announcement.createdAt,
-        publishedAt: announcement.publishedAt,
-        notificationId: announcement.notificationId,
-      })
-      .from(announcement)
-      .innerJoin(
-        notificationRecipient,
-        eq(notificationRecipient.notificationId, announcement.notificationId),
-      )
-      .where(
-        and(
-          eq(announcement.id, announcementId),
-          eq(announcement.status, "published"),
-          eq(notificationRecipient.userId, userId),
-        ),
-      )
-      .limit(1);
-    const row = rows[0];
-    if (!row || !row.notificationId || !row.publishedAt) return null;
-
-    await tx
-      .update(notificationRecipient)
-      .set({ readAt: new Date() })
-      .where(
-        and(
-          eq(notificationRecipient.notificationId, row.notificationId),
-          eq(notificationRecipient.userId, userId),
-          isNull(notificationRecipient.readAt),
-        ),
-      );
-
-    return {
-      id: row.id,
-      title: row.title,
-      body: row.body,
-      href: row.href,
-      createdAt: row.createdAt,
-      publishedAt: row.publishedAt,
-    };
-  });
+export async function openUserNotification(userId: string, notificationId: string): Promise<string | null> {
+  const [row] = await db.select({
+    type: notification.type,
+    targetType: notification.targetType,
+    targetId: notification.targetId,
+    href: notification.href,
+  }).from(notificationRecipient)
+    .innerJoin(notification, eq(notificationRecipient.notificationId, notification.id))
+    .where(and(eq(notificationRecipient.userId, userId), eq(notificationRecipient.notificationId, notificationId)))
+    .limit(1);
+  if (!row) throw new NotificationMutationError("not_found");
+  await markUserNotificationRead(userId, notificationId);
+  return getNotificationOpenHref(row);
 }
 
-export async function markUserNotificationRead(
-  userId: string,
-  notificationId: string,
-): Promise<void> {
-  const updated = await db
-    .update(notificationRecipient)
-    .set({ readAt: sql`coalesce(${notificationRecipient.readAt}, now())` })
-    .where(
-      and(
-        eq(notificationRecipient.userId, userId),
-        eq(notificationRecipient.notificationId, notificationId),
-      ),
-    )
+async function readAnnouncementRecipient(userId: string, announcementId: string) {
+  const [row] = await db.select({
+    id: announcement.id,
+    title: announcement.title,
+    body: announcement.body,
+    href: announcement.href,
+    createdAt: announcement.createdAt,
+    publishedAt: announcement.publishedAt,
+    notificationId: announcement.notificationId,
+  }).from(announcement)
+    .innerJoin(notificationRecipient, eq(notificationRecipient.notificationId, announcement.notificationId))
+    .where(and(eq(announcement.id, announcementId), eq(announcement.status, "published"), eq(notificationRecipient.userId, userId)))
+    .limit(1);
+  if (!row?.notificationId || !row.publishedAt) return null;
+  return { ...row, notificationId: row.notificationId, publishedAt: row.publishedAt };
+}
+
+/** Safe for Server Component rendering and link prefetch: no read receipt. */
+export async function getUserAnnouncement(userId: string, announcementId: string): Promise<UserAnnouncementDetail | null> {
+  const row = await readAnnouncementRecipient(userId, announcementId);
+  if (!row) return null;
+  return {
+    id: row.id, title: row.title, body: row.body, href: row.href,
+    createdAt: row.createdAt, publishedAt: row.publishedAt,
+  };
+}
+
+export async function markUserAnnouncementRead(userId: string, announcementId: string): Promise<boolean> {
+  const row = await readAnnouncementRecipient(userId, announcementId);
+  if (!row) throw new NotificationMutationError("not_found");
+  return markUserNotificationRead(userId, row.notificationId);
+}
+
+/** Compatibility entry for callers that explicitly open and acknowledge. */
+export async function openUserAnnouncement(userId: string, announcementId: string): Promise<UserAnnouncementDetail | null> {
+  const detail = await getUserAnnouncement(userId, announcementId);
+  if (detail) await markUserAnnouncementRead(userId, announcementId);
+  return detail;
+}
+
+export async function markUserNotificationRead(userId: string, notificationId: string): Promise<boolean> {
+  const changed = await db.update(notificationRecipient).set({ readAt: sql`now()` })
+    .where(and(eq(notificationRecipient.userId, userId), eq(notificationRecipient.notificationId, notificationId), isNull(notificationRecipient.readAt)))
     .returning({ notificationId: notificationRecipient.notificationId });
-  if (!updated[0]) throw new NotificationMutationError("not_found");
+  if (changed[0]) {
+    await publishInboxChange(userId);
+    return true;
+  }
+  const [existing] = await db.select({ id: notificationRecipient.notificationId }).from(notificationRecipient)
+    .where(and(eq(notificationRecipient.userId, userId), eq(notificationRecipient.notificationId, notificationId))).limit(1);
+  if (!existing) throw new NotificationMutationError("not_found");
+  return false;
 }
 
 export async function markAllUserNotificationsRead(userId: string): Promise<void> {
-  await db
-    .update(notificationRecipient)
-    .set({ readAt: new Date() })
-    .where(
-      and(
-        eq(notificationRecipient.userId, userId),
-        isNull(notificationRecipient.readAt),
-      ),
-    );
+  // Return one boolean regardless of inbox size; never materialize every changed ID.
+  const [result] = await db.execute<{ changed: boolean }>(sql`
+    with changed as (
+      update ${notificationRecipient} set read_at=now()
+      where user_id=${userId} and read_at is null returning 1
+    ) select exists(select 1 from changed) as changed
+  `);
+  if (result?.changed) await publishInboxChange(userId);
 }
-

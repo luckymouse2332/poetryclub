@@ -13,6 +13,17 @@ function databaseUrl(): string {
   return value;
 }
 
+export async function getAnnouncementReadAtForTest(id: string, email: string): Promise<string | null> {
+  const sql = postgres(databaseUrl(), { max: 1 });
+  try {
+    const [row] = await sql`select nr.read_at::text as read_at from announcement a
+      join notification_recipient nr on nr.notification_id=a.notification_id
+      join "user" u on u.id=nr.user_id where a.id=${id} and u.email=${email}`;
+    if (!row) throw new Error("Expected announcement recipient fixture");
+    return row.read_at;
+  } finally { await sql.end(); }
+}
+
 export async function createTestInvitation(
   options: Readonly<{
     maxUses?: number;

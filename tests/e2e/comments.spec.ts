@@ -85,9 +85,12 @@ function commentByText(page: Page, text: string): Locator {
 }
 
 test("three consecutive comments rotate tokens after every success", async ({ page }) => {
-  await signInAdmin(page);
+  // A shared admin may have just commented in the preceding collections suite.
+  // Use a distinct writer so its cooldown cannot depend on test ordering.
+  await registerAndSignIn(page, uniqueValue("连续评论作者"), `${uniqueValue("consecutive-comment")}@example.com`);
   const poemId = await createPublishedPoem(page, uniqueValue("连续提交"));
   try {
+    await waitForHydration(page, 'textarea[name="body"]');
     const form = page.locator("form").filter({ has: page.getByRole("button", { name: "发布评论", exact: true }) });
     const token = form.locator('input[name="creationToken"]');
     const tokens = new Set<string>();

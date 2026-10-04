@@ -7,10 +7,22 @@ it("ignores a stale load response after an authoritative refresh", async () => {
   const load = vi.fn(() => new Promise<{ items: ReturnType<typeof row>[]; nextCursor: string | null }>((resolve) => { finish = resolve; }));
   const pager = new CommentPagination({ items: [row("one")], nextCursor: "old" }, "v1", load, "append");
   const pending = pager.loadMore();
-  await pager.refresh({ items: [row("one", "fresh")], nextCursor: "new" }, "v2");
+  const refreshing = pager.refresh({ items: [row("one", "fresh")], nextCursor: null }, "v2");
+  await refreshing;
   finish({ items: [row("stale")], nextCursor: "stale cursor" }); await pending;
   expect(pager.getSnapshot().items).toEqual([row("one", "fresh")]);
-  expect(pager.getSnapshot().nextCursor).toBe("new");
+  expect(pager.getSnapshot().nextCursor).toBeNull();
+});
+
+it("restores a pending next-page request when refresh cancels the old request", async () => {
+  let release!: (page: { items: ReturnType<typeof row>[]; nextCursor: string | null }) => void;
+  const load = vi.fn().mockImplementationOnce(() => new Promise((resolve) => { release = resolve; }))
+    .mockResolvedValue({ items: [row("two", "fresh")], nextCursor: null });
+  const pager = new CommentPagination({ items: [row("one")], nextCursor: "old" }, "v1", load, "append");
+  const old = pager.loadMore();
+  await pager.refresh({ items: [row("one")], nextCursor: "new" }, "v2");
+  release({ items: [row("two", "stale")], nextCursor: null }); await old;
+  expect(pager.getSnapshot().items).toEqual([row("one"), row("two", "fresh")]);
 });
 
 it("restores loaded depth even when the first page has unchanged content", async () => {

@@ -12,6 +12,7 @@ import {
   deletePoemsByIds,
 } from "./helpers/database";
 import { waitForEmailOtp } from "./helpers/email-outbox";
+import { captureServerAction } from "./helpers/server-action";
 
 const PASSWORD = "password123";
 
@@ -260,8 +261,6 @@ test.describe.serial("poem publishing and authorization loop", () => {
     await expect(publicPoemByTitle(anonymousDraft, title)).toHaveCount(0);
     await anonymousDraft.close();
 
-    staleActionPage = await authorPage.context().newPage();
-    await gotoHydratedEdit(staleActionPage, poemId);
   });
 
   test("rejects anonymous and cross-user draft mutations", async () => {
@@ -335,6 +334,10 @@ test.describe.serial("poem publishing and authorization loop", () => {
   });
 
   test("publishes publicly, preserves full text, and rejects draft-only deletion", async () => {
+    // Capture the draft after cookie-swapping authority checks finish. Realtime
+    // recovery now correctly refreshes pages when those session cookies change.
+    staleActionPage = await authorPage.context().newPage();
+    await gotoHydratedEdit(staleActionPage, poemId);
     await gotoHydratedEdit(authorPage, poemId);
     const publishedBody = `${body}\n发布时新增的一行。`;
     await authorPage.getByLabel("正文").fill(publishedBody);
@@ -368,12 +371,15 @@ test.describe.serial("poem publishing and authorization loop", () => {
     await gotoHydratedEdit(authorPage, poemId);
     await authorPage.context().addCookies([otherSessionCookie]);
     await authorPage.getByRole("button", { name: "撤回", exact: true }).click();
-    await expect(actionError(authorPage)).toContainText("操作未完成");
+    await expect(actionError(authorPage).or(authorPage.getByRole("heading", { level: 1, name: "页面不存在" }))).toBeVisible();
     expect((await otherPage.request.get(`/poems/${poemId}`)).status()).toBe(200);
 
     await authorPage.context().addCookies([authorSessionCookie]);
     await gotoHydratedEdit(authorPage, poemId);
     await gotoHydratedEdit(staleActionPage, poemId);
+    const staleWithdraw = await captureServerAction(staleActionPage, "**/account/poems/*/edit**", () =>
+      staleActionPage.getByRole("button", { name: "撤回", exact: true }).click(),
+    );
     await authorPage.getByRole("button", { name: "撤回", exact: true }).click();
     await authorPage.waitForURL(
       `/account/poems/${poemId}/edit?withdrawn=1`,
@@ -386,8 +392,10 @@ test.describe.serial("poem publishing and authorization loop", () => {
     await authorPage.goto("/poems");
     await expect(publicPoemByTitle(authorPage, title)).toHaveCount(0);
 
-    await staleActionPage.getByRole("button", { name: "撤回", exact: true }).click();
-    await expect(actionError(staleActionPage)).toContainText("操作未完成");
+    const staleResponse = await authorPage.request.post(staleWithdraw.url, {
+      headers: staleWithdraw.headers, data: staleWithdraw.data,
+    });
+    expect(await staleResponse.text()).toContain("操作未完成");
     await gotoHydratedEdit(authorPage, poemId);
     await expect(authorPage.getByText("草稿", { exact: true })).toBeVisible();
   });

@@ -6,7 +6,7 @@ export class CommentPagination<T extends { id: string }> {
   private snapshot: Snapshot<T>;
   private listeners = new Set<() => void>();
   private request?: AbortController;
-  private loadedPages = 1;
+  private requestedPages = 1;
   constructor(
     page: Page<T>, revision: string,
     private fetchPage: (cursor: string, signal: AbortSignal) => Promise<Page<T>>,
@@ -30,13 +30,18 @@ export class CommentPagination<T extends { id: string }> {
   async loadMore() {
     if (this.request || !this.snapshot.nextCursor) return;
     const controller = new AbortController(); this.request = controller;
+    this.requestedPages++;
     this.publish({ loading: true, error: false });
     try {
       const page = await this.fetchPage(this.snapshot.nextCursor!, controller.signal);
       if (controller.signal.aborted) return;
-      this.loadedPages++;
       this.publish({ items: this.merge(this.snapshot.items, page.items), nextCursor: page.nextCursor });
-    } catch { if (!controller.signal.aborted) this.publish({ error: true }); }
+    } catch {
+      if (!controller.signal.aborted) {
+        this.requestedPages--;
+        this.publish({ error: true });
+      }
+    }
     finally {
       if (this.request === controller) { this.request = undefined; this.publish({ loading: false }); }
     }
@@ -45,17 +50,22 @@ export class CommentPagination<T extends { id: string }> {
     if (revision === this.snapshot.revision) return;
     this.request?.abort();
     const controller = new AbortController(); this.request = controller;
-    const depth = this.loadedPages;
-    this.loadedPages = 1;
+    const depth = this.requestedPages;
+    let restoredPages = 1;
     this.publish({ ...page, revision, error: false, loading: depth > 1 && !!page.nextCursor });
     try {
       for (let index = 1; index < depth && this.snapshot.nextCursor; index++) {
         const next = await this.fetchPage(this.snapshot.nextCursor, controller.signal);
         if (controller.signal.aborted) return;
-        this.loadedPages++;
+        restoredPages++;
         this.publish({ items: this.merge(this.snapshot.items, next.items), nextCursor: next.nextCursor });
       }
-    } catch { if (!controller.signal.aborted) this.publish({ error: true }); }
+    } catch {
+      if (!controller.signal.aborted) {
+        this.requestedPages = restoredPages;
+        this.publish({ error: true });
+      }
+    }
     finally {
       if (this.request === controller) { this.request = undefined; this.publish({ loading: false }); }
     }

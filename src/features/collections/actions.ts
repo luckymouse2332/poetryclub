@@ -117,6 +117,7 @@ function isActionState(
 }
 
 function mutationState(error: unknown): CollectionActionState | null {
+  if (error instanceof AccessControlError) return error.code === "account_suspended" ? suspendedState() : { status: "error", message: "你没有执行此操作的权限。" };
   if (!(error instanceof CollectionMutationError)) return null;
   const messages = {
     not_found_or_forbidden: "特辑或收录项目不存在，或者你无权操作。",
@@ -154,7 +155,14 @@ export async function createCollectionAction(
   if (!token.success) {
     return { status: "error", message: token.error.issues[0]?.message, values };
   }
-  const id = await createCollectionDraft(currentUser.id, token.data, input.data);
+  let id: string;
+  try {
+    id = await createCollectionDraft(currentUser.id, token.data, input.data);
+  } catch (error) {
+    const state = mutationState(error);
+    if (state) return state;
+    throw error;
+  }
   revalidatePath("/account/collections");
   redirect(`/account/collections/${id}/edit?created=1`);
 }
@@ -383,6 +391,7 @@ async function moderateCollection(
       message: hidden ? "特辑已隐藏。" : "特辑已恢复。",
     };
   } catch (error) {
+    if (error instanceof AccessControlError) return { status: "error", message: "你没有执行此管理操作的权限。" };
     if (error instanceof CollectionModerationError) {
       return {
         status: "error",

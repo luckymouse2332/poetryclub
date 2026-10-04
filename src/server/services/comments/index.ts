@@ -2,8 +2,10 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { db } from "@/server/db";
-import { poem, poemComment, user } from "@/server/db/schema";
+import { poem, poemComment } from "@/server/db/schema";
 import type { DatabaseTransaction } from "@/server/db/types";
+import { AccessControlError } from "@/server/policies/access";
+import { requireActiveWriter } from "@/server/policies/content-mutation";
 import { requireAdminMutation } from "@/server/policies/admin-mutation";
 import { writeAdminAudit } from "@/server/services/admin-audit";
 import { checkCommentPublishRateLimit } from "./rate-limit";
@@ -51,6 +53,22 @@ function assertSameIdempotentPayload(
   return existing.id;
 }
 
+async function requireCommentWriter(tx: DatabaseTransaction, authorId: string, code: "forbidden" | "invalid_transition" = "forbidden") {
+  try {
+    await requireActiveWriter(tx, authorId);
+  } catch (error) {
+    if (error instanceof AccessControlError) throw new CommentError(code);
+    throw error;
+  }
+}
+
+async function lockWritablePoem(tx: DatabaseTransaction, poemId: string): Promise<void> {
+  const [target] = await tx.select({ id: poem.id }).from(poem)
+    .where(and(eq(poem.id, poemId), eq(poem.status, "published"), eq(poem.moderationStatus, "visible"), sql`${poem.publishedAt} is not null`))
+    .for("share");
+  if (!target) throw new CommentError("invalid_transition");
+}
+
 export async function createComment(
   authorId: string,
   input: CreateCommentInput,
@@ -65,12 +83,7 @@ export async function createComment(
   if (rateLimit === "limited") throw new CommentError("rate_limited");
 
   const result = await db.transaction(async (tx) => {
-    const writers = await tx
-      .select({ status: user.status })
-      .from(user)
-      .where(eq(user.id, authorId))
-      .limit(1);
-    if (writers[0]?.status !== "active") throw new CommentError("forbidden");
+    await requireCommentWriter(tx, authorId);
 
     const poems = await tx
       .select({
@@ -87,7 +100,8 @@ export async function createComment(
           sql`${poem.publishedAt} is not null`,
         ),
       )
-      .limit(1);
+      .limit(1)
+      .for("share");
     const targetPoem = poems[0];
     if (!targetPoem) throw new CommentError("not_found");
 
@@ -228,33 +242,24 @@ export async function updateOwnComment(
   commentId: string,
   body: string,
 ): Promise<void> {
-  const writablePoem = sql`exists (
-    select 1 from ${poem}
-    where ${poem.id} = ${poemId}
-      and ${poem.status} = 'published'
-      and ${poem.moderationStatus} = 'visible'
-      and ${poem.publishedAt} is not null
-  )`;
-  const activeAuthor = sql`exists (
-    select 1 from ${user}
-    where ${user.id} = ${authorId} and ${user.status} = 'active'
-  )`;
-  const updated = await db
-    .update(poemComment)
-    .set({ body, editedAt: new Date(), updatedAt: new Date() })
-    .where(
-      and(
-        eq(poemComment.id, commentId),
-        eq(poemComment.poemId, poemId),
-        eq(poemComment.authorId, authorId),
-        isNull(poemComment.deletedAt),
-        eq(poemComment.moderationStatus, "visible"),
-        writablePoem,
-        activeAuthor,
-      ),
-    )
-    .returning({ id: poemComment.id });
-  if (!updated[0]) throw new CommentError("invalid_transition");
+  await db.transaction(async (tx) => {
+    await requireCommentWriter(tx, authorId, "invalid_transition");
+    await lockWritablePoem(tx, poemId);
+    const updated = await tx
+      .update(poemComment)
+      .set({ body, editedAt: new Date(), updatedAt: new Date() })
+      .where(
+        and(
+          eq(poemComment.id, commentId),
+          eq(poemComment.poemId, poemId),
+          eq(poemComment.authorId, authorId),
+          isNull(poemComment.deletedAt),
+          eq(poemComment.moderationStatus, "visible"),
+        ),
+      )
+      .returning({ id: poemComment.id });
+    if (!updated[0]) throw new CommentError("invalid_transition");
+  });
 }
 
 export async function deleteOwnComment(
@@ -263,18 +268,9 @@ export async function deleteOwnComment(
   commentId: string,
 ): Promise<void> {
   await db.transaction(async (tx) => {
+    await requireCommentWriter(tx, authorId, "invalid_transition");
+    await lockWritablePoem(tx, poemId);
     await lockCommentThread(tx, commentId);
-    const writablePoem = sql`exists (
-      select 1 from ${poem}
-      where ${poem.id} = ${poemId}
-        and ${poem.status} = 'published'
-        and ${poem.moderationStatus} = 'visible'
-        and ${poem.publishedAt} is not null
-    )`;
-    const activeAuthor = sql`exists (
-      select 1 from ${user}
-      where ${user.id} = ${authorId} and ${user.status} = 'active'
-    )`;
     const deleted = await tx
       .update(poemComment)
       .set({ body: "", deletedAt: new Date(), updatedAt: new Date() })
@@ -285,8 +281,6 @@ export async function deleteOwnComment(
           eq(poemComment.authorId, authorId),
           isNull(poemComment.deletedAt),
           eq(poemComment.moderationStatus, "visible"),
-          writablePoem,
-          activeAuthor,
         ),
       )
       .returning({ rootId: poemComment.rootId });

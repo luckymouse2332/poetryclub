@@ -88,6 +88,7 @@ pnpm admin:bootstrap
 | `pnpm hooks:install` | 启用仓库提供的提交信息和推送前 Git hooks |
 | `pnpm db:generate` | 根据 Schema 生成版本化 migration |
 | `pnpm db:migrate` | 应用已经提交的 migration |
+| `pnpm db:migrate:test` | 向显式配置的独立本地测试库应用 migration |
 | `pnpm db:check` | 检查 migration 一致性 |
 | `pnpm db:studio` | 打开 Drizzle Studio |
 | `pnpm admin:bootstrap` | 初始化或提升首个管理员 |
@@ -100,7 +101,26 @@ pnpm exec playwright install chromium
 pnpm test:e2e
 ```
 
-E2E 测试要求数据库已经启动并完成 migration，测试的全局初始化会建立专用管理员账号。
+集成测试和 E2E 会修改账号权限，必须使用独立本地测试库。启动 PostgreSQL 和 Redis 后创建测试库，在 `.env.test.local` 中设置 `TEST_DATABASE_URL`：
+
+```powershell
+docker compose up -d db redis
+docker compose exec -T db createdb -U poetryclub poetryclub_test
+```
+
+```dotenv
+TEST_DATABASE_URL=postgresql://poetryclub:poetryclub_dev@localhost:5432/poetryclub_test
+```
+
+```powershell
+pnpm db:migrate:test
+pnpm test:integration
+pnpm test:e2e
+```
+
+测试启动器拒绝缺失配置、远程数据库及没有 `test_` 前缀或 `_test` 后缀的库名，不会回退到开发库。E2E 启动的应用与数据库 fixture 使用同一测试连接；全局初始化只在该库建立测试管理员。单元测试不需要数据库或 Redis。
+
+E2E 只允许本地应用地址，并始终启动独立配置的服务器；不再支持 `PLAYWRIGHT_REUSE_SERVER=1`，因为已有服务器所用数据库无法验证。开发服务器占用默认端口时，可设置 `PLAYWRIGHT_BASE_URL=http://localhost:4010` 使用另一测试端口。
 
 ## 开发工作流
 

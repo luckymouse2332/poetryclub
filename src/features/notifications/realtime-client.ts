@@ -8,19 +8,21 @@ export function listenForNotificationChanges(
 ) {
   let timer: ReturnType<typeof setTimeout> | undefined;
   const reconcile = () => {
-    setUnavailable(false);
     if (timer !== undefined) return;
     timer = setTimeout(() => { timer = undefined; refresh(); }, 100);
   };
+  const healthy = () => { setUnavailable(false); reconcile(); };
   const unavailable = () => setUnavailable(true);
   const visible = () => { if (documentTarget.visibilityState === "visible") reconcile(); };
-  for (const event of ["notification", "ready", "open"]) stream.addEventListener(event, reconcile);
+  for (const event of ["notification", "ready"]) stream.addEventListener(event, healthy);
+  stream.addEventListener("open", reconcile);
   for (const event of ["unavailable", "error"]) stream.addEventListener(event, unavailable);
   windowTarget.addEventListener("focus", reconcile);
   documentTarget.addEventListener("visibilitychange", visible);
   return () => {
     clearTimeout(timer);
-    for (const event of ["notification", "ready", "open"]) stream.removeEventListener(event, reconcile);
+    for (const event of ["notification", "ready"]) stream.removeEventListener(event, healthy);
+    stream.removeEventListener("open", reconcile);
     for (const event of ["unavailable", "error"]) stream.removeEventListener(event, unavailable);
     windowTarget.removeEventListener("focus", reconcile);
     documentTarget.removeEventListener("visibilitychange", visible);

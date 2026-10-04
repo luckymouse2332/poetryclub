@@ -28,6 +28,7 @@ type AdminUsersPageProps = Readonly<{
 export default async function AdminUsersPage({
   searchParams,
 }: AdminUsersPageProps) {
+  const currentAdmin = await requireAdminOrForbidden();
   const query = await searchParams;
   const parsed = moderationUserListInputSchema.safeParse(query);
   if (!parsed.success) {
@@ -38,9 +39,6 @@ export default async function AdminUsersPage({
   if (result.total > 0 && parsed.data.page > result.pageCount) {
     notFound();
   }
-
-  // 页面入口独立执行管理员授权，不能只依赖父布局。
-  const currentAdmin = await requireAdminOrForbidden();
 
   const activeFilter = Boolean(
     parsed.data.q ?? parsed.data.role ?? parsed.data.status,

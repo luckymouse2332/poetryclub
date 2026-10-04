@@ -7,6 +7,7 @@ import {
 import {
   createUnreadNotificationFixture,
   deleteNotificationById,
+  getAnnouncementReadAtForTest,
 } from "./helpers/database";
 
 async function waitForHydration(page: Page, selector: string): Promise<void> {
@@ -125,7 +126,7 @@ test("desktop notification popover stays synchronized and supports keyboard dism
         window as Window & {
           __emitNotificationStreamEvent?: (type: string) => void;
         }
-      ).__emitNotificationStreamEvent?.("open");
+      ).__emitNotificationStreamEvent?.("ready");
     });
     await expect(popover.getByRole("status")).toHaveCount(0);
     await inboxPage.keyboard.press("Escape");
@@ -170,6 +171,10 @@ test("desktop notification popover stays synchronized and supports keyboard dism
       .url()
       .match(/\/admin\/announcements\/([0-9a-f-]+)\/edit/)?.[1];
     expect(announcementId).toBeTruthy();
+    // A server render/prefetch must not acknowledge a visit before hydration.
+    const rendered = await inboxPage.request.get(`/announcements/${announcementId}`);
+    expect(rendered.ok()).toBe(true);
+    expect(await getAnnouncementReadAtForTest(announcementId!, E2E_ADMIN_EMAIL)).toBeNull();
     await inboxPage.evaluate(() => {
       (
         window as Window & {
@@ -189,7 +194,8 @@ test("desktop notification popover stays synchronized and supports keyboard dism
     const notificationTime = popover.locator("time").filter({ hasText: /刚刚|分钟前|今天|昨天/ }).first();
     await expect(notificationTime).toHaveAttribute("datetime", /T/);
 
-    await popover.getByRole("button").filter({ hasText: title }).click();
+    // Direct navigation must record a mounted visit, without relying on the inbox action.
+    await inboxPage.goto(`/announcements/${announcementId}`);
     await inboxPage.waitForURL(`/announcements/${announcementId}`);
     await expect(inboxPage.getByRole("heading", { level: 1, name: title })).toBeVisible();
     await expect(inboxPage.getByRole("article", { name: title })).toContainText(
@@ -375,6 +381,8 @@ test("mobile notification state and admin entry stay inside their navigation rol
       .getByRole("link", { name: "管理：总览" })
       .click();
     await page.waitForURL(/\/admin$/);
+    await expect(page.getByRole("heading", { level: 1, name: "管理后台", exact: true })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "全站导航" })).toBeHidden();
     await expect(page.getByRole("navigation", {
       name: "管理后台导航",
     })).toHaveCount(0);

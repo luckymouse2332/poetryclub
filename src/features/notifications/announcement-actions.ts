@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import type { AnnouncementActionState } from "@/features/notifications/announcement-action-state";
-import { requireAdmin } from "@/server/policies/access";
+import { AccessControlError, requireAdmin } from "@/server/policies/access";
 import {
   AnnouncementMutationError,
   createAnnouncementDraft,
@@ -50,6 +50,7 @@ function validationState(
 }
 
 function mutationState(error: unknown): AnnouncementActionState | null {
+  if (error instanceof AccessControlError) return { status: "error", message: "你没有执行此管理操作的权限。" };
   if (!(error instanceof AnnouncementMutationError)) return null;
   const messages = {
     not_found: "公告不存在。",
@@ -64,10 +65,24 @@ export async function createAnnouncementAction(
   _previous: AnnouncementActionState,
   formData: FormData,
 ): Promise<AnnouncementActionState> {
-  const admin = await requireAdmin("/admin/announcements");
+  let admin;
+  try {
+    admin = await requireAdmin("/admin/announcements");
+  } catch (error) {
+    const state = mutationState(error);
+    if (state) return state;
+    throw error;
+  }
   const parsed = announcementInputSchema.safeParse(readInput(formData));
   if (!parsed.success) return validationState(parsed);
-  const id = await createAnnouncementDraft(admin.id, parsed.data);
+  let id: string;
+  try {
+    id = await createAnnouncementDraft(admin.id, parsed.data);
+  } catch (error) {
+    const state = mutationState(error);
+    if (state) return state;
+    throw error;
+  }
   revalidatePath("/admin/announcements");
   revalidatePath("/admin/audit");
   redirect(`/admin/announcements/${id}/edit?created=1`);
@@ -78,7 +93,14 @@ export async function updateAnnouncementAction(
   _previous: AnnouncementActionState,
   formData: FormData,
 ): Promise<AnnouncementActionState> {
-  const admin = await requireAdmin("/admin/announcements");
+  let admin;
+  try {
+    admin = await requireAdmin("/admin/announcements");
+  } catch (error) {
+    const state = mutationState(error);
+    if (state) return state;
+    throw error;
+  }
   const parsedId = announcementIdSchema.safeParse(id);
   if (!parsedId.success) return { status: "error", message: "公告编号无效。" };
   const parsed = announcementInputSchema.safeParse(readInput(formData));

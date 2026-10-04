@@ -13,6 +13,7 @@ import {
   createNotificationInTransaction,
   createAnnouncementDraft,
   getUnreadNotificationCount,
+  getUserAnnouncement,
   openUserAnnouncement,
   publishAnnouncement,
   markUserNotificationRead,
@@ -25,6 +26,7 @@ const sql = postgres(databaseUrl, { max: 1, connect_timeout: 10 });
 const userIds: string[] = [];
 const announcementIds: string[] = [];
 const auditTargetIds: string[] = [];
+const notificationKeys: string[] = [];
 
 async function createUser(input: {
   role: "member" | "admin";
@@ -47,6 +49,9 @@ async function createUser(input: {
 }
 
 afterAll(async () => {
+  if (notificationKeys.length) {
+    await sql`delete from notification where dedupe_key in ${sql(notificationKeys)}`;
+  }
   if (announcementIds.length > 0) {
     await sql`delete from announcement where id in ${sql(announcementIds)}`;
     await sql`delete from notification where target_type = 'announcement' and target_id in ${sql(announcementIds)}`;
@@ -85,9 +90,13 @@ describe("notifications and announcements", () => {
       type: "test.read", title: "test", body: "test", dedupeKey: randomUUID(), recipientIds: [recipient],
     }));
     try {
+      vi.mocked(publishNotificationRealtime).mockClear();
       await markUserNotificationRead(recipient, event.notificationId);
+      expect(publishNotificationRealtime).toHaveBeenCalledExactlyOnceWith([recipient], expect.objectContaining({ type: "inbox.changed" }));
+      vi.mocked(publishNotificationRealtime).mockClear();
       const [first] = await sql`select read_at::text as value from notification_recipient where notification_id=${event.notificationId}`;
       await markUserNotificationRead(recipient, event.notificationId);
+      expect(publishNotificationRealtime).not.toHaveBeenCalled();
       const [second] = await sql`select read_at::text as value from notification_recipient where notification_id=${event.notificationId}`;
       expect(second?.value).toBe(first?.value);
       await expect(markUserNotificationRead(outsider, event.notificationId)).rejects.toMatchObject({ code: "not_found" });
@@ -128,6 +137,9 @@ describe("notifications and announcements", () => {
     );
     expect(rows[0]?.status).toBe("published");
     expect(rows[0]?.notification_id).toBeTruthy();
+    expect(await getUnreadNotificationCount(suspendedId)).toBe(1);
+
+    await expect(getUserAnnouncement(suspendedId, announcementId)).resolves.toMatchObject({ id: announcementId });
     expect(await getUnreadNotificationCount(suspendedId)).toBe(1);
 
     const opened = await openUserAnnouncement(suspendedId, announcementId);
@@ -171,6 +183,7 @@ describe("notifications and announcements", () => {
   it("does not duplicate an event or recipient for the same dedupe key", async () => {
     const recipientId = await createUser({ role: "member", status: "active" });
     const dedupeKey = `integration-dedupe:${randomUUID()}`;
+    notificationKeys.push(dedupeKey);
 
     await db.transaction(async (tx) => {
       await createNotificationInTransaction(tx, {

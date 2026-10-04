@@ -92,7 +92,9 @@ src/
 - M0 的认证表为 Better Auth 官方 CLI 生成的 `user`、`session`、`account`、`verification`，随后由 Drizzle Kit 生成 `drizzle/0000_harsh_echo.sql`。
 - `user → session/account` 外键使用级联删除；邮箱和 session token 唯一，外键与验证标识具有索引。
 - 生产环境必须使用持久化的 PostgreSQL 数据卷。
-- 可能移除 active admin 的操作先锁定 `admin_guard(id=1)`，在同一事务内复查 active admin 数量、更新目标并写审计，避免并发产生 0 个管理员。
+- 所有管理写操作先锁定 `admin_guard(id=1)`，再重新读取操作者权威状态，最后锁目标；角色与停用操作使用相同 guard，避免等待期间撤权后继续操作。可能移除 active admin 的操作还在同一事务内复查数量，避免产生 0 个管理员。当前低频治理写入有意串行化。
+- 内容写入服务在事务内先对作者行加 SHARE 锁并检查 active，再锁诗作、特辑或评论线程。停用更新与写入按数据库锁顺序提交，入口检查不能替代事务检查；内容写入不得在持有内容锁后请求 admin guard。
+- 评论创建锁住可写诗作；回复、删除及治理先锁线程根，再写子评论和计算活动时间。活动聚合与 greatest 更新使用数据库时间运算，避免应用时区往返及并发倒退。
 - 诗作作者状态 `draft | published` 与治理状态 `visible | hidden` 独立；公开读取统一要求 published、visible 且 `publishedAt` 非空。
 - 诗作作者状态、治理状态和访问范围彼此独立；匿名读取要求 `published`、`visible`、`publishedAt` 非空且 `visibility = public`，active 成员/admin 读取允许 `public | members_only`。
 - `poem_comment` 使用 `parent_id + root_id + depth` 表达线程结构；首版服务层仅接受 `depth=0` 根评论和 `depth=1` 回复。作者删除清空正文并保留节点，管理员隐藏不破坏回复结构。
@@ -116,11 +118,22 @@ src/
 - 所有列表必须分页；禁止无界读取帖子、评论、用户或通知。
 - 评论根线程使用版本化的不透明“活动时间 + ID”游标，每批十条；完整线程使用“创建时间 + ID”游标默认读取最近二十条并向更早回复翻页。游标 payload 严格拒绝额外字段和错误类型。
 - 特辑列表、公开目录、整理者目录和作品选择器使用固定页大小的页码分页；逐篇阅读通过当前位置分别查询最近的有效前后项目，不无界读取整份目录。
+- 评论首页的回复预览按根 ID 分组使用窗口函数，一次读取每根最新三条；客户端分页控制器按列表身份持有加载深度，完整服务端快照到达时取消旧请求并恢复已加载或正在请求的历史页。
+
+## 评论与通知模块
+
+- 评论服务的 `types.ts` 定义契约，`queries.ts` 负责有界读取和 DTO，`index.ts` 负责事务写入并保留已有导出。评论 UI 分为表单、卡片和列表/线程组合；分页控制器独立于 React，hook 只管理订阅及生命周期。
+- 通知服务分为 `types`、`delivery`、`inbox`、`announcements`，兼容入口仍为 `notifications/index.ts`。服务保留领域 SQL，不引入通用仓储抽象；事务类型归属 `server/db/types.ts`。
+- 公告发布使用 INSERT SELECT 建立收件人快照，正文、通知、快照与审计原子提交；提交后按收件人 ID 每批 100 个唤醒，Redis 发布并发每批 32 个。持久化仍是权威，Redis 失败不回滚业务。
+- 公告页面查询是纯读取，预加载不产生已读副作用。实际挂载后由独立 Server Action 认证、校验和按快照授权确认已读；仅首次已读或确实发生批量已读时向同账号连接广播唤醒。
+- SSE 生命周期集中在服务端 stream 模块，统一释放计时器和订阅，订阅失败、取消、晚到订阅均有回归覆盖。连接最长五分钟后重新建立并认证；会话撤销存在最长五分钟的已连接窗口。
+- 浏览器在订阅 ready、实际通知、连接打开、窗口恢复可见时重读快照；连续事件合并。只有 ready 或实际事件确认实时连接恢复，焦点恢复不会掩盖不可用提示。丢失唤醒通过重读恢复，不承诺 Redis 事件重放或 exactly-once 传输。
 
 ## 测试策略
 
 - 单元测试：Vitest（node 环境），匹配 `tests/unit/**/*.test.ts`。
 - 集成测试：Vitest（node 环境），匹配 `tests/integration/**/*.test.ts`，通过 `pnpm test:integration` 连接真实 PostgreSQL。
+- 集成与 E2E 必须显式配置本地 `TEST_DATABASE_URL`，库名使用 `test_` 前缀或 `_test` 后缀；启动器不回退到开发 DATABASE_URL。使用 `pnpm db:migrate:test` 准备版本化 migration，E2E fixture 和 webServer 共用该连接。
 - E2E：Playwright，位于 `tests/e2e/`，webServer 使用 `pnpm dev`。
 - 服务端入口的认证 / 授权 / 校验逻辑通过直接测试 service 与 policy 层覆盖（自 M1 起），不依赖真实数据库。
 - 质量命令：`pnpm typecheck`、`pnpm lint`、`pnpm test`、`pnpm test:integration`、`pnpm test:e2e`、`pnpm build`、`pnpm db:check`。

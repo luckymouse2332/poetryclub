@@ -145,7 +145,13 @@ export async function createPoemAction(
     };
   }
 
-  const id = await createDraft(currentUser.id, creationToken.data, input.data);
+  let id: string;
+  try {
+    id = await createDraft(currentUser.id, creationToken.data, input.data);
+  } catch (error) {
+    if (error instanceof AccessControlError) return error.code === "account_suspended" ? suspendedErrorState() : operationErrorState();
+    throw error;
+  }
   revalidatePath("/account/poems");
   redirect(`/account/poems/${id}/edit?created=1`);
 }
@@ -189,6 +195,7 @@ export async function updatePoemAction(
       revalidatePublicPoem(parsedId.data);
     }
   } catch (error) {
+    if (error instanceof AccessControlError) return error.code === "account_suspended" ? suspendedErrorState() : operationErrorState();
     if (error instanceof PoemMutationError) {
       return operationErrorState();
     }
@@ -221,6 +228,7 @@ export async function publishPoemAction(
       redirect(`/account/poems/${parsedId.data}/edit?published=1`);
     }
   } catch (error) {
+    if (error instanceof AccessControlError) return error.code === "account_suspended" ? suspendedErrorState() : operationErrorState();
     if (error instanceof PoemMutationError) {
       return operationErrorState();
     }
@@ -246,6 +254,7 @@ export async function withdrawPoemAction(
   try {
     await withdrawOwnPublishedPoem(parsedId.data, currentUser.id);
   } catch (error) {
+    if (error instanceof AccessControlError) return error.code === "account_suspended" ? suspendedErrorState() : operationErrorState();
     if (error instanceof PoemMutationError) {
       return operationErrorState();
     }
@@ -274,6 +283,7 @@ export async function deletePoemAction(
   try {
     await deleteOwnDraft(parsedId.data, currentUser.id);
   } catch (error) {
+    if (error instanceof AccessControlError) return error.code === "account_suspended" ? suspendedErrorState() : operationErrorState();
     if (error instanceof PoemMutationError) {
       return operationErrorState();
     }

@@ -21,18 +21,20 @@ export function CommentForm({
   onSuccess?: () => void;
 }>) {
   const router = useRouter();
-  const [creationToken] = useState(() => initialCreationToken ?? crypto.randomUUID());
+  const [creationToken, setCreationToken] = useState(() => initialCreationToken ?? crypto.randomUUID());
   const completed = useRef<CommentActionState | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
-  const tokenRef = useRef<HTMLInputElement>(null);
   const action = createCommentAction.bind(null, poemId, parentId);
-  const [state, formAction, pending] = useActionState(action, INITIAL_STATE);
+  const [state, formAction, pending] = useActionState(async (previous: CommentActionState, formData: FormData) => {
+    const result = await action(previous, formData);
+    if (result.status === "success") setCreationToken(crypto.randomUUID());
+    return result;
+  }, INITIAL_STATE);
 
   useEffect(() => {
     if (state.status !== "success" || completed.current === state) return;
     completed.current = state;
     formRef.current?.reset();
-    if (tokenRef.current) tokenRef.current.value = crypto.randomUUID();
     router.refresh();
     onSuccess?.();
   }, [state, router, onSuccess]);
@@ -40,10 +42,9 @@ export function CommentForm({
   return (
     <form ref={formRef} action={formAction} className="space-y-3">
       <input
-        ref={tokenRef}
         type="hidden"
         name="creationToken"
-        defaultValue={creationToken}
+        value={creationToken}
       />
       {state.message ? (
         <Alert

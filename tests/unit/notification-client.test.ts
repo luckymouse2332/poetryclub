@@ -15,7 +15,11 @@ it("coalesces recovery and delivery and removes all listeners on cleanup", () =>
   expect(unavailable).toHaveBeenLastCalledWith(true);
   win.dispatchEvent(new Event("focus")); vi.advanceTimersByTime(100);
   expect(refresh).toHaveBeenCalledTimes(2);
+  expect(unavailable).toHaveBeenLastCalledWith(true);
+  stream.dispatchEvent(new Event("open"));
+  expect(unavailable).toHaveBeenLastCalledWith(true);
   stream.dispatchEvent(new Event("ready")); stop();
+  expect(unavailable).toHaveBeenLastCalledWith(false);
   doc.dispatchEvent(new Event("visibilitychange"));
   stream.dispatchEvent(new Event("notification")); vi.runAllTimers();
   expect(refresh).toHaveBeenCalledTimes(2);

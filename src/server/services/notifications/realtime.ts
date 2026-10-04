@@ -41,7 +41,9 @@ export async function getRedisCommandClient(): Promise<RedisClientType> {
     return globalForNotificationRedis.notificationRedisPublisher;
   }
   if (!globalForNotificationRedis.notificationRedisConnecting) {
-    globalForNotificationRedis.notificationRedisPublisher?.destroy();
+    if (globalForNotificationRedis.notificationRedisPublisher?.isOpen) {
+      globalForNotificationRedis.notificationRedisPublisher.destroy();
+    }
     const client = createRedisConnection(false);
     globalForNotificationRedis.notificationRedisPublisher = client;
     globalForNotificationRedis.notificationRedisConnecting = client
@@ -49,7 +51,7 @@ export async function getRedisCommandClient(): Promise<RedisClientType> {
       .then(() => client)
       .catch((error) => {
         globalForNotificationRedis.notificationRedisPublisher = undefined;
-        client.destroy();
+        if (client.isOpen) client.destroy();
         throw error;
       })
       .finally(() => {
