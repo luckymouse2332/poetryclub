@@ -2,7 +2,11 @@
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+} from "@/components/ui/popover";
 
 export function AuthErrorPopover({
   message,
@@ -30,7 +34,13 @@ export function AuthErrorPopover({
       >
         <p className="font-medium">请检查后重试</p>
         <p className="mt-2 text-label leading-copy">{message}</p>
-        <Button type="button" variant="ghost" size="sm" className="mt-3" onClick={() => onOpenChange(false)}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="mt-3"
+          onClick={() => onOpenChange(false)}
+        >
           知道了
         </Button>
       </PopoverContent>

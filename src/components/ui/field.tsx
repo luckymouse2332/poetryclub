@@ -2,7 +2,6 @@
 
 /** M6.7 paper journal: shape, spacing, typography and state styling redesigned; upstream structure and public API preserved. */
 
-
 import * as React from "react";
 import { useMemo } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -68,18 +67,21 @@ function FieldGroup({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-const fieldVariants = cva("group/field w-full data-[invalid=true]:text-danger", {
-  variants: {
-    orientation: {
-      vertical: "flex flex-col gap-2",
-      horizontal:
-        "flex flex-row items-start gap-3 [&>[data-slot=field-label]]:flex-auto",
+const fieldVariants = cva(
+  "group/field w-full data-[invalid=true]:text-danger",
+  {
+    variants: {
+      orientation: {
+        vertical: "flex flex-col gap-2",
+        horizontal:
+          "flex flex-row items-start gap-3 [&>[data-slot=field-label]]:flex-auto",
+      },
+    },
+    defaultVariants: {
+      orientation: "vertical",
     },
   },
-  defaultVariants: {
-    orientation: "vertical",
-  },
-});
+);
 
 function Field({
   className,
@@ -114,7 +116,16 @@ function FieldLabel({
   className,
   ...props
 }: React.ComponentProps<typeof Label>) {
-  return <Label data-slot="field-label" className={cn("flex flex-wrap items-baseline gap-1.5 has-[>[data-slot=field-title]]:flex-col has-[>[data-slot=field-title]]:items-start", className)} {...props} />;
+  return (
+    <Label
+      data-slot="field-label"
+      className={cn(
+        "flex flex-wrap items-baseline gap-1.5 has-[>[data-slot=field-title]]:flex-col has-[>[data-slot=field-title]]:items-start",
+        className,
+      )}
+      {...props}
+    />
+  );
 }
 
 function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
@@ -134,7 +145,10 @@ function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
   return (
     <p
       data-slot="field-description"
-      className={cn("text-label font-normal leading-relaxed text-subtle", className)}
+      className={cn(
+        "text-label leading-relaxed font-normal text-subtle",
+        className,
+      )}
       {...props}
     />
   );
@@ -156,7 +170,7 @@ function FieldSeparator({
       {children ? (
         <span
           data-slot="field-separator-content"
-          className="text-caption relative mx-auto block w-fit bg-surface px-2 text-muted-foreground"
+          className="relative mx-auto block w-fit bg-surface px-2 text-caption text-muted-foreground"
         >
           {children}
         </span>
@@ -208,7 +222,10 @@ function FieldError({
     <div
       role="alert"
       data-slot="field-error"
-      className={cn("border-l-2 border-danger pl-3 text-label leading-relaxed text-danger", className)}
+      className={cn(
+        "border-l-2 border-danger pl-3 text-label leading-relaxed text-danger",
+        className,
+      )}
       {...props}
     >
       {content}

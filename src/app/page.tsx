@@ -18,8 +18,13 @@ export default async function HomePage() {
       <section id="top" aria-labelledby="home-title" className={styles.hero}>
         <div className={styles.heroContent}>
           <p className={styles.heroEyebrow}>回中三班 · 2021—2024级</p>
-          <h1 id="home-title" aria-label="初中三年留下的一些诗。" className={styles.heroTitle}>
-            <span className={styles.heroTitlePhrase}>初中三年留下的</span><span className={styles.heroTitlePhrase}>一些诗。</span>
+          <h1
+            id="home-title"
+            aria-label="初中三年留下的一些诗。"
+            className={styles.heroTitle}
+          >
+            <span className={styles.heroTitlePhrase}>初中三年留下的</span>
+            <span className={styles.heroTitlePhrase}>一些诗。</span>
           </h1>
           <p className={styles.heroDescription}>
             三年里随手写下的诗，以及一些只有我们还记得的事情。
@@ -79,21 +84,19 @@ export default async function HomePage() {
                       >
                         {poem.authorName}
                       </span>
-                      {poem.visibility === "members_only"
-                        ? (
-                            <>
-                              <span
-                                aria-hidden="true"
-                                className={styles.poemVisibilitySeparator}
-                              >
-                                ·
-                              </span>
-                              <span className={styles.poemVisibilityLabel}>
-                                成员可见
-                              </span>
-                            </>
-                          )
-                        : null}
+                      {poem.visibility === "members_only" ? (
+                        <>
+                          <span
+                            aria-hidden="true"
+                            className={styles.poemVisibilitySeparator}
+                          >
+                            ·
+                          </span>
+                          <span className={styles.poemVisibilityLabel}>
+                            成员可见
+                          </span>
+                        </>
+                      ) : null}
                     </p>
                   </li>
                 ))}
@@ -139,7 +142,9 @@ export default async function HomePage() {
               </p>
               <Link href="/about" className={styles.editorialLink}>
                 <span className={styles.linkText}>阅读诗社档案</span>
-                <span aria-hidden="true" className={styles.linkArrow}>→</span>
+                <span aria-hidden="true" className={styles.linkArrow}>
+                  →
+                </span>
               </Link>
             </div>
           </section>

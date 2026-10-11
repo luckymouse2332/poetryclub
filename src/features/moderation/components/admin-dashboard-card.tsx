@@ -29,11 +29,7 @@ export function AdminDashboardCard({
   tone,
 }: AdminDashboardCardProps) {
   return (
-    <div
-      data-slot="admin-dashboard-card"
-      data-tone={tone}
-      className="h-full"
-    >
+    <div data-slot="admin-dashboard-card" data-tone={tone} className="h-full">
       <Card
         className={cn(
           "relative h-full gap-0 transition-colors hover:border-primary/40 has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-ring has-[a:focus-visible]:ring-offset-2 has-[a:focus-visible]:ring-offset-background",
@@ -44,10 +40,13 @@ export function AdminDashboardCard({
           <CardTitle>
             <Link
               href={href}
-              className="flex min-h-control items-center justify-between gap-4 after:absolute after:inset-0 no-underline transition-colors hover:text-primary focus-visible:outline-none"
+              className="flex min-h-control items-center justify-between gap-4 no-underline transition-colors after:absolute after:inset-0 hover:text-primary focus-visible:outline-none"
             >
               {title}
-              <ArrowUpRight aria-hidden="true" className="size-5 shrink-0 text-primary" />
+              <ArrowUpRight
+                aria-hidden="true"
+                className="size-5 shrink-0 text-primary"
+              />
             </Link>
           </CardTitle>
           <CardDescription>{description}</CardDescription>

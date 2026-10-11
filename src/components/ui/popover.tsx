@@ -2,7 +2,6 @@
 
 /** M6.7 paper journal: shape, spacing, typography and state styling redesigned; upstream structure and public API preserved. */
 
-
 /**
  * shadcn/ui Popover，上游结构、data-slot 与 Radix 交互保持不变。
  * 项目差异：使用回中诗社的纸面、边框和浮层 Token，去掉默认 dark 变体。
@@ -22,9 +21,7 @@ function Popover({
 function PopoverTrigger({
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Trigger>) {
-  return (
-    <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />
-  );
+  return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />;
 }
 
 function PopoverContent({
@@ -61,7 +58,10 @@ function PopoverHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="popover-header"
-      className={cn("flex flex-col gap-2 border-b border-border px-5 py-4 text-label", className)}
+      className={cn(
+        "flex flex-col gap-2 border-b border-border px-5 py-4 text-label",
+        className,
+      )}
       {...props}
     />
   );

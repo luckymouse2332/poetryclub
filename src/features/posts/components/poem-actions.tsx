@@ -92,16 +92,21 @@ export function PoemActions({
       >
         {status === "draft" ? (
           <>
-            {showPublish ? <form action={publishAction} onSubmit={guardUnsavedFormSubmission}>
-              <Button
-                type="submit"
-                variant="primary"
-                size={buttonSize}
-                loading={publishPending}
+            {showPublish ? (
+              <form
+                action={publishAction}
+                onSubmit={guardUnsavedFormSubmission}
               >
-                {publishPending ? "正在发布…" : "发布"}
-              </Button>
-            </form> : null}
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size={buttonSize}
+                  loading={publishPending}
+                >
+                  {publishPending ? "正在发布…" : "发布"}
+                </Button>
+              </form>
+            ) : null}
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button type="button" variant="danger" size={buttonSize}>
@@ -118,7 +123,10 @@ export function PoemActions({
                 <ActionError state={deleteState} />
                 <AlertDialogFooter>
                   <AlertDialogCancel>取消</AlertDialogCancel>
-                  <form action={deleteAction} onSubmit={guardUnsavedFormSubmission}>
+                  <form
+                    action={deleteAction}
+                    onSubmit={guardUnsavedFormSubmission}
+                  >
                     <Button
                       type="submit"
                       variant="danger"

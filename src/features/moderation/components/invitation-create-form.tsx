@@ -53,7 +53,7 @@ export function InvitationCreateForm() {
         <Alert variant="success" role="status">
           <AlertDescription>
             <p className="text-label text-success">{state.message}</p>
-            <p className="mt-3 break-all border border-input bg-paper px-3 py-2 font-mono text-body text-foreground">
+            <p className="mt-3 border border-input bg-paper px-3 py-2 font-mono text-body break-all text-foreground">
               {code}
             </p>
             <div className="mt-3">

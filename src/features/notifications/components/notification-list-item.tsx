@@ -99,7 +99,7 @@ export function NotificationListItem({
   return (
     <li
       data-unread={notification.unread}
-      className="border-b border-border-subtle last:border-b-0 border-l-2 border-l-transparent data-[unread=true]:border-l-seal data-[unread=true]:bg-paper"
+      className="border-b border-l-2 border-border-subtle border-l-transparent last:border-b-0 data-[unread=true]:border-l-seal data-[unread=true]:bg-paper"
     >
       {action ? (
         <form action={action}>

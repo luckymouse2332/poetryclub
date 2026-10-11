@@ -11,14 +11,17 @@ import { cn } from "@/lib/utils";
  * Alert 本身不默认创建 live region；调用方按动态状态显式设置 role。
  */
 const alertVariants = cva(
-  "relative grid w-full grid-cols-[0_1fr] items-start gap-y-2 rounded-none border-y border-l-2 border-r-0 px-4 py-4 text-label has-[>svg]:grid-cols-[1rem_1fr] has-[>svg]:gap-x-3 [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current",
+  "relative grid w-full grid-cols-[0_1fr] items-start gap-y-2 rounded-none border-y border-r-0 border-l-2 px-4 py-4 text-label has-[>svg]:grid-cols-[1rem_1fr] has-[>svg]:gap-x-3 [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current",
   {
     variants: {
       variant: {
         default: "border-border border-l-primary bg-paper text-foreground",
-        success: "border-border-subtle border-l-success bg-transparent text-success",
-        warning: "border-border-subtle border-l-warning bg-transparent text-warning",
-        danger: "border-border-subtle border-l-danger bg-transparent text-danger",
+        success:
+          "border-border-subtle border-l-success bg-transparent text-success",
+        warning:
+          "border-border-subtle border-l-warning bg-transparent text-warning",
+        danger:
+          "border-border-subtle border-l-danger bg-transparent text-danger",
       },
     },
     defaultVariants: {
@@ -33,7 +36,9 @@ const STATUS_ICONS = {
   success: CircleCheck,
   warning: TriangleAlert,
   danger: CircleAlert,
-} satisfies Partial<Record<AlertVariant, React.ComponentType<React.ComponentProps<"svg">>>>;
+} satisfies Partial<
+  Record<AlertVariant, React.ComponentType<React.ComponentProps<"svg">>>
+>;
 
 function Alert({
   className,

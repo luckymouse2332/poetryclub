@@ -10,7 +10,11 @@ export default function ComponentPreviewPage() {
 
   return (
     <PageContainer>
-      <PageHeader eyebrow="测试环境" title="纸刊组件状态" description="基础组件的造型、分区与交互状态检查。" />
+      <PageHeader
+        eyebrow="测试环境"
+        title="纸刊组件状态"
+        description="基础组件的造型、分区与交互状态检查。"
+      />
       <ComponentShowcase />
     </PageContainer>
   );

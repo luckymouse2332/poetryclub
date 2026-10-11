@@ -30,10 +30,7 @@ export function PaginationNavigation({
   if (pageCount <= 1) return null;
 
   return (
-    <Pagination
-      aria-label={ariaLabel}
-      className={cn("pt-6", className)}
-    >
+    <Pagination aria-label={ariaLabel} className={cn("pt-6", className)}>
       <PaginationContent className="w-full justify-between gap-4 border-t-0 pt-0">
         <PaginationItem>
           {previousHref ? (
@@ -41,7 +38,11 @@ export function PaginationNavigation({
               <Link href={previousHref}>上一页</Link>
             </PaginationPrevious>
           ) : (
-            <PaginationPrevious aria-disabled="true" tabIndex={-1} className="invisible" />
+            <PaginationPrevious
+              aria-disabled="true"
+              tabIndex={-1}
+              className="invisible"
+            />
           )}
         </PaginationItem>
         <PaginationItem>
@@ -55,7 +56,11 @@ export function PaginationNavigation({
               <Link href={nextHref}>下一页</Link>
             </PaginationNext>
           ) : (
-            <PaginationNext aria-disabled="true" tabIndex={-1} className="invisible" />
+            <PaginationNext
+              aria-disabled="true"
+              tabIndex={-1}
+              className="invisible"
+            />
           )}
         </PaginationItem>
       </PaginationContent>

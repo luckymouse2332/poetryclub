@@ -50,7 +50,10 @@ export default function RootLayout({
         <ThemeInitialization />
       </head>
       <body className="flex min-h-full flex-col">
-        <a href="#main-content" className="sr-only z-sheet rounded-md bg-primary px-4 py-3 text-primary-foreground focus:not-sr-only focus:fixed focus:top-2 focus:left-2">
+        <a
+          href="#main-content"
+          className="sr-only z-sheet rounded-md bg-primary px-4 py-3 text-primary-foreground focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+        >
           跳转到主要内容
         </a>
         <AuthNavigation />

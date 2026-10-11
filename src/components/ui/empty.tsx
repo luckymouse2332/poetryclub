@@ -70,7 +70,10 @@ function EmptyTitle({ className, ...props }: React.ComponentProps<"h3">) {
   return (
     <h3
       data-slot="empty-title"
-      className={cn("font-serif text-body-lg font-semibold text-foreground", className)}
+      className={cn(
+        "font-serif text-body-lg font-semibold text-foreground",
+        className,
+      )}
       {...props}
     />
   );
@@ -90,7 +93,10 @@ function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="empty-content"
-      className={cn("mt-1 flex flex-row flex-wrap items-center gap-3", className)}
+      className={cn(
+        "mt-1 flex flex-row flex-wrap items-center gap-3",
+        className,
+      )}
       {...props}
     />
   );

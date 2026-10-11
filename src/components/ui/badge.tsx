@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
  * Badge 不默认承担按钮行为；需要可交互标签时用 `asChild` 包裹真实可聚焦元素。
  */
 const badgeVariants = cva(
-  "inline-flex items-center gap-1.5 whitespace-nowrap rounded-none border px-2 py-1 text-caption font-medium tracking-wide",
+  "inline-flex items-center gap-1.5 rounded-none border px-2 py-1 text-caption font-medium tracking-wide whitespace-nowrap",
   {
     variants: {
       variant: {

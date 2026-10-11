@@ -23,9 +23,13 @@ export default async function NewCollectionPage() {
         <PageHeader eyebrow="我的作品" title="新建特辑" />
         <AccountSectionNavigation />
         <Alert variant="danger" className="mt-8">
-          <AlertDescription>你的账号已被禁用，目前不能新建特辑。</AlertDescription>
+          <AlertDescription>
+            你的账号已被禁用，目前不能新建特辑。
+          </AlertDescription>
           <div className="mt-4">
-            <Button asChild variant="secondary"><Link href="/account/collections">返回我的特辑</Link></Button>
+            <Button asChild variant="secondary">
+              <Link href="/account/collections">返回我的特辑</Link>
+            </Button>
           </div>
         </Alert>
       </PageContainer>

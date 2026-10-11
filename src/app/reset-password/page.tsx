@@ -45,12 +45,16 @@ export default async function ResetPasswordPage({
       {tokenValid && token ? (
         <ResetPasswordForm token={token} />
       ) : (
-        <Surface variant="paper" className="w-full text-center" aria-label="重置链接状态">
+        <Surface
+          variant="paper"
+          className="w-full text-center"
+          aria-label="重置链接状态"
+        >
           <Alert variant="danger" role="alert" className="text-left">
             <AlertDescription className="text-body">
-            {error || token
-              ? "这个重置链接无效、已过期或已经使用，请重新申请。"
-              : "重置链接不完整，请重新申请密码重置邮件。"}
+              {error || token
+                ? "这个重置链接无效、已过期或已经使用，请重新申请。"
+                : "重置链接不完整，请重新申请密码重置邮件。"}
             </AlertDescription>
           </Alert>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">

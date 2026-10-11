@@ -2,7 +2,6 @@
 
 /** M6.7 paper journal: shape, spacing, typography and state styling redesigned; upstream structure and public API preserved. */
 
-
 import * as React from "react";
 import { Separator as SeparatorPrimitive } from "radix-ui";
 
@@ -26,7 +25,7 @@ function Separator({
       data-decorative={decorative}
       orientation={orientation}
       className={cn(
-        "shrink-0 bg-border data-[orientation=horizontal]:data-[decorative=false]:h-0.5 data-[orientation=horizontal]:data-[decorative=false]:bg-border-strong data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px",
+        "shrink-0 bg-border data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=horizontal]:data-[decorative=false]:h-0.5 data-[orientation=horizontal]:data-[decorative=false]:bg-border-strong data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px",
         className,
       )}
       {...props}

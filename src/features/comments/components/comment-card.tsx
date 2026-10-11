@@ -55,10 +55,15 @@ function CommentEditor({ comment }: Readonly<{ comment: CommentDto }>) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button type="button" size="sm" variant="ghost">编辑</Button>
+        <Button type="button" size="sm" variant="ghost">
+          编辑
+        </Button>
       </DialogTrigger>
       {open ? (
-        <CommentEditorContent comment={comment} onClose={() => setOpen(false)} />
+        <CommentEditorContent
+          comment={comment}
+          onClose={() => setOpen(false)}
+        />
       ) : null}
     </Dialog>
   );
@@ -79,42 +84,44 @@ function CommentEditorContent({
   }, [state.status, router, onClose]);
   return (
     <DialogContent>
-        <DialogHeader>
-          <DialogTitle>编辑评论</DialogTitle>
-          <DialogDescription>保存后只显示最新版本，并标记为已编辑。</DialogDescription>
-        </DialogHeader>
-        <form action={formAction} className="space-y-4">
-          {state.status === "error" && state.message ? (
-            <Alert variant="danger" role="alert">
-              <AlertDescription>{state.message}</AlertDescription>
-            </Alert>
-          ) : null}
-          <FormField
-            id={`edit-comment-${comment.id}`}
-            label="评论内容"
-            required
-            disabled={pending}
-            error={state.fieldError}
-          >
-            {(controlProps) => (
-              <Textarea
-                {...controlProps}
-                name="body"
-                rows={6}
-                maxLength={COMMENT_BODY_MAX_LENGTH}
-                defaultValue={comment.body ?? ""}
-              />
-            )}
-          </FormField>
-          <DialogFooter>
-            <Button type="button" variant="ghost" onClick={onClose}>
-              取消
-            </Button>
-            <Button type="submit" loading={pending}>
-              {pending ? "正在保存…" : "保存修改"}
-            </Button>
-          </DialogFooter>
-        </form>
+      <DialogHeader>
+        <DialogTitle>编辑评论</DialogTitle>
+        <DialogDescription>
+          保存后只显示最新版本，并标记为已编辑。
+        </DialogDescription>
+      </DialogHeader>
+      <form action={formAction} className="space-y-4">
+        {state.status === "error" && state.message ? (
+          <Alert variant="danger" role="alert">
+            <AlertDescription>{state.message}</AlertDescription>
+          </Alert>
+        ) : null}
+        <FormField
+          id={`edit-comment-${comment.id}`}
+          label="评论内容"
+          required
+          disabled={pending}
+          error={state.fieldError}
+        >
+          {(controlProps) => (
+            <Textarea
+              {...controlProps}
+              name="body"
+              rows={6}
+              maxLength={COMMENT_BODY_MAX_LENGTH}
+              defaultValue={comment.body ?? ""}
+            />
+          )}
+        </FormField>
+        <DialogFooter>
+          <Button type="button" variant="ghost" onClick={onClose}>
+            取消
+          </Button>
+          <Button type="submit" loading={pending}>
+            {pending ? "正在保存…" : "保存修改"}
+          </Button>
+        </DialogFooter>
+      </form>
     </DialogContent>
   );
 }
@@ -124,10 +131,15 @@ function CommentDelete({ comment }: Readonly<{ comment: CommentDto }>) {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button type="button" size="sm" variant="ghost">删除</Button>
+        <Button type="button" size="sm" variant="ghost">
+          删除
+        </Button>
       </AlertDialogTrigger>
       {open ? (
-        <CommentDeleteContent comment={comment} onClose={() => setOpen(false)} />
+        <CommentDeleteContent
+          comment={comment}
+          onClose={() => setOpen(false)}
+        />
       ) : null}
     </AlertDialog>
   );
@@ -148,25 +160,25 @@ function CommentDeleteContent({
   }, [state.status, router, onClose]);
   return (
     <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>删除这条评论？</AlertDialogTitle>
-          <AlertDialogDescription>
-            正文会被清空且不能恢复。已有回复会继续显示，结构占位会保留。
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        {state.status === "error" && state.message ? (
-          <Alert variant="danger" role="alert">
-            <AlertDescription>{state.message}</AlertDescription>
-          </Alert>
-        ) : null}
-        <form action={formAction}>
-          <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
-            <Button type="submit" variant="danger" loading={pending}>
-              {pending ? "正在删除…" : "确认删除"}
-            </Button>
-          </AlertDialogFooter>
-        </form>
+      <AlertDialogHeader>
+        <AlertDialogTitle>删除这条评论？</AlertDialogTitle>
+        <AlertDialogDescription>
+          正文会被清空且不能恢复。已有回复会继续显示，结构占位会保留。
+        </AlertDialogDescription>
+      </AlertDialogHeader>
+      {state.status === "error" && state.message ? (
+        <Alert variant="danger" role="alert">
+          <AlertDescription>{state.message}</AlertDescription>
+        </Alert>
+      ) : null}
+      <form action={formAction}>
+        <AlertDialogFooter>
+          <AlertDialogCancel>取消</AlertDialogCancel>
+          <Button type="submit" variant="danger" loading={pending}>
+            {pending ? "正在删除…" : "确认删除"}
+          </Button>
+        </AlertDialogFooter>
+      </form>
     </AlertDialogContent>
   );
 }
@@ -176,7 +188,9 @@ function CommentReply({ comment }: Readonly<{ comment: CommentDto }>) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button type="button" size="sm" variant="ghost">回复</Button>
+        <Button type="button" size="sm" variant="ghost">
+          回复
+        </Button>
       </DialogTrigger>
       {open ? (
         <DialogContent>
@@ -205,25 +219,29 @@ export function CommentCard({
       tabIndex={focused ? -1 : undefined}
       data-slot="comment"
       data-depth={comment.depth}
-      className={`min-w-0 border-t px-4 py-5 outline-none transition-colors first:border-t-0 sm:px-6 lg:px-8 ${
+      className={`min-w-0 border-t px-4 py-5 transition-colors outline-none first:border-t-0 sm:px-6 lg:px-8 ${
         focused
           ? "border-seal-foreground bg-seal-surface"
           : "border-border-subtle bg-transparent"
       } ${comment.depth > 0 ? "ml-4 border-l sm:ml-6" : ""}`}
     >
       <header className="flex flex-wrap items-baseline justify-between gap-2 text-label">
-        <span className="min-w-0 break-words font-medium text-foreground">{comment.authorName}</span>
+        <span className="min-w-0 font-medium break-words text-foreground">
+          {comment.authorName}
+        </span>
         <span className="text-subtle">
-          <time dateTime={comment.createdAt}>{formatCommentTime(comment.createdAt)}</time>
+          <time dateTime={comment.createdAt}>
+            {formatCommentTime(comment.createdAt)}
+          </time>
           {comment.editedAt ? " · 已编辑" : null}
         </span>
       </header>
       {comment.placeholder === "deleted" ? (
-        <p className="mt-3 italic text-subtle">这条评论已由作者删除。</p>
+        <p className="mt-3 text-subtle italic">这条评论已由作者删除。</p>
       ) : comment.placeholder === "hidden" ? (
-        <p className="mt-3 italic text-subtle">这条评论已被管理员隐藏。</p>
+        <p className="mt-3 text-subtle italic">这条评论已被管理员隐藏。</p>
       ) : (
-        <p className="mt-3 whitespace-pre-wrap break-words text-body leading-copy text-foreground">
+        <p className="mt-3 text-body leading-copy break-words whitespace-pre-wrap text-foreground">
           {comment.body}
         </p>
       )}
@@ -244,4 +262,3 @@ export function CommentCard({
     </article>
   );
 }
-

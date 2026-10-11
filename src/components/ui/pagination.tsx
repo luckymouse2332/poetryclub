@@ -8,10 +8,7 @@ import { buttonVariants, type ButtonProps } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 /** shadcn/ui Pagination，保留上游结构，并通过 asChild 支持 Next.js Link。 */
-function Pagination({
-  className,
-  ...props
-}: React.ComponentProps<"nav">) {
+function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav
       role="navigation"
@@ -30,7 +27,10 @@ function PaginationContent({
   return (
     <ul
       data-slot="pagination-content"
-      className={cn("flex flex-row flex-wrap items-center gap-2 border-t border-border pt-6", className)}
+      className={cn(
+        "flex flex-row flex-wrap items-center gap-2 border-t border-border pt-6",
+        className,
+      )}
       {...props}
     />
   );

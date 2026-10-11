@@ -48,14 +48,21 @@ function FormField({
     [descriptionId, errorId].filter(Boolean).join(" ") || undefined;
 
   return (
-    <Field data-invalid={Boolean(error)} data-disabled={disabled || undefined} className={className}>
+    <Field
+      data-invalid={Boolean(error)}
+      data-disabled={disabled || undefined}
+      className={className}
+    >
       <FieldLabel
         htmlFor={id}
         className={disabled ? "text-muted-foreground" : undefined}
       >
         {label}
         {required ? (
-          <span className="ml-1 text-caption font-normal text-danger" aria-hidden="true">
+          <span
+            className="ml-1 text-caption font-normal text-danger"
+            aria-hidden="true"
+          >
             {" "}
             *
           </span>

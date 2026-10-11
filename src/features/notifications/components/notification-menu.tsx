@@ -47,7 +47,11 @@ export function NotificationPopover({
 
   useEffect(() => {
     const stream = new EventSource("/api/notifications/stream");
-    return listenForNotificationChanges(stream, () => router.refresh(), setStreamError);
+    return listenForNotificationChanges(
+      stream,
+      () => router.refresh(),
+      setStreamError,
+    );
   }, [router]);
 
   return (

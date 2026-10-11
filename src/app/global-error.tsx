@@ -26,10 +26,14 @@ export default function GlobalError({
         <ThemeInitialization />
       </head>
       <body>
-        <div className="fixed right-4 top-4"><ThemeToggle /></div>
+        <div className="fixed top-4 right-4">
+          <ThemeToggle />
+        </div>
         <div className="flex min-h-screen items-center justify-center bg-background p-6 text-foreground">
           <div className="text-center">
-            <h1 className="font-serif text-section-title font-medium">出了点问题</h1>
+            <h1 className="font-serif text-section-title font-medium">
+              出了点问题
+            </h1>
             <p className="mt-2 text-label text-muted-foreground">
               页面加载失败，请稍后重试。
             </p>

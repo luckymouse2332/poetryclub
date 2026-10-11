@@ -5,7 +5,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Textarea } from "@/components/ui/textarea";
-import { createCommentAction, type CommentActionState } from "@/features/comments/actions";
+import {
+  createCommentAction,
+  type CommentActionState,
+} from "@/features/comments/actions";
 import { COMMENT_BODY_MAX_LENGTH } from "@/server/validation/comments";
 const INITIAL_STATE: CommentActionState = { status: "idle" };
 
@@ -21,15 +24,20 @@ export function CommentForm({
   onSuccess?: () => void;
 }>) {
   const router = useRouter();
-  const [creationToken, setCreationToken] = useState(() => initialCreationToken ?? crypto.randomUUID());
+  const [creationToken, setCreationToken] = useState(
+    () => initialCreationToken ?? crypto.randomUUID(),
+  );
   const completed = useRef<CommentActionState | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const action = createCommentAction.bind(null, poemId, parentId);
-  const [state, formAction, pending] = useActionState(async (previous: CommentActionState, formData: FormData) => {
-    const result = await action(previous, formData);
-    if (result.status === "success") setCreationToken(crypto.randomUUID());
-    return result;
-  }, INITIAL_STATE);
+  const [state, formAction, pending] = useActionState(
+    async (previous: CommentActionState, formData: FormData) => {
+      const result = await action(previous, formData);
+      if (result.status === "success") setCreationToken(crypto.randomUUID());
+      return result;
+    },
+    INITIAL_STATE,
+  );
 
   useEffect(() => {
     if (state.status !== "success" || completed.current === state) return;
@@ -41,11 +49,7 @@ export function CommentForm({
 
   return (
     <form ref={formRef} action={formAction} className="space-y-3">
-      <input
-        type="hidden"
-        name="creationToken"
-        value={creationToken}
-      />
+      <input type="hidden" name="creationToken" value={creationToken} />
       {state.message ? (
         <Alert
           variant={state.status === "success" ? "success" : "danger"}
@@ -68,7 +72,9 @@ export function CommentForm({
             name="body"
             rows={parentId ? 4 : 5}
             maxLength={COMMENT_BODY_MAX_LENGTH}
-            placeholder={parentId ? "写下你的回复" : "写下与作品有关的评论或补充"}
+            placeholder={
+              parentId ? "写下你的回复" : "写下与作品有关的评论或补充"
+            }
           />
         )}
       </FormField>
@@ -78,4 +84,3 @@ export function CommentForm({
     </form>
   );
 }
-

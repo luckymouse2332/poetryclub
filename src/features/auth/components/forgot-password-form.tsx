@@ -74,7 +74,12 @@ export function ForgotPasswordForm() {
           </Button>
         </div>
       ) : (
-        <form method="post" className="space-y-5" onSubmit={handleSubmit} noValidate>
+        <form
+          method="post"
+          className="space-y-5"
+          onSubmit={handleSubmit}
+          noValidate
+        >
           <FormField
             id="email"
             label="邮箱"
@@ -99,11 +104,19 @@ export function ForgotPasswordForm() {
             </Alert>
           ) : null}
 
-          <Button className="w-full" type="submit" loading={pending} disabled={pending}>
+          <Button
+            className="w-full"
+            type="submit"
+            loading={pending}
+            disabled={pending}
+          >
             {pending ? "正在提交…" : "发送重置邮件"}
           </Button>
           <p className="text-center text-label text-subtle">
-            <Link className="inline-flex min-h-control items-center text-primary underline underline-offset-4 hover:text-primary-hover" href="/login">
+            <Link
+              className="inline-flex min-h-control items-center text-primary underline underline-offset-4 hover:text-primary-hover"
+              href="/login"
+            >
               返回登录
             </Link>
           </p>

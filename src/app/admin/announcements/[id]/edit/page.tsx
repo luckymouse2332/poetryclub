@@ -40,8 +40,10 @@ export default async function EditAnnouncementPage({
       <div className="mt-8">
         {published ? (
           <Surface variant="paper" padding="lg">
-            <h2 className="text-heading-3 font-semibold">{announcement.title}</h2>
-            <p className="mt-4 whitespace-pre-wrap text-body text-subtle">
+            <h2 className="text-heading-3 font-semibold">
+              {announcement.title}
+            </h2>
+            <p className="mt-4 text-body whitespace-pre-wrap text-subtle">
               {announcement.body}
             </p>
           </Surface>

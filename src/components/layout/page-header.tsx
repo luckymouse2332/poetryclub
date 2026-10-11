@@ -40,9 +40,7 @@ function PageHeader({
         title
       )}
       {description ? (
-        <p className="max-w-reading text-body text-subtle">
-          {description}
-        </p>
+        <p className="max-w-reading text-body text-subtle">{description}</p>
       ) : null}
       {actions ? (
         <div

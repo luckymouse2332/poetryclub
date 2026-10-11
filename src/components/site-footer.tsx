@@ -24,9 +24,7 @@ export function SiteFooter() {
           <p className="text-label font-medium tracking-widest text-foreground">
             回中诗社
           </p>
-          <p className="mt-1 text-caption text-subtle">
-            2021—2024级
-          </p>
+          <p className="mt-1 text-caption text-subtle">2021—2024级</p>
         </div>
         <div className="flex min-h-control flex-wrap items-center justify-center gap-x-2 text-caption text-subtle lg:justify-self-center">
           <span>© {year} 回中诗社</span>

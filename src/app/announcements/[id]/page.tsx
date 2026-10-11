@@ -40,7 +40,7 @@ export default async function AnnouncementDetailPage({
 
       <article
         aria-label={announcement.title}
-        className="mt-8 whitespace-pre-wrap border-y border-border bg-paper px-4 py-8 text-body-lg leading-reading text-foreground sm:py-8 sm:px-6 lg:px-8"
+        className="mt-8 border-y border-border bg-paper px-4 py-8 text-body-lg leading-reading whitespace-pre-wrap text-foreground sm:px-6 sm:py-8 lg:px-8"
       >
         {announcement.body}
       </article>

@@ -1,6 +1,9 @@
 .hero {
   display: grid;
-  width: min(calc(100% - 2 * var(--space-page-gutter)), var(--content-max-width) - 2 * var(--space-page-gutter));
+  width: min(
+    calc(100% - 2 * var(--space-page-gutter)),
+    var(--content-max-width) - 2 * var(--space-page-gutter)
+  );
   margin: 0 auto;
   gap: var(--space-8);
   border-bottom: 1px solid var(--border);
@@ -53,7 +56,8 @@
   width: 100%;
   height: 4rem;
   background: var(--background);
-  mask: url("/poetry-paper-edge-horizontal-v2.png") center bottom / 100% 100% no-repeat;
+  mask: url("/poetry-paper-edge-horizontal-v2.png") center bottom / 100% 100%
+    no-repeat;
   content: "";
   pointer-events: none;
 }
@@ -78,14 +82,16 @@
   text-underline-offset: 0.3em;
   transition: text-decoration-color var(--motion-duration-fast) ease;
 }
-.editorialLink:hover .linkText, .editorialLink:focus-visible .linkText {
+.editorialLink:hover .linkText,
+.editorialLink:focus-visible .linkText {
   text-decoration-color: currentColor;
 }
 .linkArrow {
   display: inline-block;
   transition: transform var(--motion-duration-fast) ease;
 }
-.editorialLink:hover .linkArrow, .editorialLink:focus-visible .linkArrow {
+.editorialLink:hover .linkArrow,
+.editorialLink:focus-visible .linkArrow {
   transform: translateX(0.25rem);
 }
 .contentRegion {
@@ -100,7 +106,8 @@
   gap: var(--space-12);
   align-items: start;
 }
-.index, .about {
+.index,
+.about {
   min-width: 0;
 }
 .sectionTitle {
@@ -150,9 +157,12 @@
   color: var(--foreground);
   text-decoration: underline transparent 1px;
   text-underline-offset: 0.3em;
-  transition: color var(--motion-duration-fast), text-decoration-color var(--motion-duration-fast);
+  transition:
+    color var(--motion-duration-fast),
+    text-decoration-color var(--motion-duration-fast);
 }
-.poemLink:hover, .poemLink:focus-visible {
+.poemLink:hover,
+.poemLink:focus-visible {
   color: var(--primary);
   text-decoration-color: var(--primary);
 }
@@ -170,7 +180,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.poemVisibilitySeparator, .poemVisibilityLabel {
+.poemVisibilitySeparator,
+.poemVisibilityLabel {
   flex: 0 0 auto;
   white-space: nowrap;
 }
@@ -248,7 +259,8 @@
   .contentGrid {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
-  .index, .about {
+  .index,
+  .about {
     padding: 0;
   }
 }

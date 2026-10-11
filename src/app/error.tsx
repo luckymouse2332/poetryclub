@@ -19,15 +19,13 @@ export default function ErrorPage({
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-page py-section text-center">
-      <h1 className="font-serif text-page-title font-medium tracking-tight">出了点问题</h1>
+      <h1 className="font-serif text-page-title font-medium tracking-tight">
+        出了点问题
+      </h1>
       <p className="mt-3 max-w-reading text-body text-subtle">
         页面加载失败，请稍后重试。如果问题持续出现，请联系管理员。
       </p>
-      <Button
-        type="button"
-        onClick={() => unstable_retry()}
-        className="mt-6"
-      >
+      <Button type="button" onClick={() => unstable_retry()} className="mt-6">
         重试
       </Button>
     </div>

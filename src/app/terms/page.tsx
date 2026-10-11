@@ -25,9 +25,7 @@ export default function TermsPage() {
         <Section title="账号与安全" className="py-8">
           <div className="space-y-4 text-body text-subtle">
             <p>请使用本人账号，并妥善保护登录凭据，不要转借他人使用。</p>
-            <p>
-              遇到账号问题，可通过校园内的已知渠道联系站点维护者。
-            </p>
+            <p>遇到账号问题，可通过校园内的已知渠道联系站点维护者。</p>
           </div>
         </Section>
         <Section title="发布内容的基本原则" className="py-8">

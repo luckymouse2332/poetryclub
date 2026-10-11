@@ -8,11 +8,7 @@ export type IconButtonProps = ButtonProps & {
   "aria-label": string;
 };
 
-function IconButton({
-  size = "icon",
-  className,
-  ...props
-}: IconButtonProps) {
+function IconButton({ size = "icon", className, ...props }: IconButtonProps) {
   return (
     <Button
       size={size}

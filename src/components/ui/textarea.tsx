@@ -10,7 +10,11 @@ function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
   return (
     <textarea
       data-slot="textarea"
-      className={cn(inputBaseClasses, "min-h-32 resize-y px-4 py-4 leading-reading", className)}
+      className={cn(
+        inputBaseClasses,
+        "min-h-32 resize-y px-4 py-4 leading-reading",
+        className,
+      )}
       {...props}
     />
   );

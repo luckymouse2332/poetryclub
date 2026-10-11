@@ -12,7 +12,10 @@ import {
 import { IconButton } from "@/components/ui/icon-button";
 import type { CollectionActionState } from "@/features/collections/actions";
 
-type ItemAction = (state: CollectionActionState, formData: FormData) => Promise<CollectionActionState>;
+type ItemAction = (
+  state: CollectionActionState,
+  formData: FormData,
+) => Promise<CollectionActionState>;
 const INITIAL_STATE: CollectionActionState = { status: "idle" };
 
 export function CollectionItemMenuAction({
@@ -24,18 +27,28 @@ export function CollectionItemMenuAction({
     <div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <IconButton type="button" variant="ghost" aria-label={`更多操作：${title}`} disabled={pending}>
+          <IconButton
+            type="button"
+            variant="ghost"
+            aria-label={`更多操作：${title}`}
+            disabled={pending}
+          >
             <MoreHorizontal aria-hidden="true" />
           </IconButton>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem variant="destructive" onSelect={() => startTransition(() => formAction(new FormData()))}>
+          <DropdownMenuItem
+            variant="destructive"
+            onSelect={() => startTransition(() => formAction(new FormData()))}
+          >
             移除
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       {state.status === "error" && state.message ? (
-        <p role="alert" className="mt-1 max-w-64 text-label text-danger">{state.message}</p>
+        <p role="alert" className="mt-1 max-w-64 text-label text-danger">
+          {state.message}
+        </p>
       ) : null}
     </div>
   );

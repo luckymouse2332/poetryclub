@@ -21,7 +21,8 @@ export default function PrivacyPage() {
           <ul className="list-disc space-y-3 pl-6 text-body text-subtle">
             <li>注册账号时，我们处理你填写的昵称（名称）和邮箱。</li>
             <li>
-              密码只用于完成认证请求，并由 Better Auth 安全哈希后保存；服务端不会保存可还原的明文密码，页面也不会显示密码。
+              密码只用于完成认证请求，并由 Better Auth
+              安全哈希后保存；服务端不会保存可还原的明文密码，页面也不会显示密码。
             </li>
             <li>登录后，一个 HttpOnly 会话 Cookie 用于保持登录状态。</li>
             <li>

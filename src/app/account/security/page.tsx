@@ -24,7 +24,7 @@ export default async function AccountSecurityPage() {
       />
       <AccountSectionNavigation />
       <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(16rem,0.65fr)_minmax(24rem,1.35fr)]">
-        <aside className="border-l-2 border-border-strong bg-transparent px-4 py-2 sm:px-6 text-label leading-copy text-subtle">
+        <aside className="border-l-2 border-border-strong bg-transparent px-4 py-2 text-label leading-copy text-subtle sm:px-6">
           <p>修改成功后，当前设备继续保持登录，其他设备上的会话将失效。</p>
           <Button asChild variant="ghost" className="mt-4 -ml-3">
             <Link href="/account">返回账户信息</Link>

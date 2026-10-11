@@ -34,25 +34,49 @@ export default async function AdminCollectionDetailPage({
         description="管理员可以治理特辑本身，但不能代替整理者编辑简介、目录或发布状态。"
       />
       <div className="mt-6 flex flex-wrap gap-2">
-        <Badge variant={collection.status === "published" ? "success" : "warning"}>
+        <Badge
+          variant={collection.status === "published" ? "success" : "warning"}
+        >
           {collection.status === "published" ? "已发布" : "草稿"}
         </Badge>
-        <Badge variant={hidden ? "danger" : "neutral"}>{hidden ? "已隐藏" : "可见"}</Badge>
-        <Badge variant="neutral">{collection.visibility === "public" ? "公开" : "仅成员可见"}</Badge>
+        <Badge variant={hidden ? "danger" : "neutral"}>
+          {hidden ? "已隐藏" : "可见"}
+        </Badge>
+        <Badge variant="neutral">
+          {collection.visibility === "public" ? "公开" : "仅成员可见"}
+        </Badge>
       </div>
       <dl className="mt-6 space-y-2 text-label">
-        <div className="flex gap-2"><dt className="text-subtle">整理者</dt><dd>{collection.ownerName}</dd></div>
-        <div className="flex gap-2"><dt className="text-subtle">更新时间</dt><dd>{formatModerationDateTime(collection.updatedAt)}</dd></div>
+        <div className="flex gap-2">
+          <dt className="text-subtle">整理者</dt>
+          <dd>{collection.ownerName}</dd>
+        </div>
+        <div className="flex gap-2">
+          <dt className="text-subtle">更新时间</dt>
+          <dd>{formatModerationDateTime(collection.updatedAt)}</dd>
+        </div>
       </dl>
       {collection.description ? (
-        <section className="mt-8" aria-labelledby="admin-collection-description">
-          <h2 id="admin-collection-description" className="font-serif text-section-title font-medium">简介</h2>
-          <p className="mt-3 whitespace-pre-wrap text-body text-foreground">{collection.description}</p>
+        <section
+          className="mt-8"
+          aria-labelledby="admin-collection-description"
+        >
+          <h2
+            id="admin-collection-description"
+            className="font-serif text-section-title font-medium"
+          >
+            简介
+          </h2>
+          <p className="mt-3 text-body whitespace-pre-wrap text-foreground">
+            {collection.description}
+          </p>
         </section>
       ) : null}
       {collection.moderationReason ? (
         <Alert variant="danger" className="mt-6">
-          <AlertDescription>隐藏原因：{collection.moderationReason}</AlertDescription>
+          <AlertDescription>
+            隐藏原因：{collection.moderationReason}
+          </AlertDescription>
         </Alert>
       ) : null}
       <div className="mt-8">

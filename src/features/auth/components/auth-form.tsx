@@ -59,7 +59,11 @@ export function AuthForm({
     if (!cleanPasswordResetNotice) return;
     const url = new URL(window.location.href);
     url.searchParams.delete("passwordReset");
-    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+    window.history.replaceState(
+      null,
+      "",
+      `${url.pathname}${url.search}${url.hash}`,
+    );
   }, [cleanPasswordResetNotice]);
 
   function showError(message: string) {
@@ -119,7 +123,11 @@ export function AuthForm({
         return;
       }
       if (response.error) {
-        showError(response.error.status === 429 ? "尝试次数过多，请稍后再登录。" : "邮箱或密码不正确，请检查后重试。");
+        showError(
+          response.error.status === 429
+            ? "尝试次数过多，请稍后再登录。"
+            : "邮箱或密码不正确，请检查后重试。",
+        );
         return;
       }
       finishSignIn();
@@ -175,13 +183,32 @@ export function AuthForm({
         </div>
       ) : null}
 
-      <div id="auth-form-panel" className={variant === "switchable" ? "mt-6 space-y-5" : "space-y-5"}>
+      <div
+        id="auth-form-panel"
+        className={variant === "switchable" ? "mt-6 space-y-5" : "space-y-5"}
+      >
         {mode === "sign-in" && !verificationEmail ? (
           <div className="grid grid-cols-2 gap-2" aria-label="登录方式">
-            <Button type="button" variant={signInMethod === "password" ? "secondary" : "ghost"} aria-pressed={signInMethod === "password"} onClick={() => { setSignInMethod("password"); setError(undefined); }}>
+            <Button
+              type="button"
+              variant={signInMethod === "password" ? "secondary" : "ghost"}
+              aria-pressed={signInMethod === "password"}
+              onClick={() => {
+                setSignInMethod("password");
+                setError(undefined);
+              }}
+            >
               密码登录
             </Button>
-            <Button type="button" variant={signInMethod === "email-code" ? "secondary" : "ghost"} aria-pressed={signInMethod === "email-code"} onClick={() => { setSignInMethod("email-code"); setError(undefined); }}>
+            <Button
+              type="button"
+              variant={signInMethod === "email-code" ? "secondary" : "ghost"}
+              aria-pressed={signInMethod === "email-code"}
+              onClick={() => {
+                setSignInMethod("email-code");
+                setError(undefined);
+              }}
+            >
               邮箱验证码登录
             </Button>
           </div>
@@ -193,7 +220,9 @@ export function AuthForm({
         ) : null}
         {verificationEmail ? (
           <>
-            <p className="text-label text-subtle">完成邮箱验证后即可使用账号。验证码有效期为 5 分钟。</p>
+            <p className="text-label text-subtle">
+              完成邮箱验证后即可使用账号。验证码有效期为 5 分钟。
+            </p>
             <EmailCodeForm
               key={`verify-${verificationEmail}`}
               mode="verify-email"
@@ -210,93 +239,109 @@ export function AuthForm({
             />
           </>
         ) : mode === "sign-in" && signInMethod === "email-code" ? (
-          <EmailCodeForm mode="sign-in" onSuccess={finishSignIn} onCancel={() => setSignInMethod("password")} />
+          <EmailCodeForm
+            mode="sign-in"
+            onSuccess={finishSignIn}
+            onCancel={() => setSignInMethod("password")}
+          />
         ) : (
-      <form method="post" className="space-y-5" onSubmit={handleSubmit} noValidate>
-        {mode === "sign-up" ? (
-          <>
-            <FormField id="name" label="昵称" required disabled={pending}>
+          <form
+            method="post"
+            className="space-y-5"
+            onSubmit={handleSubmit}
+            noValidate
+          >
+            {mode === "sign-up" ? (
+              <>
+                <FormField id="name" label="昵称" required disabled={pending}>
+                  {(controlProps) => (
+                    <Input
+                      {...controlProps}
+                      name="name"
+                      type="text"
+                      autoComplete="name"
+                      maxLength={50}
+                    />
+                  )}
+                </FormField>
+                <FormField
+                  id="inviteCode"
+                  label="邀请码"
+                  description="回中诗社目前仅接受持有效邀请码的同学注册。"
+                  required
+                  disabled={pending}
+                >
+                  {(controlProps) => (
+                    <Input
+                      {...controlProps}
+                      name="inviteCode"
+                      type="text"
+                      autoComplete="off"
+                      minLength={32}
+                      maxLength={128}
+                    />
+                  )}
+                </FormField>
+              </>
+            ) : null}
+
+            <FormField id="email" label="邮箱" required disabled={pending}>
               {(controlProps) => (
                 <Input
                   {...controlProps}
-                  name="name"
-                  type="text"
-                  autoComplete="name"
-                  maxLength={50}
+                  name="email"
+                  type="email"
+                  autoComplete="email"
                 />
               )}
             </FormField>
+
             <FormField
-              id="inviteCode"
-              label="邀请码"
-              description="回中诗社目前仅接受持有效邀请码的同学注册。"
+              id="password"
+              label="密码"
+              description={
+                mode === "sign-up"
+                  ? `请使用 ${PASSWORD_MIN_LENGTH} 至 ${PASSWORD_MAX_LENGTH} 个字符。`
+                  : undefined
+              }
               required
               disabled={pending}
             >
               {(controlProps) => (
                 <Input
                   {...controlProps}
-                  name="inviteCode"
-                  type="text"
-                  autoComplete="off"
-                  minLength={32}
-                  maxLength={128}
+                  name="password"
+                  type="password"
+                  autoComplete={
+                    mode === "sign-up" ? "new-password" : "current-password"
+                  }
+                  minLength={PASSWORD_MIN_LENGTH}
+                  maxLength={PASSWORD_MAX_LENGTH}
                 />
               )}
             </FormField>
-          </>
-        ) : null}
 
-        <FormField id="email" label="邮箱" required disabled={pending}>
-          {(controlProps) => (
-            <Input
-              {...controlProps}
-              name="email"
-              type="email"
-              autoComplete="email"
+            {mode === "sign-in" ? (
+              <p className="text-right text-label">
+                <Link
+                  className="inline-flex min-h-control items-center text-primary underline underline-offset-4 hover:text-primary-hover"
+                  href="/forgot-password"
+                >
+                  忘记密码？
+                </Link>
+              </p>
+            ) : null}
+
+            <AuthErrorPopover
+              message={error}
+              open={errorOpen}
+              onOpenChange={setErrorOpen}
             />
-          )}
-        </FormField>
 
-        <FormField
-          id="password"
-          label="密码"
-          description={
-            mode === "sign-up"
-              ? `请使用 ${PASSWORD_MIN_LENGTH} 至 ${PASSWORD_MAX_LENGTH} 个字符。`
-              : undefined
-          }
-          required
-          disabled={pending}
-        >
-          {(controlProps) => (
-            <Input
-              {...controlProps}
-              name="password"
-              type="password"
-              autoComplete={
-                mode === "sign-up" ? "new-password" : "current-password"
-              }
-              minLength={PASSWORD_MIN_LENGTH}
-              maxLength={PASSWORD_MAX_LENGTH}
-            />
-          )}
-        </FormField>
-
-        {mode === "sign-in" ? (
-          <p className="text-right text-label">
-            <Link className="inline-flex min-h-control items-center text-primary underline underline-offset-4 hover:text-primary-hover" href="/forgot-password">
-              忘记密码？
-            </Link>
-          </p>
-        ) : null}
-
-        <AuthErrorPopover message={error} open={errorOpen} onOpenChange={setErrorOpen} />
-
-        <Button className="w-full" type="submit" loading={pending}>
-          {pending ? "处理中…" : mode === "sign-up" ? "创建账号" : "登录"}
-        </Button>
-      </form>
+            <Button className="w-full" type="submit" loading={pending}>
+              {pending ? "处理中…" : mode === "sign-up" ? "创建账号" : "登录"}
+            </Button>
+          </form>
         )}
       </div>
       {variant === "sign-in-only" ? (

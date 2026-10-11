@@ -5,7 +5,13 @@ import { useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
 
 import { IconButton } from "@/components/ui/icon-button";
-import { parseTheme, resolveTheme, THEME_INITIALIZATION_SCRIPT, THEME_STORAGE_KEY, type Theme } from "@/lib/theme";
+import {
+  parseTheme,
+  resolveTheme,
+  THEME_INITIALIZATION_SCRIPT,
+  THEME_STORAGE_KEY,
+  type Theme,
+} from "@/lib/theme";
 
 const subscribeInitialization = () => () => {};
 const initializationClientSnapshot = () => true;
@@ -13,8 +19,17 @@ const initializationServerSnapshot = () => false;
 
 /** Emit the parser-time script only in initial HTML; never insert inert scripts on client navigation. */
 export function ThemeInitialization() {
-  const hydrated = useSyncExternalStore(subscribeInitialization, initializationClientSnapshot, initializationServerSnapshot);
-  return hydrated ? null : <script id="theme-initialization" dangerouslySetInnerHTML={{ __html: THEME_INITIALIZATION_SCRIPT }} />;
+  const hydrated = useSyncExternalStore(
+    subscribeInitialization,
+    initializationClientSnapshot,
+    initializationServerSnapshot,
+  );
+  return hydrated ? null : (
+    <script
+      id="theme-initialization"
+      dangerouslySetInnerHTML={{ __html: THEME_INITIALIZATION_SCRIPT }}
+    />
+  );
 }
 
 const listeners = new Set<() => void>();
@@ -22,8 +37,11 @@ let memoryPreference: Theme | null = null;
 let systemQuery: MediaQueryList | undefined;
 
 function readPreference() {
-  try { return parseTheme(localStorage.getItem(THEME_STORAGE_KEY)); }
-  catch { return memoryPreference; }
+  try {
+    return parseTheme(localStorage.getItem(THEME_STORAGE_KEY));
+  } catch {
+    return memoryPreference;
+  }
 }
 
 function applyTheme(theme: Theme) {
@@ -48,7 +66,10 @@ function subscribe(notify: () => void) {
     systemQuery.addEventListener("change", onSystemChange);
     window.addEventListener("storage", onStorageChange);
     // Catch system changes between head initialization and hydration.
-    document.documentElement.dataset.theme = resolveTheme(readPreference(), systemQuery.matches);
+    document.documentElement.dataset.theme = resolveTheme(
+      readPreference(),
+      systemQuery.matches,
+    );
   }
   return () => {
     listeners.delete(notify);
@@ -63,7 +84,9 @@ function getSnapshot(): Theme {
   return parseTheme(document.documentElement.dataset.theme) ?? "light";
 }
 
-function getServerSnapshot() { return null; }
+function getServerSnapshot() {
+  return null;
+}
 
 export function ThemeToggle() {
   const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
@@ -81,11 +104,19 @@ export function ThemeToggle() {
       onClick={() => {
         const next = dark ? "light" : "dark";
         memoryPreference = next;
-        try { localStorage.setItem(THEME_STORAGE_KEY, next); } catch { /* Current-tab choice still works. */ }
+        try {
+          localStorage.setItem(THEME_STORAGE_KEY, next);
+        } catch {
+          /* Current-tab choice still works. */
+        }
         applyTheme(next);
       }}
     >
-      {dark ? <Sun aria-hidden="true" strokeWidth={1.75} /> : <Moon aria-hidden="true" strokeWidth={1.75} />}
+      {dark ? (
+        <Sun aria-hidden="true" strokeWidth={1.75} />
+      ) : (
+        <Moon aria-hidden="true" strokeWidth={1.75} />
+      )}
     </IconButton>
   );
 }

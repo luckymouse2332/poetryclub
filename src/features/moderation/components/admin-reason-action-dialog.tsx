@@ -17,9 +17,7 @@ import {
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  type AdminActionState,
-} from "@/features/moderation/actions";
+import { type AdminActionState } from "@/features/moderation/actions";
 import { MODERATION_REASON_MAX_LENGTH } from "@/server/validation/moderation";
 
 export type AdminReasonAction = (
@@ -107,10 +105,7 @@ function AdminReasonDialogContent({
   confirmBusyLabel,
   reasonDescription,
 }: AdminReasonDialogContentProps) {
-  const [state, formAction, isPending] = useActionState(
-    action,
-    INITIAL_STATE,
-  );
+  const [state, formAction, isPending] = useActionState(action, INITIAL_STATE);
 
   // 成功即关闭：服务端已 revalidate 对应列表，卡片状态随后刷新。
   useEffect(() => {
@@ -154,11 +149,7 @@ function AdminReasonDialogContent({
           </FormField>
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
-            <Button
-              type="submit"
-              variant={confirmVariant}
-              loading={isPending}
-            >
+            <Button type="submit" variant={confirmVariant} loading={isPending}>
               {isPending ? confirmBusyLabel : confirmLabel}
             </Button>
           </AlertDialogFooter>
