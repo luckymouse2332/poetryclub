@@ -1,5 +1,11 @@
 * text=auto
 
+# Prettier checks LF regardless of the local core.autocrlf setting.
+*.ts text eol=lf
+*.tsx text eol=lf
+*.css text eol=lf
+*.mjs text eol=lf
+
 *.sh text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
