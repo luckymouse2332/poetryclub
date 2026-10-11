@@ -1,9 +1,11 @@
+import { requireAdminOrForbidden } from "@/features/moderation/require-admin";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
+import { PaperList } from "@/components/paper-list";
 import {
   Empty,
   EmptyDescription,
@@ -26,6 +28,7 @@ type AdminAuditPageProps = Readonly<{
 export default async function AdminAuditPage({
   searchParams,
 }: AdminAuditPageProps) {
+  await requireAdminOrForbidden();
   const query = await searchParams;
   const parsedPage = moderationPageSchema.safeParse(query.page);
   if (!parsedPage.success) {
@@ -44,28 +47,24 @@ export default async function AdminAuditPage({
         title="审计日志"
         description="所有管理操作的只读记录，按时间倒序排列。日志不可编辑或删除。"
       />
-      <Section className="pb-0 pt-8">
-        {result.items.length > 0 ? (
-          <div className="divide-y divide-border-subtle">
-            {result.items.map((item) => (
-              <div
-                key={item.id}
-                className="[&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none"
-              >
-                <AdminAuditCard entry={item} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <Empty>
-            <EmptyHeader>
-              <EmptyTitle>还没有审计记录</EmptyTitle>
-              <EmptyDescription>
-                完成第一条管理操作后，会显示在这里。
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        )}
+      <Section className="py-0">
+        <PaperList
+          inset={false}
+          empty={
+            <Empty>
+              <EmptyHeader>
+                <EmptyTitle>还没有审计记录</EmptyTitle>
+                <EmptyDescription>
+                  完成第一条管理操作后，会显示在这里。
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          }
+        >
+          {result.items.map((item) => (
+            <AdminAuditCard key={item.id} entry={item} />
+          ))}
+        </PaperList>
       </Section>
       <AdminPagination
         basePath="/admin/audit"

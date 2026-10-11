@@ -6,7 +6,7 @@ import { AdminDashboardCard } from "@/features/moderation/components/admin-dashb
 
 describe("AdminDashboardCard", () => {
   for (const tone of ["paper", "muted", "plain"] as const) {
-    test(`${tone} 样式保持管理场景无边框`, () => {
+    test(`${tone} 复用纸刊分区并保留焦点反馈`, () => {
       const rendered = renderToStaticMarkup(
         h(AdminDashboardCard, {
           href: "/admin/poems",
@@ -19,7 +19,8 @@ describe("AdminDashboardCard", () => {
       expect(rendered).toContain('data-slot="admin-dashboard-card"');
       expect(rendered).toContain(`data-tone="${tone}"`);
       expect(rendered).toContain('data-slot="card"');
-      expect(rendered).toContain("border-0");
+      expect(rendered).toContain("border-border-subtle");
+      expect(rendered).toContain("ring-ring");
       expect(rendered).toContain('href="/admin/poems"');
     });
   }

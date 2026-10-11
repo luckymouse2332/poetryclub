@@ -1,6 +1,7 @@
 import { createAuthClient } from "better-auth/react";
+import { emailOTPClient } from "better-auth/client/plugins";
 
-export const authClient = createAuthClient();
+export const authClient = createAuthClient({ plugins: [emailOTPClient()] });
 
 /**
  * Invitation is transient registration input rather than a user field, so the

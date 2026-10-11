@@ -41,7 +41,9 @@ export async function getRedisCommandClient(): Promise<RedisClientType> {
     return globalForNotificationRedis.notificationRedisPublisher;
   }
   if (!globalForNotificationRedis.notificationRedisConnecting) {
-    globalForNotificationRedis.notificationRedisPublisher?.destroy();
+    if (globalForNotificationRedis.notificationRedisPublisher?.isOpen) {
+      globalForNotificationRedis.notificationRedisPublisher.destroy();
+    }
     const client = createRedisConnection(false);
     globalForNotificationRedis.notificationRedisPublisher = client;
     globalForNotificationRedis.notificationRedisConnecting = client
@@ -49,7 +51,7 @@ export async function getRedisCommandClient(): Promise<RedisClientType> {
       .then(() => client)
       .catch((error) => {
         globalForNotificationRedis.notificationRedisPublisher = undefined;
-        client.destroy();
+        if (client.isOpen) client.destroy();
         throw error;
       })
       .finally(() => {
@@ -67,11 +69,12 @@ export async function publishNotificationRealtime(
   try {
     const publisher = await getRedisCommandClient();
     const payload = JSON.stringify(event);
-    await Promise.all(
-      [...new Set(recipientIds)].map((userId) =>
+    const uniqueIds = [...new Set(recipientIds)];
+    for (let offset = 0; offset < uniqueIds.length; offset += 32) {
+      await Promise.all(uniqueIds.slice(offset, offset + 32).map((userId) =>
         publisher.publish(notificationChannel(userId), payload),
-      ),
-    );
+      ));
+    }
   } catch {
     // PostgreSQL is authoritative. A temporary Redis outage must not roll back
     // a durable notification or make the calling governance operation fail.
@@ -82,6 +85,7 @@ export async function publishNotificationRealtime(
 export async function createNotificationSubscriber(
   userId: string,
   listener: (message: string) => void,
+  onReady?: () => void,
 ): Promise<Readonly<{
   close: () => Promise<void>;
 }>> {
@@ -90,41 +94,27 @@ export async function createNotificationSubscriber(
   );
   const channel = notificationChannel(userId);
   let closed = false;
-
-  await Promise.race([
-    subscriber.connect(),
-    new Promise<never>((_, reject) =>
-      setTimeout(
-        () => reject(new Error("Redis subscriber connection timed out")),
-        3_000,
-      ),
-    ),
-  ]).catch((error) => {
-    subscriber.destroy();
-    throw error;
-  });
-
+  let subscribed = false;
+  subscriber.on("ready", () => { if (subscribed && !closed) onReady?.(); });
+  let deadline: ReturnType<typeof setTimeout> | undefined;
   try {
-    await subscriber.subscribe(channel, listener);
+    await Promise.race([
+      (async () => { await subscriber.connect(); await subscriber.subscribe(channel, listener); })(),
+      new Promise<never>((_, reject) => { deadline = setTimeout(() => reject(new Error("Redis subscriber connection timed out")), 3_000); }),
+    ]);
+    subscribed = true;
+    onReady?.();
   } catch (error) {
-    subscriber.destroy();
+    closed = true;
+    if (subscriber.isOpen) subscriber.destroy();
     throw error;
-  }
-
+  } finally { clearTimeout(deadline); }
   return {
     close: async () => {
       if (closed) return;
       closed = true;
-      try {
-        if (subscriber.isReady) {
-          await subscriber.unsubscribe(channel);
-          await subscriber.quit();
-        } else {
-          subscriber.destroy();
-        }
-      } catch {
-        subscriber.destroy();
-      }
+      // No queued unsubscribe/QUIT commands: cancellation must be bounded even offline.
+      if (subscriber.isOpen) subscriber.destroy();
     },
   };
 }

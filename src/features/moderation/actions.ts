@@ -107,7 +107,7 @@ async function runMutation(
     await mutation();
     return { status: "success", message: successMessage };
   } catch (error) {
-    const state = mutationError(error);
+    const state = accessError(error) ?? mutationError(error);
     if (state) return state;
     console.error("Unexpected administrator mutation failure", error);
     return { status: "error", message: "操作暂时失败，请稍后重试。" };
@@ -268,7 +268,9 @@ export async function createInvitationAction(
       invitationCode: created.code,
     };
   } catch (error) {
-    console.error("Unexpected invitation creation failure", error);
+    const state = accessError(error);
+    if (state) return state;
+    console.error("Unexpected invitation creation failure");
     return { status: "error", message: "邀请码创建失败，请稍后重试。" };
   }
 }

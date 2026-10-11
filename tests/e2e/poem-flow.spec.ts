@@ -11,6 +11,8 @@ import {
   createTestInvitation,
   deletePoemsByIds,
 } from "./helpers/database";
+import { waitForEmailOtp } from "./helpers/email-outbox";
+import { captureServerAction } from "./helpers/server-action";
 
 const PASSWORD = "password123";
 
@@ -44,9 +46,10 @@ async function registerAndSignIn(
   await page.getByLabel("密码").fill(PASSWORD);
   await page.getByLabel("邀请码").fill(inviteCode);
   await page.getByRole("button", { name: "创建账号" }).click();
-  await expect(
-    page.getByText("注册请求已完成，请使用邮箱和密码登录。"),
-  ).toBeVisible();
+  const { otp } = await waitForEmailOtp(email);
+  await page.getByLabel("6 位邮箱验证码").fill(otp);
+  await page.getByRole("button", { name: "验证邮箱" }).click();
+  await expect(page.getByText("邮箱验证完成，请登录。")).toBeVisible();
 
   await page.getByLabel("邮箱").fill(email);
   await page.getByLabel("密码").fill(PASSWORD);
@@ -137,7 +140,7 @@ test("own poems list adapts across the workspace breakpoint", async ({
       mediumLayout.viewportWidth,
     );
     expect(mediumLayout.sidebarVisible).toBe(false);
-    expect(mediumLayout.columnCount).toBe(1);
+    expect(mediumLayout.columnCount).toBe(2);
     await expect(
       page.getByRole("navigation", { name: "账户导航" }),
     ).toBeVisible();
@@ -178,7 +181,7 @@ test("own poems list adapts across the workspace breakpoint", async ({
     await expect(
       page.getByRole("navigation", { name: "账户导航" }),
     ).toHaveAttribute("data-variant", "sidebar");
-    expect(wideLayout.columnCount).toBe(5);
+    expect(wideLayout.columnCount).toBe(2);
   } finally {
     await deletePoemsByIds(fixtures.ids);
   }
@@ -258,8 +261,6 @@ test.describe.serial("poem publishing and authorization loop", () => {
     await expect(publicPoemByTitle(anonymousDraft, title)).toHaveCount(0);
     await anonymousDraft.close();
 
-    staleActionPage = await authorPage.context().newPage();
-    await gotoHydratedEdit(staleActionPage, poemId);
   });
 
   test("rejects anonymous and cross-user draft mutations", async () => {
@@ -273,7 +274,7 @@ test.describe.serial("poem publishing and authorization loop", () => {
     await expect(authorPage.getByLabel("标题")).toHaveValue(title);
 
     await authorPage.context().clearCookies();
-    await authorPage.getByRole("button", { name: "发布", exact: true }).click();
+    await authorPage.getByRole("button", { name: "保存并发布" }).click();
     await authorPage.waitForURL(/\/login\?next=%2Faccount%2Fpoems$/);
 
     await authorPage.context().addCookies([authorSessionCookie]);
@@ -299,10 +300,14 @@ test.describe.serial("poem publishing and authorization loop", () => {
     await authorPage.getByRole("button", { name: "保存修改" }).click();
     await expect(actionError(authorPage)).toContainText("操作未完成");
 
-    await authorPage.getByRole("button", { name: "发布", exact: true }).click();
+    await authorPage.getByRole("button", { name: "保存并发布" }).click();
     await expect(actionError(authorPage)).toContainText("操作未完成");
 
     await authorPage.getByRole("button", { name: "删除草稿" }).click();
+    authorPage.once("dialog", (dialog) => void dialog.dismiss());
+    await authorPage.getByRole("button", { name: "确认删除草稿" }).click();
+    await expect(authorPage.getByRole("alertdialog")).toBeVisible();
+    authorPage.once("dialog", (dialog) => void dialog.accept());
     await authorPage.getByRole("button", { name: "确认删除草稿" }).click();
     await expect(
       authorPage.getByRole("alertdialog").getByRole("alert"),
@@ -329,21 +334,27 @@ test.describe.serial("poem publishing and authorization loop", () => {
   });
 
   test("publishes publicly, preserves full text, and rejects draft-only deletion", async () => {
+    // Capture the draft after cookie-swapping authority checks finish. Realtime
+    // recovery now correctly refreshes pages when those session cookies change.
+    staleActionPage = await authorPage.context().newPage();
+    await gotoHydratedEdit(staleActionPage, poemId);
     await gotoHydratedEdit(authorPage, poemId);
-    await authorPage.getByRole("button", { name: "发布", exact: true }).click();
+    const publishedBody = `${body}\n发布时新增的一行。`;
+    await authorPage.getByLabel("正文").fill(publishedBody);
+    await authorPage.getByRole("button", { name: "保存并发布" }).click();
     await authorPage.waitForURL(`/poems/${poemId}`);
 
     await expect(authorPage.getByRole("heading", { level: 1, name: title })).toBeVisible();
     const articleText = await authorPage.locator("article").textContent();
     // HTML form submission canonicalizes textarea line endings to CRLF. The
     // semantic line/blank-line structure must remain identical after display.
-    expect(articleText?.replaceAll("\r\n", "\n")).toBe(body);
+    expect(articleText?.replaceAll("\r\n", "\n")).toBe(publishedBody);
 
     await authorPage.goto("/poems");
     await expect(publicPoemByTitle(authorPage, title)).toBeVisible();
     await expect(authorPage.getByText(body.slice(-35), { exact: false })).toHaveCount(0);
 
-    await staleActionPage.getByRole("button", { name: "发布", exact: true }).click();
+    await staleActionPage.getByRole("button", { name: "保存并发布" }).click();
     await expect(actionError(staleActionPage)).toContainText("操作未完成");
     await staleActionPage.getByRole("button", { name: "删除草稿" }).click();
     await staleActionPage
@@ -360,12 +371,15 @@ test.describe.serial("poem publishing and authorization loop", () => {
     await gotoHydratedEdit(authorPage, poemId);
     await authorPage.context().addCookies([otherSessionCookie]);
     await authorPage.getByRole("button", { name: "撤回", exact: true }).click();
-    await expect(actionError(authorPage)).toContainText("操作未完成");
+    await expect(actionError(authorPage).or(authorPage.getByRole("heading", { level: 1, name: "页面不存在" }))).toBeVisible();
     expect((await otherPage.request.get(`/poems/${poemId}`)).status()).toBe(200);
 
     await authorPage.context().addCookies([authorSessionCookie]);
     await gotoHydratedEdit(authorPage, poemId);
     await gotoHydratedEdit(staleActionPage, poemId);
+    const staleWithdraw = await captureServerAction(staleActionPage, "**/account/poems/*/edit**", () =>
+      staleActionPage.getByRole("button", { name: "撤回", exact: true }).click(),
+    );
     await authorPage.getByRole("button", { name: "撤回", exact: true }).click();
     await authorPage.waitForURL(
       `/account/poems/${poemId}/edit?withdrawn=1`,
@@ -378,8 +392,10 @@ test.describe.serial("poem publishing and authorization loop", () => {
     await authorPage.goto("/poems");
     await expect(publicPoemByTitle(authorPage, title)).toHaveCount(0);
 
-    await staleActionPage.getByRole("button", { name: "撤回", exact: true }).click();
-    await expect(actionError(staleActionPage)).toContainText("操作未完成");
+    const staleResponse = await authorPage.request.post(staleWithdraw.url, {
+      headers: staleWithdraw.headers, data: staleWithdraw.data,
+    });
+    expect(await staleResponse.text()).toContain("操作未完成");
     await gotoHydratedEdit(authorPage, poemId);
     await expect(authorPage.getByText("草稿", { exact: true })).toBeVisible();
   });
@@ -394,7 +410,7 @@ test.describe.serial("poem publishing and authorization loop", () => {
     ).toBe(404);
 
     await authorPage.getByRole("button", { name: "我的" }).click();
-    await authorPage.getByRole("button", { name: "登出" }).click();
+    await authorPage.getByRole("menuitem", { name: "登出" }).click();
     await authorPage.waitForURL("/");
     await authorPage.goto("/account/poems");
     await authorPage.waitForURL(/\/login\?next=%2Faccount%2Fpoems$/);
@@ -426,13 +442,13 @@ test.describe.serial("own poems list discoverability and inline actions", () => 
       .filter({ has: page.getByRole("heading", { name: title }) });
   }
 
-  /** 打开列表并等待状态按钮（useActionState 表单）完成 hydration。 */
+  /** 打开列表并等待行操作菜单完成 hydration。 */
   async function gotoListHydrated(): Promise<void> {
     await page.goto("/account/poems");
-    await waitForHydration(page, "main form button[type=submit]");
+    await waitForHydration(page, "main button[aria-label^='更多操作：']");
   }
 
-  test("draft card shows 编辑/发布/删除草稿 directly on the list", async () => {
+  test("draft row keeps edit visible and groups state actions in a menu", async () => {
     await registerAndSignIn(page, authorName, authorEmail);
     await page.goto("/account/poems/new");
     await waitForHydration(page, "form button[type=submit]");
@@ -448,22 +464,28 @@ test.describe.serial("own poems list discoverability and inline actions", () => 
     await gotoListHydrated();
     const card = cardByTitle(draftTitle);
     await expect(card.getByRole("link", { name: "编辑" })).toBeVisible();
-    await expect(
-      card.getByRole("button", { name: "发布", exact: true }),
-    ).toBeVisible();
-    await expect(card.getByRole("button", { name: "删除草稿" })).toBeVisible();
-    await expect(card.getByRole("link", { name: "查看作品页" })).toHaveCount(0);
-    await expect(
-      card.getByRole("button", { name: "撤回", exact: true }),
-    ).toHaveCount(0);
+    const more = card.getByRole("button", { name: /更多操作/ });
+    await more.click();
+    await expect(page.getByRole("menuitem", { name: "发布" })).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: "删除草稿" })).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: "查看作品页" })).toHaveCount(0);
+    await page.keyboard.press("Escape");
+    await expect(more).toBeFocused();
+    await more.click();
+    await page.getByRole("menuitem", { name: "删除草稿" }).click();
+    const deleteDialog = page.getByRole("alertdialog");
+    await expect(deleteDialog).toBeVisible();
+    await deleteDialog.getByRole("button", { name: "取消" }).click();
+    await expect(more).toBeFocused();
 
-    // 390px 下卡片操作区换行排列，页面不产生水平滚动。
-    await page.setViewportSize({ width: 390, height: 844 });
-    const dimensions = await page.evaluate(() => ({
-      clientWidth: document.documentElement.clientWidth,
-      scrollWidth: document.documentElement.scrollWidth,
-    }));
-    expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+    for (const width of [390, 768, 920, 1024, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      const dimensions = await page.evaluate(() => ({
+        clientWidth: document.documentElement.clientWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+      }));
+      expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+    }
 
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto(`/account/poems/${poemId}/edit`);
@@ -496,9 +518,8 @@ test.describe.serial("own poems list discoverability and inline actions", () => 
 
   test("publishing from the list card lands on the public page", async () => {
     await gotoListHydrated();
-    await cardByTitle(draftTitle)
-      .getByRole("button", { name: "发布", exact: true })
-      .click();
+    await cardByTitle(draftTitle).getByRole("button", { name: /更多操作/ }).click();
+    await page.getByRole("menuitem", { name: "发布" }).click();
     await page.waitForURL(`/poems/${poemId}`);
     await expect(
       page.getByRole("heading", { level: 1, name: draftTitle }),
@@ -507,21 +528,17 @@ test.describe.serial("own poems list discoverability and inline actions", () => 
     await gotoListHydrated();
     const card = cardByTitle(draftTitle);
     await expect(card.getByRole("link", { name: "编辑" })).toBeVisible();
-    await expect(card.getByRole("link", { name: "查看作品页" })).toBeVisible();
-    await expect(
-      card.getByRole("button", { name: "撤回", exact: true }),
-    ).toBeVisible();
-    await expect(
-      card.getByRole("button", { name: "发布", exact: true }),
-    ).toHaveCount(0);
-    await expect(card.getByRole("button", { name: "删除草稿" })).toHaveCount(0);
+    await card.getByRole("button", { name: /更多操作/ }).click();
+    await expect(page.getByRole("menuitem", { name: "查看作品页" })).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: "撤回" })).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: "发布" })).toHaveCount(0);
+    await expect(page.getByRole("menuitem", { name: "删除草稿" })).toHaveCount(0);
   });
 
   test("withdrawing from the list card returns the work to draft", async () => {
     await gotoListHydrated();
-    await cardByTitle(draftTitle)
-      .getByRole("button", { name: "撤回", exact: true })
-      .click();
+    await cardByTitle(draftTitle).getByRole("button", { name: /更多操作/ }).click();
+    await page.getByRole("menuitem", { name: "撤回" }).click();
     await page.waitForURL(`/account/poems/${poemId}/edit?withdrawn=1`);
     await expect(
       page.getByText("作品已撤回，回到草稿状态，仅自己可见。"),
@@ -530,9 +547,9 @@ test.describe.serial("own poems list discoverability and inline actions", () => 
 
     await gotoListHydrated();
     const card = cardByTitle(draftTitle);
-    await expect(
-      card.getByRole("button", { name: "发布", exact: true }),
-    ).toBeVisible();
-    await expect(card.getByRole("link", { name: "查看作品页" })).toHaveCount(0);
+    await card.getByRole("button", { name: /更多操作/ }).click();
+    await expect(page.getByRole("menuitem", { name: "发布" })).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: "查看作品页" })).toHaveCount(0);
+    await expect(page.getByRole("menuitem", { name: "删除草稿" })).toHaveCount(0);
   });
 });

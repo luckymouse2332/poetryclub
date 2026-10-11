@@ -1,9 +1,11 @@
+import { requireAdminOrForbidden } from "@/features/moderation/require-admin";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
+import { PaperList } from "@/components/paper-list";
 import {
   Empty,
   EmptyDescription,
@@ -22,6 +24,7 @@ export default async function AdminCollectionsPage({
 }: Readonly<{
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }>) {
+  await requireAdminOrForbidden();
   const query = await searchParams;
   const parsedPage = moderationPageSchema.safeParse(query.page);
   if (!parsedPage.success) notFound();
@@ -34,19 +37,30 @@ export default async function AdminCollectionsPage({
         title="特辑治理"
         description="查看成员整理的特辑，隐藏或恢复不适合展示的标题、简介和编排。"
       />
-      <Section className="pb-0 pt-8">
-        {result.items.length ? (
-          <div>{result.items.map((collection) => <AdminCollectionCard key={collection.id} collection={collection} />)}</div>
-        ) : (
-          <Empty>
-            <EmptyHeader>
-              <EmptyTitle>还没有特辑</EmptyTitle>
-              <EmptyDescription>成员创建特辑后会出现在这里。</EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        )}
+      <Section className="py-0">
+        <PaperList
+          empty={
+            <Empty>
+              <EmptyHeader>
+                <EmptyTitle>还没有特辑</EmptyTitle>
+                <EmptyDescription>
+                  成员创建特辑后会出现在这里。
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          }
+        >
+          {result.items.map((collection) => (
+            <AdminCollectionCard key={collection.id} collection={collection} />
+          ))}
+        </PaperList>
       </Section>
-      <AdminPagination basePath="/admin/collections" page={result.page} pageCount={result.pageCount} query={{}} />
+      <AdminPagination
+        basePath="/admin/collections"
+        page={result.page}
+        pageCount={result.pageCount}
+        query={{}}
+      />
     </PageContainer>
   );
 }

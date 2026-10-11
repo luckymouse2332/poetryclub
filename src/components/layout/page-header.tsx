@@ -24,25 +24,23 @@ function PageHeader({
   return (
     <header
       className={cn(
-        "flex flex-col gap-2",
+        "mb-8 flex flex-col gap-3",
         align === "center" && "items-center text-center",
         className,
       )}
     >
       {eyebrow ? (
-        <p className="text-caption font-medium tracking-[0.16em] text-seal-foreground">{eyebrow}</p>
+        <p className="text-label font-semibold text-seal">{eyebrow}</p>
       ) : null}
       {typeof title === "string" ? (
-        <Heading className="font-serif text-page-title font-normal tracking-[0.04em] text-foreground">
+        <Heading className="font-serif text-page-title font-medium tracking-tight text-foreground">
           {title}
         </Heading>
       ) : (
         title
       )}
       {description ? (
-        <p className="max-w-reading text-body-lg text-subtle">
-          {description}
-        </p>
+        <p className="max-w-reading text-body text-subtle">{description}</p>
       ) : null}
       {actions ? (
         <div

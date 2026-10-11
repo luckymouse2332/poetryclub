@@ -7,10 +7,22 @@ import { requireExistingUser } from "@/server/policies/access";
 import {
   markAllUserNotificationsRead,
   markUserNotificationRead,
+  markUserAnnouncementRead,
   NotificationMutationError,
   openUserNotification,
 } from "@/server/services/notifications";
-import { notificationIdSchema } from "@/server/validation/notifications";
+import { announcementIdSchema, notificationIdSchema } from "@/server/validation/notifications";
+
+export async function acknowledgeAnnouncementAction(id: string): Promise<void> {
+  const currentUser = await requireExistingUser("/notifications");
+  const parsed = announcementIdSchema.safeParse(id);
+  if (!parsed.success) return;
+  try {
+    if (await markUserAnnouncementRead(currentUser.id, parsed.data)) revalidateNotifications();
+  } catch (error) {
+    if (!(error instanceof NotificationMutationError)) throw error;
+  }
+}
 
 function revalidateNotifications(): void {
   revalidatePath("/", "layout");

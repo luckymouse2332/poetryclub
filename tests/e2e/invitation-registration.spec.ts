@@ -113,3 +113,16 @@ test("registration ignores forged role and account status fields", async ({ requ
     expect(await countUsersByEmail([email])).toBe(0);
   }
 });
+
+test("email-code login cannot create an account without an invitation", async ({ request }) => {
+  const email = uniqueEmail("otp-no-invitation");
+  const send = await request.post("/api/auth/email-otp/send-verification-otp", {
+    data: { email, type: "sign-in" },
+  });
+  expect(send.status()).toBe(200);
+  const signIn = await request.post("/api/auth/sign-in/email-otp", {
+    data: { email, otp: "000000" },
+  });
+  expect(signIn.ok()).toBe(false);
+  expect(await countUsersByEmail([email])).toBe(0);
+});

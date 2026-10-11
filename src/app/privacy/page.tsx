@@ -16,12 +16,13 @@ export default function PrivacyPage() {
         title="隐私政策"
         description="本页面向校园用户，说明回中诗社当前真实收集和处理的数据。本页是使用说明，不是法律文件，也不构成任何法律保证。"
       />
-      <div className="mt-8 divide-y divide-border-subtle">
+      <div className="mt-8 divide-y divide-border-subtle border-y border-border-subtle bg-paper px-4 sm:px-6 lg:px-8">
         <Section title="我们处理哪些信息" className="py-8">
           <ul className="list-disc space-y-3 pl-6 text-body text-subtle">
             <li>注册账号时，我们处理你填写的昵称（名称）和邮箱。</li>
             <li>
-              密码只用于完成认证请求，并由 Better Auth 安全哈希后保存；服务端不会保存可还原的明文密码，页面也不会显示密码。
+              密码只用于完成认证请求，并由 Better Auth
+              安全哈希后保存；服务端不会保存可还原的明文密码，页面也不会显示密码。
             </li>
             <li>登录后，一个 HttpOnly 会话 Cookie 用于保持登录状态。</li>
             <li>
@@ -58,7 +59,7 @@ export default function PrivacyPage() {
           </p>
         </Section>
       </div>
-      <p className="text-caption text-subtle">更新日期：2026年8月30日</p>
+      <p className="mt-6 text-caption text-subtle">更新日期：2026年8月30日</p>
     </PageContainer>
   );
 }

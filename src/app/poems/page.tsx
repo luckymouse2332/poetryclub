@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
+import { PaperList } from "@/components/paper-list";
 import {
   Empty,
   EmptyDescription,
@@ -48,23 +49,23 @@ export default async function PoemsPage({ searchParams }: PoemsPageProps) {
             : "同学们公开发布的诗歌作品，按首次发布时间倒序排列。"
         }
       />
-      <Section className="pb-0 pt-8">
-        {result.items.length > 0 ? (
-          <div>
-            {result.items.map((poem) => (
-              <PoemCard key={poem.id} poem={poem} />
-            ))}
-          </div>
-        ) : (
-          <Empty>
-            <EmptyHeader>
-              <EmptyTitle>还没有诗作</EmptyTitle>
-              <EmptyDescription>
-                第一篇作品发布后，会出现在这里。
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        )}
+      <Section className="py-0">
+        <PaperList
+          empty={
+            <Empty>
+              <EmptyHeader>
+                <EmptyTitle>还没有诗作</EmptyTitle>
+                <EmptyDescription>
+                  第一篇作品发布后，会出现在这里。
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          }
+        >
+          {result.items.map((poem) => (
+            <PoemCard key={poem.id} poem={poem} />
+          ))}
+        </PaperList>
       </Section>
       <Pagination
         basePath="/poems"

@@ -18,7 +18,10 @@ import {
   getUserAuthorityByEmail,
   getUserIdByEmail,
   listOtherActiveAdmins,
+  setUserSuspendedForTest,
 } from "./helpers/database";
+import { waitForEmailOtp } from "./helpers/email-outbox";
+import { captureServerAction } from "./helpers/server-action";
 
 const PASSWORD = "password123";
 
@@ -76,9 +79,10 @@ async function registerAndSignIn(
   await page.getByLabel("密码").fill(PASSWORD);
   await page.getByLabel("邀请码").fill(inviteCode);
   await page.getByRole("button", { name: "创建账号" }).click();
-  await expect(
-    page.getByText("注册请求已完成，请使用邮箱和密码登录。"),
-  ).toBeVisible();
+  const { otp } = await waitForEmailOtp(email);
+  await page.getByLabel("6 位邮箱验证码").fill(otp);
+  await page.getByRole("button", { name: "验证邮箱" }).click();
+  await expect(page.getByText("邮箱验证完成，请登录。")).toBeVisible();
   await page.getByLabel("邮箱").fill(email);
   await page.getByLabel("密码").fill(PASSWORD);
   await page.getByRole("button", { name: "登录", exact: true }).click();
@@ -97,7 +101,7 @@ async function createPublishedPoem(
   await page.getByRole("button", { name: "保存草稿" }).click();
   await page.waitForURL(/\/account\/poems\/[0-9a-f-]+\/edit\?created=1$/);
   const id = new URL(page.url()).pathname.split("/")[3] ?? "";
-  await page.getByRole("button", { name: "发布", exact: true }).click();
+  await page.getByRole("button", { name: "保存并发布" }).click();
   await page.waitForURL(`/poems/${id}`);
   return id;
 }
@@ -133,6 +137,7 @@ async function submitReasonDialog(
   await dialog.getByRole("button", { name: confirm, exact: true }).click();
   await expect(dialog).toHaveCount(0);
 }
+
 
 test.setTimeout(180_000);
 
@@ -196,7 +201,9 @@ test.describe.serial("administrator authorization and governance", () => {
     await expect(dialog).toBeVisible();
     await dialog.getByLabel("原因").fill("伪造管理员参数");
     await dialog.getByRole("button", { name: "确认隐藏" }).click();
-    await expect(dialog.getByRole("alert")).toContainText("没有执行此管理操作的权限");
+    // Re-rendering the independently protected admin page also denies the
+    // stale browser session, so the denied action replaces its old dialog.
+    await expect(adminPage.getByRole("heading", { level: 1, name: "403" })).toBeVisible();
     expect((await adminPage.request.get(`/poems/${poemId}`)).status()).toBe(200);
     expect(await countAuditEntries("poem_hidden", poemId)).toBe(0);
 
@@ -253,7 +260,7 @@ test.describe.serial("administrator authorization and governance", () => {
     await waitForHydration(memberPage, "main form button[type=submit]");
     await memberPage.getByRole("button", { name: "撤回", exact: true }).click();
     await memberPage.waitForURL(`/account/poems/${poemId}/edit?withdrawn=1`);
-    await memberPage.getByRole("button", { name: "发布", exact: true }).click();
+    await memberPage.getByRole("button", { name: "保存并发布" }).click();
     await memberPage.waitForURL(`/account/poems/${poemId}/edit?published=1`);
     expect((await memberPage.request.get(`/poems/${poemId}`)).status()).toBe(404);
     expect(await countAuditEntries("poem_hidden", poemId)).toBe(1);
@@ -330,11 +337,7 @@ test.describe.serial("administrator authorization and governance", () => {
     await adminPage.getByLabel("可用次数").fill("1");
     await adminPage.getByLabel("过期时间").fill("2030-01-01T12:00");
     await createButton.click();
-    await expect(
-      adminPage
-        .locator('main [role="alert"]')
-        .filter({ hasText: "没有执行此管理操作的权限" }),
-    ).toBeVisible();
+    await expect(adminPage.getByRole("heading", { level: 1, name: "403" })).toBeVisible();
 
     await adminContext.clearCookies();
     await adminContext.addCookies(adminCookies);
@@ -371,6 +374,10 @@ test.describe.serial("administrator authorization and governance", () => {
       const secondId = await getUserIdByEmail(secondEmail);
 
       await adminPage.goto(`/admin/users?q=${encodeURIComponent(secondEmail)}`);
+      const userCard = itemByText(adminPage, secondEmail);
+      await expect(userCard.getByRole("button", { name: "禁用用户" })).toBeVisible();
+      await expect(userCard.getByRole("button", { name: "提升为管理员" })).toBeVisible();
+      await expect(userCard.getByRole("button", { name: /更多操作/ })).toHaveCount(0);
       await submitReasonDialog(
         adminPage,
         "提升为管理员",
@@ -433,35 +440,27 @@ test.describe.serial("administrator authorization and governance", () => {
       );
       await secondPage.goto("/admin");
 
-      // A stale card cannot be used to make the target administrator disable self.
+      // Replay the actual captured action as its target account. Background
+      // reconciliation may replace stale cards, so do not depend on that DOM.
       await adminPage.goto(`/admin/users?q=${encodeURIComponent(secondEmail)}`);
-      const primaryCookies = await adminContext.cookies();
-      const secondCookies = await secondContext.cookies();
-      const suspendSelfButton = itemByText(adminPage, secondEmail).getByRole(
-        "button",
-        { name: "禁用用户" },
+      const selfDialog = await openReasonDialog(
+        adminPage, itemByText(adminPage, secondEmail).getByRole("button", { name: "禁用用户" }),
       );
-      await waitForHydratedLocator(suspendSelfButton);
-      await adminContext.clearCookies();
-      await adminContext.addCookies(secondCookies);
-      const selfDialog = await openReasonDialog(adminPage, suspendSelfButton);
       await selfDialog.getByLabel("原因").fill("伪造自我禁用");
-      await selfDialog.getByRole("button", { name: "确认禁用" }).click();
-      await expect(selfDialog.getByRole("alert")).toContainText("不能对自己的管理员身份");
-      await selfDialog.getByRole("button", { name: "取消" }).click();
+      const suspendRequest = await captureServerAction(adminPage, "**/admin/users**", () => selfDialog.getByRole("button", { name: "确认禁用" }).click());
+      const suspended = await secondPage.request.post(suspendRequest.url, { headers: suspendRequest.headers, data: suspendRequest.data });
+      expect(await suspended.text()).toContain("不能对自己的管理员身份");
+      expect(await getUserAuthorityByEmail(secondEmail)).toMatchObject({ role: "admin", status: "active" });
+
+      await adminPage.goto(`/admin/users?q=${encodeURIComponent(secondEmail)}`);
       const selfDemotion = await openReasonDialog(
-        adminPage,
-        itemByText(adminPage, secondEmail).getByRole("button", {
-          name: "降级为成员",
-        }),
+        adminPage, itemByText(adminPage, secondEmail).getByRole("button", { name: "降级为成员" }),
       );
       await selfDemotion.getByLabel("原因").fill("伪造自我降级");
-      await selfDemotion.getByRole("button", { name: "确认降级" }).click();
-      await expect(selfDemotion.getByRole("alert")).toContainText(
-        "不能对自己的管理员身份",
-      );
-      await adminContext.clearCookies();
-      await adminContext.addCookies(primaryCookies);
+      const demoteRequest = await captureServerAction(adminPage, "**/admin/users**", () => selfDemotion.getByRole("button", { name: "确认降级" }).click());
+      const demoted = await secondPage.request.post(demoteRequest.url, { headers: demoteRequest.headers, data: demoteRequest.data });
+      expect(await demoted.text()).toContain("不能对自己的管理员身份");
+      expect(await getUserAuthorityByEmail(secondEmail)).toMatchObject({ role: "admin", status: "active" });
 
       // Reversibly suspend unrelated active admins so this test reaches the
       // exact two-admin boundary even in a reused local E2E database.
@@ -530,9 +529,12 @@ test.describe.serial("administrator authorization and governance", () => {
         "并发保护测试结束",
       );
     } finally {
-      // Best-effort cleanup is intentionally performed through audited admin UI
-      // above; contexts can always be closed without exposing credentials.
-      await secondContext.close();
+      // Restore fixture authority even when a UI assertion interrupted cleanup.
+      // The test runner has already required an isolated local test database.
+      try {
+        await setUserSuspendedForTest(E2E_ADMIN_EMAIL, false);
+        for (const email of suspendedExtras) await setUserSuspendedForTest(email, false);
+      } finally { await secondContext.close(); }
     }
   });
 });

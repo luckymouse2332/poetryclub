@@ -57,6 +57,13 @@
       "when": 1788090707900,
       "tag": "0007_next_shooting_star",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790306850183,
+      "tag": "0008_grandfather-existing-email",
+      "breakpoints": true
     }
   ]
 }

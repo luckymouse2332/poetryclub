@@ -1,9 +1,11 @@
+import { requireAdminOrForbidden } from "@/features/moderation/require-admin";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
+import { PaperList } from "@/components/paper-list";
 import {
   Empty,
   EmptyDescription,
@@ -25,6 +27,7 @@ type AdminCommentsPageProps = Readonly<{
 export default async function AdminCommentsPage({
   searchParams,
 }: AdminCommentsPageProps) {
+  await requireAdminOrForbidden();
   const parsed = moderationCommentListInputSchema.safeParse(await searchParams);
   if (!parsed.success) notFound();
   const result = await listAdminComments(parsed.data);
@@ -57,26 +60,22 @@ export default async function AdminCommentsPage({
           ]}
         />
       </div>
-      <Section className="pb-0 pt-8">
-        {result.items.length > 0 ? (
-          <div className="divide-y divide-border-subtle">
-            {result.items.map((comment) => (
-              <div
-                key={comment.id}
-                className="[&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none"
-              >
-                <AdminCommentCard comment={comment} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <Empty>
-            <EmptyHeader>
-              <EmptyTitle>没有符合条件的评论</EmptyTitle>
-              <EmptyDescription>调整筛选条件后重新查找。</EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        )}
+      <Section className="pt-8 pb-0">
+        <PaperList
+          inset={false}
+          empty={
+            <Empty>
+              <EmptyHeader>
+                <EmptyTitle>没有符合条件的评论</EmptyTitle>
+                <EmptyDescription>调整筛选条件后重新查找。</EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          }
+        >
+          {result.items.map((comment) => (
+            <AdminCommentCard key={comment.id} comment={comment} />
+          ))}
+        </PaperList>
       </Section>
       <AdminPagination
         basePath="/admin/comments"

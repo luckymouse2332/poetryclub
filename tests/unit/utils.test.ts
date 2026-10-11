@@ -30,4 +30,20 @@ describe("cn", () => {
       "font-bold block",
     );
   });
+
+  it("allows page-specific spacing and width to override project layout tokens", () => {
+    expect(cn("px-page py-section", "py-0")).toBe("px-page py-0");
+    expect(cn("max-w-content", "max-w-reading")).toBe("max-w-reading");
+    expect(cn("max-w-reading", "max-w-narrow")).toBe("max-w-narrow");
+    expect(cn("h-control", "h-12")).toBe("h-12");
+    expect(cn("py-section sm:py-section", "py-0 sm:py-8")).toBe("py-0 sm:py-8");
+  });
+
+  it("merges journal typography, elevation, and motion tokens without duplicate states", () => {
+    expect(cn("text-body leading-copy", "leading-reading")).toBe("text-body leading-reading");
+    expect(cn("shadow-floating", "shadow-none")).toBe("shadow-none");
+    expect(cn("rounded-floating", "rounded-md")).toBe("rounded-md");
+    expect(cn("duration-fast", "duration-normal")).toBe("duration-normal");
+    expect(cn("z-floating", "z-sheet")).toBe("z-sheet");
+  });
 });

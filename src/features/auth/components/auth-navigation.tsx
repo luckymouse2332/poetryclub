@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { navigationLinkClassName } from "@/lib/navigation-styles";
 
 import { SiteHeader } from "@/components/site-header";
 import { SiteNavLink } from "@/components/site-nav-link";
@@ -16,9 +17,6 @@ import {
   listRecentNotifications,
 } from "@/server/services/notifications";
 
-const navigationLinkClassName =
-  "inline-flex min-h-control items-center justify-center whitespace-nowrap px-2 font-serif text-label tracking-[0.14em] text-foreground no-underline transition-colors hover:text-seal";
-
 /**
  * 认证导航（Server Component）：服务端读取最小用户视图和现有通知状态，
  * 再分别组合桌面导航、移动全站菜单与移动账户入口。
@@ -29,24 +27,18 @@ export async function AuthNavigation() {
   if (!user) {
     return (
       <SiteHeader
-        mobileMenu={
-          <MobileGlobalNavigation
-            isActiveAdmin={false}
-          />
-        }
+        mobileMenu={<MobileGlobalNavigation isActiveAdmin={false} />}
         mobileAccount={
           <Link
             href="/login"
-            className="flex size-12 items-center justify-center text-label font-medium text-foreground no-underline transition-colors hover:text-seal-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-seal focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="flex size-12 items-center justify-center text-label font-medium text-foreground no-underline transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none"
           >
             登录
           </Link>
         }
         desktopNavigation={
           <li>
-            <SiteNavLink href="/login" className={navigationLinkClassName}>
-              登录
-            </SiteNavLink>
+            <SiteNavLink href="/login">登录</SiteNavLink>
           </li>
         }
       />
@@ -61,9 +53,7 @@ export async function AuthNavigation() {
 
   return (
     <SiteHeader
-      mobileMenu={
-        <MobileGlobalNavigation isActiveAdmin={isActiveAdmin} />
-      }
+      mobileMenu={<MobileGlobalNavigation isActiveAdmin={isActiveAdmin} />}
       mobileAccount={
         <AccountNavigationMenu
           variant="mobile"
@@ -81,11 +71,7 @@ export async function AuthNavigation() {
           />
           {isActiveAdmin ? (
             <li>
-              <SiteNavLink
-                href="/admin"
-                match="prefix"
-                className={navigationLinkClassName}
-              >
+              <SiteNavLink href="/admin" match="prefix">
                 管理
               </SiteNavLink>
             </li>

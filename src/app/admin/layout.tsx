@@ -17,7 +17,7 @@ export default async function AdminLayout({
   return (
     <WorkspaceShell
       title="管理工作区"
-      eyebrow="EDITORIAL DESK"
+      eyebrow="诗社事务"
       ariaLabel="管理后台导航"
       items={ADMIN_NAV_ITEMS}
     >

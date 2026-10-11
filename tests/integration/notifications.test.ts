@@ -8,12 +8,15 @@ vi.mock("@/server/services/notifications/realtime", () => ({
 }));
 
 import { db } from "@/server/db";
+import { publishNotificationRealtime } from "@/server/services/notifications/realtime";
 import {
   createNotificationInTransaction,
   createAnnouncementDraft,
   getUnreadNotificationCount,
+  getUserAnnouncement,
   openUserAnnouncement,
   publishAnnouncement,
+  markUserNotificationRead,
 } from "@/server/services/notifications";
 
 const databaseUrl = process.env.DATABASE_URL;
@@ -23,6 +26,7 @@ const sql = postgres(databaseUrl, { max: 1, connect_timeout: 10 });
 const userIds: string[] = [];
 const announcementIds: string[] = [];
 const auditTargetIds: string[] = [];
+const notificationKeys: string[] = [];
 
 async function createUser(input: {
   role: "member" | "admin";
@@ -45,8 +49,12 @@ async function createUser(input: {
 }
 
 afterAll(async () => {
+  if (notificationKeys.length) {
+    await sql`delete from notification where dedupe_key in ${sql(notificationKeys)}`;
+  }
   if (announcementIds.length > 0) {
     await sql`delete from announcement where id in ${sql(announcementIds)}`;
+    await sql`delete from notification where target_type = 'announcement' and target_id in ${sql(announcementIds)}`;
   }
   if (auditTargetIds.length > 0) {
     await sql`delete from admin_audit_log where target_id in ${sql(auditTargetIds)}`;
@@ -58,6 +66,42 @@ afterAll(async () => {
 });
 
 describe("notifications and announcements", () => {
+  it("serializes concurrent publication and dispatches a large snapshot in bounded batches", async () => {
+    const adminId = await createUser({ role: "admin", status: "active" });
+    for (let index = 0; index < 105; index++) await createUser({ role: "member", status: "active" });
+    const input = { title: "batched snapshot", body: "body", href: "/notifications", audience: "all_accounts" as const };
+    const id = await createAnnouncementDraft(adminId, input);
+    announcementIds.push(id); auditTargetIds.push(id);
+    vi.mocked(publishNotificationRealtime).mockClear();
+    const results = await Promise.allSettled([publishAnnouncement(adminId, id, input), publishAnnouncement(adminId, id, input)]);
+    expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
+    expect(await sql`select id from admin_audit_log where target_id=${id} and action='announcement_published'`).toHaveLength(1);
+    const calls = vi.mocked(publishNotificationRealtime).mock.calls;
+    expect(calls.length).toBeGreaterThan(1);
+    expect(calls.every(([ids]) => ids.length <= 100)).toBe(true);
+    const recipients = calls.flatMap(([ids]) => ids);
+    expect(new Set(recipients).size).toBe(recipients.length);
+    expect(recipients.length).toBeGreaterThanOrEqual(106);
+  });
+  it("preserves first-read time and rejects another recipient", async () => {
+    const recipient = await createUser({ role: "member", status: "active" });
+    const outsider = await createUser({ role: "member", status: "active" });
+    const event = await db.transaction((tx) => createNotificationInTransaction(tx, {
+      type: "test.read", title: "test", body: "test", dedupeKey: randomUUID(), recipientIds: [recipient],
+    }));
+    try {
+      vi.mocked(publishNotificationRealtime).mockClear();
+      await markUserNotificationRead(recipient, event.notificationId);
+      expect(publishNotificationRealtime).toHaveBeenCalledExactlyOnceWith([recipient], expect.objectContaining({ type: "inbox.changed" }));
+      vi.mocked(publishNotificationRealtime).mockClear();
+      const [first] = await sql`select read_at::text as value from notification_recipient where notification_id=${event.notificationId}`;
+      await markUserNotificationRead(recipient, event.notificationId);
+      expect(publishNotificationRealtime).not.toHaveBeenCalled();
+      const [second] = await sql`select read_at::text as value from notification_recipient where notification_id=${event.notificationId}`;
+      expect(second?.value).toBe(first?.value);
+      await expect(markUserNotificationRead(outsider, event.notificationId)).rejects.toMatchObject({ code: "not_found" });
+    } finally { await sql`delete from notification where id=${event.notificationId}`; }
+  });
   it("publishes an immutable audience snapshot including suspended accounts", async () => {
     const adminId = await createUser({ role: "admin", status: "active" });
     const memberId = await createUser({ role: "member", status: "active" });
@@ -72,7 +116,12 @@ describe("notifications and announcements", () => {
     announcementIds.push(announcementId);
     auditTargetIds.push(announcementId);
 
-    await publishAnnouncement(adminId, announcementId);
+    await publishAnnouncement(adminId, announcementId, {
+      title: "集成测试公告",
+      body: "公告正文",
+      href: "/notifications",
+      audience: "all_accounts",
+    });
 
     const rows = await sql`
       select a.status, a.notification_id, nr.user_id
@@ -88,6 +137,9 @@ describe("notifications and announcements", () => {
     );
     expect(rows[0]?.status).toBe("published");
     expect(rows[0]?.notification_id).toBeTruthy();
+    expect(await getUnreadNotificationCount(suspendedId)).toBe(1);
+
+    await expect(getUserAnnouncement(suspendedId, announcementId)).resolves.toMatchObject({ id: announcementId });
     expect(await getUnreadNotificationCount(suspendedId)).toBe(1);
 
     const opened = await openUserAnnouncement(suspendedId, announcementId);
@@ -114,11 +166,16 @@ describe("notifications and announcements", () => {
     announcementIds.push(announcementId);
     auditTargetIds.push(announcementId);
 
-    await publishAnnouncement(adminId, announcementId);
+    await publishAnnouncement(adminId, announcementId, {
+      title: "成员公告访问测试",
+      body: "发布时编辑后的正文。",
+      href: null,
+      audience: "active_members",
+    });
 
     await expect(openUserAnnouncement(recipientId, announcementId)).resolves.toMatchObject({
       id: announcementId,
-      body: "只有收件人可以看到这段正文。",
+      body: "发布时编辑后的正文。",
     });
     await expect(openUserAnnouncement(outsiderId, announcementId)).resolves.toBeNull();
   });
@@ -126,6 +183,7 @@ describe("notifications and announcements", () => {
   it("does not duplicate an event or recipient for the same dedupe key", async () => {
     const recipientId = await createUser({ role: "member", status: "active" });
     const dedupeKey = `integration-dedupe:${randomUUID()}`;
+    notificationKeys.push(dedupeKey);
 
     await db.transaction(async (tx) => {
       await createNotificationInTransaction(tx, {

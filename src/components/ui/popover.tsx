@@ -1,5 +1,7 @@
 "use client";
 
+/** M6.7 paper journal: shape, spacing, typography and state styling redesigned; upstream structure and public API preserved. */
+
 /**
  * shadcn/ui Popover，上游结构、data-slot 与 Radix 交互保持不变。
  * 项目差异：使用回中诗社的纸面、边框和浮层 Token，去掉默认 dark 变体。
@@ -19,9 +21,7 @@ function Popover({
 function PopoverTrigger({
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Trigger>) {
-  return (
-    <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />
-  );
+  return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />;
 }
 
 function PopoverContent({
@@ -39,7 +39,7 @@ function PopoverContent({
         sideOffset={sideOffset}
         collisionPadding={collisionPadding}
         className={cn(
-          "z-floating origin-(--radix-popover-content-transform-origin) rounded-md border border-border-strong bg-paper text-foreground shadow-floating outline-hidden",
+          "z-floating origin-(--radix-popover-content-transform-origin) rounded-floating border border-border-strong bg-paper text-foreground shadow-floating outline-hidden",
           className,
         )}
         {...props}
@@ -58,7 +58,10 @@ function PopoverHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="popover-header"
-      className={cn("flex flex-col gap-1 text-label", className)}
+      className={cn(
+        "flex flex-col gap-2 border-b border-border px-5 py-4 text-label",
+        className,
+      )}
       {...props}
     />
   );
@@ -68,7 +71,7 @@ function PopoverTitle({ className, ...props }: React.ComponentProps<"h2">) {
   return (
     <h2
       data-slot="popover-title"
-      className={cn("font-medium", className)}
+      className={cn("font-serif text-body-lg font-semibold", className)}
       {...props}
     />
   );

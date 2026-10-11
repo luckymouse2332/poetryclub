@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 
 import type { AdminActionState } from "@/features/moderation/action-state";
 import {
@@ -116,6 +117,7 @@ function isActionState(
 }
 
 function mutationState(error: unknown): CollectionActionState | null {
+  if (error instanceof AccessControlError) return error.code === "account_suspended" ? suspendedState() : { status: "error", message: "你没有执行此操作的权限。" };
   if (!(error instanceof CollectionMutationError)) return null;
   const messages = {
     not_found_or_forbidden: "特辑或收录项目不存在，或者你无权操作。",
@@ -153,7 +155,14 @@ export async function createCollectionAction(
   if (!token.success) {
     return { status: "error", message: token.error.issues[0]?.message, values };
   }
-  const id = await createCollectionDraft(currentUser.id, token.data, input.data);
+  let id: string;
+  try {
+    id = await createCollectionDraft(currentUser.id, token.data, input.data);
+  } catch (error) {
+    const state = mutationState(error);
+    if (state) return state;
+    throw error;
+  }
   revalidatePath("/account/collections");
   redirect(`/account/collections/${id}/edit?created=1`);
 }
@@ -170,7 +179,17 @@ export async function updateCollectionAction(
   const input = collectionInputSchema.safeParse(values);
   if (!parsedId.success) return { status: "error", message: "特辑编号无效。" };
   if (!input.success) return validationState(previous, input, values);
+  const intent = z.enum(["save", "publish"]).safeParse(formData.get("intent"));
+  if (!intent.success) return { status: "error", message: "特辑操作无效，请重试。" };
   try {
+    if (intent.data === "publish") {
+      const result = await publishOwnCollection(parsedId.data, currentUser.id, input.data);
+      revalidateCollection(parsedId.data);
+      if (result.moderationStatus === "hidden") {
+        redirect(`/account/collections/${parsedId.data}/edit?published=1`);
+      }
+      redirect(`/collections/${parsedId.data}`);
+    }
     await updateOwnCollection(parsedId.data, currentUser.id, input.data);
   } catch (error) {
     const state = mutationState(error);
@@ -183,15 +202,17 @@ export async function updateCollectionAction(
 
 async function runItemMutation(
   collectionId: string,
-  mutation: (ownerId: string) => Promise<void>,
+  mutation: (ownerId: string) => Promise<void | boolean>,
   successMessage: string,
+  noChangeMessage?: string,
 ): Promise<CollectionActionState> {
   const currentUser = await requireCollectionWriter(
     `/account/collections/${collectionId}/edit`,
   );
   if (isActionState(currentUser)) return currentUser;
   try {
-    await mutation(currentUser.id);
+    const changed = await mutation(currentUser.id);
+    if (changed === false) return { status: "success", message: noChangeMessage ?? "顺序未改变。" };
     revalidateCollection(collectionId);
     return { status: "success", message: successMessage };
   } catch (error) {
@@ -262,6 +283,7 @@ export async function moveCollectionItemAction(
         parsed.data.direction,
       ),
     "特辑顺序已更新。",
+    parsed.data.direction === "up" ? "已经是第一篇，顺序未改变。" : "已经是最后一篇，顺序未改变。",
   );
 }
 
@@ -369,6 +391,7 @@ async function moderateCollection(
       message: hidden ? "特辑已隐藏。" : "特辑已恢复。",
     };
   } catch (error) {
+    if (error instanceof AccessControlError) return { status: "error", message: "你没有执行此管理操作的权限。" };
     if (error instanceof CollectionModerationError) {
       return {
         status: "error",

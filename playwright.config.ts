@@ -1,10 +1,14 @@
 import { defineConfig, devices } from "@playwright/test";
 
 import { EMAIL_TEST_OUTBOX_PATH } from "./tests/e2e/helpers/email-outbox";
+import { configureTestEnvironment, testApplicationUrl } from "./scripts/test-environment.mjs";
 
-const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:4000";
+configureTestEnvironment();
+
+const baseURL = testApplicationUrl(process.env);
 const webServerUrl = new URL(baseURL);
-const webServerPort = webServerUrl.port || "4000";
+const webServerPort = webServerUrl.port || "80";
+const webServerHostname = webServerUrl.hostname.replace(/^\[|\]$/g, "");
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -27,18 +31,17 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
   ],
-  webServer:
-    process.env.PLAYWRIGHT_REUSE_SERVER === "1"
-      ? undefined
-      : {
-          command: `pnpm exec next dev --hostname ${webServerUrl.hostname} --port ${webServerPort}`,
-          url: baseURL,
-          reuseExistingServer: false,
-          env: {
-            BETTER_AUTH_URL: baseURL,
-            REDIS_URL: process.env.REDIS_URL ?? "redis://127.0.0.1:6379",
-            EMAIL_TRANSPORT: "test",
-            EMAIL_TEST_OUTBOX_PATH,
-          },
-        },
+  webServer: {
+    command: `pnpm exec next dev --hostname ${webServerHostname} --port ${webServerPort}`,
+    url: baseURL,
+    reuseExistingServer: false,
+    env: {
+      POETRYCLUB_E2E: "1",
+      DATABASE_URL: process.env.DATABASE_URL!,
+      BETTER_AUTH_URL: baseURL,
+      REDIS_URL: process.env.REDIS_URL ?? "redis://127.0.0.1:6379",
+      EMAIL_TRANSPORT: "test",
+      EMAIL_TEST_OUTBOX_PATH,
+    },
+  },
 });

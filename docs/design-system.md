@@ -2,230 +2,208 @@
 
 ## 1. 视觉定位与当前基线
 
-回中诗社的视觉语言来自班级档案、校刊和手抄诗集。暖米色纸张承担页面与阅读表面，深色文字保证长文可读性，低饱和深蓝用于常规操作，印章红用于品牌、当前页短线和编辑性链接反馈。整体保持现代、清晰和克制，不使用重度仿古装饰。
+当前设计为校园纸本诗刊：暖纸页面、墨色文字、方正控件、细线与留白。作品、真实诗集照片与班级记忆是视觉主体，采用现有宋体建立诗集气质。
 
-- 产品名称：`回中诗社`，年级标识为 `2021—2024级`。
-- 首页以用户提供的暖色诗集实拍图作为全幅首屏背景，不使用多图画廊、假作品或装饰性素材堆叠。
-- 首页首屏由全幅照片、左侧米白水平遮罩和简短文案组成，不使用多边形裁切；窄屏提高遮罩不透明度并保留照片主体。
-- 首页下半部分由“最新诗作”和“关于回中诗社”组成，使用最大 1240px 的居中正文容器；桌面端约为 41% / 59% 双栏，栏间距保持 64px 至 88px，区块标题使用短印章红横线。
-- 通用内容页继续使用清晰的页面标题、卡片、表单和分页结构，不把首页的裁切造型复制到管理与认证页面。
-
-历史 Figma 与 `docs/mockups/website.png` 只保留为设计来源。当前实现与规范的直接依据是 `src/app/globals.css`、`src/app/home.module.css`、`src/components` 和本文件；当历史效果图与现行代码冲突时，以已经验收的现行界面为准。
+- 产品名称与年级：回中诗社，2021—2024级；仅展示真实内容与现有功能。
+- 品牌、导航、标题及诗歌使用宋体；字段、日期、说明与后台数据使用无衬线。
+- 首页为导读与真实照片的编辑式双栏，小屏上下排列；列表使用连续目录行，阅读区为独立纸页。
+- 直角内容分区、2px 控件圆角、4px 浮层圆角；不使用普遍投影、胶囊选中、营销首屏或伪造手写装饰。
+- M6.7 建立纸刊基线，M6.8 完成留白与组合收尾，M6.9 增强主内容与背景层次，修正透明目录缺乏对比的问题。M6.6 现代社区视觉已被用户否决；旧任务只记录历史。
 
 ## 2. 配色与语义 Token
 
-具体颜色值只定义在 `src/app/globals.css` 的 `:root` 色板中，组件只使用语义 Token。禁止在 TSX 中直接写十六进制颜色或 Tailwind 任意颜色类。
+具体色值只定义在 `src/app/globals.css` 的 `:root` 浅色色板及 `:root[data-theme="dark"]` 深色色板。组件使用语义 Token，不在 TSX 中写具体颜色或任意颜色类，不添加逐组件 dark 变体。
 
-### 2.1 基础色板
-
-| 语义 | CSS Token | 色值 | 用途 |
+| 语义 | Token | 色值 | 用途 |
 | --- | --- | --- | --- |
-| Page | `--background` | `#F3EEE4` | 页面最外层暖米色背景 |
-| Surface | `--surface` | `#F5F0E7` | 主内容与卡片 |
-| Surface muted | `--surface-muted` | `#ECE3D4` | 次级区域、分段控件 |
-| Paper | `--paper` | `#F8F2E7` | 阅读和输入表面 |
-| Paper aged | `--paper-aged` | `#EEE2CE` | 校刊视觉中的少量旧纸层次 |
-| 主要文字 | `--foreground` | `#28251F` | 标题与正文 |
-| 次要文字 | `--text-secondary` | `#736B61` | 说明、元数据 |
-| 弱化文字 | `--muted-foreground` | `#70685E` | 非关键提示、占位符 |
-| 反色文字 | `--primary-foreground` | `#FAF7F0` | 深色按钮文字 |
-| 品牌蓝 | `--primary` | `#28597F` | 主要交互 |
-| 品牌蓝 hover | `--primary-hover` | `#204866` | hover |
-| 品牌蓝 active | `--primary-active` | `#193A54` | active / 深色品牌区 |
-| 印章红 | `--seal` | `#9B4F3F` | 少量品牌、档案印记 |
-| 危险 | `--danger` | `#A64238` | 错误、删除操作 |
-| 成功 | `--success` | `#527450` | 成功、确认状态 |
-| 提醒 | `--warning` | `#926B2D` | 提醒、待处理状态 |
+| 页面 | `--background` | #F3EEE4 | 原有暖纸页面底色 |
+| 通用表面 | `--surface` | #FAF7F0 | 浮层及通用控件表面 |
+| 纸页 | `--paper` | #FFFDF8 | 主内容纸面：目录、阅读、表单、评论与通知；Card 共用纸面色 |
+| 次级表面 | `--surface-muted` | #E9E2D6 | 禁用与占位 |
+| 主要文字 | `--foreground` | #2C2923 | 标题与正文 |
+| 次要文字 | `--text-secondary` | #686156 | 元数据与说明；Tailwind 为 `text-subtle` |
+| 弱化文字 | `--muted-foreground` | #686156 | 非关键提示与占位符 |
+| 主操作 | `--primary` | #373D38 | 主要按钮与常规交互 |
+| hover / active | `--primary-hover` / `--primary-active` | #292F2A / #202620 | 主操作反馈 |
+| 低强调操作表面 | `--secondary` | #E9E9DF | 当前项、未读通知、认证说明 |
+| 边框 | `--border` / `--border-subtle` | #C8BFAF / #D8D0C2 | 普通与低强调分隔 |
+| 强边框 | `--border-strong` | #BEB3A2 | 强调分隔 |
+| 输入边界 | `--input` | #8C8170 | 与纸面表面的对比度大于 3:1 |
+| 成功 | `--success` | #45624B | 成功与已发布 |
+| 提醒 | `--warning` | #795A2A | 草稿与待处理 |
+| 危险 | `--danger` | #9F352F | 错误与破坏性操作 |
+| 档案印记 | `--seal` | #914D41 | 少量内容定位与档案语义 |
 
-`seal` 与 `danger` 是独立语义：Seal 表示品牌或档案印记；Danger 表示错误和破坏性操作。即使视觉接近也不得互换。
+状态浅背景分别使用 success-surface、warning-surface、danger-surface、seal-surface；状态必须同时包含文字、图标或 aria 语义。seal 与 danger 不得互换。导航选中与通知未读使用 seal 编辑印记，不借用危险颜色。
 
-### 2.2 表面、边框和状态
+M6.11 增加深色模式，按用户反馈采用墨蓝灰，撤销最初的暖棕方案。字体、形态与留白沿用纸刊基线，真实照片不做滤镜。
 
-- `--card` / `--card-foreground`：默认 Surface 卡片。
-- `--text-secondary` 在 Tailwind 主题中映射为 `text-subtle`，供页面说明和必要的次级信息使用；`text-muted-foreground` 只用于非关键提示。
-- `--border`：普通边框；`--border-subtle`：纸面分隔；`--border-strong`：强调分区。
-- `--secondary`：低强调的品牌浅蓝操作面；`--accent`：hover / 当前项背景。
-- `--success-surface`、`--warning-surface`、`--danger-surface`、`--seal-surface`：状态浅背景。
-- 状态不得只依赖颜色，必须同时包含文本、图标、边框或 `aria-*` 语义中的至少一项。
+| 深色语义 | 色值 |
+| --- | --- |
+| 页面 / Header / Footer | #182029 |
+| 内容纸面 / Card / 输入框 / 浮层 | #2C3745 |
+| 通用表面 / 次级表面 | #222C38 / #313D4A |
+| 正文 / 辅助文字 / 占位 | #E7EDF3 / #B6C2CF / #AEBCCB |
+| 主操作 / hover / active | #AAC4CF / #C0D5DD / #D5E5EB |
+| 按钮文字 | #182630 |
+| 印记 / 成功 / 提醒 / 危险 | #D5A18F / #ABCDB8 / #DFC28D / #EDA9A9 |
+| 边框 / 弱分隔 / 输入边界 | #546779 / #3E4E5E / #8DA3B7 |
+| 遮罩 | #0A0F14，使用组件原有透明度 |
+
+遮罩使用独立 overlay Token，浅色为原墨色，深色为深墨蓝，避免亮文字色导致遮罩泛白。深浅切换只替换语义色板，无主内容淡入、位移或整页过渡。
+
+深色色板对纸面的对比度：正文 10.24:1，辅助文字 6.67:1，占位文字 6.24:1，印记与状态文字至少 5.36:1；输入边界 4.63:1。主操作和危险按钮文字分别为 8.47:1、7.98:1。浏览器用实际计算样式验证这些阈值。
 
 ## 3. 字体
 
-- 字体通过 `next/font/google` 加载 Noto Sans SC 与 Noto Serif SC 的可变字重，使用 `display: swap`，分别暴露 `--font-sans` 与 `--font-serif`。
-- 全局表单、管理界面、分页、状态和普通页面标题以 `--font-sans` 为主，保证信息密度和控件可读性。
-- 品牌名、主导航、首页介绍、首页区块标题和诗名等编辑性内容显式使用 `--font-serif`。
-- 首页诗作日期与作者使用无衬线小字号元数据，诗名使用衬线正文，形成清晰层级。
-- 字体回退以 `globals.css` 与局部模块样式中的实际声明为准，不在业务组件中重新定义字体栈。
+通过 next/font/google 加载 Noto Sans SC 与 Noto Serif SC 可变字体，使用 display: swap 与现有字体变量。不静默替换字体源；构建获取失败须如实报告。
 
-`next/font/google` 在构建阶段需要可访问字体源。若构建环境无法稳定获取，任务必须报告失败，不得静默替换为另一字体方案。
+- 默认无衬线；品牌、导航、页面标题、认证标题、工作区标题与关于页面使用宋体。
+- 诗名、诗作摘要、诗歌正文及诗作正文编辑器显式使用衬线。
+- 正文保留换行与空行，长词、邮箱、标题允许断行。纯文本内容禁止渲染未净化 HTML。
 
 ## 4. 字号与行高
 
-| Token / Tailwind 类 | 字号 | 行高 | 用途 |
-| --- | --- | --- | --- |
-| `text-display` | `clamp(2.25rem, 7vw, 4.75rem)` | 1.08 | 首页品牌主标题 |
-| `text-page-title` | `clamp(1.75rem, 4vw, 2.5rem)` | 1.2 | 页面标题 |
-| `text-section-title` | `1.5rem` | 1.35 | 区块标题 |
-| `text-body-lg` | `1.125rem` | 1.8 | 引导与阅读文本 |
-| `text-body` | `1rem` | 1.7 | 默认正文 |
-| `text-label` | `0.875rem` | 1.5 | 表单标签与导航 |
-| `text-caption` | `0.75rem` | 1.5 | 非关键补充信息 |
+| Token | 字号 | 用途 |
+| --- | --- | --- |
+| text-display | clamp(2.25rem, 7vw, 4.75rem) | 大标题 |
+| text-page-title | clamp(1.75rem, 4vw, 2.5rem) | 页面标题，500 字重 |
+| text-section-title | 1.5rem | 区块标题 |
+| text-body-lg | 1.125rem | 诗歌正文与阅读 |
+| text-body | 1rem | 正文与输入 |
+| text-label | 0.875rem | 控件、导航、必要元数据 |
+| text-caption | 0.75rem | 非关键补充 |
 
-正文中文每行建议 28—40 字。必要信息不能使用弱化文字 Token 和过小字号。
+普通正文行高 1.7，长文 1.8，独立诗作正文 2。中文长文建议每行 28—40 字。主要按钮不使用 caption 字号。
 
-## 5. 间距
+## 5. 间距与宽度
 
-基础节奏为 4px：`--space-1` 至 `--space-16` 覆盖 4、8、12、16、24、32、48、64px。组件内部优先使用 8/12/16px，卡片内边距使用 16/24/32px，页面区块间距使用 48/64px。
+4px 为基础节奏，space-1 至 space-16 覆盖 4、8、12、16、24、32、48、64px。目录、Card 与 Surface 的横向内边距为小屏 16px、sm 起 24px、lg 起 32px。控件最低高度 44px。
 
-- `--space-page-gutter`：移动 16px，≥640px 为 24px，≥1024px 为 32px。
-- `--space-section`：移动 48px，≥768px 为 64px。
-- `--control-height`：44px，作为主要按钮、输入和图标按钮的最低交互高度。
+- 原有页面暖纸底色承托明亮纸面内容；公开、个人和后台目录共用连续 Surface，行透明、仅行间一条细线，空状态同纸面。后台 Card 行自行承担内边距，容器不重复叠加；不逐行制作浮卡。
+- Header、移动主导航及 Footer 与页面共用 background，只以细线分区；不靠加深外围或上下导航的大色差来强调主内容。
+- 有浅纸背景的阅读、表单、评论分区必须有内部留白，不使用零内边距色块。首页首屏与关于沿革保持开放编辑布局，锯齿边匹配外围背景。
+- 列表后的业务分页只用 24px 留白衔接，不重复添加纸面边界；独立展示的基础 Pagination 仍保留分区线。
+- 标题到内容由 PageHeader 的 32px 下边距负责；无标题的目录 Section 不再重复叠加上下 padding。
+- 同组信息 8/12px，字段与评论组 24px，章节 48/64px；嵌套分区不累加章节级留白。
+- cn 登记自定义 spacing、container、leading、shadow、radius、ease、z 和 duration Token，调用方覆盖应生效，不能依赖样式表生成顺序。leading-copy / reading / heading 等对应显式主题变量。
 
-禁止用大量任意值类绕开间距节奏。
+- 页面边距：移动 16px，sm 起 24px，lg 起 32px。
+- 通用正文最大 1120px，阅读 720px，窄表单 512px。
+- 首页首屏与下半区共用居中边界，章节间距 48px。
+- 工作区最大 1408px，xl 起 224px 常驻左侧栏，正文占剩余宽度。
 
 ## 6. 圆角
 
-| Token | 值 | 用途 |
-| --- | --- | --- |
-| `--radius-sm` | 6px | Badge、小状态 |
-| `--radius-md` | 10px | Button、Input |
-| `--radius-lg` | 14px | Surface、表单卡片 |
-| `--radius-xl` | 20px | 主要品牌面板 |
-| `--radius-full` | 9999px | 圆形 IconButton / 胶囊 |
+控件 small/medium 2px，内容 large/extra-large 0，浮层 floating 4px；头像保留圆形。普通内容不使用投影。Card/Surface 用直角细线及内部分区表达纸页，不用厚边框或仿古卷边。
 
-圆角表达现代纸张与装订感，不使用夸张气泡式圆角。
+## 7. 边框、阴影与动效
 
-## 7. 边框与阴影
+普通分隔线 1px；章节分隔可用 2px。输入边界至少 3:1，对焦点使用独立外框。普通阅读与内容分区不投影，浮层允许轻阴影以表达层级。
 
-- 默认边框 1px；只有焦点、选中和印章可使用 2px。
-- `shadow-card`：纸张平铺般的轻阴影。
-- `shadow-floating`：仅用于少量浮层，不用于普通内容卡片。
-- `shadow-focus`：品牌蓝焦点环；不得用 `outline: none` 后不提供替代焦点。
-- 不使用高对比黑色投影或拟物厚阴影。
-- 动效时长只使用 `fast 160ms`、`normal 220ms`、`slow 260ms`，进入和退出分别使用 `--motion-ease-enter`、`--motion-ease-exit`；组件级关键帧放在组件或共享 CSS Module。
-- 层级只使用 `floating 50`、`header 60`、`sheet 70`。普通页面内容不得创建额外任意层级；`globals.css` 只保留 Token、基础样式、Radix 通用浮层行为和 reduced-motion。
+动效 fast 160ms、normal 220ms、slow 260ms；按钮按压位移 1px，浮层小幅淡入。层级 floating 50、header 60、sheet 70。reduced-motion 下取消按钮位移、spinner 旋转、skeleton 脉冲，浮层动画缩短；首页箭头取消位移。
 
-## 8. 响应式断点与页面宽度
+M6.10 导航跳转使用 Next 的 React ViewTransition，仅主导航、二级导航与工作区侧栏的选中线在 220ms 内平滑移动。按用户后续要求，主页面内容直接切换，取消页面过渡边界、淡入淡出与位移；root 默认动画关闭，页头、页脚不整体淡入或移动。查询、表单与同页锚点保持原行为，移动菜单照常关闭；减少动态效果时取消选中线动画，无原生 API 时直接导航，不增加等待计时器。隐藏导航的选中线使用独立名称，避免冲突。
 
-沿用 Tailwind 默认移动优先断点：`sm 640px`、`md 768px`、`lg 1024px`、`xl 1280px`、`2xl 1536px`。常用验收视口为 390px、768px、920px、1024px 和 1440px。
+## 8. 响应式
 
-- `max-w-content` / `--content-max-width`：1120px，通用页面内容。
-- `max-w-reading` / `--reading-max-width`：720px，长文本。
-- `max-w-narrow` / `--narrow-max-width`：512px，认证表单和少量确认流程。
-- 成员与管理工作区在 `lg` 至 `xl` 之间统一使用页面顶层横向二级导航，`xl` 起切换为约 224px 的常驻左侧导航；账户页在更小视口保留正文内导航，管理入口则由全站 Sheet 承载。
-- 通用内容页使用 `PageContainer`。首页仍复用该组件，但允许通过局部样式放宽最大宽度，并由首页模块单独控制首屏和下半区页边距。
-- 移动端不得水平滚动，长邮箱、昵称、诗名和用户正文必须可换行。
+使用 sm 640、md 768、lg 1024、xl 1280、2xl 1536px，验收 390、768、920、1024、1440px。
 
-## 9. 页面骨架与当前导航
+- lg 以下保持单行居中品牌、左侧菜单与右侧账户入口；lg 起桌面导航。
+- 工作区 lg 至 xl 使用顶层横向二级导航，xl 起常驻左侧栏；账户小屏保留正文内导航，管理小屏从全站 Sheet 进入。
+- 诗作与特辑为连续目录行，sm 起日期与作品分栏；小屏顺序阅读，元数据允许换行。
+- 编辑器 xl 起正文与设置双栏，此前单栏；小屏正文输入高度缩小，避免必须翻过大段空白才能设置访问范围。
+- 所有页面禁止水平溢出；横向二级导航自身允许滚动。
 
-- `SiteHeader`：`lg` 以下固定为单行三段式刊头，左右使用相同宽度轨道，左侧汉堡按钮打开全站 Sheet，中间“回中诗社”保持几何居中，右侧匿名用户显示“登录”、登录用户显示单 Unicode 字素账户圆标。全站菜单只包含诗作、关于和正常管理员的管理入口；账户圆标打开通知、我的诗作、账户信息、账户安全和独立危险语义登出。有未读通知时，圆标右上角显示单个暗红点，菜单内继续显示“无未读 / N 条未读”。Sheet 保留原顶栏，遮罩与面板从顶栏下方开始，汉堡按钮原位切换为叉；打开时焦点留在该按钮上，Tab / Shift+Tab 进入导航边界，Escape、外部点击和路由跳转关闭后焦点回到触发器。账户菜单以上边缘为轴，从上向下展开。两者用半透明暖纸表面和轻度背景模糊保留页面空间关系，并在 reduced-motion 下取消位移与缩放。
-- `lg` 起保留既有桌面刊头：左侧站名与年级，右侧诗作、关于、通知、正常管理员的管理入口和“我的”菜单；桌面通知继续使用最近消息 Popover。导航显示不承担权限判断。
-- 账户页在小于 `lg` 时把“我的诗作 / 账户信息 / 账户安全”放在页面标题之后；`lg` 至 `xl` 之间与管理后台统一使用页面顶层横向二级导航，`xl` 起恢复工作区左侧导航，并以 `MEMBER DESK / 成员工作区` 建立与管理侧栏对等的标题层级。横向二级导航以衬线大字、上下细分隔线和印章红短线表达当前项，短线使用 React View Transition 在路由切换时平滑移动，并在 reduced motion 下取消时长；侧栏以左侧边线、浅印章底色和文字颜色表达当前项。
-- `PageContainer`：统一最大宽度、响应式页边距和可选窄 / 阅读宽度。
-- `PageHeader`：eyebrow、标题、描述和可选 actions；标题层级由调用方指定。
-- `Section`：统一垂直节奏，可包含区块标题、描述和 actions。
-- 管理后台首页入口使用管理场景专用的 `AdminDashboardCard`，复用通用 Card 结构但不扩展其 API。卡片提供 paper、muted、plain 三种无边框表面层级，并以有间距的响应式网格排列；不得把这些业务样式并入通用 Card。
-- 首页首屏：小屏为上文下图并使用横向锯齿纸边，`lg` 起为左文右图并切换为竖向锯齿纸边；只使用 `poetry-collection.jpg`，不使用渐变遮罩。主操作和“查看全部诗作”采用文字链接，箭头在 hover / focus-visible 时轻微右移。
-- 首页最新诗作：日期、诗名、作者按响应式网格排列。反馈只作用于诗名文字与下划线，不给整行增加背景或阴影。
-- 首页关于区：与最新诗作并列或上下排列，正文和收录标准最大宽度为 43rem，保持长文可读宽度。
-- 独立 About 页：以“序言 → 过去 → 现在 → 未来 → 附录”的诗社沿革组织内容。序言说明来源与继续维护的原因；“四次迁徙”以年份和正文的左右关系记录历史；“现在”使用三栏说明网站今天承担的角色；未来方向使用无卡片的两列编辑网格；更新记录降为页面末尾从 M1 起按时间排列的主要阶段。各章节通过不同排版节奏区分，不使用时间轴圆点、营销式大文案或密集卡片。
-- `SiteFooter`：页脚，用于展示合规信息和用户协议
-  - 左栏品牌名与年级短说明，中栏版权与 ICP 备案号（合并为一行），右栏政策链接（隐私政策 / 使用条款）；
-  - 三组内容在同一行内垂直居中对齐；中栏因等宽栅格始终落在页面水平中心，左右两栏相对中心对称；
-  - ICP 备案号必须居中展示、链接到工信部备案系统，并使用 `target="_blank"` + `rel="noopener noreferrer"`；
-  - <1024px 改为居中纵向堆叠（品牌 → 说明 → 合规信息 → 政策链接），避免三栏挤压换行；
-  - 链接保持 44px 最低点击高度，横向内边距用列表负外边距抵消，使文字与内容边界对齐。
+## 9. 页面骨架与导航
 
-## 10. 组件状态
+SiteHeader 为文字刊头：站名宋体、班级年级说明、文字导航与当前项短印章红线。删除图标色块品牌。移动保留三段式居中刊头、Sheet、账户圆标、Escape、路由关闭与焦点回归。
 
-### Button / IconButton
+深浅切换器使用现有 IconButton 与日/月图标，桌面位于导航末尾，手机位于菜单右侧；左右各留 96px 保持品牌居中，按钮至少 44px。首次访问跟随系统，手动选择存入本机 poetryclub-theme，刷新、路由与跨标签保留；存储受限时当前标签仍可切换。固定 head 脚本仅输出到首屏服务端 HTML，在水合前应用主题；水合后移除，客户端路由不插入不可执行的 script。html 仅容忍初始化属性变化，不抑制其他组件水合错误。
 
-- 变体：`primary`、`secondary`、`ghost`、`danger`。
-- 状态：default、hover、active、disabled、loading、focus-visible。
-- Loading 必须有可感知文本，设置 `aria-busy` 并阻止重复提交。
-- 默认高度至少 44px；IconButton 必须提供可访问名称。
+PageHeader 使用中文眉题、宋体标题与无衬线说明。WorkspaceShell xl 起侧栏，以细线和中文名称分区；当前导航使用侧线而非圆角底块。认证页在 1024px 起使用左侧说明、右侧纸面表单的双栏布局，中间以细线分隔；小屏保持窄版单列，表单宽度不超过 narrow Token。
 
-### Badge
+首页保留真实照片、近期三篇诗作与真实收录标准，双栏导读、无框章节和目录索引。About 保留序言、过去、现在、未来、附录真实历史，用宋体与不同编辑节奏叙事。
 
-- 变体：`neutral`、`primary`、`seal`、`success`、`warning`、`danger`。
-- Badge 不默认承担按钮行为；可交互标签需要单独定义键盘和按压状态。
+按用户要求保留首页原有锯齿页边：小屏在照片顶部，桌面在左侧。复用既有页边图片的透明轮廓作为 mask，颜色采用页面暖纸 Token。首页目录诗名与作者单行省略，DOM 与 title 保留全文；成员可见标记不被截断。
 
-### Input / Textarea / FormField
+首页首屏外侧不留上下空白；桌面照片贴合导航下沿与首屏分隔线，文字内部保持阅读间距。
 
-- Paper 背景、统一边框 / 圆角 / 最低高度。
-- FormField 统一生成 label、description、required、error、disabled 和 `aria-describedby` 关系。
-- Error 同时使用 `aria-invalid`、提示文本和危险样式；disabled 不能只降低透明度而失去可读性。
+SiteFooter 保留品牌、年级、居中版权与 ICP 备案、政策链接。备案链接 target=_blank 且 rel=noopener noreferrer。lg 以下居中堆叠，链接最低 44px。
 
-### Surface / Card / Empty
+## 10. 组件状态与来源基线
 
-- Surface 表达承载层级，变体：default、paper、muted，内边距：none / sm / md / lg；只表达承载层级，不制造业务语义。
-- Card 是 shadcn 上游的卡片家族（Card / CardHeader / CardTitle / CardDescription / CardAction / CardContent / CardFooter），
-  用于需要标题、描述与页脚分区的卡片；不带 variant，承载层级由 Surface 负责，两者不互相替代。
-- Empty 包含真实标题、说明和可选操作；不得用假业务数据填充空白。
+全部 22 个基础组件必须有明确的形态、排版、分区或状态设计。公共参数、上游组件结构、data-slot/asChild/cn 与无障碍关系保持兼容。
 
-### Alert
+| 组件 | M6.7 设计基线 |
+| --- | --- |
+| Button | 墨色实底 / 描边 / 文字下划线 / 危险四变体；2px 圆角、44px 高、18px 图标、独立焦点框、按压反馈，loading aria-busy 防重。 |
+| IconButton | 方正 44px 操作区、零横向 padding、hover 低强调底；保留可访问名称与加载图标替换。 |
+| Input | 纸面、2px 圆角、清晰边界、独立 focus 外框、aria-invalid 边界与错误焦点颜色。 |
+| Textarea | 纸面、16px 内边距、最小 128px、可垂直调整；诗歌显式宋体，说明与公告使用无衬线。 |
+| RadioGroup | 18px 单选原语、独立焦点框；选项用分隔行与选中侧线，不使用独立圆角卡片。 |
+| Label | 半粗无衬线、稳定基线与标记间距。 |
+| Field | 纵向 flex/gap-2、全宽无衬线分组标签与细线、清楚的说明与侧线错误；保留 errors 去重。 |
+| FormField | 统一标签、必填、描述、错误；data-invalid / data-disabled 可检查，关联不变。项目自有，非上游组件。 |
+| Card | 直角纸页，Header / Content / Footer 分区细线、宋体标题、默认无投影；保持家族结构。`variant="list"` 使用透明底、零边框，并通过 group/data-variant 关闭行内 Header/Footer 分隔，独立默认变体保持原样。 |
+| Surface | 直角上下边界，default / paper / muted 与 none / sm / md / lg 内边距。项目自有，非上游组件。 |
+| Badge | 矩形轻描边印记，六种语义；不默认承担按钮行为。 |
+| Alert | 侧线、图标、标题正文分区，success/warning/danger 不用整块强彩底。正文为普通文本流，行内链接可自然排列；静态提示不创建 live role。 |
+| Dialog | 4px 圆角独立纸页，标题与正文以字号、留白分区，操作栏单一细线、44px 关闭目标、视口内滚动；无正文弹窗不叠加两条横线。 |
+| AlertDialog | 同一纸页结构，明确的危险确认和取消区；保留媒体与尺寸接口。 |
+| Sheet | 方正展开目录，标题/页脚细线与24px间距；支持四方向，保留移动刊头的定制偏移和焦点行为。 |
+| DropdownMenu | 4px 浮层、44px 行、焦点侧线、分组分隔，统一 checkbox/radio/submenu/disabled/destructive；asChild 直接指向可交互元素，提交表单包在菜单项外，避免重复内边距。 |
+| Popover | 4px 纸页、标题内容分区、宋体标题；支持碰撞避让与焦点回归。 |
+| Pagination | 文字前后页与宋体页码，当前页下划线，不用彩色按钮块；保留 asChild 与边界 href。 |
+| Separator | 普通1px，decorative=false章节分隔2px；方向和辅助技术语义不变。 |
+| Empty | 左对齐编辑性说明、上下细线与真实操作，不用虚线卡片或假数据。 |
+| Skeleton | 直角文字/目录占位、低强调脉冲，减少动画时停止。 |
+| Spinner | 18px轻线条旋转、中文可访问名称，减少动画时静止；按钮内避免重复播报。 |
 
-- 变体：`default`、`success`、`warning`、`danger`；后三种分别固定使用成功、警告和错误 Lucide 图标。
-- Alert 不默认创建 live region。交互或异步错误显式使用 `role="alert"`，异步成功与非阻断状态变化使用 `role="status"`，不得再重复声明 `aria-live`；初始页面中的静态禁用、隐藏和治理原因说明不声明 live role。
-- 字段错误继续由 Field / FormField 承担，Badge、必填标记和普通内联状态文字不迁入 Alert。
+分页查询参数留在 feature；评论 Dialog/AlertDialog、通知定位、特辑排序和治理确认保留现有业务。删除和隐藏占位、禁用账号及服务端授权不得因视觉改变而取消。
 
-### Pagination
+评论按讨论组共用一张浅纸表面，根评论和回复自身为透明底、横向 16/24/32px 留白；回复只缩进 16/24px 并使用细侧线，保留小屏正文宽度。定位高亮沿用 seal 浅色，内边距不变。作品、创作背景、评论标题统一宋体，作者、时间、账号资料与治理数据为无衬线。
 
-- 通用展示组合 `PaginationNavigation` 只接收当前页、总页数、上一页 / 下一页 href、可访问名称和可选 className；不解析 feature 查询参数。
-- posts、notifications 和 moderation 各自保留 URL 与筛选参数生成逻辑，通过 shadcn Pagination 的 `asChild` 组合 Next.js Link；首页和末页不生成可点击的越界链接。
+方向分页的横线与顶部留白由外层导航统一负责，内层 PaginationContent 关闭重复边界。公告管理列表与其他治理列表采用相同的单行分隔与无内部横线布局。404、错误、无权限边界使用同一标题字号、宋体与页面留白。
 
-### 评论与回复
+管理列表的行间横线由列表容器统一负责。组合 Card 的 Header / Footer 移除行内边界与额外分隔 padding，以 16px 组间距区分标题、资料和操作，避免一行被多条横线割裂；独立 Card 分区保持默认设计。
 
-- 诗作详情的“评论与补充”使用现有 Textarea、Button、Alert、Dialog 和 AlertDialog 组合，不增加新的通用 UI 原语。
-- 根评论使用暖纸表面，一级回复在小屏缩进 16px、较宽视口缩进 32px；正文必须允许换行和长词断行，390px 下不能产生水平溢出。
-- 已删除和对当前读者隐藏的节点保留相同结构并显示明确占位。隐藏作者视图使用 warning Alert 呈现治理原因，不能只依靠颜色表达状态。
-- 回复与编辑在 Dialog 中完成，删除使用 AlertDialog 二次确认；成功后关闭浮层并把焦点交还触发器。pending 期间禁止重复提交，失败信息可在原操作位置重试。
-- 通知定位目标使用 `--seal-surface` 与 `--seal-foreground` 突出显示，并设置可编程焦点；滚动定位尊重浏览器的 reduced-motion 设置。
+组件来源：除 Surface、FormField、IconButton 外，其余基础组件均为既有 shadcn 上游组件。pagination-navigation、secondary-navigation、workspace-shell、auth-split-shell、site-header、mobile-global-navigation、theme-toggle 是项目组合组件，不是上游组件。theme-toggle 复用现有 IconButton，不新增原语。M6.10 后续按用户要求移除 page-transition 布局组合，仅保留导航选中线动画；现有 22 个基础组件基线不变。
 
-### 特辑与连续阅读
+新增上游组件必须使用 pnpm dlx shadcn@latest add，再映射 Token、去掉 dark 变体、保留 data-slot/asChild/cn 约定。无头原语统一 radix-ui。自有组件注释声明“不是上游组件”并登记基线。当前无新增通用原语。
 
-- 特辑列表沿用编辑式索引行，以发布时间、标题、简介、整理者、当前可读篇数和访问范围建立层级，不使用封面或营销卡片。
-- 特辑详情先展示元数据和纯文本简介，再以有序列表呈现分页目录；失效作品不渲染标题、占位或原始序号。
-- 连续阅读保持诗作正文的阅读宽度与字体，只增加特辑位置、上一篇、下一篇、返回目录和原作品详情入口，不重复渲染评论区。
-- 成员工作区使用现有 FormField、RadioGroup、Button、Alert、Badge、Surface 与分页组件。排序使用明确的上移、下移按钮，不引入拖拽手势。
-- 管理员治理复用 AdminReasonActionDialog；隐藏和恢复都要求原因，状态不能只用颜色表达。
+CHORE-4 新增的都是现有原语与版式的组合，不替代上游组件：
 
-### 组件实现基线
+| 项目组合（不是上游组件） | 复用边界与状态基线 |
+| --- | --- |
+| PaperList | Surface 纸面、单条行间分隔、统一空状态与横向留白；Card 列表设置 inset=false，由 Card 承担留白。有序目录使用原生 ol/li 与 orderedStart，保留跨页序号。 |
+| CatalogRow | 公开诗作/特辑目录的日期、标题链接、摘要、元数据；支持 h2/h3 标题层级，摘要字体由调用方选择。 |
+| ManagementRow | 个人诗作、特辑及特辑治理的正文/操作分栏；小屏按 DOM 顺序堆叠。 |
+| EditorLayout | 诗作、特辑、公告编辑器正文/设置双栏；xl 起设置栏 sticky，保留调用方表单状态与 key。 |
+| RadioOption | Field、RadioGroupItem、FieldLabel/Description 组合；统一选中侧线与留白，保留 id、值、描述关联和禁用态。 |
+| PoemReading / ReadingContext | 诗歌换行、宋体正文、创作背景和预览留白；纯文本渲染，className 通过 cn 保持覆盖。 |
+| MemberAccessGate | auth feature 内共享 Dialog/AuthForm；诗作与特辑保留各自文案和返回地址，禁止外部点击关闭，初始聚焦邮箱。权限检查仍在服务端。 |
 
-`src/components/ui` 同时存在两类组件，任何新增组件必须先归类再实现：
+主导航文字链接的通用类位于纯样式模块 `src/lib/navigation-styles.ts`，账户触发器保留自己的状态类。控件使用 min-h-control、18px 图标使用 size-4.5、浮层层级使用 z-floating，动效使用 duration-fast 或对应 CSS 变量。
 
-| 类别 | 含义 | 组件 |
-| --- | --- | --- |
-| 上游同构 | 结构、`data-slot`、子组件与上游 shadcn/ui 一致，只把类名映射到本文件的 Token 并去掉 `dark:` 变体 | `card`、`empty`、`field`、`label`、`pagination`、`separator`、`spinner`、`dropdown-menu`、`popover`、`skeleton` |
-| 上游同构 + 项目变体 | 以上游为基线，额外增加项目需要的 cva 变体或行为 | `button`（variant/size/loading）、`badge`、`input`、`textarea`、`alert`（success/warning/danger 固定图标且 role 由调用方声明）、`alert-dialog`（项目 Button 变体与语义 Token）、`dialog`、`sheet`（`overlayClassName`） |
-| 项目自有 | 上游没有对应组件，由本项目定义并负责维护 | `surface`、`form-field`、`icon-button`、`pagination-navigation`、`secondary-navigation`、`workspace-shell`、`auth-split-shell`、`site-header`、`mobile-global-navigation` |
+邮件复用 `server/email/styles.ts` 与结构化 `template.ts`。邮件客户端使用独立内联 CSS 和浅色色板的字面值，单元测试校验与网页浅色 Token 一致；所有标题、正文、验证码与链接属性集中转义，不引入浏览器样式依赖。
 
-- 基线为 shadcn/ui new-york（配置见 `components.json`）。本文件定义的 Token 与状态规范优先于 shadcn 默认样式；
-  每个文件顶部注释必须写明与上游的差异，项目自有组件必须在注释中明确声明「不是上游组件」。
-- 组件来源规则见 `AGENTS.md`「UI 组件来源规则」：除非上游没有，否则一律 `pnpm dlx shadcn@latest add` 添加后再改写，自实现组件登记进上表「项目自有」一行。
-- 组件保留 shadcn 约定：`data-slot` 标记、`asChild`（Radix Slot）与 `cn()` 合并顺序。
-- 当前命名统一使用 `Empty`；`FormField` 内部复用 `Field` 家族与 Radix `Label`；`Surface` 保持项目自有的承载层级语义。
+## 11. 可访问性
 
-## 11. 可访问性规则
+正文 WCAG 2.2 AA 普通文字至少 4.5:1，大文字至少 3:1。所有可交互元素有可见焦点，视觉与键盘顺序一致。主要目标至少 44px；图标按钮有可访问名称。页面保持语义标题、landmark、表单错误关系与正确 live region。
 
-- 正文和背景达到 WCAG 2.2 AA；普通文本至少 4.5:1，大文本至少 3:1。
-- 所有键盘可交互元素有清晰 `:focus-visible`；焦点顺序与视觉顺序一致。
-- 主要交互目标尽量达到 44×44px。
-- 表单 label 必须通过 `htmlFor` / `id` 关联；说明和错误通过 `aria-describedby` 关联。
-- 不以颜色作为唯一状态信息；动画尊重 `prefers-reduced-motion`。
-- 动态 Alert 按状态声明唯一的 `role="alert"` 或 `role="status"`，静态说明不创建 live region。
-- 使用语义化 heading、nav、main、section、form、dl；装饰元素从辅助技术隐藏。
-- 390px 至 1440px 不得因固定宽度、长文本或导航造成水平滚动。
+浮层支持键盘、Escape 和焦点回归。动画尊重 reduced-motion。禁用状态保留文字可读性。业务权限由服务端负责，菜单显隐不承担授权。
 
-## 12. 禁止事项
+## 12. 实施与验证
 
-1. 不使用红黑金传统诗词网站风格。
-2. 不使用高饱和渐变、荧光色或大面积印章红。
-3. 不用污渍、卷边、强泛黄、横线格纹干扰阅读。
-4. 不使用纯黑正文或大面积纯白页面背景。
-5. 不在业务组件中写具体色值或大量 `bg-[#…]` 任意值类。
-6. 不为不同卡片随机配色，不让装饰压过内容。
-7. 不把 Seal 当 Danger，不用颜色作为唯一反馈。
-8. 不自动实现深色模式；如未来需要，应单独设计夜间阅读主题。
-9. 不创建未实现功能链接、假作品、假时间线或难以删除的演示数据。
-10. 不因视觉改造改变认证、授权、跳转、会话或数据库行为。
-11. 不手写或复制粘贴 shadcn/ui 已有的组件；必须用 `pnpm dlx shadcn@latest add` 添加后再改写。
+不增加虚假业务内容或未实现功能入口。M6.11 按用户明确要求增加深色模式，替代此前不提供深色模式的范围限制。页面样式留在组件或 CSS Module，不把业务布局写进 globals。新视觉基线由 M6.7 记录，旧现代卡片和版式测试按本规范更新，权限与操作断言保持有效。
+
+运行 check:conventions、typecheck、lint、test、E2E 与 build。浏览器检查覆盖公开、成员、管理页面及五个验收尺寸，截图保存于 output/playwright/paper-journal。E2E 使用专用测试库及 .next/e2e 构建目录，避免与普通开发服务共用缓存锁。
+
+组件状态展示页 /ui-preview 仅在 POETRYCLUB_E2E=1 时开放；普通开发及生产返回 404，不加入导航。展示、截图与测试覆盖全部基础组件及状态，不包含真实业务写操作。
+
+CHORE-4 样式工具：Prettier + prettier-plugin-tailwindcss 读取 globals.css 的 Tailwind 4 主题，统一 TSX、CSS 与相关模板的格式及 cn/clsx/cva 类顺序；不调整 import 顺序。Stylelint 校验全部 CSS，允许 Tailwind 指令和 CSS Module 命名，模块内禁止直接色值及 palette 变量；色板定义仅允许在 globals.css。模块内响应式及 Radix 状态允许有意覆盖，不启用 no-descending-specificity。
+
+ESLint 的项目设计规则检查 className/style/overlayClassName、cn/clsx/cva 和样式常量，禁止 dark:、硬编码色值、Tailwind 调色板类与 --palette- 直连；允许当前有设计含义的布局、图片 mask 与几何任意值。格式由 Prettier 负责，避免与 Stylelint 重复约束。`pnpm format` 修正格式；`pnpm lint` 顺序执行 JS、CSS、格式检查。CI 使用仓库声明的 pnpm 与 Node 20.9.0 检查格式和样式，无新增运行时依赖。
+
+本任务截图通过 PLAYWRIGHT_ARTIFACT_ROOT 指向 `output/playwright/chore-4`；已有任务截图不覆盖。邮件浏览器预览使用虚构地址和验证码，不发送邮件；浏览器预览不代表所有邮件客户端兼容性验证。

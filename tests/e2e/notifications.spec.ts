@@ -7,6 +7,7 @@ import {
 import {
   createUnreadNotificationFixture,
   deleteNotificationById,
+  getAnnouncementReadAtForTest,
 } from "./helpers/database";
 
 async function waitForHydration(page: Page, selector: string): Promise<void> {
@@ -125,7 +126,7 @@ test("desktop notification popover stays synchronized and supports keyboard dism
         window as Window & {
           __emitNotificationStreamEvent?: (type: string) => void;
         }
-      ).__emitNotificationStreamEvent?.("open");
+      ).__emitNotificationStreamEvent?.("ready");
     });
     await expect(popover.getByRole("status")).toHaveCount(0);
     await inboxPage.keyboard.press("Escape");
@@ -154,7 +155,15 @@ test("desktop notification popover stays synchronized and supports keyboard dism
     await adminPage.getByRole("radio", { name: "全部正常账号" }).click();
     await adminPage.getByRole("button", { name: "创建草稿" }).click();
     await adminPage.waitForURL(/\/admin\/announcements\/[0-9a-f-]+\/edit\?created=1$/);
-    const publishButton = adminPage.getByRole("button", { name: "发布公告" });
+    const draftEditPath = new URL(adminPage.url()).pathname;
+    await adminPage.goto("/admin/announcements?status=draft");
+    const draftCard = adminPage.locator('[data-slot="card"]').filter({ hasText: title });
+    await expect(draftCard.getByRole("link", { name: "编辑与发布" })).toBeVisible();
+    await expect(draftCard.getByRole("link", { name: "查看目标页面" })).toBeVisible();
+    await expect(draftCard.getByRole("button", { name: /更多操作/ })).toHaveCount(0);
+    await adminPage.goto(draftEditPath);
+    await adminPage.getByLabel("公告正文").fill("发布时修改的正文。第二行内容用于摘要截断。");
+    const publishButton = adminPage.getByRole("button", { name: "保存并发布公告" });
     await expect(publishButton).toBeEnabled();
     await publishButton.click();
     await expect(adminPage.getByRole("heading", { level: 1, name: "已发布公告" })).toBeVisible();
@@ -162,12 +171,16 @@ test("desktop notification popover stays synchronized and supports keyboard dism
       .url()
       .match(/\/admin\/announcements\/([0-9a-f-]+)\/edit/)?.[1];
     expect(announcementId).toBeTruthy();
+    // A server render/prefetch must not acknowledge a visit before hydration.
+    const rendered = await inboxPage.request.get(`/announcements/${announcementId}`);
+    expect(rendered.ok()).toBe(true);
+    expect(await getAnnouncementReadAtForTest(announcementId!, E2E_ADMIN_EMAIL)).toBeNull();
     await inboxPage.evaluate(() => {
       (
         window as Window & {
           __emitNotificationStreamEvent?: (type: string) => void;
         }
-      ).__emitNotificationStreamEvent?.("notification");
+      ).__emitNotificationStreamEvent?.("ready");
     });
 
     await expect
@@ -181,12 +194,14 @@ test("desktop notification popover stays synchronized and supports keyboard dism
     const notificationTime = popover.locator("time").filter({ hasText: /刚刚|分钟前|今天|昨天/ }).first();
     await expect(notificationTime).toHaveAttribute("datetime", /T/);
 
-    await popover.getByRole("button").filter({ hasText: title }).click();
+    // Direct navigation must record a mounted visit, without relying on the inbox action.
+    await inboxPage.goto(`/announcements/${announcementId}`);
     await inboxPage.waitForURL(`/announcements/${announcementId}`);
     await expect(inboxPage.getByRole("heading", { level: 1, name: title })).toBeVisible();
     await expect(inboxPage.getByRole("article", { name: title })).toContainText(
       "第二行内容用于摘要截断。",
     );
+    await expect(inboxPage.getByRole("article", { name: title })).toContainText("发布时修改的正文。");
     await expect
       .poll(
         async () =>
@@ -220,7 +235,7 @@ test("non-recipients cannot read member-only announcement details", async ({
   await page.getByRole("radio", { name: "正常成员" }).click();
   await page.getByRole("button", { name: "创建草稿" }).click();
   await page.waitForURL(/\/admin\/announcements\/[0-9a-f-]+\/edit\?created=1$/);
-  const publishButton = page.getByRole("button", { name: "发布公告" });
+  const publishButton = page.getByRole("button", { name: "保存并发布公告" });
   await publishButton.click();
   await expect(page.getByRole("heading", { level: 1, name: "已发布公告" })).toBeVisible();
   const announcementId = page
@@ -366,14 +381,19 @@ test("mobile notification state and admin entry stay inside their navigation rol
       .getByRole("link", { name: "管理：总览" })
       .click();
     await page.waitForURL(/\/admin$/);
+    await expect(page.getByRole("heading", { level: 1, name: "管理后台", exact: true })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "全站导航" })).toBeHidden();
     await expect(page.getByRole("navigation", {
       name: "管理后台导航",
     })).toHaveCount(0);
 
+    await waitForHydration(page, 'button[aria-label="打开全站导航"]');
     await page.getByRole("button", { name: "打开全站导航" }).click();
     const mobileAdminNavigation = page.getByRole("navigation", {
       name: "全站导航",
     });
+    await expect(mobileAdminNavigation.getByRole("button", { name: "管理后台" }))
+      .toHaveAttribute("aria-expanded", "true");
     await expect(
       mobileAdminNavigation.getByRole("link", { name: "管理：总览" }),
     ).toHaveAttribute("aria-current", "page");

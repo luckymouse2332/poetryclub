@@ -12,6 +12,7 @@ import {
   createTestInvitation,
   deletePoemsByIds,
 } from "./helpers/database";
+import { waitForEmailOtp } from "./helpers/email-outbox";
 
 const PASSWORD = "password123";
 
@@ -44,8 +45,10 @@ async function registerAndSignIn(
   await page.getByLabel("密码").fill(PASSWORD);
   await page.getByLabel("邀请码").fill(inviteCode);
   await page.getByRole("button", { name: "创建账号" }).click();
-  await expect(page.getByText("注册请求已完成，请使用邮箱和密码登录。"))
-    .toBeVisible();
+  const { otp } = await waitForEmailOtp(email);
+  await page.getByLabel("6 位邮箱验证码").fill(otp);
+  await page.getByRole("button", { name: "验证邮箱" }).click();
+  await expect(page.getByText("邮箱验证完成，请登录。")).toBeVisible();
   await page.getByLabel("邮箱").fill(email);
   await page.getByLabel("密码").fill(PASSWORD);
   await page.getByRole("button", { name: "登录", exact: true }).click();
@@ -72,7 +75,7 @@ async function createPublishedPoem(page: Page, title: string): Promise<string> {
   await page.getByRole("button", { name: "保存草稿" }).click();
   await page.waitForURL(/\/account\/poems\/[0-9a-f-]+\/edit\?created=1$/);
   const poemId = new URL(page.url()).pathname.split("/")[3] ?? "";
-  await page.getByRole("button", { name: "发布", exact: true }).click();
+  await page.getByRole("button", { name: "保存并发布" }).click();
   await page.waitForURL(`/poems/${poemId}`);
   return poemId;
 }
@@ -80,6 +83,31 @@ async function createPublishedPoem(page: Page, title: string): Promise<string> {
 function commentByText(page: Page, text: string): Locator {
   return page.getByRole("article").filter({ hasText: text }).first();
 }
+
+test("three consecutive comments rotate tokens after every success", async ({ page }) => {
+  // A shared admin may have just commented in the preceding collections suite.
+  // Use a distinct writer so its cooldown cannot depend on test ordering.
+  await registerAndSignIn(page, uniqueValue("连续评论作者"), `${uniqueValue("consecutive-comment")}@example.com`);
+  const poemId = await createPublishedPoem(page, uniqueValue("连续提交"));
+  try {
+    await waitForHydration(page, 'textarea[name="body"]');
+    const form = page.locator("form").filter({ has: page.getByRole("button", { name: "发布评论", exact: true }) });
+    const token = form.locator('input[name="creationToken"]');
+    const tokens = new Set<string>();
+    for (let index = 0; index < 3; index++) {
+      // Exercise the actual ten-second server cooldown between distinct writes.
+      if (index) await page.waitForTimeout(10_100);
+      const before = await token.inputValue(); tokens.add(before);
+      const body = uniqueValue(`连续评论${index}`);
+      await form.getByLabel("评论内容").fill(body);
+      await form.getByRole("button", { name: "发布评论", exact: true }).click();
+      await expect(page.getByText(body, { exact: true })).toBeVisible();
+      await expect(form.getByLabel("评论内容")).toHaveValue("");
+      await expect(token).not.toHaveValue(before);
+    }
+    expect(tokens.size).toBe(3);
+  } finally { await deletePoemsByIds([poemId]); }
+});
 
 async function openReasonDialog(page: Page, trigger: Locator): Promise<Locator> {
   await trigger.click();
@@ -263,6 +291,11 @@ test.describe.serial("M7 comments and first-level replies", () => {
     await readerPage.getByRole("button", { name: "加载更多评论" }).click();
     await expect(readerPage.getByText(fixtures.oldestRootBody, { exact: true }))
       .toBeVisible();
+    await commentByText(readerPage, fixtures.oldestRootBody).getByRole("button", { name: "编辑", exact: true }).click();
+    const olderRootEditor = readerPage.getByRole("dialog");
+    await olderRootEditor.getByLabel("评论内容").fill(`${fixtures.oldestRootBody} edited`);
+    await olderRootEditor.getByRole("button", { name: "保存修改" }).click();
+    await expect(readerPage.getByText(`${fixtures.oldestRootBody} edited`, { exact: true })).toBeVisible();
 
     await readerPage.goto(
       `/poems/${poemId}/comments/${fixtures.replyRootId}`,
@@ -273,6 +306,11 @@ test.describe.serial("M7 comments and first-level replies", () => {
     await readerPage.getByRole("button", { name: "加载更早回复" }).click();
     await expect(readerPage.getByText(fixtures.oldestReplyBody, { exact: true }))
       .toBeVisible();
+    await commentByText(readerPage, fixtures.oldestReplyBody).getByRole("button", { name: "编辑", exact: true }).click();
+    const olderReplyEditor = readerPage.getByRole("dialog");
+    await olderReplyEditor.getByLabel("评论内容").fill(`${fixtures.oldestReplyBody} edited`);
+    await olderReplyEditor.getByRole("button", { name: "保存修改" }).click();
+    await expect(readerPage.getByText(`${fixtures.oldestReplyBody} edited`, { exact: true })).toBeVisible();
 
     for (const width of [390, 1024, 1440]) {
       await readerPage.setViewportSize({ width, height: 900 });

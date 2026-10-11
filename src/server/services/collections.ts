@@ -1,3 +1,5 @@
+import { requireAdminMutation } from "@/server/policies/admin-mutation";
+import type { DatabaseTransaction } from "@/server/db/types";
 import "server-only";
 
 import { randomUUID } from "node:crypto";
@@ -22,6 +24,7 @@ import {
   type ContentReaderScope,
 } from "@/lib/poem-access";
 import { db } from "@/server/db";
+import { withActiveWriter } from "@/server/policies/content-mutation";
 import {
   poem,
   poemCollection,
@@ -29,7 +32,6 @@ import {
   user,
 } from "@/server/db/schema";
 import {
-  type DatabaseTransaction,
   writeAdminAudit,
 } from "@/server/services/admin-audit";
 import {
@@ -623,22 +625,24 @@ export async function createCollectionDraft(
   creationToken: string,
   input: CollectionInput,
 ): Promise<string> {
-  const inserted = await db
-    .insert(poemCollection)
-    .values({
-      id: randomUUID(),
-      ownerId,
-      creationToken,
-      status: "draft",
-      ...input,
-    })
-    .onConflictDoUpdate({
-      target: [poemCollection.ownerId, poemCollection.creationToken],
-      set: { creationToken },
-    })
-    .returning({ id: poemCollection.id });
-  if (!inserted[0]) throw new Error("Idempotent collection creation returned no row");
-  return inserted[0].id;
+  return withActiveWriter(ownerId, async (tx) => {
+    const inserted = await tx
+      .insert(poemCollection)
+      .values({
+        id: randomUUID(),
+        ownerId,
+        creationToken,
+        status: "draft",
+        ...input,
+      })
+      .onConflictDoUpdate({
+        target: [poemCollection.ownerId, poemCollection.creationToken],
+        set: { creationToken },
+      })
+      .returning({ id: poemCollection.id });
+    if (!inserted[0]) throw new Error("Idempotent collection creation returned no row");
+    return inserted[0].id;
+  });
 }
 
 async function lockOwnCollection(
@@ -684,7 +688,7 @@ export async function updateOwnCollection(
   ownerId: string,
   input: CollectionInput,
 ): Promise<CollectionStatus> {
-  return db.transaction(async (tx) => {
+  return withActiveWriter(ownerId, async (tx) => {
     const current = await lockOwnCollection(tx, id, ownerId);
     if (
       input.visibility === "public" &&
@@ -708,7 +712,7 @@ export async function addPoemToCollection(
   poemId: string,
   ownerId: string,
 ): Promise<void> {
-  await db.transaction(async (tx) => {
+  await withActiveWriter(ownerId, async (tx) => {
     const collection = await lockOwnCollection(tx, collectionId, ownerId);
     const poems = await tx
       .select({ id: poem.id, visibility: poem.visibility })
@@ -762,7 +766,7 @@ export async function removePoemFromCollection(
   poemId: string,
   ownerId: string,
 ): Promise<void> {
-  await db.transaction(async (tx) => {
+  await withActiveWriter(ownerId, async (tx) => {
     await lockOwnCollection(tx, collectionId, ownerId);
     const deleted = await tx
       .delete(poemCollectionItem)
@@ -786,8 +790,8 @@ export async function movePoemInCollection(
   poemId: string,
   ownerId: string,
   direction: CollectionMoveDirection,
-): Promise<void> {
-  await db.transaction(async (tx) => {
+): Promise<boolean> {
+  return withActiveWriter(ownerId, async (tx) => {
     await lockOwnCollection(tx, collectionId, ownerId);
     const currentRows = await tx
       .select({ position: poemCollectionItem.position })
@@ -822,7 +826,7 @@ export async function movePoemInCollection(
       )
       .limit(1);
     const neighbor = neighborRows[0];
-    if (!neighbor) return;
+    if (!neighbor) return false;
     const maximum = await tx
       .select({ value: max(poemCollectionItem.position) })
       .from(poemCollectionItem)
@@ -859,20 +863,23 @@ export async function movePoemInCollection(
       .update(poemCollection)
       .set({ updatedAt: new Date() })
       .where(eq(poemCollection.id, collectionId));
+    return true;
   });
 }
 
 export async function publishOwnCollection(
   id: string,
   ownerId: string,
+  input?: CollectionInput,
 ): Promise<Readonly<{ moderationStatus: CollectionModerationStatus }>> {
-  return db.transaction(async (tx) => {
+  return withActiveWriter(ownerId, async (tx) => {
     const collection = await lockOwnCollection(tx, id, ownerId);
     if (collection.status !== "draft") {
       throw new CollectionMutationError("invalid_transition");
     }
+    const visibility = input?.visibility ?? collection.visibility;
     if (
-      collection.visibility === "public" &&
+      visibility === "public" &&
       (await hasMembersOnlyItems(tx, id))
     ) {
       throw new CollectionMutationError("visibility_conflict");
@@ -884,7 +891,7 @@ export async function publishOwnCollection(
       .where(
         and(
           eq(poemCollectionItem.collectionId, id),
-          eligiblePoemCondition(collection.visibility),
+          eligiblePoemCondition(visibility),
         ),
       );
     if ((valid[0]?.value ?? 0) < 1) {
@@ -893,6 +900,7 @@ export async function publishOwnCollection(
     const updated = await tx
       .update(poemCollection)
       .set({
+        ...input,
         status: "published",
         publishedAt: sql`coalesce(${poemCollection.publishedAt}, now())`,
         updatedAt: new Date(),
@@ -908,36 +916,40 @@ export async function withdrawOwnCollection(
   id: string,
   ownerId: string,
 ): Promise<void> {
-  const updated = await db
-    .update(poemCollection)
-    .set({ status: "draft", updatedAt: new Date() })
-    .where(
-      and(
-        eq(poemCollection.id, id),
-        eq(poemCollection.ownerId, ownerId),
-        eq(poemCollection.status, "published"),
-      ),
-    )
-    .returning({ id: poemCollection.id });
-  if (!updated[0]) throw new CollectionMutationError("invalid_transition");
+  return withActiveWriter(ownerId, async (tx) => {
+    const updated = await tx
+      .update(poemCollection)
+      .set({ status: "draft", updatedAt: new Date() })
+      .where(
+        and(
+          eq(poemCollection.id, id),
+          eq(poemCollection.ownerId, ownerId),
+          eq(poemCollection.status, "published"),
+        ),
+      )
+      .returning({ id: poemCollection.id });
+    if (!updated[0]) throw new CollectionMutationError("invalid_transition");
+  });
 }
 
 export async function deleteOwnCollectionDraft(
   id: string,
   ownerId: string,
 ): Promise<void> {
-  const deleted = await db
-    .delete(poemCollection)
-    .where(
-      and(
-        eq(poemCollection.id, id),
-        eq(poemCollection.ownerId, ownerId),
-        eq(poemCollection.status, "draft"),
-        sql`${poemCollection.publishedAt} is null`,
-      ),
-    )
-    .returning({ id: poemCollection.id });
-  if (!deleted[0]) throw new CollectionMutationError("invalid_transition");
+  return withActiveWriter(ownerId, async (tx) => {
+    const deleted = await tx
+      .delete(poemCollection)
+      .where(
+        and(
+          eq(poemCollection.id, id),
+          eq(poemCollection.ownerId, ownerId),
+          eq(poemCollection.status, "draft"),
+          sql`${poemCollection.publishedAt} is null`,
+        ),
+      )
+      .returning({ id: poemCollection.id });
+    if (!deleted[0]) throw new CollectionMutationError("invalid_transition");
+  });
 }
 
 export async function listAdminCollections(
@@ -999,6 +1011,7 @@ export async function setCollectionHidden(
   hidden: boolean,
 ): Promise<boolean> {
   const result = await db.transaction(async (tx) => {
+    await requireAdminMutation(tx, adminId);
     const expected = hidden ? "visible" : "hidden";
     const desired = hidden ? "hidden" : "visible";
     const changed = await tx

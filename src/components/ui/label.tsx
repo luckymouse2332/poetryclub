@@ -1,5 +1,7 @@
 "use client";
 
+/** M6.7 paper journal: shape, spacing, typography and state styling redesigned; upstream structure and public API preserved. */
+
 import * as React from "react";
 import { Label as LabelPrimitive } from "radix-ui";
 
@@ -16,7 +18,10 @@ function Label({
   return (
     <LabelPrimitive.Root
       data-slot="label"
-      className={cn("text-label font-medium text-foreground", className)}
+      className={cn(
+        "inline-flex min-h-6 items-baseline gap-1.5 text-label font-semibold tracking-wide text-foreground",
+        className,
+      )}
       {...props}
     />
   );

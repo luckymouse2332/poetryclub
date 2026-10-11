@@ -61,17 +61,26 @@ export default async function NotificationsPage({
       />
 
       <nav aria-label="通知筛选" className="mt-6 flex flex-wrap gap-3">
-        <Button asChild variant={parsed.data.filter === "all" ? "primary" : "secondary"}>
+        <Button
+          asChild
+          variant={parsed.data.filter === "all" ? "primary" : "secondary"}
+        >
           <Link href="/notifications">全部通知</Link>
         </Button>
-        <Button asChild variant={parsed.data.filter === "unread" ? "primary" : "secondary"}>
+        <Button
+          asChild
+          variant={parsed.data.filter === "unread" ? "primary" : "secondary"}
+        >
           <Link href="/notifications?filter=unread">未读通知</Link>
         </Button>
       </nav>
 
-      <Section className="pb-0 pt-8">
+      <Section className="pt-8 pb-0">
         {result.items.length > 0 ? (
-          <ul className="border-y border-border-subtle" aria-label="通知列表">
+          <ul
+            className="overflow-hidden border-y border-border-subtle bg-paper"
+            aria-label="通知列表"
+          >
             {result.items.map((item) => (
               <NotificationListItem
                 key={item.id}
@@ -80,10 +89,12 @@ export default async function NotificationsPage({
             ))}
           </ul>
         ) : (
-          <Empty>
+          <Empty className="bg-paper px-4 sm:px-6 lg:px-8">
             <EmptyHeader>
               <EmptyTitle>
-                {parsed.data.filter === "unread" ? "没有未读通知" : "还没有通知"}
+                {parsed.data.filter === "unread"
+                  ? "没有未读通知"
+                  : "还没有通知"}
               </EmptyTitle>
               <EmptyDescription>
                 {parsed.data.filter === "unread"

@@ -4,6 +4,7 @@ import { Noto_Sans_SC, Noto_Serif_SC } from "next/font/google";
 import { SiteFooter } from "@/components/site-footer";
 import { AuthNavigation } from "@/features/auth/components/auth-navigation";
 import { cn } from "@/lib/utils";
+import { ThemeInitialization } from "@/components/theme-toggle";
 
 import "./globals.css";
 
@@ -37,6 +38,7 @@ export default function RootLayout({
   return (
     <html
       lang="zh-CN"
+      suppressHydrationWarning
       data-scroll-behavior="smooth"
       className={cn(
         notoSans.variable,
@@ -44,9 +46,20 @@ export default function RootLayout({
         "h-full antialiased",
       )}
     >
+      <head>
+        <ThemeInitialization />
+      </head>
       <body className="flex min-h-full flex-col">
+        <a
+          href="#main-content"
+          className="sr-only z-sheet rounded-md bg-primary px-4 py-3 text-primary-foreground focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+        >
+          跳转到主要内容
+        </a>
         <AuthNavigation />
-        <main className="flex flex-1 flex-col">{children}</main>
+        <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col">
+          {children}
+        </main>
         <SiteFooter />
       </body>
     </html>

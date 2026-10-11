@@ -1,7 +1,9 @@
+import { artifactPath } from "./helpers/artifacts";
 import { expect, test, type Page } from "@playwright/test";
 
 import { E2E_ADMIN_EMAIL, E2E_ADMIN_PASSWORD } from "./global-setup";
 import { createTestInvitation } from "./helpers/database";
+import { countEmailTestMessages, verifyTestEmail, waitForEmailOtp } from "./helpers/email-outbox";
 
 const SENSITIVE_KEYS = ["token", "accessToken", "refreshToken", "idToken", "password"];
 
@@ -26,9 +28,8 @@ function collectSensitiveKeys(value: unknown, prefix = ""): string[] {
 /**
  * 等待 React 接管指定节点（hydration 完成）。
  *
- * 登录/注册表单的提交完全依赖客户端 JS：hydration 之前点击提交按钮会触发浏览器
- * 原生 GET 提交，请求不会到达 authClient（密码还会被带进 URL）。真实用户不可能
- * 在页面可交互前完成填写并提交，测试因此显式等待，避免与 hydration 竞速。
+ * 登录/注册表单的提交依赖客户端 JS；hydration 前原生提交会以 POST 安全失败。
+ * 测试等待接管完成，以验证实际认证流程。
  */
 async function waitForHydration(page: Page, selector: string): Promise<void> {
   await page.waitForFunction((target) => {
@@ -45,6 +46,44 @@ function uniqueEmail(prefix: string): string {
   return `${prefix}-${nonce}@example.com`;
 }
 
+test("password form uses POST before hydration so credentials stay out of the URL", async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  try {
+    const page = await context.newPage();
+    await page.goto("/login");
+    await expect(page.locator("#auth-form-panel form")).toHaveAttribute("method", "post");
+    await page.getByLabel("邮箱").fill("member@example.test");
+    await page.getByLabel("密码").fill("example-password-123");
+    const requestPromise = page.waitForRequest((request) => request.method() === "POST" && new URL(request.url()).pathname === "/login");
+    await page.getByRole("button", { name: "登录", exact: true }).click({ noWaitAfter: true });
+    const request = await requestPromise;
+    expect(new URL(request.url()).searchParams.has("password")).toBe(false);
+  } finally {
+    await context.close();
+  }
+});
+
+test("existing account signs in with a one-time email code", async ({ page }) => {
+  await page.goto("/login?next=%2Faccount");
+  await waitForHydration(page, "#auth-form-panel button[type=submit]");
+  await page.getByRole("button", { name: "邮箱验证码登录" }).click();
+  await page.getByLabel("邮箱").fill(E2E_ADMIN_EMAIL);
+  const beforeCount = await countEmailTestMessages();
+  await page.getByRole("button", { name: "发送验证码" }).click();
+  const { otp } = await waitForEmailOtp(E2E_ADMIN_EMAIL, beforeCount);
+  await page.getByLabel("6 位邮箱验证码").fill(otp === "000000" ? "999999" : "000000");
+  await page.getByRole("button", { name: "验证并登录" }).click();
+  await expect(page.locator('[data-slot="popover-anchor"][role="alert"]')).toContainText("验证码无效");
+  await expect(page.locator('[data-slot="popover-content"]')).toBeVisible();
+  await page.getByLabel("6 位邮箱验证码").fill(otp);
+  const responsePromise = page.waitForResponse((response) => new URL(response.url()).pathname === "/api/auth/sign-in/email-otp");
+  await page.getByRole("button", { name: "验证并登录" }).click();
+  const response = await responsePromise;
+  expect(response.status()).toBe(200);
+  expect(collectSensitiveKeys(await response.json())).toEqual([]);
+  await page.waitForURL("/account");
+});
+
 test("anonymous home navigation shows only implemented public entries", async ({
   page,
 }) => {
@@ -55,7 +94,7 @@ test("anonymous home navigation shows only implemented public entries", async ({
   await expect(nav.getByRole("link", { name: "注册" })).toHaveCount(0);
   await expect(nav.getByRole("link", { name: "账户" })).toHaveCount(0);
   await expect(nav.getByRole("link", { name: "我的诗作" })).toHaveCount(0);
-  await expect(nav.getByRole("button", { name: "登出" })).toHaveCount(0);
+  await expect(page.getByRole("menuitem", { name: "登出" })).toHaveCount(0);
 });
 
 test("anonymous /account is server-redirected to /login with a safe next parameter", async ({
@@ -177,6 +216,7 @@ test("mobile member navigation separates global and account responsibilities", a
     data: { name, email, password, inviteCode },
   });
   expect(signUpResponse.status()).toBe(200);
+  await verifyTestEmail(page.request, email);
   const signInResponse = await page.request.post("/api/auth/sign-in/email", {
     data: { email, password, rememberMe: false },
   });
@@ -325,9 +365,15 @@ test.describe.serial("authenticated session loop", () => {
     await page.getByLabel("密码").fill(password);
     await page.getByLabel("邀请码").fill(inviteCode);
     await page.getByRole("button", { name: "创建账号" }).click();
-    await expect(
-      page.getByText("注册请求已完成，请使用邮箱和密码登录。"),
-    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "验证邮箱" })).toBeVisible();
+    const unverifiedSignIn = await page.request.post("/api/auth/sign-in/email", {
+      data: { email, password },
+    });
+    expect(unverifiedSignIn.status()).toBe(403);
+    const { otp } = await waitForEmailOtp(email);
+    await page.getByLabel("6 位邮箱验证码").fill(otp);
+    await page.getByRole("button", { name: "验证邮箱" }).click();
+    await expect(page.getByText("邮箱验证完成，请登录。")).toBeVisible();
 
     // Sign in explicitly through the same form, capturing the API response.
     const signInResponsePromise = page.waitForResponse(
@@ -389,6 +435,8 @@ test.describe.serial("authenticated session loop", () => {
 
     const accountLink = myMenu.getByRole("menuitem", { name: "账户信息" });
     const logoutButton = myMenu.getByRole("menuitem", { name: "登出" });
+    // Measure after the entrance transform reaches the full click target size.
+    await expect.poll(() => logoutButton.evaluate((element) => element.getBoundingClientRect().height)).toBe(44);
     const [accountLinkMetrics, logoutButtonMetrics] = await Promise.all([
       accountLink.evaluate((element) => {
         const styles = getComputedStyle(element);
@@ -418,6 +466,10 @@ test.describe.serial("authenticated session loop", () => {
       }),
     ]);
     expect(logoutButtonMetrics.height).toBeGreaterThanOrEqual(44);
+    expect(logoutButtonMetrics.height).toBe(accountLinkMetrics.height);
+    expect(logoutButtonMetrics.paddingLeft).toBe(accountLinkMetrics.paddingLeft);
+    expect(logoutButtonMetrics.paddingRight).toBe(accountLinkMetrics.paddingRight);
+    expect(await logoutButton.evaluate((element) => element.tagName)).toBe("BUTTON");
     expect(logoutButtonMetrics.fontFamily).toBe(accountLinkMetrics.fontFamily);
     expect(logoutButtonMetrics.fontSize).toBe(accountLinkMetrics.fontSize);
     expect(logoutButtonMetrics.lineHeight).toBe(accountLinkMetrics.lineHeight);
@@ -438,6 +490,7 @@ test.describe.serial("authenticated session loop", () => {
         color: styles.color,
       };
     });
+    await myMenu.screenshot({ animations: "disabled", path: artifactPath("paper-journal/1440-account-menu-logout.png") });
     expect(hoveredLogoutStyle.backgroundColor).not.toBe(
       baseLogoutStyle.backgroundColor,
     );
@@ -530,6 +583,12 @@ test.describe.serial("authenticated session loop", () => {
     await expect(
       mobileAccountMenu.getByRole("menuitem", { name: "登出" }),
     ).toBeVisible();
+    const mobileLogout = mobileAccountMenu.getByRole("menuitem", { name: "登出" });
+    const mobileAccountLink = mobileAccountMenu.getByRole("menuitem", { name: "账户信息" });
+    await expect.poll(() => mobileLogout.evaluate((element) => element.getBoundingClientRect().height)).toBe(44);
+    expect((await mobileLogout.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    expect((await mobileLogout.boundingBox())!.height).toBe((await mobileAccountLink.boundingBox())!.height);
+    await mobileAccountMenu.screenshot({ animations: "disabled", path: artifactPath("paper-journal/390-account-menu-logout.png") });
     await page.keyboard.press("Escape");
 
     // The account page shows the safe profile fields.
@@ -627,7 +686,7 @@ test.describe.serial("authenticated session loop", () => {
     expect(desktopAccountNavigationBox!.x).toBeLessThan(
       desktopAccountHeadingBox!.x,
     );
-    await expect(page.getByText("MEMBER DESK", { exact: true })).toBeVisible();
+    await expect(page.getByText("我的诗社", { exact: true })).toBeVisible();
     await expect(
       page.getByText("成员工作区", { exact: true }),
     ).toBeVisible();
@@ -667,17 +726,21 @@ test.describe.serial("authenticated session loop", () => {
     await myTrigger.click();
     const myMenu = page.getByRole("menu");
     await expect(myMenu).toBeVisible();
-    await myMenu.getByRole("menuitem", { name: "登出" }).click();
-    await page.waitForURL("/");
-    await page.reload();
+    const signOutResponse = page.waitForResponse((response) =>
+      new URL(response.url()).pathname === "/api/auth/sign-out" && response.request().method() === "POST",
+    );
+    await myMenu.getByRole("menuitem", { name: "登出" }).focus();
+    await page.keyboard.press("Enter");
+    expect((await signOutResponse).status()).toBe(200);
 
-    // Navigation returns to the anonymous state.
+    // Wait for the button's own navigation, including a same-URL document load.
     const nav = page.getByRole("navigation", { name: "主导航" });
     await expect(nav.getByRole("link", { name: "登录" })).toBeVisible();
+    await expect(page).toHaveURL("/");
     await expect(nav.getByRole("link", { name: "注册" })).toHaveCount(0);
     await expect(nav.getByRole("link", { name: "账户" })).toHaveCount(0);
     await expect(nav.getByRole("link", { name: "我的诗作" })).toHaveCount(0);
-    await expect(nav.getByRole("button", { name: "登出" })).toHaveCount(0);
+    await expect(page.getByRole("menuitem", { name: "登出" })).toHaveCount(0);
 
     // Double POST to the sign-out endpoint is stable and idempotent.
     const results = await page.evaluate(async () => {

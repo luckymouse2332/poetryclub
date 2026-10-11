@@ -23,15 +23,17 @@ type AdminAuditCardProps = Readonly<{
  */
 export function AdminAuditCard({ entry }: AdminAuditCardProps) {
   return (
-    <Card>
+    <Card variant="list">
       <CardHeader>
         <CardTitle>
           <h2 className="text-body-lg font-semibold text-foreground">
             {AUDIT_ACTION_LABELS[entry.action]}
           </h2>
         </CardTitle>
-        <CardDescription className="flex flex-wrap items-center gap-1.5">
-          <Badge variant="neutral">{AUDIT_TARGET_LABELS[entry.targetType]}</Badge>
+        <CardDescription className="flex flex-wrap items-center gap-2">
+          <Badge variant="neutral">
+            {AUDIT_TARGET_LABELS[entry.targetType]}
+          </Badge>
           <span>管理员：{entry.adminName}</span>
           <span aria-hidden="true"> · </span>
           <span>发生于 {formatModerationDateTime(entry.createdAt)}</span>
@@ -41,14 +43,14 @@ export function AdminAuditCard({ entry }: AdminAuditCardProps) {
         <dl className="space-y-1 text-label">
           <div className="flex flex-wrap items-baseline gap-x-2">
             <dt className="shrink-0 text-subtle">目标编号</dt>
-            <dd className="min-w-0 break-all font-medium text-foreground">
+            <dd className="min-w-0 font-medium break-all text-foreground">
               {entry.targetId}
             </dd>
           </div>
           {entry.reason ? (
             <div className="flex flex-wrap items-baseline gap-x-2">
               <dt className="shrink-0 text-subtle">原因</dt>
-              <dd className="whitespace-pre-wrap font-medium text-foreground">
+              <dd className="font-medium break-words whitespace-pre-wrap text-foreground">
                 {entry.reason}
               </dd>
             </div>

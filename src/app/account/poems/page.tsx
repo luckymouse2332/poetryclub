@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
+import { PaperList } from "@/components/paper-list";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -87,35 +88,32 @@ export default async function AccountPoemsPage({
         </Alert>
       ) : null}
 
-      <Section className="pb-0 pt-8">
-        {result.items.length > 0 ? (
-          <div>
-            <div aria-hidden="true" className="hidden grid-cols-[minmax(12rem,1.5fr)_8rem_9rem_11rem_minmax(13rem,auto)] gap-5 border-b border-border-strong pb-3 text-caption font-medium tracking-wide text-subtle xl:grid">
-              <span>标题</span><span>状态</span><span>访问范围</span><span>更新时间</span><span className="text-right">操作</span>
-            </div>
-            {result.items.map((poem) => (
-              <OwnPoemCard key={poem.id} poem={poem} suspended={suspended} />
-            ))}
-          </div>
-        ) : (
-          <Empty>
-            <EmptyHeader>
-              <EmptyTitle>{suspended ? "暂无诗作" : "还没有诗作"}</EmptyTitle>
-              <EmptyDescription>
-                {suspended
-                  ? "账号被禁用期间只能浏览已有内容。"
-                  : "新建一首草稿，写好后可以随时发布。"}
-              </EmptyDescription>
-            </EmptyHeader>
-            {!suspended ? (
-              <EmptyContent>
-                <Button asChild>
-                  <Link href="/account/poems/new">新建诗作</Link>
-                </Button>
-              </EmptyContent>
-            ) : null}
-          </Empty>
-        )}
+      <Section className="pt-8 pb-0">
+        <PaperList
+          empty={
+            <Empty>
+              <EmptyHeader>
+                <EmptyTitle>{suspended ? "暂无诗作" : "还没有诗作"}</EmptyTitle>
+                <EmptyDescription>
+                  {suspended
+                    ? "账号被禁用期间只能浏览已有内容。"
+                    : "新建一首草稿，写好后可以随时发布。"}
+                </EmptyDescription>
+              </EmptyHeader>
+              {!suspended ? (
+                <EmptyContent>
+                  <Button asChild>
+                    <Link href="/account/poems/new">新建诗作</Link>
+                  </Button>
+                </EmptyContent>
+              ) : null}
+            </Empty>
+          }
+        >
+          {result.items.map((poem) => (
+            <OwnPoemCard key={poem.id} poem={poem} suspended={suspended} />
+          ))}
+        </PaperList>
       </Section>
       <Pagination
         basePath="/account/poems"

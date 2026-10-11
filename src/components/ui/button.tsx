@@ -1,3 +1,5 @@
+/** M6.7 paper journal: shape, spacing, typography and state styling redesigned; upstream structure and public API preserved. */
+
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Slot } from "radix-ui";
@@ -11,22 +13,22 @@ import { cn } from "@/lib/utils";
  * 同时保留本项目的 `loading` 语义：aria-busy + 禁止重复提交。
  */
 const buttonVariants = cva(
-  "inline-flex cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-disabled disabled:text-disabled-foreground disabled:shadow-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex cursor-pointer items-center justify-center gap-2.5 rounded-md border border-transparent font-medium tracking-wide whitespace-nowrap transition-[color,background-color,border-color,transform] select-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring active:translate-y-px disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-disabled disabled:text-disabled-foreground disabled:shadow-none motion-reduce:transform-none [&_svg]:pointer-events-none [&_svg]:size-4.5 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         primary:
-          "bg-primary text-primary-foreground shadow-card hover:bg-primary-hover active:bg-primary-active",
+          "border-primary bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-active",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary-hover active:bg-secondary-hover",
+          "border-input bg-transparent text-foreground hover:border-primary hover:bg-accent active:bg-secondary-hover",
         ghost:
-          "text-foreground hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground",
+          "bg-transparent text-foreground underline decoration-transparent underline-offset-4 hover:text-primary hover:decoration-current active:text-primary-active",
         danger:
-          "bg-danger text-danger-foreground hover:bg-danger-hover active:bg-danger-hover",
+          "border-danger bg-danger text-danger-foreground hover:bg-danger-hover active:bg-danger-hover",
       },
       size: {
-        default: "h-control px-4 text-label",
-        sm: "h-control px-3 text-caption",
+        default: "h-control px-5 text-label",
+        sm: "h-control px-4 text-label",
         lg: "h-12 px-6 text-label",
         icon: "h-control w-control text-label",
       },

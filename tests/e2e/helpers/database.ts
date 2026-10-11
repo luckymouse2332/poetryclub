@@ -13,6 +13,17 @@ function databaseUrl(): string {
   return value;
 }
 
+export async function getAnnouncementReadAtForTest(id: string, email: string): Promise<string | null> {
+  const sql = postgres(databaseUrl(), { max: 1 });
+  try {
+    const [row] = await sql`select nr.read_at::text as read_at from announcement a
+      join notification_recipient nr on nr.notification_id=a.notification_id
+      join "user" u on u.id=nr.user_id where a.id=${id} and u.email=${email}`;
+    if (!row) throw new Error("Expected announcement recipient fixture");
+    return row.read_at;
+  } finally { await sql.end(); }
+}
+
 export async function createTestInvitation(
   options: Readonly<{
     maxUses?: number;
@@ -348,9 +359,44 @@ export async function deleteCollectionById(id: string): Promise<void> {
   }
 }
 
+/** Bounded two-page directories and a collection with a second directory page. */
+export async function createPaperDirectoryFixtures() {
+  const sql = postgres(databaseUrl(), { max: 1 });
+  const poemIds: string[] = [];
+  const collectionIds: string[] = [];
+  const key = randomUUID().slice(0, 8);
+  const longTitle = `纸面目录-${key}-${"校园记忆".repeat(8)}-${"unbroken".repeat(8)}`;
+  try {
+    await sql.begin(async (transaction) => {
+      const [owner] = await transaction`select id from "user" where email = ${E2E_ADMIN_EMAIL} limit 1`;
+      if (!owner) throw new Error("Missing paper directory fixture author");
+      for (let index = 0; index < 13; index += 1) {
+        const poemId = randomUUID();
+        const collectionId = randomUUID();
+        poemIds.push(poemId);
+        collectionIds.push(collectionId);
+        const title = index === 0 ? longTitle : `纸面目录-${key}-${index}`;
+        const publishedAt = new Date(Date.now() + 120_000 - index * 1_000);
+        await transaction`insert into poem (id, title, body, author_id, status, published_at, creation_token)
+          values (${poemId}, ${title}, ${"正文保留换行。\n".repeat(8)}, ${owner.id}, 'published', ${publishedAt}, ${randomUUID()})`;
+        await transaction`insert into poem_collection (id, title, description, owner_id, status, published_at, creation_token)
+          values (${collectionId}, ${title}, ${index % 2 === 0 ? "说明包含长文本。".repeat(24) : null}, ${owner.id}, 'published', ${publishedAt}, ${randomUUID()})`;
+        await transaction`insert into poem_collection_item (collection_id, poem_id, position)
+          values (${collectionId}, ${poemId}, 0)`;
+      }
+      for (let index = 1; index < poemIds.length; index += 1) {
+        await transaction`insert into poem_collection_item (collection_id, poem_id, position)
+          values (${collectionIds[0]!}, ${poemIds[index]!}, ${index})`;
+      }
+    });
+    return { poemIds, collectionIds, longTitle, key };
+  } finally { await sql.end(); }
+}
+
 export async function createCommentPaginationFixtures(
   poemId: string,
   authorEmail: string,
+  longText = false,
 ): Promise<
   Readonly<{
     oldestRootBody: string;
@@ -370,7 +416,7 @@ export async function createCommentPaginationFixtures(
     let replyRootId = "";
     for (let index = 0; index < 12; index += 1) {
       const id = randomUUID();
-      const body = `分页根评论-${index}-${id.slice(0, 8)}`;
+      const body = `分页根评论-${index}-${id.slice(0, 8)}${longText ? `\n${"与作品有关的评论与补充。".repeat(12)}\n${"long-unbroken-text".repeat(15)}` : ""}`;
       if (index === 0) oldestRootBody = body;
       if (index === 11) replyRootId = id;
       const createdAt = new Date(Date.now() - (12 - index) * 60_000);
@@ -388,7 +434,7 @@ export async function createCommentPaginationFixtures(
     let oldestReplyBody = "";
     for (let index = 0; index < 22; index += 1) {
       const id = randomUUID();
-      const body = `分页回复-${index}-${id.slice(0, 8)}`;
+      const body = `分页回复-${index}-${id.slice(0, 8)}${longText ? `\n${"回复正文保留换行。".repeat(6)}\n${"unbroken-reply".repeat(15)}` : ""}`;
       if (index === 0) oldestReplyBody = body;
       const createdAt = new Date(Date.now() - (22 - index) * 1_000);
       await sql`

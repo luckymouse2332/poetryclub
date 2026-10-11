@@ -11,16 +11,40 @@ type AuthSplitShellProps = Readonly<{
   children: React.ReactNode;
 }>;
 
-export function AuthSplitShell({ eyebrow, title, description, note, children }: AuthSplitShellProps) {
+export function AuthSplitShell({
+  eyebrow,
+  title,
+  description,
+  note,
+  children,
+}: AuthSplitShellProps) {
   return (
-    <PageContainer className="flex flex-1 items-center py-12 md:py-16">
-      <div className="grid w-full items-start gap-10 lg:grid-cols-[minmax(18rem,0.8fr)_minmax(26rem,1.2fr)] lg:gap-16">
-        <div className="lg:sticky lg:top-12">
-          <PageHeader eyebrow={eyebrow} title={title} description={description} />
-          <div className="mt-8 h-px w-12 bg-seal" aria-hidden="true" />
-          {note ? <p className="mt-5 max-w-md font-serif text-body leading-reading text-subtle">{note}</p> : null}
+    <PageContainer
+      width="narrow"
+      className="flex flex-1 py-12 md:py-16 lg:max-w-content"
+    >
+      <div className="grid w-full lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-12 xl:gap-16">
+        <div
+          data-slot="auth-introduction"
+          className="mb-8 min-w-0 border-b border-border pb-8 lg:mb-0 lg:flex lg:flex-col lg:justify-center lg:border-r lg:border-b-0 lg:py-8 lg:pr-12"
+        >
+          <PageHeader
+            eyebrow={eyebrow}
+            title={title}
+            description={description}
+          />
+          {note ? (
+            <p className="mt-5 text-label leading-reading text-subtle">
+              {note}
+            </p>
+          ) : null}
         </div>
-        <div className="min-w-0">{children}</div>
+        <div
+          data-slot="auth-form-region"
+          className="min-w-0 lg:w-full lg:max-w-narrow lg:self-center lg:justify-self-end"
+        >
+          {children}
+        </div>
       </div>
     </PageContainer>
   );

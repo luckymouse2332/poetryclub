@@ -1,26 +1,14 @@
 .link {
   position: relative;
 }
-
-.navigationLink::after {
+.navigationLink[aria-current="page"] {
+  color: var(--foreground);
+}
+.indicator {
   position: absolute;
-  left: 50%;
-  width: 0;
+  bottom: 0.25rem;
+  left: 1rem;
+  right: 1rem;
   height: 2px;
   background: var(--seal);
-  content: "";
-  transform: translateX(-50%);
-  transition: width 160ms ease;
-}
-
-.navigationLink::after {
-  bottom: 0.15rem;
-}
-
-.navigationLink[aria-current="page"] {
-  color: var(--seal-foreground);
-}
-
-.navigationLink[aria-current="page"]::after {
-  width: min(2.5rem, calc(100% - 1rem));
 }

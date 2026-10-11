@@ -14,6 +14,8 @@ export const emailSchema = z
   .toLowerCase()
   .email("请输入有效的邮箱地址");
 
+export const emailCodeSchema = z.string().trim().regex(/^\d{6}$/, "请输入 6 位数字验证码");
+
 export const passwordSchema = z
   .string()
   .min(PASSWORD_MIN_LENGTH, `密码至少需要 ${PASSWORD_MIN_LENGTH} 个字符`)

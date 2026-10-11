@@ -34,7 +34,11 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
     const url = new URL(window.location.href);
     if (url.searchParams.has("token")) {
       url.searchParams.delete("token");
-      window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+      window.history.replaceState(
+        null,
+        "",
+        `${url.pathname}${url.search}${url.hash}`,
+      );
     }
   }, []);
 
@@ -99,8 +103,13 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   }
 
   return (
-    <Surface className="w-full" aria-label="重置密码表单">
-      <form className="space-y-5" onSubmit={handleSubmit} noValidate>
+    <Surface variant="paper" className="w-full" aria-label="重置密码表单">
+      <form
+        method="post"
+        className="space-y-5"
+        onSubmit={handleSubmit}
+        noValidate
+      >
         <FormField
           id="newPassword"
           label="新密码"

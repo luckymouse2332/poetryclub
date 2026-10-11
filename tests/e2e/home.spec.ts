@@ -1,3 +1,4 @@
+import { artifactPath } from "./helpers/artifacts";
 import { expect, test, type Page } from "@playwright/test";
 
 import {
@@ -36,7 +37,7 @@ test("home page shows the community identity without fake business content", asy
       .backgroundColor,
   }));
   expect(palette.background).toBe("rgb(243, 238, 228)");
-  expect(palette.foreground).toBe("rgb(40, 37, 31)");
+  expect(palette.foreground).toBe("rgb(44, 41, 35)");
   expect(palette.headerSurface).toBe("rgb(243, 238, 228)");
 
   await expect(page).toHaveTitle(/回中诗社/);
@@ -81,25 +82,12 @@ test("home page shows the community identity without fake business content", asy
     name: "最新诗作",
   });
   await expect(latestPoemsTitle).toBeVisible();
-  const titleRuleStyle = await latestPoemsTitle.evaluate((element) => {
-    const styles = getComputedStyle(element, "::after");
-    return {
-      content: styles.content,
-      display: styles.display,
-      width: styles.width,
-      height: styles.height,
-      marginTop: styles.marginTop,
-      backgroundColor: styles.backgroundColor,
-    };
-  });
-  expect(titleRuleStyle).toEqual({
-    content: '""',
-    display: "block",
-    width: "40px",
-    height: "1px",
-    marginTop: "16px",
-    backgroundColor: "rgb(155, 79, 63)",
-  });
+  const sectionStyle = await latestPoemsTitle.evaluate((element) => ({
+    size: Number.parseFloat(getComputedStyle(element).fontSize),
+    weight: Number.parseFloat(getComputedStyle(element).fontWeight),
+  }));
+  expect(sectionStyle.size).toBeGreaterThanOrEqual(20);
+  expect(sectionStyle.weight).toBeGreaterThanOrEqual(500);
   const allPoemsLink = page.getByRole("link", { name: "查看全部诗作" });
   await expect(allPoemsLink).toHaveAttribute("href", "/poems");
 
@@ -148,7 +136,7 @@ test("home index links only visible published poems for anonymous readers", asyn
     await expect(page.getByText(fixtures.withdrawnTitle)).toHaveCount(0);
     await expect(page.getByText(fixtures.hiddenTitle)).toHaveCount(0);
 
-    const poemRow = visibleLink.locator("xpath=ancestor::li");
+    const poemRow = page.locator(`a[href="/poems/${fixtures.visible.id}"]`).locator("xpath=ancestor::li");
     const baseLinkStyle = await visibleLink.evaluate((element) => {
       const style = getComputedStyle(element);
       return {
@@ -218,6 +206,46 @@ test("home index links only visible published poems for anonymous readers", asyn
     expect(focusedLinkStyle.textDecorationColor).toBe(
       hoveredLinkStyle.textDecorationColor,
     );
+
+    // Long index labels remain fully available while occupying a single line.
+    // Labels are browser-only visual fixtures; no saved content is changed.
+    const indexLink = poemRow.getByRole("link");
+    const longTitle = `《${"很长的诗作标题".repeat(10)}》`;
+    const author = poemRow.locator("p > span[title]");
+    const longAuthor = "很长的诗作作者名称".repeat(8);
+    await author.evaluate((element, name) => {
+      element.textContent = name;
+      element.setAttribute("title", name);
+    }, longAuthor);
+    await indexLink.evaluate((element, title) => {
+      element.textContent = title;
+      element.setAttribute("title", title);
+    }, longTitle);
+    await expect(indexLink).toHaveAccessibleName(longTitle);
+    await expect(indexLink).toHaveAttribute("title", longTitle);
+    await expect(author).toHaveAttribute("title", longAuthor);
+    for (const width of [390, 768, 920, 1024, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const label of [indexLink, author]) {
+        const overflow = await label.evaluate((element) => ({
+          clipped: element.scrollWidth > element.clientWidth,
+          overflow: getComputedStyle(element).textOverflow,
+          wrapping: getComputedStyle(element).whiteSpace,
+        }));
+        expect(overflow).toEqual({ clipped: true, overflow: "ellipsis", wrapping: "nowrap" });
+      }
+      expect((await indexLink.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      if ([390, 1440].includes(width)) {
+        await page.screenshot({ animations: "disabled", fullPage: true, path: artifactPath(`paper-journal/${width}-retained-paper-edge.png`) });
+        await poemRow.screenshot({ animations: "disabled", path: artifactPath(`paper-journal/${width}-retained-ellipsis.png`) });
+      }
+    }
+
+    await indexLink.evaluate((element, title) => {
+      element.textContent = title;
+      element.setAttribute("title", title);
+    }, `《${fixtures.visible.title}》`);
 
     await visibleLink.click();
     await expect(page).toHaveURL(`/poems/${fixtures.visible.id}`);
@@ -668,6 +696,17 @@ for (const viewport of [
         expect(aboutSectionBox).not.toBeNull();
         expect(contentGridBox).not.toBeNull();
 
+        const heroBox = await page.locator("section#top").boundingBox();
+        const headerBox = await page.getByRole("banner").boundingBox();
+        expect(heroBox).not.toBeNull();
+        expect(headerBox).not.toBeNull();
+        expect(Math.abs(heroBox!.y - headerBox!.y - headerBox!.height)).toBeLessThan(1);
+        // The image ends immediately above the hero's one-pixel section rule.
+        expect(Math.abs(heroBox!.y + heroBox!.height - visualBox!.y - visualBox!.height - 1)).toBeLessThan(1);
+        if (viewport.width >= 1024) {
+          expect(Math.abs(visualBox!.y - heroBox!.y)).toBeLessThan(1);
+        }
+
         expect(contentGridBox!.width).toBeLessThanOrEqual(1240.5);
         expect(
           Math.abs(
@@ -691,9 +730,17 @@ for (const viewport of [
           backgroundImage: getComputedStyle(element).backgroundImage,
           edgeTransform: getComputedStyle(element, "::before").transform,
           edgeBackground: getComputedStyle(element, "::before").backgroundImage,
+          edgeMask: getComputedStyle(element, "::before").maskImage,
+          edgeColor: getComputedStyle(element, "::before").backgroundColor,
+          edgePointerEvents: getComputedStyle(element, "::before").pointerEvents,
         }));
         expect(visualStyle.backgroundImage).toBe("none");
-        expect(visualStyle.edgeBackground).toContain("poetry-paper-edge-");
+        expect(visualStyle.edgeBackground).toBe("none");
+        expect(visualStyle.edgeMask).toContain(
+          viewport.width < 1024 ? "poetry-paper-edge-horizontal-v2.png" : "poetry-paper-edge-vertical-v2.png",
+        );
+        expect(visualStyle.edgeColor).toBe("rgb(243, 238, 228)");
+        expect(visualStyle.edgePointerEvents).toBe("none");
         const hasGradient = await page.evaluate(() =>
           [...document.styleSheets].some((styleSheet) => {
             try {
@@ -712,7 +759,7 @@ for (const viewport of [
             try {
               return [...styleSheet.cssRules].some((rule) =>
                 rule.cssText.includes("view-transition-old") &&
-                rule.cssText.includes(".page-transition"),
+                rule.cssText.includes(".page-navigation"),
               );
             } catch {
               return false;
@@ -727,19 +774,19 @@ for (const viewport of [
             Math.abs(contentLayout.paddingLeft - expectedContentGutter),
           ).toBeLessThan(0.5);
           expect(latestSectionBox!.y).toBeLessThan(aboutSectionBox!.y);
-          expect(Math.abs(visualBox!.x)).toBeLessThan(1);
-          expect(Math.abs(visualBox!.width - viewport.width)).toBeLessThan(1);
+          expect(visualBox!.x).toBeGreaterThanOrEqual(expectedContentGutter);
+          expect(visualBox!.width).toBeLessThanOrEqual(viewport.width - 2 * expectedContentGutter);
           expect(visualBox!.y).toBeGreaterThan(titleBox!.y + titleBox!.height);
           expect(visualStyle.edgeTransform).toBe("none");
         } else {
-          expect(visualBox!.height).toBeGreaterThanOrEqual(520);
+          expect(visualBox!.height).toBeGreaterThanOrEqual(384);
           expect(visualBox!.x).toBeGreaterThan(titleBox!.x + titleBox!.width);
-          expect(Math.abs(visualBox!.x + visualBox!.width - viewport.width)).toBeLessThan(1);
-          expect(visualStyle.edgeBackground).toContain("vertical-v2.png");
+          expect(visualBox!.x + visualBox!.width).toBeLessThan(viewport.width);
+          expect(visualStyle.edgeBackground).toBe("none");
           expect(contentLayout.paddingLeft).toBeGreaterThanOrEqual(32);
           expect(contentLayout.paddingLeft).toBeLessThanOrEqual(48);
-          expect(contentLayout.columnGap).toBeGreaterThanOrEqual(64);
-          expect(contentLayout.columnGap).toBeLessThanOrEqual(96);
+          expect(contentLayout.columnGap).toBeGreaterThanOrEqual(24);
+          expect(contentLayout.columnGap).toBeLessThanOrEqual(64);
           expect(latestSectionBox!.x).toBeLessThan(aboutSectionBox!.x);
           expect(
             Math.abs(
@@ -753,19 +800,10 @@ for (const viewport of [
           const latestColumnRatio =
             latestSectionBox!.width /
             (latestSectionBox!.width + aboutSectionBox!.width);
-          expect(latestColumnRatio).toBeGreaterThanOrEqual(0.42);
-          expect(latestColumnRatio).toBeLessThanOrEqual(0.46);
+          expect(latestColumnRatio).toBeGreaterThanOrEqual(0.49);
+          expect(latestColumnRatio).toBeLessThanOrEqual(0.51);
 
-          const aboutCopy = aboutSection.locator(":scope > div");
-          const aboutCopyLayout = await aboutCopy.evaluate((element) => ({
-            maxWidth: Number.parseFloat(getComputedStyle(element).maxWidth),
-          }));
-          const aboutCopyBox = await aboutCopy.boundingBox();
-          expect(aboutCopyLayout.maxWidth).toBe(688);
-          expect(aboutCopyBox).not.toBeNull();
-          expect(aboutCopyBox!.width).toBeLessThanOrEqual(
-            aboutCopyLayout.maxWidth,
-          );
+
         }
       }
     }
@@ -786,6 +824,10 @@ test("site navigation and login form are keyboard reachable", async ({ page }) =
   await signInTab.focus();
   await page.keyboard.press("Tab");
   await expect(signUpTab).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("button", { name: "密码登录" })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("button", { name: "邮箱验证码登录" })).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(page.getByLabel("邮箱")).toBeFocused();
 });

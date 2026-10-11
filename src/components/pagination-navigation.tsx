@@ -18,7 +18,7 @@ type PaginationNavigationProps = Readonly<{
   className?: string;
 }>;
 
-/** 不是上游组件：把项目的方向分页规则组合到 shadcn/ui Pagination。 */
+/** 不是上游组件：方向分页组合；M6.9 使用留白衔接列表，边界由内容纸面承担。 */
 export function PaginationNavigation({
   page,
   pageCount,
@@ -30,18 +30,19 @@ export function PaginationNavigation({
   if (pageCount <= 1) return null;
 
   return (
-    <Pagination
-      aria-label={ariaLabel}
-      className={cn("border-t border-border-subtle pt-6", className)}
-    >
-      <PaginationContent className="w-full justify-between gap-4">
+    <Pagination aria-label={ariaLabel} className={cn("pt-6", className)}>
+      <PaginationContent className="w-full justify-between gap-4 border-t-0 pt-0">
         <PaginationItem>
           {previousHref ? (
             <PaginationPrevious asChild>
               <Link href={previousHref}>上一页</Link>
             </PaginationPrevious>
           ) : (
-            <PaginationPrevious aria-disabled="true" tabIndex={-1} className="invisible" />
+            <PaginationPrevious
+              aria-disabled="true"
+              tabIndex={-1}
+              className="invisible"
+            />
           )}
         </PaginationItem>
         <PaginationItem>
@@ -55,7 +56,11 @@ export function PaginationNavigation({
               <Link href={nextHref}>下一页</Link>
             </PaginationNext>
           ) : (
-            <PaginationNext aria-disabled="true" tabIndex={-1} className="invisible" />
+            <PaginationNext
+              aria-disabled="true"
+              tabIndex={-1}
+              className="invisible"
+            />
           )}
         </PaginationItem>
       </PaginationContent>

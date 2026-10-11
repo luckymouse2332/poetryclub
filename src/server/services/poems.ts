@@ -17,6 +17,7 @@ import {
   type ContentReaderScope,
 } from "@/lib/poem-access";
 import { db } from "@/server/db";
+import { withActiveWriter } from "@/server/policies/content-mutation";
 import { poem, poemComment, user } from "@/server/db/schema";
 import {
   POEM_PAGE_SIZE,
@@ -311,28 +312,30 @@ export async function createDraft(
   creationToken: string,
   input: PoemInput,
 ): Promise<string> {
-  const inserted = await db
-    .insert(poem)
-    .values({
-      id: randomUUID(),
-      authorId,
-      creationToken,
-      status: "draft",
-      ...input,
-    })
-    .onConflictDoUpdate({
-      target: [poem.authorId, poem.creationToken],
-      // A repeated submission keeps the first payload and returns its id in
-      // the same atomic statement. Assigning the key to itself avoids the
-      // DO NOTHING + SELECT race with a concurrent draft deletion.
-      set: { creationToken },
-    })
-    .returning({ id: poem.id });
+  return withActiveWriter(authorId, async (tx) => {
+    const inserted = await tx
+      .insert(poem)
+      .values({
+        id: randomUUID(),
+        authorId,
+        creationToken,
+        status: "draft",
+        ...input,
+      })
+      .onConflictDoUpdate({
+        target: [poem.authorId, poem.creationToken],
+        // A repeated submission keeps the first payload and returns its id in
+        // the same atomic statement. Assigning the key to itself avoids the
+        // DO NOTHING + SELECT race with a concurrent draft deletion.
+        set: { creationToken },
+      })
+      .returning({ id: poem.id });
 
-  if (inserted[0]) {
-    return inserted[0].id;
-  }
-  throw new Error("Idempotent poem creation returned no row");
+    if (inserted[0]) {
+      return inserted[0].id;
+    }
+    throw new Error("Idempotent poem creation returned no row");
+  });
 }
 
 export async function updateOwnPoem(
@@ -340,90 +343,100 @@ export async function updateOwnPoem(
   authorId: string,
   input: PoemInput,
 ): Promise<PoemStatus> {
-  const updated = await db
-    .update(poem)
-    .set({ ...input, updatedAt: new Date() })
-    .where(and(eq(poem.id, id), eq(poem.authorId, authorId)))
-    .returning({ status: poem.status });
+  return withActiveWriter(authorId, async (tx) => {
+    const updated = await tx
+      .update(poem)
+      .set({ ...input, updatedAt: new Date() })
+      .where(and(eq(poem.id, id), eq(poem.authorId, authorId)))
+      .returning({ status: poem.status });
 
-  if (!updated[0]) {
-    throw new PoemMutationError("not_found_or_forbidden");
-  }
-  return updated[0].status;
+    if (!updated[0]) {
+      throw new PoemMutationError("not_found_or_forbidden");
+    }
+    return updated[0].status;
+  });
 }
 
 export async function publishOwnDraft(
   id: string,
   authorId: string,
+  input?: PoemInput,
 ): Promise<Readonly<{
   publishedAt: Date;
   moderationStatus: PoemModerationStatus;
 }>> {
-  const updated = await db
-    .update(poem)
-    .set({
-      status: "published",
-      publishedAt: sql`coalesce(${poem.publishedAt}, now())`,
-      updatedAt: new Date(),
-    })
-    .where(
-      and(
-        eq(poem.id, id),
-        eq(poem.authorId, authorId),
-        eq(poem.status, "draft"),
-      ),
-    )
-    .returning({
-      publishedAt: poem.publishedAt,
-      moderationStatus: poem.moderationStatus,
-    });
+  return withActiveWriter(authorId, async (tx) => {
+    const updated = await tx
+      .update(poem)
+      .set({
+        ...input,
+        status: "published",
+        publishedAt: sql`coalesce(${poem.publishedAt}, now())`,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(poem.id, id),
+          eq(poem.authorId, authorId),
+          eq(poem.status, "draft"),
+        ),
+      )
+      .returning({
+        publishedAt: poem.publishedAt,
+        moderationStatus: poem.moderationStatus,
+      });
 
-  if (!updated[0]) {
-    throw new PoemMutationError("invalid_transition");
-  }
-  return {
-    publishedAt: requirePublishedAt(updated[0].publishedAt),
-    moderationStatus: updated[0].moderationStatus,
-  };
+    if (!updated[0]) {
+      throw new PoemMutationError("invalid_transition");
+    }
+    return {
+      publishedAt: requirePublishedAt(updated[0].publishedAt),
+      moderationStatus: updated[0].moderationStatus,
+    };
+  });
 }
 
 export async function withdrawOwnPublishedPoem(
   id: string,
   authorId: string,
 ): Promise<void> {
-  const updated = await db
-    .update(poem)
-    .set({ status: "draft", updatedAt: new Date() })
-    .where(
-      and(
-        eq(poem.id, id),
-        eq(poem.authorId, authorId),
-        eq(poem.status, "published"),
-      ),
-    )
-    .returning({ id: poem.id });
+  return withActiveWriter(authorId, async (tx) => {
+    const updated = await tx
+      .update(poem)
+      .set({ status: "draft", updatedAt: new Date() })
+      .where(
+        and(
+          eq(poem.id, id),
+          eq(poem.authorId, authorId),
+          eq(poem.status, "published"),
+        ),
+      )
+      .returning({ id: poem.id });
 
-  if (!updated[0]) {
-    throw new PoemMutationError("invalid_transition");
-  }
+    if (!updated[0]) {
+      throw new PoemMutationError("invalid_transition");
+    }
+  });
 }
 
 export async function deleteOwnDraft(
   id: string,
   authorId: string,
 ): Promise<void> {
-  const deleted = await db
-    .delete(poem)
-    .where(
-      and(
-        eq(poem.id, id),
-        eq(poem.authorId, authorId),
-        eq(poem.status, "draft"),
-      ),
-    )
-    .returning({ id: poem.id });
+  return withActiveWriter(authorId, async (tx) => {
+    const deleted = await tx
+      .delete(poem)
+      .where(
+        and(
+          eq(poem.id, id),
+          eq(poem.authorId, authorId),
+          eq(poem.status, "draft"),
+        ),
+      )
+      .returning({ id: poem.id });
 
-  if (!deleted[0]) {
-    throw new PoemMutationError("invalid_transition");
-  }
+    if (!deleted[0]) {
+      throw new PoemMutationError("invalid_transition");
+    }
+  });
 }

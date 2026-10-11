@@ -1,3 +1,5 @@
+/** M6.7 paper journal: shape, spacing, typography and state styling redesigned; upstream structure and public API preserved. */
+
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -15,7 +17,7 @@ function Empty({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="empty"
       className={cn(
-        "flex flex-col items-center justify-center gap-2 px-4 py-12 text-center",
+        "flex flex-col items-start justify-center gap-5 rounded-none border-y border-border bg-transparent px-0 py-10 text-left",
         className,
       )}
       {...props}
@@ -27,7 +29,7 @@ function EmptyHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="empty-header"
-      className={cn("flex flex-col items-center gap-2", className)}
+      className={cn("flex flex-col items-start gap-3", className)}
       {...props}
     />
   );
@@ -39,7 +41,7 @@ const emptyMediaVariants = cva(
     variants: {
       variant: {
         default: "text-muted-foreground [&_svg]:size-8",
-        icon: "size-10 rounded-lg bg-surface-muted text-subtle [&_svg]:size-6",
+        icon: "size-10 border-b border-border bg-transparent text-subtle [&_svg]:size-6",
       },
     },
     defaultVariants: {
@@ -68,7 +70,10 @@ function EmptyTitle({ className, ...props }: React.ComponentProps<"h3">) {
   return (
     <h3
       data-slot="empty-title"
-      className={cn("text-body font-semibold text-foreground", className)}
+      className={cn(
+        "font-serif text-body-lg font-semibold text-foreground",
+        className,
+      )}
       {...props}
     />
   );
@@ -88,7 +93,10 @@ function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="empty-content"
-      className={cn("mt-2 flex flex-col items-center gap-2", className)}
+      className={cn(
+        "mt-1 flex flex-row flex-wrap items-center gap-3",
+        className,
+      )}
       {...props}
     />
   );

@@ -26,10 +26,10 @@ export function AdminCommentCard({
   const hidden = comment.moderationStatus === "hidden";
   const deleted = comment.deletedAt !== null;
   return (
-    <Card>
+    <Card variant="list">
       <CardHeader>
         <CardTitle>
-          <h2 className="text-body-lg font-semibold text-foreground">
+          <h2 className="font-sans text-body-lg font-semibold text-foreground">
             {comment.depth === 0 ? "根评论" : "一级回复"} · {comment.authorName}
           </h2>
         </CardTitle>
@@ -45,15 +45,18 @@ export function AdminCommentCard({
       <CardContent className="space-y-3">
         <p className="text-label text-subtle">
           所属作品：
-          <Link className="ml-1 underline" href={`/admin/poems/${comment.poemId}`}>
+          <Link
+            className="ml-1 underline"
+            href={`/admin/poems/${comment.poemId}`}
+          >
             《{comment.poemTitle}》
           </Link>
         </p>
-        <p className="whitespace-pre-wrap break-words text-body text-foreground">
+        <p className="text-body break-words whitespace-pre-wrap text-foreground">
           {deleted ? "正文已由作者清空。" : comment.body}
         </p>
         {comment.moderationReason ? (
-          <p className="rounded-md border border-danger/30 bg-danger-surface p-3 text-label text-danger">
+          <p className="rounded-md border border-danger/30 bg-danger-surface p-3 text-label break-words text-danger">
             隐藏原因：{comment.moderationReason}
           </p>
         ) : null}

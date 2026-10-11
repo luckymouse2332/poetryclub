@@ -1,3 +1,5 @@
+import { PoemReading, ReadingContext } from "@/components/poem-reading";
+import { requireAdminOrForbidden } from "@/features/moderation/require-admin";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -28,6 +30,7 @@ type AdminPoemDetailPageProps = Readonly<{
 export default async function AdminPoemDetailPage({
   params,
 }: AdminPoemDetailPageProps) {
+  await requireAdminOrForbidden();
   const parsedId = uuidTargetIdSchema.safeParse((await params).id);
   if (!parsedId.success) notFound();
   const poem = await getAdminPoem(parsedId.data);
@@ -59,41 +62,49 @@ export default async function AdminPoemDetailPage({
         </div>
         <div className="flex flex-wrap gap-x-2">
           <dt className="text-subtle">邮箱</dt>
-          <dd className="break-all font-medium">{poem.authorEmail}</dd>
+          <dd className="font-medium break-all">{poem.authorEmail}</dd>
         </div>
         <div className="flex flex-wrap gap-x-2">
           <dt className="text-subtle">更新时间</dt>
-          <dd className="font-medium">{formatModerationDateTime(poem.updatedAt)}</dd>
+          <dd className="font-medium">
+            {formatModerationDateTime(poem.updatedAt)}
+          </dd>
         </div>
       </dl>
       {poem.moderationReason ? (
         <Alert variant="danger" className="mt-6 p-4">
           <AlertDescription>
-          <p className="whitespace-pre-wrap">隐藏原因：{poem.moderationReason}</p>
-          {poem.moderatedAt ? (
-            <p className="mt-1">
-              操作人：{poem.moderatorName ?? "已删除的管理员"} · 操作时间：
-              {formatModerationDateTime(poem.moderatedAt)}
+            <p className="whitespace-pre-wrap">
+              隐藏原因：{poem.moderationReason}
             </p>
-          ) : null}
+            {poem.moderatedAt ? (
+              <p className="mt-1">
+                操作人：{poem.moderatorName ?? "已删除的管理员"} · 操作时间：
+                {formatModerationDateTime(poem.moderatedAt)}
+              </p>
+            ) : null}
           </AlertDescription>
         </Alert>
       ) : null}
       <section className="mt-8" aria-labelledby="admin-poem-body">
-        <h2 id="admin-poem-body" className="text-section-title font-semibold">
+        <h2
+          id="admin-poem-body"
+          className="font-serif text-section-title font-medium"
+        >
           正文
         </h2>
-        <article className="mt-3 whitespace-pre-wrap rounded-lg border border-border-subtle bg-paper p-6 font-serif text-body shadow-card">
+        <PoemReading className="mt-3 border-border-subtle py-6 text-body sm:py-6">
           {poem.body}
-        </article>
+        </PoemReading>
       </section>
       {poem.context ? (
-        <section className="mt-8" aria-labelledby="admin-poem-context">
-          <h2 id="admin-poem-context" className="text-section-title font-semibold">
-            创作背景
-          </h2>
-          <p className="mt-3 whitespace-pre-wrap text-body text-subtle">{poem.context}</p>
-        </section>
+        <ReadingContext
+          className="mt-8"
+          aria-labelledby="admin-poem-context"
+          titleId="admin-poem-context"
+        >
+          {poem.context}
+        </ReadingContext>
       ) : null}
       <div className="mt-8">
         {hidden ? (

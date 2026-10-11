@@ -1,3 +1,5 @@
+/** M6.7 paper journal: shape, spacing, typography and state styling redesigned; upstream structure and public API preserved. */
+
 import * as React from "react";
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import { Slot } from "radix-ui";
@@ -6,10 +8,7 @@ import { buttonVariants, type ButtonProps } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 /** shadcn/ui Pagination，保留上游结构，并通过 asChild 支持 Next.js Link。 */
-function Pagination({
-  className,
-  ...props
-}: React.ComponentProps<"nav">) {
+function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav
       role="navigation"
@@ -28,7 +27,10 @@ function PaginationContent({
   return (
     <ul
       data-slot="pagination-content"
-      className={cn("flex flex-row items-center gap-1", className)}
+      className={cn(
+        "flex flex-row flex-wrap items-center gap-2 border-t border-border pt-6",
+        className,
+      )}
       {...props}
     />
   );
@@ -59,9 +61,10 @@ function PaginationLink({
       data-active={isActive}
       className={cn(
         buttonVariants({
-          variant: isActive ? "secondary" : "ghost",
+          variant: "ghost",
           size,
         }),
+        "rounded-none border-0 font-serif text-body data-[active=true]:font-semibold data-[active=true]:underline data-[active=true]:decoration-seal data-[active=true]:decoration-2 data-[active=true]:underline-offset-8",
         className,
       )}
       {...props}

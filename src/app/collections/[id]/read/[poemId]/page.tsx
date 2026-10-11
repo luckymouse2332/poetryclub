@@ -1,3 +1,4 @@
+import { PoemReading, ReadingContext } from "@/components/poem-reading";
 import type { Metadata } from "next";
 import { randomUUID } from "node:crypto";
 import Link from "next/link";
@@ -11,7 +12,10 @@ import { CommentSection } from "@/features/comments/components/comment-ui";
 import { CollectionLoginGate } from "@/features/collections/components/collection-login-gate";
 import { formatPoemDate } from "@/features/posts/formatters";
 import { getContentViewer } from "@/server/policies/access";
-import { countVisibleComments, listCommentRoots } from "@/server/services/comments";
+import {
+  countVisibleComments,
+  listCommentRoots,
+} from "@/server/services/comments";
 import { getCollectionReadingItem } from "@/server/services/collections";
 import { collectionIdSchema } from "@/server/validation/collections";
 import { poemIdSchema } from "@/server/validation/poems";
@@ -20,7 +24,9 @@ type ReadingPageProps = Readonly<{
   params: Promise<{ id: string; poemId: string }>;
 }>;
 
-export async function generateMetadata({ params }: ReadingPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: ReadingPageProps): Promise<Metadata> {
   const values = await params;
   const collectionId = collectionIdSchema.safeParse(values.id);
   const poemId = poemIdSchema.safeParse(values.poemId);
@@ -31,10 +37,14 @@ export async function generateMetadata({ params }: ReadingPageProps): Promise<Me
     poemId.data,
     viewer.scope,
   );
-  return { title: result.kind === "visible" ? result.item.poem.title : "特辑阅读" };
+  return {
+    title: result.kind === "visible" ? result.item.poem.title : "特辑阅读",
+  };
 }
 
-export default async function CollectionReadingPage({ params }: ReadingPageProps) {
+export default async function CollectionReadingPage({
+  params,
+}: ReadingPageProps) {
   const values = await params;
   const collectionId = collectionIdSchema.safeParse(values.id);
   const poemId = poemIdSchema.safeParse(values.poemId);
@@ -50,7 +60,7 @@ export default async function CollectionReadingPage({ params }: ReadingPageProps
     const nextPath = `/collections/${collectionId.data}/read/${poemId.data}`;
     return (
       <PageContainer width="reading">
-        <div aria-hidden="true" className="select-none blur-sm">
+        <div aria-hidden="true" className="blur-sm select-none">
           <PageHeader eyebrow="特辑阅读" title="成员作品" />
           <div className="mt-8 h-72 rounded-lg border border-border-subtle bg-paper" />
         </div>
@@ -67,13 +77,22 @@ export default async function CollectionReadingPage({ params }: ReadingPageProps
   return (
     <PageContainer width="reading">
       <nav aria-label="特辑位置" className="mb-6 text-label text-subtle">
-        <Link href={`/collections/${collection.id}`} className="hover:text-foreground">
+        <Link
+          href={`/collections/${collection.id}`}
+          className="hover:text-foreground"
+        >
           {collection.title}
         </Link>
-        <span aria-hidden="true" className="mx-2">/</span>
+        <span aria-hidden="true" className="mx-2">
+          /
+        </span>
         <span aria-current="page">连续阅读</span>
       </nav>
-      <PageHeader eyebrow="特辑阅读" title={current.title} description={`作者：${current.authorName}`} />
+      <PageHeader
+        eyebrow="特辑阅读"
+        title={current.title}
+        description={`作者：${current.authorName}`}
+      />
       <dl className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 border-y border-border-subtle py-3 text-label">
         {current.visibility === "members_only" ? (
           <Badge variant="neutral">仅成员可见</Badge>
@@ -89,19 +108,15 @@ export default async function CollectionReadingPage({ params }: ReadingPageProps
           </div>
         ) : null}
       </dl>
-      <article
-        aria-label={current.title}
-        className="mt-10 whitespace-pre-wrap border-l border-border-subtle pl-6 font-serif text-body-lg leading-reading text-foreground md:pl-10"
-      >
-        {current.body}
-      </article>
+      <PoemReading aria-label={current.title}>{current.body}</PoemReading>
       {current.context ? (
-        <section aria-labelledby="collection-poem-context" className="mt-8">
-          <h2 id="collection-poem-context" className="text-section-title font-semibold text-foreground">
-            创作背景
-          </h2>
-          <p className="mt-3 whitespace-pre-wrap text-body text-subtle">{current.context}</p>
-        </section>
+        <ReadingContext
+          aria-labelledby="collection-poem-context"
+          className="mt-8"
+          titleId="collection-poem-context"
+        >
+          {current.context}
+        </ReadingContext>
       ) : null}
       <nav
         aria-label="特辑阅读导航"
@@ -139,7 +154,10 @@ export default async function CollectionReadingPage({ params }: ReadingPageProps
         loginNextPath={`/collections/${collection.id}/read/${current.id}`}
       />
       <p className="mt-6 text-center text-label text-subtle">
-        <Link href={`/poems/${current.id}`} className="underline underline-offset-4 hover:text-foreground">
+        <Link
+          href={`/poems/${current.id}`}
+          className="underline underline-offset-4 hover:text-foreground"
+        >
           查看作品详情与评论
         </Link>
       </p>

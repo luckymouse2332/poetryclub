@@ -6,8 +6,9 @@ import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { formatNotificationDate } from "@/features/notifications/formatters";
+import { AnnouncementReadReceipt } from "@/features/notifications/components/announcement-read-receipt";
 import { requireExistingUser } from "@/server/policies/access";
-import { openUserAnnouncement } from "@/server/services/notifications";
+import { getUserAnnouncement } from "@/server/services/notifications";
 import { announcementIdSchema } from "@/server/validation/notifications";
 
 export const metadata: Metadata = { title: "系统公告" };
@@ -25,11 +26,12 @@ export default async function AnnouncementDetailPage({
 
   const returnTo = `/announcements/${parsedId.data}`;
   const currentUser = await requireExistingUser(returnTo);
-  const announcement = await openUserAnnouncement(currentUser.id, parsedId.data);
+  const announcement = await getUserAnnouncement(currentUser.id, parsedId.data);
   if (!announcement) notFound();
 
   return (
     <PageContainer width="reading">
+      <AnnouncementReadReceipt id={announcement.id} />
       <PageHeader
         eyebrow="系统公告"
         title={announcement.title}
@@ -38,7 +40,7 @@ export default async function AnnouncementDetailPage({
 
       <article
         aria-label={announcement.title}
-        className="mt-8 whitespace-pre-wrap rounded-lg border border-border-subtle bg-paper p-6 text-body-lg text-foreground shadow-card md:p-8"
+        className="mt-8 border-y border-border bg-paper px-4 py-8 text-body-lg leading-reading whitespace-pre-wrap text-foreground sm:px-6 sm:py-8 lg:px-8"
       >
         {announcement.body}
       </article>

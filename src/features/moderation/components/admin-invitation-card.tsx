@@ -9,9 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { disableInvitationAction } from "@/features/moderation/actions";
 import { AdminReasonActionDialog } from "@/features/moderation/components/admin-reason-action-dialog";
-import {
-  formatModerationDateTime,
-} from "@/features/moderation/formatters";
+import { formatModerationDateTime } from "@/features/moderation/formatters";
 import type { InvitationSummary } from "@/server/services/moderation";
 
 type AdminInvitationCardProps = Readonly<{
@@ -33,14 +31,16 @@ export function AdminInvitationCard({
   const usedUp = !disabled && invitation.usedCount >= invitation.maxUses;
 
   return (
-    <Card>
+    <Card variant="list">
       <CardHeader>
         <CardTitle>
           <h2 className="text-body-lg font-semibold text-foreground">邀请码</h2>
         </CardTitle>
-        <CardDescription className="flex flex-wrap items-center gap-1.5">
+        <CardDescription className="flex flex-wrap items-center gap-2">
           {disabled ? <Badge variant="danger">已停用</Badge> : null}
-          {!disabled && expired ? <Badge variant="warning">已过期</Badge> : null}
+          {!disabled && expired ? (
+            <Badge variant="warning">已过期</Badge>
+          ) : null}
           {!disabled && !expired && usedUp ? (
             <Badge variant="warning">已用尽</Badge>
           ) : null}
@@ -80,8 +80,8 @@ export function AdminInvitationCard({
           ) : null}
         </dl>
       </CardContent>
-      <CardFooter className="flex flex-wrap items-center gap-2">
-        {!disabled && !expired && !usedUp ? (
+      {!disabled && !expired && !usedUp ? (
+        <CardFooter>
           <AdminReasonActionDialog
             action={disableInvitationAction.bind(null, invitation.id)}
             triggerLabel="停用邀请码"
@@ -90,8 +90,8 @@ export function AdminInvitationCard({
             confirmLabel="确认停用"
             confirmBusyLabel="正在停用…"
           />
-        ) : null}
-      </CardFooter>
+        </CardFooter>
+      ) : null}
     </Card>
   );
 }

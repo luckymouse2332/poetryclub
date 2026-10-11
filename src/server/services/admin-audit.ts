@@ -2,7 +2,7 @@ import "server-only";
 
 import { randomUUID } from "node:crypto";
 
-import { db } from "@/server/db";
+import type { DatabaseTransaction } from "@/server/db/types";
 import { adminAuditLog } from "@/server/db/schema";
 
 export type AdminAuditAction =
@@ -30,9 +30,6 @@ export type AdminAuditTarget =
   | "comment"
   | "collection";
 
-export type DatabaseTransaction = Parameters<
-  Parameters<typeof db.transaction>[0]
->[0];
 
 export async function writeAdminAudit(
   tx: DatabaseTransaction,

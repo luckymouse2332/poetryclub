@@ -1,7 +1,7 @@
 .page {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-serif), "Songti SC", STSong, SimSun, serif;
+  font-family: var(--font-serif), SimSun, serif;
 }
 
 .folio,
@@ -38,7 +38,7 @@
 
 .folio,
 .sectionLabel {
-  color: var(--seal-foreground);
+  color: var(--seal);
   font-size: var(--font-size-caption);
   letter-spacing: 0.18em;
 }
@@ -50,8 +50,8 @@
 
 .introHeading h1 {
   font-size: clamp(2.35rem, 5vw, 3.5rem);
-  font-weight: 400;
-  letter-spacing: 0.1em;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   line-height: 1.25;
   text-wrap: balance;
 }
@@ -82,7 +82,7 @@
 
 .prologueLabel p:first-child {
   margin-bottom: var(--space-2);
-  color: var(--seal-foreground);
+  color: var(--seal);
 }
 
 .prologueCopy {
@@ -105,7 +105,8 @@
 }
 
 .historySection {
-  padding-block: clamp(4.5rem, 9vw, 8rem);
+  padding-block: var(--space-section);
+  background: var(--surface);
   border-top: 1px solid var(--border-strong);
 }
 
@@ -118,8 +119,8 @@
 .futureHeading h2 {
   margin-top: var(--space-4);
   font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 400;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  letter-spacing: 0;
   line-height: 1.4;
   text-wrap: balance;
 }
@@ -157,11 +158,11 @@
 }
 
 .eraMeta time {
-  color: var(--seal-foreground);
-  font-family: var(--font-serif), "Songti SC", STSong, SimSun, serif;
+  color: var(--seal);
+  font-family: var(--font-serif), SimSun, serif;
   font-size: clamp(2rem, 5vw, 3.25rem);
   font-variant-numeric: tabular-nums;
-  font-weight: 400;
+  font-weight: 600;
   letter-spacing: 0.04em;
   line-height: 1;
 }
@@ -169,7 +170,7 @@
 .eraMeta span {
   color: var(--text-secondary);
   font-size: var(--font-size-caption);
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
 }
 
 .eraBody {
@@ -182,15 +183,15 @@
 .roadmapItem h3,
 .updateBody h3 {
   font-size: clamp(1.25rem, 2.4vw, 1.6rem);
-  font-weight: 400;
-  letter-spacing: 0.065em;
+  font-weight: 600;
+  letter-spacing: 0;
   line-height: var(--line-height-heading);
   text-wrap: pretty;
 }
 
 .eraReason {
   margin-top: var(--space-4);
-  color: var(--seal-foreground);
+  color: var(--seal);
   font-size: var(--font-size-body-lg);
   line-height: 1.85;
 }
@@ -223,7 +224,7 @@
 .stackLine span {
   margin-right: var(--space-3);
   color: var(--foreground);
-  letter-spacing: 0.1em;
+  letter-spacing: -0.02em;
 }
 
 .sourceLink {
@@ -231,15 +232,15 @@
   min-height: var(--control-height);
   align-items: center;
   gap: var(--space-2);
-  color: var(--seal-foreground);
+  color: var(--seal);
   font-size: var(--font-size-label);
   line-height: var(--line-height-compact);
   text-decoration-line: underline;
   text-decoration-color: var(--border-strong);
   text-underline-offset: 0.35em;
   transition:
-    color 160ms ease,
-    text-decoration-color 160ms ease;
+    color var(--motion-duration-fast) ease,
+    text-decoration-color var(--motion-duration-fast) ease;
 }
 
 .sourceLink:hover,
@@ -249,7 +250,7 @@
 }
 
 .presentSection {
-  padding-block: clamp(4.5rem, 8vw, 7rem);
+  padding-block: var(--space-section);
   border-block: 1px solid var(--border-strong);
 }
 
@@ -271,7 +272,7 @@
 
 .presentRole > p:first-child {
   margin-bottom: var(--space-4);
-  color: var(--seal-foreground);
+  color: var(--seal);
   font-size: var(--font-size-caption);
   letter-spacing: 0.14em;
 }
@@ -285,7 +286,8 @@
 }
 
 .futureSection {
-  padding-block: clamp(5rem, 10vw, 8rem);
+  padding-block: var(--space-section);
+  background: var(--surface);
 }
 
 .futureHeading {
@@ -306,7 +308,7 @@
 
 .roadmapStatus {
   margin-bottom: var(--space-4);
-  color: var(--seal-foreground);
+  color: var(--seal);
   font-size: var(--font-size-caption);
   letter-spacing: 0.12em;
 }
@@ -337,8 +339,8 @@
 .updatesHeading h2 {
   margin-top: var(--space-3);
   font-size: clamp(1.55rem, 3vw, 2rem);
-  font-weight: 400;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  letter-spacing: 0;
   line-height: var(--line-height-heading);
 }
 
@@ -373,7 +375,7 @@
 }
 
 .updateMeta span {
-  color: var(--seal-foreground);
+  color: var(--seal);
   font-size: var(--font-size-label);
 }
 

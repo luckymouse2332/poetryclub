@@ -1,9 +1,11 @@
+import { requireAdminOrForbidden } from "@/features/moderation/require-admin";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
+import { PaperList } from "@/components/paper-list";
 import {
   Empty,
   EmptyDescription,
@@ -27,6 +29,7 @@ type AdminInvitationsPageProps = Readonly<{
 export default async function AdminInvitationsPage({
   searchParams,
 }: AdminInvitationsPageProps) {
+  await requireAdminOrForbidden();
   const query = await searchParams;
   const parsedPage = moderationPageSchema.safeParse(query.page);
   if (!parsedPage.success) {
@@ -46,38 +49,34 @@ export default async function AdminInvitationsPage({
         description="创建受控注册邀请码。明文邀请码只在创建成功时显示一次，列表只展示使用情况与有效期。"
       />
 
-      <Section title="创建邀请码" className="pb-0 pt-8">
+      <Section title="创建邀请码" className="pt-8 pb-0">
         <div className="max-w-narrow">
           <InvitationCreateForm />
         </div>
       </Section>
 
-      <Section title="邀请码列表" className="pb-0 pt-8">
-        {result.items.length > 0 ? (
-          <div className="divide-y divide-border-subtle">
-            {result.items.map((invitation) => (
-              <div
-                key={invitation.id}
-                className="[&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none"
-              >
-                <AdminInvitationCard
-                  key={invitation.id}
-                  invitation={invitation}
-                  now={new Date()}
-                />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <Empty>
-            <EmptyHeader>
-              <EmptyTitle>还没有邀请码</EmptyTitle>
-              <EmptyDescription>
-                创建第一个邀请码后，会显示在这里。
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        )}
+      <Section title="邀请码列表" className="pt-8 pb-0">
+        <PaperList
+          inset={false}
+          empty={
+            <Empty>
+              <EmptyHeader>
+                <EmptyTitle>还没有邀请码</EmptyTitle>
+                <EmptyDescription>
+                  创建第一个邀请码后，会显示在这里。
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          }
+        >
+          {result.items.map((invitation) => (
+            <AdminInvitationCard
+              key={invitation.id}
+              invitation={invitation}
+              now={new Date()}
+            />
+          ))}
+        </PaperList>
       </Section>
 
       <AdminPagination

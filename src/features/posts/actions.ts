@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 
 import {
   AccessControlError,
@@ -144,7 +145,13 @@ export async function createPoemAction(
     };
   }
 
-  const id = await createDraft(currentUser.id, creationToken.data, input.data);
+  let id: string;
+  try {
+    id = await createDraft(currentUser.id, creationToken.data, input.data);
+  } catch (error) {
+    if (error instanceof AccessControlError) return error.code === "account_suspended" ? suspendedErrorState() : operationErrorState();
+    throw error;
+  }
   revalidatePath("/account/poems");
   redirect(`/account/poems/${id}/edit?created=1`);
 }
@@ -167,7 +174,20 @@ export async function updatePoemAction(
     return validationState(previousState, input, values);
   }
 
+  const intent = z.enum(["save", "publish"]).safeParse(formData.get("intent"));
+  if (!intent.success) return { status: "error", message: "作品操作无效，请重试。" };
+
   try {
+    if (intent.data === "publish") {
+      const published = await publishOwnDraft(parsedId.data, currentUser.id, input.data);
+      revalidatePath("/account/poems");
+      revalidatePath(`/account/poems/${parsedId.data}/edit`);
+      revalidatePublicPoem(parsedId.data);
+      if (published.moderationStatus === "hidden") {
+        redirect(`/account/poems/${parsedId.data}/edit?published=1`);
+      }
+      redirect(`/poems/${parsedId.data}`);
+    }
     const status = await updateOwnPoem(parsedId.data, currentUser.id, input.data);
     revalidatePath("/account/poems");
     revalidatePath(`/account/poems/${parsedId.data}/edit`);
@@ -175,6 +195,7 @@ export async function updatePoemAction(
       revalidatePublicPoem(parsedId.data);
     }
   } catch (error) {
+    if (error instanceof AccessControlError) return error.code === "account_suspended" ? suspendedErrorState() : operationErrorState();
     if (error instanceof PoemMutationError) {
       return operationErrorState();
     }
@@ -207,6 +228,7 @@ export async function publishPoemAction(
       redirect(`/account/poems/${parsedId.data}/edit?published=1`);
     }
   } catch (error) {
+    if (error instanceof AccessControlError) return error.code === "account_suspended" ? suspendedErrorState() : operationErrorState();
     if (error instanceof PoemMutationError) {
       return operationErrorState();
     }
@@ -232,6 +254,7 @@ export async function withdrawPoemAction(
   try {
     await withdrawOwnPublishedPoem(parsedId.data, currentUser.id);
   } catch (error) {
+    if (error instanceof AccessControlError) return error.code === "account_suspended" ? suspendedErrorState() : operationErrorState();
     if (error instanceof PoemMutationError) {
       return operationErrorState();
     }
@@ -260,6 +283,7 @@ export async function deletePoemAction(
   try {
     await deleteOwnDraft(parsedId.data, currentUser.id);
   } catch (error) {
+    if (error instanceof AccessControlError) return error.code === "account_suspended" ? suspendedErrorState() : operationErrorState();
     if (error instanceof PoemMutationError) {
       return operationErrorState();
     }

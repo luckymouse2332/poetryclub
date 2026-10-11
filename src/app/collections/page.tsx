@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
+import { PaperList } from "@/components/paper-list";
 import {
   Empty,
   EmptyDescription,
@@ -41,23 +42,23 @@ export default async function CollectionsPage({
             : "按主题和顺序整理的公开作品。"
         }
       />
-      <Section className="pb-0 pt-8">
-        {result.items.length > 0 ? (
-          <div>
-            {result.items.map((collection) => (
-              <CollectionCard key={collection.id} collection={collection} />
-            ))}
-          </div>
-        ) : (
-          <Empty>
-            <EmptyHeader>
-              <EmptyTitle>还没有特辑</EmptyTitle>
-              <EmptyDescription>
-                第一份特辑发布后，会出现在这里。
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        )}
+      <Section className="py-0">
+        <PaperList
+          empty={
+            <Empty>
+              <EmptyHeader>
+                <EmptyTitle>还没有特辑</EmptyTitle>
+                <EmptyDescription>
+                  第一份特辑发布后，会出现在这里。
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          }
+        >
+          {result.items.map((collection) => (
+            <CollectionCard key={collection.id} collection={collection} />
+          ))}
+        </PaperList>
       </Section>
       <Pagination
         basePath="/collections"

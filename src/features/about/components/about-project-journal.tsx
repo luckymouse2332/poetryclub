@@ -168,7 +168,8 @@ export function AboutProjectJournal() {
               <h2 id="updates-title">更新记录</h2>
             </div>
             <p>
-              这里从 M1 开始记录已经完成的主要阶段，不展开每一次技术调整。当前记录更新到
+              这里从 M1
+              开始记录已经完成的主要阶段，不展开每一次技术调整。当前记录更新到
               M8 诗作特辑与连续阅读。
             </p>
           </header>

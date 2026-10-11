@@ -1,3 +1,5 @@
+/** M6.7 paper journal: shape, spacing, typography and state styling redesigned; upstream structure and public API preserved. */
+
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Slot } from "radix-ui";
@@ -9,16 +11,16 @@ import { cn } from "@/lib/utils";
  * Badge 不默认承担按钮行为；需要可交互标签时用 `asChild` 包裹真实可聚焦元素。
  */
 const badgeVariants = cva(
-  "inline-flex items-center gap-1 whitespace-nowrap rounded-sm border px-2 py-0.5 text-caption font-medium",
+  "inline-flex items-center gap-1.5 rounded-none border px-2 py-1 text-caption font-medium tracking-wide whitespace-nowrap",
   {
     variants: {
       variant: {
-        neutral: "border-border bg-surface-muted text-subtle",
-        primary: "border-primary/20 bg-secondary text-secondary-foreground",
-        seal: "border-seal/30 bg-seal-surface text-seal-foreground",
-        success: "border-success/30 bg-success-surface text-success",
-        warning: "border-warning/30 bg-warning-surface text-warning",
-        danger: "border-danger/30 bg-danger-surface text-danger",
+        neutral: "border-border bg-transparent text-subtle",
+        primary: "border-primary/20 bg-transparent text-secondary-foreground",
+        seal: "border-seal/30 bg-transparent text-seal-foreground",
+        success: "border-success/30 bg-transparent text-success",
+        warning: "border-warning/30 bg-transparent text-warning",
+        danger: "border-danger/30 bg-transparent text-danger",
       },
     },
     defaultVariants: {

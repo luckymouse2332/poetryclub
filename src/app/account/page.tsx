@@ -33,7 +33,9 @@ export default async function AccountPage() {
         />
         <AccountSectionNavigation />
         <Alert variant="danger" role="alert" className="mt-6 p-4">
-          <AlertDescription>无法确认当前账号状态，请重新登录后再试。</AlertDescription>
+          <AlertDescription>
+            无法确认当前账号状态，请重新登录后再试。
+          </AlertDescription>
         </Alert>
       </PageContainer>
     );
@@ -66,7 +68,7 @@ export default async function AccountPage() {
           <Surface variant="paper">
             <h2
               id="account-details-title"
-              className="font-serif text-section-title font-normal tracking-[0.04em] text-foreground"
+              className="font-serif text-section-title font-medium text-foreground"
             >
               基本信息
             </h2>
@@ -90,7 +92,9 @@ export default async function AccountPage() {
                 <dt className="text-subtle">角色</dt>
                 <dd>
                   <Badge
-                    variant={currentUser.role === "admin" ? "primary" : "neutral"}
+                    variant={
+                      currentUser.role === "admin" ? "primary" : "neutral"
+                    }
                   >
                     {currentUser.role === "admin" ? "管理员" : "成员"}
                   </Badge>
@@ -111,9 +115,13 @@ export default async function AccountPage() {
         <aside aria-label="快捷操作" className="space-y-4 lg:sticky lg:top-8">
           <Surface variant="paper" className="space-y-4">
             <div>
-              <h2 className="font-serif text-body-lg text-foreground">我的作品</h2>
+              <h2 className="font-serif text-body-lg font-medium text-foreground">
+                我的作品
+              </h2>
               <p className="mt-2 text-label text-subtle">
-                {suspended ? "账号禁用期间只能浏览已有内容。" : "管理草稿、发布状态与作品访问范围。"}
+                {suspended
+                  ? "账号禁用期间只能浏览已有内容。"
+                  : "管理草稿、发布状态与作品访问范围。"}
               </p>
             </div>
             <Button asChild className="w-full">
@@ -122,8 +130,12 @@ export default async function AccountPage() {
           </Surface>
           <Surface variant="paper" className="space-y-4">
             <div>
-              <h2 className="font-serif text-body-lg text-foreground">账户安全</h2>
-              <p className="mt-2 text-label text-subtle">修改密码并撤销其他设备上的登录会话。</p>
+              <h2 className="font-serif text-body-lg font-medium text-foreground">
+                账户安全
+              </h2>
+              <p className="mt-2 text-label text-subtle">
+                修改密码并撤销其他设备上的登录会话。
+              </p>
             </div>
             <Button asChild variant="secondary" className="w-full">
               <Link href="/account/security">管理账户安全</Link>
@@ -145,7 +157,7 @@ function AccountDetail({ label, value, breakAll = false }: AccountDetailProps) {
   return (
     <div className="flex flex-col gap-1 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
       <dt className="shrink-0 text-subtle">{label}</dt>
-      <dd className={breakAll ? "break-all font-medium" : "font-medium"}>
+      <dd className={breakAll ? "font-medium break-all" : "font-medium"}>
         {value}
       </dd>
     </div>

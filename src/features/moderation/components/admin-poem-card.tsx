@@ -34,10 +34,10 @@ export function AdminPoemCard({ poem }: AdminPoemCardProps) {
   const hidden = poem.moderationStatus === "hidden";
 
   return (
-    <Card>
+    <Card variant="list">
       <CardHeader>
         <CardTitle>
-          <h2 className="text-body-lg font-semibold text-foreground">
+          <h2 className="font-serif text-body-lg font-medium break-words text-foreground">
             <Link
               href={`/admin/poems/${poem.id}`}
               className="rounded-sm no-underline transition-colors hover:text-primary"
@@ -46,7 +46,7 @@ export function AdminPoemCard({ poem }: AdminPoemCardProps) {
             </Link>
           </h2>
         </CardTitle>
-        <CardDescription className="flex flex-wrap items-center gap-1.5">
+        <CardDescription className="flex flex-wrap items-center gap-2">
           <Badge variant={poem.status === "published" ? "success" : "warning"}>
             {POEM_STATUS_LABELS[poem.status]}
           </Badge>
@@ -67,14 +67,16 @@ export function AdminPoemCard({ poem }: AdminPoemCardProps) {
           </div>
           <div className="flex flex-wrap items-baseline gap-x-2">
             <dt className="text-subtle">邮箱</dt>
-            <dd className="min-w-0 break-all font-medium text-foreground">
+            <dd className="min-w-0 font-medium break-all text-foreground">
               {poem.authorEmail}
             </dd>
           </div>
         </dl>
         {poem.moderationReason ? (
-          <div className="mt-3 rounded-md border border-danger/30 bg-danger-surface p-3 text-label text-danger">
-            <p className="whitespace-pre-wrap">隐藏原因：{poem.moderationReason}</p>
+          <div className="mt-3 border-l-2 border-danger bg-transparent px-4 py-2 text-label text-danger">
+            <p className="break-words whitespace-pre-wrap">
+              隐藏原因：{poem.moderationReason}
+            </p>
             {poem.moderatedAt ? (
               <p className="mt-1">
                 操作人：{poem.moderatorName ?? "已删除的管理员"} · 操作时间：
@@ -84,7 +86,7 @@ export function AdminPoemCard({ poem }: AdminPoemCardProps) {
           </div>
         ) : null}
       </CardContent>
-      <CardFooter className="flex flex-wrap items-center gap-2">
+      <CardFooter>
         {hidden ? (
           <AdminReasonActionDialog
             action={restorePoemAction.bind(null, poem.id)}

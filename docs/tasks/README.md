@@ -13,6 +13,7 @@
 - M6：整站视觉语言、桌面工作区与浮层交互重构。
 - M7：围绕作品的评论、回复与互动治理能力。
 - M8：将已发布诗作编排为可连续阅读、具备访问控制和治理能力的特辑。
+- M9：优化账户与内容操作流程，消除未保存内容和状态反馈造成的误操作，并完善邮箱认证。
 
 ## 当前任务
 
@@ -50,10 +51,16 @@
 | M6.2 | 移动端导航信息架构重构 | 已完成 | [M6.2-mobile-navigation-information-architecture.md](./M6.2-mobile-navigation-information-architecture.md) |
 | M6.3 | 移动端导航浮层与动效修正 | 已完成 | [M6.3-mobile-navigation-overlay-motion.md](./M6.3-mobile-navigation-overlay-motion.md) |
 | M6.4 | 管理 Sheet 与桌面 Dropdown 对齐 | 已完成 | [M6.4-admin-drawer-dropdown-parity.md](./M6.4-admin-drawer-dropdown-parity.md) |
+| M6.5 | 管理列表样式改版 | 已完成 | [M6.5-management-list-redesign.md](./M6.5-management-list-redesign.md) |
+| M6.6 | 全站现代社区界面重设计 | 已完成 | [M6.6-modern-community-redesign.md](./M6.6-modern-community-redesign.md) |
+| M6.7 | 校园纸本诗刊与全基础组件重设计 | 已完成 | [M6.7-paper-poetry-journal.md](./M6.7-paper-poetry-journal.md) |
 | M7 | 作品评论与一级回复 | 已完成 | [M7-comments-and-replies.md](./M7-comments-and-replies.md) |
 | M8 | 诗作特辑与连续阅读 | 已完成 | [M8-curated-collections.md](./M8-curated-collections.md) |
+| M9.0 | 操作流程优化与重构 | 已完成 | [M9.0-operation-flow-optimization.md](./M9.0-operation-flow-optimization.md) |
 | CHORE-1 | 仓库工作流与发布规范 | 已完成 | [CHORE-1-repository-workflow-conventions.md](./CHORE-1-repository-workflow-conventions.md) |
 | CHORE-2 | 已合并分支清理与保留规则 | 已完成 | [CHORE-2-merged-branch-retention-policy.md](./CHORE-2-merged-branch-retention-policy.md) |
+| CHORE-3 | 架构边界与一致性重构 | 已完成 | [CHORE-3-architecture-refactor.md](./CHORE-3-architecture-refactor.md) |
+| CHORE-4 | 设计系统复用与样式精简 | 已完成 | [CHORE-4-design-system-deduplication.md](./CHORE-4-design-system-deduplication.md) |
 | CHORE-style-architecture-consolidation | 样式架构收敛 | 已完成 | [CHORE-style-architecture-consolidation.md](./CHORE-style-architecture-consolidation.md) |
 | BUG-1 | 修复bug | 已完成 | [BUG-1-admin-user-poem-count-fix.md](./BUG-1-admin-user-poem-count-fix.md) |
 | BUG-2 | 生产 Compose 恢复变量插值修复 | 已完成 | [BUG-2-production-compose-recovery-env-interpolation.md](./BUG-2-production-compose-recovery-env-interpolation.md) |
@@ -67,6 +74,16 @@
 | BUG-10 | 桌面工作区二级导航统一 | 已完成 | [BUG-10-secondary-navigation-breakpoint-parity.md](./BUG-10-secondary-navigation-breakpoint-parity.md) |
 | BUG-11 | 管理导航密度与入口卡片样式 | 已完成 | [BUG-11-admin-navigation-density-card-styles.md](./BUG-11-admin-navigation-density-card-styles.md) |
 | BUG-12 | 工作区导航断点恢复 | 已完成 | [BUG-12-workspace-navigation-breakpoint-restoration.md](./BUG-12-workspace-navigation-breakpoint-restoration.md) |
+| BUG-14 | 首页省略号与锯齿页边恢复 | 已完成 | [BUG-14-home-ellipsis-paper-edge.md](./BUG-14-home-ellipsis-paper-edge.md) |
+| BUG-15 | 首页首屏上下留白移除 | 已完成 | [BUG-15-home-hero-vertical-spacing.md](./BUG-15-home-hero-vertical-spacing.md) |
+| BUG-16 | 认证页桌面左右布局 | 已完成 | [BUG-16-auth-desktop-split-layout.md](./BUG-16-auth-desktop-split-layout.md) |
+| BUG-17 | 管理列表重复分隔线移除 | 已完成 | [BUG-17-admin-list-internal-rules.md](./BUG-17-admin-list-internal-rules.md) |
+| BUG-18 | 账户登出菜单项高度修复 | 已完成 | [BUG-18-account-logout-menu-sizing.md](./BUG-18-account-logout-menu-sizing.md) |
+| M6.8 | 纸刊界面一致性与留白收尾 | 已完成 | [M6.8-paper-journal-consistency.md](./M6.8-paper-journal-consistency.md) |
+
+| M6.9 | 背景与纸面层次增强 | 已完成 | [M6.9-paper-surface-contrast.md](./M6.9-paper-surface-contrast.md) |
+| M6.10 | 导航跳转动画 | 已完成 | [M6.10-navigation-transitions.md](./M6.10-navigation-transitions.md) |
+| M6.11 | 深色模式切换 | 已完成 | [M6.11-dark-mode.md](./M6.11-dark-mode.md) |
 
 ## 约定
 
@@ -74,3 +91,4 @@
 - 每个任务一个文件，命名为 `<编号>-<英文短名>.md`。已有历史文件名保留，新文件的短名只使用小写英文字母、数字和连字符。
 - 状态取值：`待办` / `进行中` / `已完成` / `已阻塞`。
 - 任务模板见 [template.md](./template.md)。
+`n| BUG-13 | 仓库安全与可靠性审查 | 进行中 | [BUG-13-repository-safety-audit.md](./BUG-13-repository-safety-audit.md) |

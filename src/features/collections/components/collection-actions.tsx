@@ -21,13 +21,17 @@ import {
   withdrawCollectionAction,
   type CollectionActionState,
 } from "@/features/collections/actions";
+import { guardUnsavedFormSubmission } from "@/lib/use-unsaved-form-guard";
 
 const INITIAL_STATE: CollectionActionState = { status: "idle" };
 
 function ActionMessage({ state }: Readonly<{ state: CollectionActionState }>) {
   if (state.status === "idle" || !state.message) return null;
   return (
-    <Alert variant={state.status === "error" ? "danger" : "success"} role="status">
+    <Alert
+      variant={state.status === "error" ? "danger" : "success"}
+      role="status"
+    >
       <AlertDescription>{state.message}</AlertDescription>
     </Alert>
   );
@@ -40,6 +44,7 @@ export function CollectionActions({
   moderationStatus,
   availableItemCount,
   compact = false,
+  showPublish = true,
 }: Readonly<{
   id: string;
   status: "draft" | "published";
@@ -47,6 +52,7 @@ export function CollectionActions({
   moderationStatus: "visible" | "hidden";
   availableItemCount: number;
   compact?: boolean;
+  showPublish?: boolean;
 }>) {
   const [publishState, publishAction, publishPending] = useActionState(
     publishCollectionAction.bind(null, id),
@@ -69,15 +75,20 @@ export function CollectionActions({
       <div className="flex w-full flex-wrap items-center gap-2">
         {status === "draft" ? (
           <>
-            <form action={publishAction}>
-              <Button
-                type="submit"
-                size={buttonSize}
-                loading={publishPending}
+            {showPublish ? (
+              <form
+                action={publishAction}
+                onSubmit={guardUnsavedFormSubmission}
               >
-                {publishPending ? "正在发布…" : compact ? "发布" : "发布特辑"}
-              </Button>
-            </form>
+                <Button
+                  type="submit"
+                  size={buttonSize}
+                  loading={publishPending}
+                >
+                  {publishPending ? "正在发布…" : compact ? "发布" : "发布特辑"}
+                </Button>
+              </form>
+            ) : null}
             {publishedAt === null ? (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -95,7 +106,10 @@ export function CollectionActions({
                   <ActionMessage state={deleteState} />
                   <AlertDialogFooter>
                     <AlertDialogCancel>取消</AlertDialogCancel>
-                    <form action={deleteAction}>
+                    <form
+                      action={deleteAction}
+                      onSubmit={guardUnsavedFormSubmission}
+                    >
                       <Button
                         type="submit"
                         variant="danger"
@@ -117,7 +131,7 @@ export function CollectionActions({
                 <Link href={`/collections/${id}`}>查看特辑</Link>
               </Button>
             ) : null}
-            <form action={withdrawAction}>
+            <form action={withdrawAction} onSubmit={guardUnsavedFormSubmission}>
               <Button
                 type="submit"
                 variant="danger"
@@ -132,7 +146,9 @@ export function CollectionActions({
       </div>
       {status === "draft" && !canPublish ? (
         compact ? (
-          <p className="text-caption text-subtle">先收录至少一篇当前可读的诗作。</p>
+          <p className="text-caption text-subtle">
+            先收录至少一篇当前可读的诗作。
+          </p>
         ) : (
           <Alert variant="warning">
             <AlertDescription>
@@ -148,7 +164,9 @@ export function CollectionActions({
           </AlertDescription>
         </Alert>
       ) : null}
-      <ActionMessage state={status === "draft" ? publishState : withdrawState} />
+      <ActionMessage
+        state={status === "draft" ? publishState : withdrawState}
+      />
     </div>
   );
 }

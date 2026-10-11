@@ -9,12 +9,12 @@ import { buttonVariants } from "@/components/ui/button";
  */
 export default function AdminForbidden() {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center px-6 py-24 text-center">
+    <div className="flex flex-1 flex-col items-center justify-center px-page py-section text-center">
       <p className="text-label font-medium text-danger">403</p>
-      <h1 className="mt-2 text-page-title font-semibold tracking-tight text-foreground">
+      <h1 className="mt-3 font-serif text-page-title font-medium tracking-tight text-foreground">
         无权访问管理后台
       </h1>
-      <p className="mt-2 max-w-reading text-body text-subtle">
+      <p className="mt-3 max-w-reading text-body text-subtle">
         你没有访问管理后台的权限。普通账号无法执行管理操作，被禁用的管理员也会立即失去管理能力。
       </p>
       <Link href="/" className={buttonVariants({ className: "mt-6" })}>

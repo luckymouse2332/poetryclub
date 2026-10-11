@@ -1,8 +1,7 @@
 import { spawnSync } from "node:child_process";
 
-import nextEnv from "@next/env";
-
-nextEnv.loadEnvConfig(process.cwd(), true);
+import { configureTestEnvironment } from "./test-environment.mjs";
+configureTestEnvironment();
 
 const result = spawnSync(
   process.execPath,
@@ -11,6 +10,7 @@ const result = spawnSync(
     "run",
     "--config",
     "vitest.integration.config.mts",
+    ...process.argv.slice(2),
   ],
   {
     cwd: process.cwd(),

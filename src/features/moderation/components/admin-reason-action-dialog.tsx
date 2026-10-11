@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useActionState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import {
   AlertDialog,
@@ -16,9 +17,7 @@ import {
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  type AdminActionState,
-} from "@/features/moderation/actions";
+import { type AdminActionState } from "@/features/moderation/actions";
 import { MODERATION_REASON_MAX_LENGTH } from "@/server/validation/moderation";
 
 export type AdminReasonAction = (
@@ -106,10 +105,7 @@ function AdminReasonDialogContent({
   confirmBusyLabel,
   reasonDescription,
 }: AdminReasonDialogContentProps) {
-  const [state, formAction, isPending] = useActionState(
-    action,
-    INITIAL_STATE,
-  );
+  const [state, formAction, isPending] = useActionState(action, INITIAL_STATE);
 
   // 成功即关闭：服务端已 revalidate 对应列表，卡片状态随后刷新。
   useEffect(() => {
@@ -128,13 +124,9 @@ function AdminReasonDialogContent({
       </AlertDialogHeader>
       <form action={formAction} className="space-y-4">
         {state.status === "error" && state.message ? (
-          <p
-            role="alert"
-            aria-live="polite"
-            className="rounded-md border border-danger bg-danger-surface p-3 text-label text-danger"
-          >
-            {state.message}
-          </p>
+          <Alert variant="danger" role="alert">
+            <AlertDescription>{state.message}</AlertDescription>
+          </Alert>
         ) : null}
         <fieldset disabled={isPending} className="space-y-4">
           <FormField
@@ -157,11 +149,7 @@ function AdminReasonDialogContent({
           </FormField>
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
-            <Button
-              type="submit"
-              variant={confirmVariant}
-              loading={isPending}
-            >
+            <Button type="submit" variant={confirmVariant} loading={isPending}>
               {isPending ? confirmBusyLabel : confirmLabel}
             </Button>
           </AlertDialogFooter>

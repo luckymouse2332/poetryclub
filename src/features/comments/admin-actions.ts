@@ -57,6 +57,7 @@ async function moderateCommentAction(
       message: hidden ? "评论已隐藏。" : "评论已恢复。",
     };
   } catch (error) {
+    if (error instanceof AccessControlError) return { status: "error", message: "你没有执行此管理操作的权限。" };
     if (error instanceof CommentError) {
       return {
         status: "error",

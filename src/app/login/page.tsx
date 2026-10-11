@@ -32,7 +32,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       <AuthForm
         initialMode={initialMode}
         nextPath={nextPath}
-        initialNotice={passwordReset ? "密码已重置，请使用新密码登录。" : undefined}
+        initialNotice={
+          passwordReset ? "密码已重置，请使用新密码登录。" : undefined
+        }
         cleanPasswordResetNotice={passwordReset}
       />
     </AuthSplitShell>

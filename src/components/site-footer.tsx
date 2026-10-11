@@ -18,15 +18,13 @@ export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-border-subtle bg-surface">
-      <div className="mx-auto flex w-full max-w-content flex-col items-center gap-2 px-page py-6 text-center lg:grid lg:grid-cols-3 lg:items-center lg:gap-4 lg:text-left">
+    <footer className="border-t border-border-subtle bg-background">
+      <div className="mx-auto flex w-full max-w-content flex-col items-center gap-2 px-page py-8 text-center lg:grid lg:grid-cols-3 lg:items-center lg:gap-4 lg:text-left">
         <div className="min-w-0 lg:justify-self-start">
           <p className="text-label font-medium tracking-widest text-foreground">
             回中诗社
           </p>
-          <p className="mt-1 text-caption text-subtle">
-            2021—2024级
-          </p>
+          <p className="mt-1 text-caption text-subtle">2021—2024级</p>
         </div>
         <div className="flex min-h-control flex-wrap items-center justify-center gap-x-2 text-caption text-subtle lg:justify-self-center">
           <span>© {year} 回中诗社</span>
@@ -46,7 +44,7 @@ export function SiteFooter() {
             <li key={link.href}>
               <Link
                 href={link.href}
-                className="inline-flex min-h-control items-center rounded-md px-2 text-label text-primary underline hover:text-primary-hover"
+                className="inline-flex min-h-control items-center rounded-md px-2 text-label text-subtle no-underline hover:text-primary"
               >
                 {link.label}
               </Link>

@@ -31,7 +31,7 @@ export function reportEmailDeliveryFailure(
     error instanceof EmailDeliveryError
       ? error
       : new EmailDeliveryError(provider, "unexpected_error");
-  console.error("Password reset email delivery failed", {
+  console.error("Transactional email delivery failed", {
     provider: safeError.provider,
     code: safeError.code,
   });
