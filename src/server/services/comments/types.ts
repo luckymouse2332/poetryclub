@@ -57,4 +57,3 @@ export type AdminCommentPage = Readonly<{
   pageCount: number;
   total: number;
 }>;
-

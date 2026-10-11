@@ -83,4 +83,3 @@ export async function publishNotificationDispatch(
     createdAt: dispatch.createdAt.toISOString(),
   });
 }
-
