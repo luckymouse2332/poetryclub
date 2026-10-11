@@ -145,7 +145,7 @@ SiteFooter 保留品牌、年级、居中版权与 ICP 备案、政策链接。�
 | Label | 半粗无衬线、稳定基线与标记间距。 |
 | Field | 纵向 flex/gap-2、全宽无衬线分组标签与细线、清楚的说明与侧线错误；保留 errors 去重。 |
 | FormField | 统一标签、必填、描述、错误；data-invalid / data-disabled 可检查，关联不变。项目自有，非上游组件。 |
-| Card | 直角纸页，Header / Content / Footer 分区细线、宋体标题、默认无投影；保持家族结构。 |
+| Card | 直角纸页，Header / Content / Footer 分区细线、宋体标题、默认无投影；保持家族结构。`variant="list"` 使用透明底、零边框，并通过 group/data-variant 关闭行内 Header/Footer 分隔，独立默认变体保持原样。 |
 | Surface | 直角上下边界，default / paper / muted 与 none / sm / md / lg 内边距。项目自有，非上游组件。 |
 | Badge | 矩形轻描边印记，六种语义；不默认承担按钮行为。 |
 | Alert | 侧线、图标、标题正文分区，success/warning/danger 不用整块强彩底。正文为普通文本流，行内链接可自然排列；静态提示不创建 live role。 |
@@ -172,6 +172,22 @@ SiteFooter 保留品牌、年级、居中版权与 ICP 备案、政策链接。�
 
 新增上游组件必须使用 pnpm dlx shadcn@latest add，再映射 Token、去掉 dark 变体、保留 data-slot/asChild/cn 约定。无头原语统一 radix-ui。自有组件注释声明“不是上游组件”并登记基线。当前无新增通用原语。
 
+CHORE-4 新增的都是现有原语与版式的组合，不替代上游组件：
+
+| 项目组合（不是上游组件） | 复用边界与状态基线 |
+| --- | --- |
+| PaperList | Surface 纸面、单条行间分隔、统一空状态与横向留白；Card 列表设置 inset=false，由 Card 承担留白。有序目录使用原生 ol/li 与 orderedStart，保留跨页序号。 |
+| CatalogRow | 公开诗作/特辑目录的日期、标题链接、摘要、元数据；支持 h2/h3 标题层级，摘要字体由调用方选择。 |
+| ManagementRow | 个人诗作、特辑及特辑治理的正文/操作分栏；小屏按 DOM 顺序堆叠。 |
+| EditorLayout | 诗作、特辑、公告编辑器正文/设置双栏；xl 起设置栏 sticky，保留调用方表单状态与 key。 |
+| RadioOption | Field、RadioGroupItem、FieldLabel/Description 组合；统一选中侧线与留白，保留 id、值、描述关联和禁用态。 |
+| PoemReading / ReadingContext | 诗歌换行、宋体正文、创作背景和预览留白；纯文本渲染，className 通过 cn 保持覆盖。 |
+| MemberAccessGate | auth feature 内共享 Dialog/AuthForm；诗作与特辑保留各自文案和返回地址，禁止外部点击关闭，初始聚焦邮箱。权限检查仍在服务端。 |
+
+主导航文字链接的通用类位于纯样式模块 `src/lib/navigation-styles.ts`，账户触发器保留自己的状态类。控件使用 min-h-control、18px 图标使用 size-4.5、浮层层级使用 z-floating，动效使用 duration-fast 或对应 CSS 变量。
+
+邮件复用 `server/email/styles.ts` 与结构化 `template.ts`。邮件客户端使用独立内联 CSS 和浅色色板的字面值，单元测试校验与网页浅色 Token 一致；所有标题、正文、验证码与链接属性集中转义，不引入浏览器样式依赖。
+
 ## 11. 可访问性
 
 正文 WCAG 2.2 AA 普通文字至少 4.5:1，大文字至少 3:1。所有可交互元素有可见焦点，视觉与键盘顺序一致。主要目标至少 44px；图标按钮有可访问名称。页面保持语义标题、landmark、表单错误关系与正确 live region。
@@ -185,3 +201,9 @@ SiteFooter 保留品牌、年级、居中版权与 ICP 备案、政策链接。�
 运行 check:conventions、typecheck、lint、test、E2E 与 build。浏览器检查覆盖公开、成员、管理页面及五个验收尺寸，截图保存于 output/playwright/paper-journal。E2E 使用专用测试库及 .next/e2e 构建目录，避免与普通开发服务共用缓存锁。
 
 组件状态展示页 /ui-preview 仅在 POETRYCLUB_E2E=1 时开放；普通开发及生产返回 404，不加入导航。展示、截图与测试覆盖全部基础组件及状态，不包含真实业务写操作。
+
+CHORE-4 样式工具：Prettier + prettier-plugin-tailwindcss 读取 globals.css 的 Tailwind 4 主题，统一 TSX、CSS 与相关模板的格式及 cn/clsx/cva 类顺序；不调整 import 顺序。Stylelint 校验全部 CSS，允许 Tailwind 指令和 CSS Module 命名，模块内禁止直接色值及 palette 变量；色板定义仅允许在 globals.css。模块内响应式及 Radix 状态允许有意覆盖，不启用 no-descending-specificity。
+
+ESLint 的项目设计规则检查 className/style/overlayClassName、cn/clsx/cva 和样式常量，禁止 dark:、硬编码色值、Tailwind 调色板类与 --palette- 直连；允许当前有设计含义的布局、图片 mask 与几何任意值。格式由 Prettier 负责，避免与 Stylelint 重复约束。`pnpm format` 修正格式；`pnpm lint` 顺序执行 JS、CSS、格式检查。CI 使用仓库声明的 pnpm 与 Node 20.9.0 检查格式和样式，无新增运行时依赖。
+
+本任务截图通过 PLAYWRIGHT_ARTIFACT_ROOT 指向 `output/playwright/chore-4`；已有任务截图不覆盖。邮件浏览器预览使用虚构地址和验证码，不发送邮件；浏览器预览不代表所有邮件客户端兼容性验证。

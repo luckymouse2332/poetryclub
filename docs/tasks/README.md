@@ -60,6 +60,7 @@
 | CHORE-1 | 仓库工作流与发布规范 | 已完成 | [CHORE-1-repository-workflow-conventions.md](./CHORE-1-repository-workflow-conventions.md) |
 | CHORE-2 | 已合并分支清理与保留规则 | 已完成 | [CHORE-2-merged-branch-retention-policy.md](./CHORE-2-merged-branch-retention-policy.md) |
 | CHORE-3 | 架构边界与一致性重构 | 已完成 | [CHORE-3-architecture-refactor.md](./CHORE-3-architecture-refactor.md) |
+| CHORE-4 | 设计系统复用与样式精简 | 已完成 | [CHORE-4-design-system-deduplication.md](./CHORE-4-design-system-deduplication.md) |
 | CHORE-style-architecture-consolidation | 样式架构收敛 | 已完成 | [CHORE-style-architecture-consolidation.md](./CHORE-style-architecture-consolidation.md) |
 | BUG-1 | 修复bug | 已完成 | [BUG-1-admin-user-poem-count-fix.md](./BUG-1-admin-user-poem-count-fix.md) |
 | BUG-2 | 生产 Compose 恢复变量插值修复 | 已完成 | [BUG-2-production-compose-recovery-env-interpolation.md](./BUG-2-production-compose-recovery-env-interpolation.md) |
