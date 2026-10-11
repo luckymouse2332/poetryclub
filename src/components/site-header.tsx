@@ -31,7 +31,7 @@ export function SiteHeader({
             href="/#top"
             match="none"
             variant="brand"
-            className="min-w-0 justify-self-center whitespace-nowrap font-serif text-body-lg font-semibold tracking-widest text-foreground no-underline"
+            className="min-w-0 justify-self-center font-serif text-body-lg font-semibold tracking-widest whitespace-nowrap text-foreground no-underline"
           >
             回中诗社
           </SiteNavLink>
@@ -51,7 +51,7 @@ export function SiteHeader({
           className="inline-flex min-h-control min-w-0 items-center gap-3 text-foreground no-underline"
         >
           <span className="flex flex-col">
-            <span className="font-serif text-section-title font-semibold leading-heading tracking-widest">
+            <span className="font-serif text-section-title leading-heading font-semibold tracking-widest">
               回中诗社
             </span>
             <span className="mt-1 text-caption font-normal text-subtle">
@@ -61,34 +61,24 @@ export function SiteHeader({
         </SiteNavLink>
         <ul className="flex w-auto flex-wrap items-center justify-end gap-x-2">
           <li>
-            <SiteNavLink
-              href="/poems"
-              match="prefix"
-              className="inline-flex min-h-control items-center justify-center whitespace-nowrap px-4 font-serif text-body text-subtle no-underline transition-colors hover:text-seal"
-            >
+            <SiteNavLink href="/poems" match="prefix">
               诗作
             </SiteNavLink>
           </li>
           <li>
-            <SiteNavLink
-              href="/collections"
-              match="prefix"
-              className="inline-flex min-h-control items-center justify-center whitespace-nowrap px-4 font-serif text-body text-subtle no-underline transition-colors hover:text-seal"
-            >
+            <SiteNavLink href="/collections" match="prefix">
               特辑
             </SiteNavLink>
           </li>
           <li>
-            <SiteNavLink
-              href="/about"
-              match="exact"
-              className="inline-flex min-h-control items-center justify-center whitespace-nowrap px-4 font-serif text-body text-subtle no-underline transition-colors hover:text-seal"
-            >
+            <SiteNavLink href="/about" match="exact">
               关于
             </SiteNavLink>
           </li>
           {desktopNavigation}
-          <li><ThemeToggle /></li>
+          <li>
+            <ThemeToggle />
+          </li>
         </ul>
       </nav>
     </header>

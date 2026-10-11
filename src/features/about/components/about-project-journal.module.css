@@ -239,8 +239,8 @@
   text-decoration-color: var(--border-strong);
   text-underline-offset: 0.35em;
   transition:
-    color 160ms ease,
-    text-decoration-color 160ms ease;
+    color var(--motion-duration-fast) ease,
+    text-decoration-color var(--motion-duration-fast) ease;
 }
 
 .sourceLink:hover,

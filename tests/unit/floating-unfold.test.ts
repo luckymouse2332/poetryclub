@@ -8,7 +8,7 @@ const floatingUnfoldCss = readFileSync(
 );
 
 test("浮层展开动画的裁剪区域始终为阴影预留空间", () => {
-  expect(floatingUnfoldCss.match(/animation: dropdown-unfold-.* both;/g)).toHaveLength(
+  expect(floatingUnfoldCss.match(/animation:\s*dropdown-unfold-[^;]*\s+both;/g)).toHaveLength(
     2,
   );
   expect(floatingUnfoldCss.match(/clip-path: inset\(-4rem\);/g)).toHaveLength(2);

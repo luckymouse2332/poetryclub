@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
-import { Surface } from "@/components/ui/surface";
+import { PaperList } from "@/components/paper-list";
 import {
   Empty,
   EmptyDescription,
@@ -80,28 +80,26 @@ export default async function AdminUsersPage({
           ]}
         />
       </div>
-      <Section className="pb-0 pt-8">
-        <Surface variant="paper" padding="none" data-slot="directory-surface">
-          {result.items.length > 0 ? (
-            <div className="divide-y divide-border-subtle">
-              {result.items.map((user) => (
-                <div
-                  key={user.id}
-                  className="[&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none"
-                >
-                  <AdminUserCard user={user} isSelf={user.id === currentAdmin.id} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <Empty className="border-0 px-4 sm:px-6 lg:px-8">
+      <Section className="pt-8 pb-0">
+        <PaperList
+          inset={false}
+          empty={
+            <Empty>
               <EmptyHeader>
                 <EmptyTitle>没有符合条件的用户</EmptyTitle>
                 <EmptyDescription>调整筛选条件后重新查找。</EmptyDescription>
               </EmptyHeader>
             </Empty>
-          )}
-        </Surface>
+          }
+        >
+          {result.items.map((user) => (
+            <AdminUserCard
+              key={user.id}
+              user={user}
+              isSelf={user.id === currentAdmin.id}
+            />
+          ))}
+        </PaperList>
       </Section>
       <AdminPagination
         basePath="/admin/users"

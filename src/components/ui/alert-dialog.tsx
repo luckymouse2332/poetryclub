@@ -2,7 +2,6 @@
 
 /** M6.7 paper journal: shape, spacing, typography and state styling redesigned; upstream structure and public API preserved. */
 
-
 import * as React from "react";
 import { AlertDialog as AlertDialogPrimitive } from "radix-ui";
 
@@ -21,7 +20,7 @@ import { Button } from "@/components/ui/button";
  * 2. Action / Cancel 默认变体改用项目 Button 的变体名：Action 默认 `primary`、
  *    Cancel 默认 `ghost`（上游为 `default` / `outline`，本项目不存在这两个变体）。
  * 3. 移除 `animate-in` / `animate-out` 系列动画类：项目未引入 `tw-animate-css`
- *    依赖（AGENTS 禁止新增依赖），保留这些类只会成为死代码；Radix 的
+ *    运行时依赖，保留这些类只会成为死代码；Radix 的
  *    `data-[state=*]` 状态属性与焦点管理保持不变。
  * 4. 字号映射到项目字号 Token；项目字号已注册进 `src/lib/utils.ts` 的
  *    tailwind-merge 配置，可与语义文字颜色类安全共存。
@@ -55,7 +54,7 @@ function AlertDialogOverlay({
   return (
     <AlertDialogPrimitive.Overlay
       data-slot="alert-dialog-overlay"
-      className={cn("fixed inset-0 z-50 bg-overlay/50", className)}
+      className={cn("fixed inset-0 z-floating bg-overlay/50", className)}
       {...props}
     />
   );
@@ -75,7 +74,7 @@ function AlertDialogContent({
         data-slot="alert-dialog-content"
         data-size={size}
         className={cn(
-          "group/alert-dialog-content fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] max-h-[calc(100dvh-2rem)] overflow-y-auto gap-6 rounded-floating border border-border-strong bg-paper p-6 sm:p-8 text-foreground shadow-floating data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-lg",
+          "group/alert-dialog-content fixed top-[50%] left-[50%] z-floating grid max-h-[calc(100dvh-2rem)] w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-6 overflow-y-auto rounded-floating border border-border-strong bg-paper p-6 text-foreground shadow-floating data-[size=sm]:max-w-xs sm:p-8 data-[size=default]:sm:max-w-lg",
           className,
         )}
         {...props}

@@ -1,3 +1,4 @@
+import { artifactPath } from "./helpers/artifacts";
 import { expect, test, type Page } from "@playwright/test";
 
 import {
@@ -236,8 +237,8 @@ test("home index links only visible published poems for anonymous readers", asyn
       expect((await indexLink.boundingBox())!.height).toBeGreaterThanOrEqual(44);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       if ([390, 1440].includes(width)) {
-        await page.screenshot({ animations: "disabled", fullPage: true, path: `output/playwright/paper-journal/${width}-retained-paper-edge.png` });
-        await poemRow.screenshot({ animations: "disabled", path: `output/playwright/paper-journal/${width}-retained-ellipsis.png` });
+        await page.screenshot({ animations: "disabled", fullPage: true, path: artifactPath(`paper-journal/${width}-retained-paper-edge.png`) });
+        await poemRow.screenshot({ animations: "disabled", path: artifactPath(`paper-journal/${width}-retained-ellipsis.png`) });
       }
     }
 

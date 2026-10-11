@@ -35,8 +35,8 @@ export function AdminUserCard({ user, isSelf = false }: AdminUserCardProps) {
   const isAdmin = user.role === "admin";
 
   return (
-    <Card className="gap-4">
-      <CardHeader className="border-b-0 pb-0">
+    <Card variant="list">
+      <CardHeader>
         <CardTitle>
           <h2 className="font-sans text-body-lg font-semibold text-foreground">
             {user.name}
@@ -56,7 +56,7 @@ export function AdminUserCard({ user, isSelf = false }: AdminUserCardProps) {
         <dl className="space-y-1 text-label">
           <div className="flex flex-wrap items-baseline gap-x-2">
             <dt className="text-subtle">邮箱</dt>
-            <dd className="min-w-0 break-all font-medium text-foreground">
+            <dd className="min-w-0 font-medium break-all text-foreground">
               {user.email}
             </dd>
           </div>
@@ -74,13 +74,13 @@ export function AdminUserCard({ user, isSelf = false }: AdminUserCardProps) {
           </div>
         </dl>
         {user.suspensionReason ? (
-          <p className="mt-3 whitespace-pre-wrap break-words border-l-2 border-danger bg-transparent px-4 py-2 text-label text-danger">
+          <p className="mt-3 border-l-2 border-danger bg-transparent px-4 py-2 text-label break-words whitespace-pre-wrap text-danger">
             禁用原因：{user.suspensionReason}
           </p>
         ) : null}
       </CardContent>
       {!isSelf ? (
-        <CardFooter className="flex flex-wrap items-center gap-2 border-t-0 pt-0">
+        <CardFooter>
           {suspended ? (
             <AdminReasonActionDialog
               action={restoreUserAction.bind(null, user.id)}

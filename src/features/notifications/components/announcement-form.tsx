@@ -1,22 +1,20 @@
 "use client";
 
+import { EditorLayout } from "@/components/layout/editor-layout";
+import { RadioOption } from "@/components/radio-option";
 import { useActionState, useEffect } from "react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
-  Field,
-  FieldContent,
   FieldDescription,
   FieldError,
-  FieldLabel,
   FieldLegend,
   FieldSet,
-  FieldTitle,
 } from "@/components/ui/field";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { RadioGroup } from "@/components/ui/radio-group";
 import { Surface } from "@/components/ui/surface";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -90,7 +88,13 @@ export function AnnouncementForm({
   }, [markClean, state.status]);
 
   return (
-    <form action={formAction} onInput={markDirty} onChange={markDirty} data-unsaved-editor={dirty ? "true" : undefined} className="space-y-6">
+    <form
+      action={formAction}
+      onInput={markDirty}
+      onChange={markDirty}
+      data-unsaved-editor={dirty ? "true" : undefined}
+      className="space-y-6"
+    >
       {state.message ? (
         <Alert
           variant={state.status === "error" ? "danger" : "success"}
@@ -101,11 +105,90 @@ export function AnnouncementForm({
       ) : null}
       {dirty ? (
         <Alert variant="warning" role="status">
-          <AlertDescription>有未保存的修改。离开页面前请先保存草稿。</AlertDescription>
+          <AlertDescription>
+            有未保存的修改。离开页面前请先保存草稿。
+          </AlertDescription>
         </Alert>
       ) : null}
 
-      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(17rem,0.8fr)]">
+      <EditorLayout
+        settings={
+          <>
+            <Surface variant="paper" className="space-y-6">
+              <FormField
+                id="href"
+                label="站内链接"
+                description="可选，只允许以 / 开头的站内相对路径，例如 /about。"
+                disabled={pending}
+                error={state.fieldErrors?.href}
+              >
+                {(props) => (
+                  <Input
+                    {...props}
+                    name="href"
+                    placeholder="/about"
+                    defaultValue={initialValues?.href}
+                  />
+                )}
+              </FormField>
+
+              <FieldSet data-invalid={Boolean(state.fieldErrors?.audience)}>
+                <FieldLegend variant="label">
+                  发布受众 <span className="text-danger">*</span>
+                </FieldLegend>
+                <FieldDescription id="announcement-audience-description">
+                  受众在发布时生成快照，之后新注册或状态变化的账号不会补收该公告。
+                </FieldDescription>
+                <RadioGroup
+                  name="audience"
+                  defaultValue={initialValues?.audience ?? "active_accounts"}
+                  disabled={pending}
+                  aria-describedby="announcement-audience-description"
+                  aria-invalid={Boolean(state.fieldErrors?.audience)}
+                >
+                  {AUDIENCES.map((item) => (
+                    <RadioOption
+                      id={`announcement-audience-${item.value}`}
+                      value={item.value}
+                      aria-label={item.title}
+                      key={item.value}
+                      title={<>{item.title}</>}
+                      description={<>{item.description}</>}
+                    />
+                  ))}
+                </RadioGroup>
+                {state.fieldErrors?.audience ? (
+                  <FieldError>{state.fieldErrors.audience}</FieldError>
+                ) : null}
+              </FieldSet>
+            </Surface>
+
+            <div className="space-y-2">
+              <Button
+                type="submit"
+                name="intent"
+                value="save"
+                className="w-full"
+                loading={pending}
+              >
+                {pending ? "正在处理…" : submitLabel}
+              </Button>
+              {canPublish ? (
+                <Button
+                  type="submit"
+                  name="intent"
+                  value="publish"
+                  variant="danger"
+                  className="w-full"
+                  disabled={pending}
+                >
+                  保存并发布公告
+                </Button>
+              ) : null}
+            </div>
+          </>
+        }
+      >
         <Surface variant="paper" className="space-y-6">
           <FormField
             id="title"
@@ -144,78 +227,7 @@ export function AnnouncementForm({
             )}
           </FormField>
         </Surface>
-
-        <div className="space-y-4 xl:sticky xl:top-8">
-          <Surface variant="paper" className="space-y-6">
-            <FormField
-              id="href"
-              label="站内链接"
-              description="可选，只允许以 / 开头的站内相对路径，例如 /about。"
-              disabled={pending}
-              error={state.fieldErrors?.href}
-            >
-              {(props) => (
-                <Input
-                  {...props}
-                  name="href"
-                  placeholder="/about"
-                  defaultValue={initialValues?.href}
-                />
-              )}
-            </FormField>
-
-            <FieldSet data-invalid={Boolean(state.fieldErrors?.audience)}>
-              <FieldLegend variant="label">
-                发布受众 <span className="text-danger">*</span>
-              </FieldLegend>
-              <FieldDescription id="announcement-audience-description">
-                受众在发布时生成快照，之后新注册或状态变化的账号不会补收该公告。
-              </FieldDescription>
-              <RadioGroup
-                name="audience"
-                defaultValue={initialValues?.audience ?? "active_accounts"}
-                disabled={pending}
-                aria-describedby="announcement-audience-description"
-                aria-invalid={Boolean(state.fieldErrors?.audience)}
-              >
-                {AUDIENCES.map((item) => (
-                  <Field
-                    key={item.value}
-                    orientation="horizontal"
-                    className="items-start border-l-2 border-l-transparent px-3 py-4 transition-colors has-[[data-state=checked]]:border-l-primary has-[[data-state=checked]]:bg-accent [&>[data-slot=radio-group-item]]:mt-1"
-                  >
-                    <RadioGroupItem
-                      id={`announcement-audience-${item.value}`}
-                      value={item.value}
-                      aria-label={item.title}
-                    />
-                    <FieldContent>
-                      <FieldLabel htmlFor={`announcement-audience-${item.value}`}>
-                        <FieldTitle>{item.title}</FieldTitle>
-                        <FieldDescription>{item.description}</FieldDescription>
-                      </FieldLabel>
-                    </FieldContent>
-                  </Field>
-                ))}
-              </RadioGroup>
-              {state.fieldErrors?.audience ? (
-                <FieldError>{state.fieldErrors.audience}</FieldError>
-              ) : null}
-            </FieldSet>
-          </Surface>
-
-          <div className="space-y-2">
-            <Button type="submit" name="intent" value="save" className="w-full" loading={pending}>
-              {pending ? "正在处理…" : submitLabel}
-            </Button>
-            {canPublish ? (
-              <Button type="submit" name="intent" value="publish" variant="danger" className="w-full" disabled={pending}>
-                保存并发布公告
-              </Button>
-            ) : null}
-          </div>
-        </div>
-      </div>
+      </EditorLayout>
     </form>
   );
 }

@@ -37,14 +37,22 @@ export function WorkspaceNavigation({
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative flex min-h-11 items-center border-l-2 border-transparent px-4 font-serif text-body text-subtle no-underline transition-colors hover:bg-paper hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
+                  "relative flex min-h-control items-center border-l-2 border-transparent px-4 font-serif text-body text-subtle no-underline transition-colors hover:bg-paper hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-inset",
                   active && "bg-paper text-foreground",
                 )}
               >
                 {item.label}
                 {active ? (
-                  <ViewTransition name="workspace-navigation-indicator" share="navigation-marker" default="none">
-                    <span aria-hidden="true" data-slot="workspace-navigation-indicator" className="absolute -left-0.5 inset-y-0 w-0.5 bg-seal" />
+                  <ViewTransition
+                    name="workspace-navigation-indicator"
+                    share="navigation-marker"
+                    default="none"
+                  >
+                    <span
+                      aria-hidden="true"
+                      data-slot="workspace-navigation-indicator"
+                      className="absolute inset-y-0 -left-0.5 w-0.5 bg-seal"
+                    />
                   </ViewTransition>
                 ) : null}
               </Link>

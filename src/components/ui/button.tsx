@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
  * 同时保留本项目的 `loading` 语义：aria-busy + 禁止重复提交。
  */
 const buttonVariants = cva(
-  "inline-flex cursor-pointer select-none items-center justify-center gap-2.5 whitespace-nowrap rounded-md border border-transparent font-medium tracking-wide transition-[color,background-color,border-color,transform] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring active:translate-y-px motion-reduce:transform-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-disabled disabled:text-disabled-foreground disabled:shadow-none [&_svg]:pointer-events-none [&_svg]:size-[18px] [&_svg]:shrink-0",
+  "inline-flex cursor-pointer items-center justify-center gap-2.5 rounded-md border border-transparent font-medium tracking-wide whitespace-nowrap transition-[color,background-color,border-color,transform] select-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring active:translate-y-px disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-disabled disabled:text-disabled-foreground disabled:shadow-none motion-reduce:transform-none [&_svg]:pointer-events-none [&_svg]:size-4.5 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -22,7 +22,7 @@ const buttonVariants = cva(
         secondary:
           "border-input bg-transparent text-foreground hover:border-primary hover:bg-accent active:bg-secondary-hover",
         ghost:
-          "bg-transparent text-foreground underline decoration-transparent underline-offset-4 hover:decoration-current hover:text-primary active:text-primary-active",
+          "bg-transparent text-foreground underline decoration-transparent underline-offset-4 hover:text-primary hover:decoration-current active:text-primary-active",
         danger:
           "border-danger bg-danger text-danger-foreground hover:bg-danger-hover active:bg-danger-hover",
       },

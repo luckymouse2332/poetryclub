@@ -76,7 +76,9 @@ export function MobileGlobalNavigation({
       'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
     );
     if (!focusable?.length) return;
-    const boundary = event.shiftKey ? focusable[0] : focusable[focusable.length - 1];
+    const boundary = event.shiftKey
+      ? focusable[0]
+      : focusable[focusable.length - 1];
     if (document.activeElement === boundary) {
       event.preventDefault();
       triggerRef.current?.focus();
@@ -102,7 +104,7 @@ export function MobileGlobalNavigation({
               focusNavigationBoundary(event.shiftKey);
             }
           }}
-          className="pointer-events-auto flex size-12 items-center justify-center text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          className="pointer-events-auto flex size-12 items-center justify-center text-foreground transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none"
         >
           {open ? (
             <X
@@ -161,7 +163,7 @@ export function MobileGlobalNavigation({
                         href={item.href}
                         aria-current={active ? "page" : undefined}
                         className={cn(
-                          "flex min-h-20 items-center justify-between py-4 text-[1.35rem] tracking-[0.08em] text-foreground no-underline transition-colors hover:text-primary focus-visible:outline-none focus-visible:text-primary",
+                          "flex min-h-20 items-center justify-between py-4 text-[1.35rem] tracking-[0.08em] text-foreground no-underline transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none",
                           active && "text-primary",
                         )}
                       >
@@ -177,7 +179,7 @@ export function MobileGlobalNavigation({
                     open={adminNavigationOpen}
                     onOpenChange={setAdminNavigationOpen}
                   >
-                    <CollapsiblePrimitive.Trigger className="group flex min-h-20 w-full items-center justify-between py-4 text-[1.35rem] tracking-[0.08em] text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:text-primary">
+                    <CollapsiblePrimitive.Trigger className="group flex min-h-20 w-full items-center justify-between py-4 text-[1.35rem] tracking-[0.08em] text-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none">
                       <span>管理后台</span>
                       <ChevronDown
                         aria-hidden="true"
@@ -203,7 +205,7 @@ export function MobileGlobalNavigation({
                                   aria-label={`管理：${item.label}`}
                                   aria-current={active ? "page" : undefined}
                                   className={cn(
-                                    "relative flex min-h-11 items-center px-3 text-label font-medium text-subtle no-underline transition-colors hover:text-foreground focus-visible:outline-none focus-visible:text-primary",
+                                    "relative flex min-h-control items-center px-3 text-label font-medium text-subtle no-underline transition-colors hover:text-foreground focus-visible:text-primary focus-visible:outline-none",
                                     active &&
                                       "text-primary before:absolute before:top-1/2 before:-left-[0.8125rem] before:h-6 before:w-px before:-translate-y-1/2 before:bg-primary",
                                   )}

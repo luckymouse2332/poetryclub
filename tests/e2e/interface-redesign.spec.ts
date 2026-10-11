@@ -1,3 +1,4 @@
+import { artifactPath } from "./helpers/artifacts";
 import { expect, test, type Page } from "@playwright/test";
 
 import { E2E_ADMIN_EMAIL, E2E_ADMIN_PASSWORD } from "./global-setup";
@@ -47,7 +48,7 @@ test.describe.serial("paper poetry journal layout", () => {
       }
       if ([390, 1440].includes(width)) {
         const name = path.includes("sign-up") ? "register" : path.slice(1);
-        await page.screenshot({ animations: "disabled", caret: "initial", fullPage: true, path: `output/playwright/paper-journal/${width}-split-${name}.png` });
+        await page.screenshot({ animations: "disabled", caret: "initial", fullPage: true, path: artifactPath(`paper-journal/${width}-split-${name}.png`) });
       }
     }
     if (["/admin/poems", "/admin/users", "/admin/invitations", "/admin/comments", "/admin/audit", "/admin/announcements"].includes(path)) {
@@ -59,12 +60,12 @@ test.describe.serial("paper poetry journal layout", () => {
         if (await footer.count()) await expect(footer).toHaveCSS("border-top-width", "0px");
       }
       if ([390, 1440].includes(width) && await rows.count()) {
-        await rows.first().screenshot({ animations: "disabled", caret: "initial", path: `output/playwright/paper-journal/${width}-${path.slice(1).replaceAll("/", "-")}-row.png` });
+        await rows.first().screenshot({ animations: "disabled", caret: "initial", path: artifactPath(`paper-journal/${width}-${path.slice(1).replaceAll("/", "-")}-row.png`) });
       }
     }
     if ([390, 1440].includes(width) && (["/", "/login", "/poems", "/collections", "/about", "/notifications", "/account/poems/new", "/admin", "/admin/users"].includes(path) || path.startsWith("/poems/"))) {
       const name = path === "/" ? "home" : path.startsWith("/poems/") ? "poem-reading" : path.slice(1).replaceAll("/", "-");
-      await page.screenshot({ animations: "disabled", caret: "initial", path: `output/playwright/paper-journal/${width}-${name}.png`, fullPage: true });
+      await page.screenshot({ animations: "disabled", caret: "initial", path: artifactPath(`paper-journal/${width}-${name}.png`), fullPage: true });
     }
   }
 
@@ -96,8 +97,8 @@ test.describe.serial("paper poetry journal layout", () => {
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
       if ([390, 1440].includes(width)) {
         await section.scrollIntoViewIfNeeded();
-        await page.screenshot({ animations: "disabled", caret: "initial", path: `output/playwright/paper-journal/${width}-comments-gutters.png` });
-        await thread.screenshot({ animations: "disabled", caret: "initial", path: `output/playwright/paper-journal/${width}-comment-thread.png` });
+        await page.screenshot({ animations: "disabled", caret: "initial", path: artifactPath(`paper-journal/${width}-comments-gutters.png`) });
+        await thread.screenshot({ animations: "disabled", caret: "initial", path: artifactPath(`paper-journal/${width}-comment-thread.png`) });
       }
       const focusId = (await reply.getAttribute("id"))!.slice("comment-".length);
       await page.goto(`/poems/${fixture.visible.id}/comments/${comments.replyRootId}?focus=${focusId}`);

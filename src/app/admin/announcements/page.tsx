@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
-import { Surface } from "@/components/ui/surface";
+import { PaperList } from "@/components/paper-list";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -50,35 +50,37 @@ export default async function AnnouncementsPage({
         <Button asChild variant={!parsed.data.status ? "primary" : "secondary"}>
           <Link href="/admin/announcements">全部</Link>
         </Button>
-        <Button asChild variant={parsed.data.status === "draft" ? "primary" : "secondary"}>
+        <Button
+          asChild
+          variant={parsed.data.status === "draft" ? "primary" : "secondary"}
+        >
           <Link href="/admin/announcements?status=draft">草稿</Link>
         </Button>
-        <Button asChild variant={parsed.data.status === "published" ? "primary" : "secondary"}>
+        <Button
+          asChild
+          variant={parsed.data.status === "published" ? "primary" : "secondary"}
+        >
           <Link href="/admin/announcements?status=published">已发布</Link>
         </Button>
       </nav>
-      <Section className="pb-0 pt-8">
-        <Surface variant="paper" padding="none" data-slot="directory-surface">
-          {result.items.length > 0 ? (
-            <div className="divide-y divide-border-subtle">
-              {result.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="[&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none"
-                >
-                  <AnnouncementCard announcement={item} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <Empty className="border-0 px-4 sm:px-6 lg:px-8">
+      <Section className="pt-8 pb-0">
+        <PaperList
+          inset={false}
+          empty={
+            <Empty>
               <EmptyHeader>
                 <EmptyTitle>还没有公告</EmptyTitle>
-                <EmptyDescription>创建第一份草稿后，会显示在这里。</EmptyDescription>
+                <EmptyDescription>
+                  创建第一份草稿后，会显示在这里。
+                </EmptyDescription>
               </EmptyHeader>
             </Empty>
-          )}
-        </Surface>
+          }
+        >
+          {result.items.map((item) => (
+            <AnnouncementCard key={item.id} announcement={item} />
+          ))}
+        </PaperList>
       </Section>
       <AdminPagination
         basePath="/admin/announcements"

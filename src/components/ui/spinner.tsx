@@ -16,7 +16,10 @@ function Spinner({ className, ...props }: React.ComponentProps<"svg">) {
       strokeWidth={1.5}
       role="status"
       aria-label="加载中"
-      className={cn("size-[18px] animate-spin text-current motion-reduce:animate-none", className)}
+      className={cn(
+        "size-4.5 animate-spin text-current motion-reduce:animate-none",
+        className,
+      )}
       {...props}
     />
   );

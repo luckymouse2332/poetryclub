@@ -1,3 +1,4 @@
+import { PoemReading, ReadingContext } from "@/components/poem-reading";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -9,10 +10,7 @@ import { AccountSectionNavigation } from "@/features/auth/components/account-sec
 import { updatePoemAction } from "@/features/posts/actions";
 import { PoemActions } from "@/features/posts/components/poem-actions";
 import { PoemForm } from "@/features/posts/components/poem-form";
-import {
-  formatPoemDate,
-  toDateInputValue,
-} from "@/features/posts/formatters";
+import { formatPoemDate, toDateInputValue } from "@/features/posts/formatters";
 import { requireCurrentUser } from "@/server/auth/session";
 import { getAuthoritativeUser } from "@/server/policies/access";
 import { getOwnPoem } from "@/server/services/poems";
@@ -55,9 +53,9 @@ export default async function EditPoemPage({
         ? "修改已保存。"
         : query.published === "1"
           ? "作品已发布，但管理员隐藏仍然有效，暂不会公开。"
-        : query.withdrawn === "1"
-          ? "作品已撤回，回到草稿状态，仅自己可见。"
-          : null;
+          : query.withdrawn === "1"
+            ? "作品已撤回，回到草稿状态，仅自己可见。"
+            : null;
 
   const isPublished = poem.status === "published";
   const hidden = poem.moderationStatus === "hidden";
@@ -111,13 +109,13 @@ export default async function EditPoemPage({
       {hidden && poem.moderationReason ? (
         <Alert variant="danger" className="mt-6 p-4">
           <AlertDescription>
-          这首诗已被管理员隐藏，不会出现在首页、列表与详情中。
-          <span className="mt-1 block">原因：{poem.moderationReason}</span>
-          {poem.moderatedAt ? (
-            <span className="mt-1 block">
-              处理时间：{formatPoemDate(poem.moderatedAt)}
-            </span>
-          ) : null}
+            这首诗已被管理员隐藏，不会出现在首页、列表与详情中。
+            <span className="mt-1 block">原因：{poem.moderationReason}</span>
+            {poem.moderatedAt ? (
+              <span className="mt-1 block">
+                处理时间：{formatPoemDate(poem.moderatedAt)}
+              </span>
+            ) : null}
           </AlertDescription>
         </Alert>
       ) : null}
@@ -125,10 +123,10 @@ export default async function EditPoemPage({
       {suspended ? (
         <Alert variant="danger" className="mt-6 p-4">
           <AlertDescription>
-          你的账号已被禁用，当前只能查看内容，不能保存修改或调整状态。
-          {currentUser?.suspensionReason
-            ? `原因：${currentUser.suspensionReason}`
-            : null}
+            你的账号已被禁用，当前只能查看内容，不能保存修改或调整状态。
+            {currentUser?.suspensionReason
+              ? `原因：${currentUser.suspensionReason}`
+              : null}
           </AlertDescription>
         </Alert>
       ) : null}
@@ -145,19 +143,12 @@ export default async function EditPoemPage({
             <h2 className="font-serif text-section-title font-medium text-foreground">
               正文
             </h2>
-            <article className="mt-3 whitespace-pre-wrap border-y border-border-subtle bg-paper px-4 py-6 font-serif text-body text-foreground sm:px-6 lg:px-8">
+            <PoemReading className="mt-3 border-border-subtle py-6 text-body sm:py-6">
               {poem.body}
-            </article>
+            </PoemReading>
           </div>
           {poem.context ? (
-            <div>
-              <h2 className="font-serif text-section-title font-medium text-foreground">
-                创作背景
-              </h2>
-              <p className="mt-3 whitespace-pre-wrap text-body text-subtle">
-                {poem.context}
-              </p>
-            </div>
+            <ReadingContext>{poem.context}</ReadingContext>
           ) : null}
         </div>
       ) : (

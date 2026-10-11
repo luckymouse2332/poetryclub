@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
-import { Surface } from "@/components/ui/surface";
+import { PaperList } from "@/components/paper-list";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -88,16 +88,10 @@ export default async function AccountPoemsPage({
         </Alert>
       ) : null}
 
-      <Section className="pb-0 pt-8">
-        <Surface variant="paper" padding="none" data-slot="directory-surface" className="px-4 sm:px-6 lg:px-8">
-          {result.items.length > 0 ? (
-            <div className="divide-y divide-border-subtle">
-              {result.items.map((poem) => (
-                <OwnPoemCard key={poem.id} poem={poem} suspended={suspended} />
-              ))}
-            </div>
-          ) : (
-            <Empty className="border-0">
+      <Section className="pt-8 pb-0">
+        <PaperList
+          empty={
+            <Empty>
               <EmptyHeader>
                 <EmptyTitle>{suspended ? "暂无诗作" : "还没有诗作"}</EmptyTitle>
                 <EmptyDescription>
@@ -114,8 +108,12 @@ export default async function AccountPoemsPage({
                 </EmptyContent>
               ) : null}
             </Empty>
-          )}
-        </Surface>
+          }
+        >
+          {result.items.map((poem) => (
+            <OwnPoemCard key={poem.id} poem={poem} suspended={suspended} />
+          ))}
+        </PaperList>
       </Section>
       <Pagination
         basePath="/account/poems"

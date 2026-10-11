@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
-import { Surface } from "@/components/ui/surface";
+import { PaperList } from "@/components/paper-list";
 import {
   Empty,
   EmptyDescription,
@@ -43,15 +43,9 @@ export default async function CollectionsPage({
         }
       />
       <Section className="py-0">
-        <Surface variant="paper" padding="none" data-slot="directory-surface" className="px-4 sm:px-6 lg:px-8">
-          {result.items.length > 0 ? (
-            <div className="divide-y divide-border-subtle">
-              {result.items.map((collection) => (
-                <CollectionCard key={collection.id} collection={collection} />
-              ))}
-            </div>
-          ) : (
-            <Empty className="border-0">
+        <PaperList
+          empty={
+            <Empty>
               <EmptyHeader>
                 <EmptyTitle>还没有特辑</EmptyTitle>
                 <EmptyDescription>
@@ -59,8 +53,12 @@ export default async function CollectionsPage({
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>
-          )}
-        </Surface>
+          }
+        >
+          {result.items.map((collection) => (
+            <CollectionCard key={collection.id} collection={collection} />
+          ))}
+        </PaperList>
       </Section>
       <Pagination
         basePath="/collections"

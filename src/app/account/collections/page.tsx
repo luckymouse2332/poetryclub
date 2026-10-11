@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
-import { Surface } from "@/components/ui/surface";
+import { PaperList } from "@/components/paper-list";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -51,14 +51,18 @@ export default async function AccountCollectionsPage({
         }
         actions={
           !suspended ? (
-            <Button asChild><Link href="/account/collections/new">新建特辑</Link></Button>
+            <Button asChild>
+              <Link href="/account/collections/new">新建特辑</Link>
+            </Button>
           ) : undefined
         }
       />
       <AccountSectionNavigation />
       {suspended ? (
         <Alert variant="danger" className="mt-6">
-          <AlertDescription>你的账号已被禁用，特辑写操作已关闭。</AlertDescription>
+          <AlertDescription>
+            你的账号已被禁用，特辑写操作已关闭。
+          </AlertDescription>
         </Alert>
       ) : null}
       {query.deleted === "1" ? (
@@ -66,20 +70,10 @@ export default async function AccountCollectionsPage({
           <AlertDescription>特辑草稿已删除。</AlertDescription>
         </Alert>
       ) : null}
-      <Section className="pb-0 pt-8">
-        <Surface variant="paper" padding="none" data-slot="directory-surface" className="px-4 sm:px-6 lg:px-8">
-          {result.items.length ? (
-            <div className="divide-y divide-border-subtle">
-              {result.items.map((collection) => (
-                <OwnCollectionCard
-                  key={collection.id}
-                  collection={collection}
-                  suspended={suspended}
-                />
-              ))}
-            </div>
-          ) : (
-            <Empty className="border-0">
+      <Section className="pt-8 pb-0">
+        <PaperList
+          empty={
+            <Empty>
               <EmptyHeader>
                 <EmptyTitle>还没有特辑</EmptyTitle>
                 <EmptyDescription>
@@ -88,14 +82,28 @@ export default async function AccountCollectionsPage({
               </EmptyHeader>
               {!suspended ? (
                 <EmptyContent>
-                  <Button asChild><Link href="/account/collections/new">新建特辑</Link></Button>
+                  <Button asChild>
+                    <Link href="/account/collections/new">新建特辑</Link>
+                  </Button>
                 </EmptyContent>
               ) : null}
             </Empty>
-          )}
-        </Surface>
+          }
+        >
+          {result.items.map((collection) => (
+            <OwnCollectionCard
+              key={collection.id}
+              collection={collection}
+              suspended={suspended}
+            />
+          ))}
+        </PaperList>
       </Section>
-      <Pagination basePath="/account/collections" page={result.page} pageCount={result.pageCount} />
+      <Pagination
+        basePath="/account/collections"
+        page={result.page}
+        pageCount={result.pageCount}
+      />
     </PageContainer>
   );
 }

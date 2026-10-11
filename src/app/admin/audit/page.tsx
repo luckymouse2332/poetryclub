@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Section } from "@/components/layout/section";
-import { Surface } from "@/components/ui/surface";
+import { PaperList } from "@/components/paper-list";
 import {
   Empty,
   EmptyDescription,
@@ -48,20 +48,10 @@ export default async function AdminAuditPage({
         description="所有管理操作的只读记录，按时间倒序排列。日志不可编辑或删除。"
       />
       <Section className="py-0">
-        <Surface variant="paper" padding="none" data-slot="directory-surface">
-          {result.items.length > 0 ? (
-            <div className="divide-y divide-border-subtle">
-              {result.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="[&>[data-slot=card]]:rounded-none [&>[data-slot=card]]:border-0 [&>[data-slot=card]]:bg-transparent [&>[data-slot=card]]:shadow-none"
-                >
-                  <AdminAuditCard entry={item} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <Empty className="border-0 px-4 sm:px-6 lg:px-8">
+        <PaperList
+          inset={false}
+          empty={
+            <Empty>
               <EmptyHeader>
                 <EmptyTitle>还没有审计记录</EmptyTitle>
                 <EmptyDescription>
@@ -69,8 +59,12 @@ export default async function AdminAuditPage({
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>
-          )}
-        </Surface>
+          }
+        >
+          {result.items.map((item) => (
+            <AdminAuditCard key={item.id} entry={item} />
+          ))}
+        </PaperList>
       </Section>
       <AdminPagination
         basePath="/admin/audit"

@@ -9,9 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { disableInvitationAction } from "@/features/moderation/actions";
 import { AdminReasonActionDialog } from "@/features/moderation/components/admin-reason-action-dialog";
-import {
-  formatModerationDateTime,
-} from "@/features/moderation/formatters";
+import { formatModerationDateTime } from "@/features/moderation/formatters";
 import type { InvitationSummary } from "@/server/services/moderation";
 
 type AdminInvitationCardProps = Readonly<{
@@ -33,14 +31,16 @@ export function AdminInvitationCard({
   const usedUp = !disabled && invitation.usedCount >= invitation.maxUses;
 
   return (
-    <Card className="gap-4">
-      <CardHeader className="border-b-0 pb-0">
+    <Card variant="list">
+      <CardHeader>
         <CardTitle>
           <h2 className="text-body-lg font-semibold text-foreground">邀请码</h2>
         </CardTitle>
         <CardDescription className="flex flex-wrap items-center gap-2">
           {disabled ? <Badge variant="danger">已停用</Badge> : null}
-          {!disabled && expired ? <Badge variant="warning">已过期</Badge> : null}
+          {!disabled && expired ? (
+            <Badge variant="warning">已过期</Badge>
+          ) : null}
           {!disabled && !expired && usedUp ? (
             <Badge variant="warning">已用尽</Badge>
           ) : null}
@@ -81,7 +81,7 @@ export function AdminInvitationCard({
         </dl>
       </CardContent>
       {!disabled && !expired && !usedUp ? (
-        <CardFooter className="flex flex-wrap items-center gap-2 border-t-0 pt-0">
+        <CardFooter>
           <AdminReasonActionDialog
             action={disableInvitationAction.bind(null, invitation.id)}
             triggerLabel="停用邀请码"

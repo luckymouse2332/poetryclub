@@ -1,3 +1,4 @@
+import { artifactPath } from "./helpers/artifacts";
 import { expect, test, type Page } from "@playwright/test";
 
 import { E2E_ADMIN_EMAIL, E2E_ADMIN_PASSWORD } from "./global-setup";
@@ -489,7 +490,7 @@ test.describe.serial("authenticated session loop", () => {
         color: styles.color,
       };
     });
-    await myMenu.screenshot({ animations: "disabled", path: "output/playwright/paper-journal/1440-account-menu-logout.png" });
+    await myMenu.screenshot({ animations: "disabled", path: artifactPath("paper-journal/1440-account-menu-logout.png") });
     expect(hoveredLogoutStyle.backgroundColor).not.toBe(
       baseLogoutStyle.backgroundColor,
     );
@@ -587,7 +588,7 @@ test.describe.serial("authenticated session loop", () => {
     await expect.poll(() => mobileLogout.evaluate((element) => element.getBoundingClientRect().height)).toBe(44);
     expect((await mobileLogout.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     expect((await mobileLogout.boundingBox())!.height).toBe((await mobileAccountLink.boundingBox())!.height);
-    await mobileAccountMenu.screenshot({ animations: "disabled", path: "output/playwright/paper-journal/390-account-menu-logout.png" });
+    await mobileAccountMenu.screenshot({ animations: "disabled", path: artifactPath("paper-journal/390-account-menu-logout.png") });
     await page.keyboard.press("Escape");
 
     // The account page shows the safe profile fields.

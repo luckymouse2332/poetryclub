@@ -6,7 +6,7 @@ import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Surface } from "@/components/ui/surface";
+import { PaperList } from "@/components/paper-list";
 import {
   Empty,
   EmptyDescription,
@@ -63,15 +63,22 @@ export default async function CollectionPage({
   if (result.kind === "login_required") {
     return (
       <PageContainer width="reading">
-        <div aria-hidden="true" className="select-none blur-sm">
-          <PageHeader eyebrow="特辑" title="成员特辑" description="登录后继续阅读" />
+        <div aria-hidden="true" className="blur-sm select-none">
+          <PageHeader
+            eyebrow="特辑"
+            title="成员特辑"
+            description="登录后继续阅读"
+          />
           <div className="mt-8 h-72 rounded-lg border border-border-subtle bg-paper" />
         </div>
         <CollectionLoginGate nextPath={`/collections/${parsedId.data}`} />
       </PageContainer>
     );
   }
-  if (result.directory.total > 0 && parsedPage.data > result.directory.pageCount) {
+  if (
+    result.directory.total > 0 &&
+    parsedPage.data > result.directory.pageCount
+  ) {
     notFound();
   }
   const { collection, directory } = result;
@@ -97,7 +104,7 @@ export default async function CollectionPage({
         </div>
       </dl>
       {collection.description ? (
-        <p className="mt-8 whitespace-pre-wrap text-body-lg leading-copy text-foreground">
+        <p className="mt-8 text-body-lg leading-copy whitespace-pre-wrap text-foreground">
           {collection.description}
         </p>
       ) : null}
@@ -108,26 +115,11 @@ export default async function CollectionPage({
         >
           目录
         </h2>
-        <Surface variant="paper" padding="none" data-slot="directory-surface" className="mt-8 px-4 sm:px-6 lg:px-8">
-          {directory.items.length > 0 ? (
-            <ol
-              start={(directory.page - 1) * 12 + 1}
-              className="list-decimal divide-y divide-border-subtle pl-6"
-            >
-              {directory.items.map((item) => (
-                <li key={item.poemId} className="py-5 pl-2 marker:text-subtle">
-                  <Link
-                    href={`/collections/${collection.id}/read/${item.poemId}`}
-                    className="block min-h-control content-center wrap-anywhere font-serif text-body-lg text-foreground underline decoration-1 decoration-transparent underline-offset-4 transition-colors hover:text-primary hover:decoration-primary focus-visible:text-primary focus-visible:decoration-primary"
-                  >
-                    《{item.title}》
-                  </Link>
-                  <span className="ml-3 text-label text-subtle">{item.authorName}</span>
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <Empty className="border-0">
+        <PaperList
+          className="mt-8"
+          orderedStart={(directory.page - 1) * 12 + 1}
+          empty={
+            <Empty>
               <EmptyHeader>
                 <EmptyTitle>当前没有可读作品</EmptyTitle>
                 <EmptyDescription>
@@ -135,8 +127,22 @@ export default async function CollectionPage({
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>
-          )}
-        </Surface>
+          }
+        >
+          {directory.items.map((item) => (
+            <li key={item.poemId} className="py-5 pl-2 marker:text-subtle">
+              <Link
+                href={`/collections/${collection.id}/read/${item.poemId}`}
+                className="block min-h-control content-center font-serif text-body-lg wrap-anywhere text-foreground underline decoration-transparent decoration-1 underline-offset-4 transition-colors hover:text-primary hover:decoration-primary focus-visible:text-primary focus-visible:decoration-primary"
+              >
+                《{item.title}》
+              </Link>
+              <span className="ml-3 text-label text-subtle">
+                {item.authorName}
+              </span>
+            </li>
+          ))}
+        </PaperList>
         <Pagination
           basePath={`/collections/${collection.id}`}
           page={directory.page}

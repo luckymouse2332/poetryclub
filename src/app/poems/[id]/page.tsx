@@ -1,3 +1,4 @@
+import { PoemReading, ReadingContext } from "@/components/poem-reading";
 import type { Metadata } from "next";
 import { randomUUID } from "node:crypto";
 import { notFound } from "next/navigation";
@@ -9,7 +10,10 @@ import { CommentSection } from "@/features/comments/components/comment-ui";
 import { MemberLoginGate } from "@/features/posts/components/member-login-gate";
 import { formatPoemDate } from "@/features/posts/formatters";
 import { getContentViewer } from "@/server/policies/access";
-import { countVisibleComments, listCommentRoots } from "@/server/services/comments";
+import {
+  countVisibleComments,
+  listCommentRoots,
+} from "@/server/services/comments";
 import { getPublishedPoemAccess } from "@/server/services/poems";
 import { poemIdSchema } from "@/server/validation/poems";
 
@@ -30,9 +34,7 @@ export async function generateMetadata({
   return { title: result.kind === "visible" ? result.poem.title : "诗作" };
 }
 
-export default async function PoemDetailPage({
-  params,
-}: PoemDetailPageProps) {
+export default async function PoemDetailPage({ params }: PoemDetailPageProps) {
   const { id } = await params;
   const parsedId = poemIdSchema.safeParse(id);
   if (!parsedId.success) {
@@ -50,7 +52,7 @@ export default async function PoemDetailPage({
       <PageContainer width="reading">
         <div
           aria-hidden="true"
-          className="pointer-events-none select-none blur-sm"
+          className="pointer-events-none blur-sm select-none"
         >
           <PageHeader
             eyebrow="诗作"
@@ -58,7 +60,7 @@ export default async function PoemDetailPage({
             description="登录后继续阅读"
           />
           <div className="mt-6 h-20 rounded-lg border border-border-subtle bg-surface-muted" />
-          <article className="mt-8 space-y-4 border-y border-border bg-paper px-4 py-10 shadow-card sm:px-6 lg:px-8 md:py-8">
+          <article className="mt-8 space-y-4 border-y border-border bg-paper px-4 py-10 shadow-card sm:px-6 md:py-8 lg:px-8">
             <div className="h-4 w-4/5 rounded bg-surface-muted" />
             <div className="h-4 w-full rounded bg-surface-muted" />
             <div className="h-4 w-3/5 rounded bg-surface-muted" />
@@ -112,25 +114,16 @@ export default async function PoemDetailPage({
         </div>
       </dl>
 
-      <article
-        aria-label={poem.title}
-        className="mt-8 whitespace-pre-wrap border-y border-border bg-paper px-4 py-10 font-serif text-body-lg leading-loose text-foreground sm:px-6 lg:px-8 sm:py-12"
-      >
-        {poem.body}
-      </article>
+      <PoemReading aria-label={poem.title}>{poem.body}</PoemReading>
 
       {poem.context ? (
-        <section aria-labelledby="poem-context-title" className="mt-8">
-          <h2
-            id="poem-context-title"
-            className="font-serif text-section-title font-medium text-foreground"
-          >
-            创作背景
-          </h2>
-          <p className="mt-3 whitespace-pre-wrap text-body text-subtle">
-            {poem.context}
-          </p>
-        </section>
+        <ReadingContext
+          aria-labelledby="poem-context-title"
+          className="mt-8"
+          titleId="poem-context-title"
+        >
+          {poem.context}
+        </ReadingContext>
       ) : null}
 
       <CommentSection

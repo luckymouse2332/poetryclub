@@ -25,8 +25,8 @@ export function AnnouncementCard({
 }: Readonly<{ announcement: AnnouncementSummary }>) {
   const published = announcement.status === "published";
   return (
-    <Card className="gap-4">
-      <CardHeader className="border-b-0 pb-0">
+    <Card variant="list">
+      <CardHeader>
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant={published ? "success" : "warning"}>
             {published ? "已发布" : "草稿"}
@@ -35,18 +35,21 @@ export function AnnouncementCard({
             {AUDIENCE_LABELS[announcement.audience]}
           </Badge>
         </div>
-        <CardTitle className="break-words text-body-lg">{announcement.title}</CardTitle>
+        <CardTitle className="text-body-lg break-words">
+          {announcement.title}
+        </CardTitle>
         <CardDescription>
-          创建人：{announcement.creatorName} · 更新于 {formatNotificationDate(announcement.updatedAt)}
+          创建人：{announcement.creatorName} · 更新于{" "}
+          {formatNotificationDate(announcement.updatedAt)}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="line-clamp-4 whitespace-pre-wrap break-words text-body text-subtle">
+        <p className="line-clamp-4 text-body break-words whitespace-pre-wrap text-subtle">
           {announcement.body}
         </p>
       </CardContent>
       {!published || announcement.href ? (
-        <CardFooter className="flex flex-wrap items-center gap-2 border-t-0 pt-0">
+        <CardFooter>
           {!published ? (
             <Button asChild variant="secondary">
               <Link href={`/admin/announcements/${announcement.id}/edit`}>

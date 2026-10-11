@@ -1,3 +1,4 @@
+import { artifactPath } from "./helpers/artifacts";
 import { expect, test, type Page } from "@playwright/test";
 
 import { E2E_ADMIN_EMAIL, E2E_ADMIN_PASSWORD } from "./global-setup";
@@ -47,8 +48,8 @@ test.describe.serial("main content paper contrast", () => {
     if (geometry.card) expect(geometry.paperPadding, path).toBe(0);
     const rows = surface.locator('article, [data-slot="card"]');
     const borders = await rows.evaluateAll((elements) => elements.map((element) => {
-      // Backend Card rows are wrapped; the list draws its rule on that wrapper.
-      const style = getComputedStyle(element.matches('[data-slot="card"]') ? element.parentElement! : element);
+      // PaperList owns row wrappers and the single inter-row rule.
+      const style = getComputedStyle(element.parentElement?.matches('[data-slot="paper-list-row"]') ? element.parentElement : element);
       return { top: parseFloat(style.borderTopWidth), bottom: parseFloat(style.borderBottomWidth) };
     }));
     if (borders.length) {
@@ -79,7 +80,7 @@ test.describe.serial("main content paper contrast", () => {
       await title.focus();
       await expect(title).toBeFocused();
       await page.evaluate(async () => { await document.fonts.ready; });
-      await page.screenshot({ animations: "disabled", caret: "initial", fullPage: true, path: `output/playwright/paper-journal/${width}-content-paper-collections.png` });
+      await page.screenshot({ animations: "disabled", caret: "initial", fullPage: true, path: artifactPath(`paper-journal/${width}-content-paper-collections.png`) });
       const response = await page.request.post("/api/auth/sign-in/email", {
         data: { email: E2E_ADMIN_EMAIL, password: E2E_ADMIN_PASSWORD, rememberMe: false },
       });

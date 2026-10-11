@@ -6,6 +6,7 @@ import type {} from "react/canary";
 import { ViewTransition } from "react";
 
 import { cn } from "@/lib/utils";
+import { navigationLinkClassName } from "@/lib/navigation-styles";
 
 import styles from "./site-nav-link.module.css";
 
@@ -72,14 +73,23 @@ export function SiteNavLink({
       aria-current={isActive ? "page" : undefined}
       className={cn(
         styles.link,
-        variant === "brand" ? styles.brandLink : styles.navigationLink,
+        variant === "navigation" && navigationLinkClassName,
+        variant === "navigation" && styles.navigationLink,
         className,
       )}
     >
       {children}
       {variant === "navigation" && isActive ? (
-        <ViewTransition name="primary-navigation-indicator" share="navigation-marker" default="none">
-          <span aria-hidden="true" data-slot="primary-navigation-indicator" className={styles.indicator} />
+        <ViewTransition
+          name="primary-navigation-indicator"
+          share="navigation-marker"
+          default="none"
+        >
+          <span
+            aria-hidden="true"
+            data-slot="primary-navigation-indicator"
+            className={styles.indicator}
+          />
         </ViewTransition>
       ) : null}
     </Link>

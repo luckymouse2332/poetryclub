@@ -1,3 +1,4 @@
+import { artifactPath } from "./helpers/artifacts";
 import { expect, test, type Page } from "@playwright/test";
 import { THEME_STORAGE_KEY } from "../../src/lib/theme";
 
@@ -38,13 +39,13 @@ for (const width of [320, 390, 768, 920, 1024, 1440]) {
     await expect(page.locator("header")).toHaveCSS("background-color", "rgb(24, 32, 41)");
     expect(await page.evaluate(() => localStorage.getItem("poetryclub-theme"))).toBe("dark");
     await noPageMotion(page);
-    if ([390, 1440].includes(width)) await page.screenshot({ fullPage: true, animations: "disabled", path: `output/playwright/dark-mode/${width}-home.png` });
+    if ([390, 1440].includes(width)) await page.screenshot({ fullPage: true, animations: "disabled", path: artifactPath(`dark-mode/${width}-home.png`) });
     await page.goto("/poems");
     await expect(toggle(page, "切换浅色模式")).toBeEnabled();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
     await expect(page.locator('[data-slot="directory-surface"]')).toHaveCSS("background-color", "rgb(44, 55, 69)");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
-    if ([390, 1440].includes(width)) await page.screenshot({ fullPage: true, animations: "disabled", path: `output/playwright/dark-mode/${width}-poems.png` });
+    if ([390, 1440].includes(width)) await page.screenshot({ fullPage: true, animations: "disabled", path: artifactPath(`dark-mode/${width}-poems.png`) });
     await toggle(page, "切换浅色模式").click();
     await page.reload();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
@@ -161,14 +162,14 @@ for (const width of [390, 1440]) {
     await expect(input).toHaveCSS("outline-style", "solid");
     await expect(page.getByRole("textbox", { name: "错误输入", exact: true })).toHaveAttribute("aria-invalid", "true");
     await expect(page.getByRole("textbox", { name: "禁用输入", exact: true })).toBeDisabled();
-    for (const name of ["Button", "Input", "Alert", "Card"]) await page.locator(`[data-component="${name}"]`).screenshot({ animations: "disabled", path: `output/playwright/dark-mode/${width}-${name}.png` });
+    for (const name of ["Button", "Input", "Alert", "Card"]) await page.locator(`[data-component="${name}"]`).screenshot({ animations: "disabled", path: artifactPath(`dark-mode/${width}-${name}.png`) });
     for (const [trigger, slot] of [["打开弹窗", "dialog-content"], ["打开操作菜单", "dropdown-menu-content"], ["查看消息", "popover-content"]]) {
       const button = page.getByRole("button", { name: trigger, exact: true });
       await button.click();
       const surface = page.locator(`[data-slot="${slot}"]`).first();
       await expect(surface).toBeVisible();
       await expect(surface).toHaveCSS("background-color", "rgb(44, 55, 69)");
-      await page.screenshot({ animations: "disabled", path: `output/playwright/dark-mode/${width}-${slot}.png` });
+      await page.screenshot({ animations: "disabled", path: artifactPath(`dark-mode/${width}-${slot}.png`) });
       await page.keyboard.press("Escape");
       await expect(button).toBeFocused();
     }

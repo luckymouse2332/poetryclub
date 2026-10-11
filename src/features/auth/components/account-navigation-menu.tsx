@@ -35,8 +35,9 @@ type AccountNavigationMenuProps = Readonly<{
   unreadCount?: number;
 }>;
 
-const desktopTriggerClassName =
-  "group relative inline-flex min-h-control items-center justify-center whitespace-nowrap px-4 font-serif text-body text-subtle no-underline transition-colors hover:text-primary focus-visible:text-primary data-[active=true]:underline data-[active=true]:decoration-seal data-[active=true]:underline-offset-8 data-[active=true]:text-primary data-[state=open]:underline data-[state=open]:decoration-seal data-[state=open]:underline-offset-8 data-[state=open]:text-primary";
+const desktopTriggerClassName = cn(
+  "group relative inline-flex min-h-control items-center justify-center px-4 font-serif text-body whitespace-nowrap text-subtle no-underline transition-colors hover:text-primary focus-visible:text-primary data-[active=true]:text-primary data-[active=true]:underline data-[active=true]:decoration-seal data-[active=true]:underline-offset-8 data-[state=open]:text-primary data-[state=open]:underline data-[state=open]:decoration-seal data-[state=open]:underline-offset-8",
+);
 
 const menuLinkClassName = "w-full";
 
@@ -64,55 +65,53 @@ export function AccountNavigationMenu({
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-        <DropdownMenuTrigger asChild>
-          {mobile ? (
-            <button
-              type="button"
-              data-active={isActive}
-              aria-label={`打开${mobileTriggerLabel}`}
-              className="group relative flex size-12 items-center justify-center text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      <DropdownMenuTrigger asChild>
+        {mobile ? (
+          <button
+            type="button"
+            data-active={isActive}
+            aria-label={`打开${mobileTriggerLabel}`}
+            className="group relative flex size-12 items-center justify-center text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none"
+          >
+            <span
+              aria-hidden="true"
+              className="flex size-9 items-center justify-center rounded-full border border-input bg-transparent text-label leading-none font-semibold text-primary transition-colors group-data-[state=open]:border-primary group-data-[state=open]:text-primary"
             >
+              {initial}
+            </span>
+            {unreadCount > 0 ? (
               <span
                 aria-hidden="true"
-                className="flex size-9 items-center justify-center rounded-full border border-input bg-transparent text-label font-semibold leading-none text-primary transition-colors group-data-[state=open]:border-primary group-data-[state=open]:text-primary"
-              >
-                {initial}
-              </span>
-              {unreadCount > 0 ? (
-                <span
-                  aria-hidden="true"
-                  data-unread-indicator="true"
-                  className="pointer-events-none absolute top-1 right-1 size-2 rounded-full bg-seal ring-2 ring-background"
-                />
-              ) : null}
-            </button>
-          ) : (
-            <button
-              type="button"
-              className={cn(desktopTriggerClassName, className)}
-              data-active={isActive}
-              aria-label="我的"
-            >
-              我的
-              <ChevronDown
-                aria-hidden="true"
-                className="ml-1 size-4 transition-transform duration-160 group-data-[state=open]:rotate-180"
+                data-unread-indicator="true"
+                className="pointer-events-none absolute top-1 right-1 size-2 rounded-full bg-seal ring-2 ring-background"
               />
-            </button>
-          )}
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="end"
-          className={cn(
-            floatingStyles.unfold,
-            "w-64 border-border-strong p-2",
-            mobile ? "bg-paper/94 backdrop-blur-xl" : "bg-paper",
-          )}
-        >
+            ) : null}
+          </button>
+        ) : (
+          <button
+            type="button"
+            className={cn(desktopTriggerClassName, className)}
+            data-active={isActive}
+            aria-label="我的"
+          >
+            我的
+            <ChevronDown
+              aria-hidden="true"
+              className="duration-fast ml-1 size-4 transition-transform group-data-[state=open]:rotate-180"
+            />
+          </button>
+        )}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        className={cn(
+          floatingStyles.unfold,
+          "w-64 border-border-strong p-2",
+          mobile ? "bg-paper/94 backdrop-blur-xl" : "bg-paper",
+        )}
+      >
         <DropdownMenuLabel className="px-3 py-2">
-          <span className="block text-body text-foreground">
-            我的工作区
-          </span>
+          <span className="block text-body text-foreground">我的工作区</span>
           <span className="mt-0.5 block text-caption font-normal text-subtle">
             {mobile ? "管理通知、账户、诗作与特辑" : "管理账户、诗作与特辑"}
           </span>
@@ -126,7 +125,7 @@ export function AccountNavigationMenu({
                 <span>通知</span>
                 <span
                   className={cn(
-                    "ml-auto text-caption tabular-nums text-subtle",
+                    "ml-auto text-caption text-subtle tabular-nums",
                     unreadCount > 0 && "text-primary",
                   )}
                 >
@@ -181,7 +180,7 @@ export function AccountNavigationMenu({
             </button>
           </DropdownMenuItem>
         </form>
-        </DropdownMenuContent>
+      </DropdownMenuContent>
     </DropdownMenu>
   );
 }
