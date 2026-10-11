@@ -11,7 +11,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint",
+    "lint": "pnpm lint:js && pnpm lint:css && pnpm format:check",
     "test": "vitest run",
     "test:integration": "node scripts/run-integration-tests.mjs",
     "test:watch": "vitest",
@@ -25,7 +25,11 @@
     "db:check": "drizzle-kit check",
     "db:studio": "drizzle-kit studio",
     "admin:bootstrap": "node scripts/bootstrap-admin.mjs",
-    "account:reset-password": "node scripts/reset-user-password.mjs"
+    "account:reset-password": "node scripts/reset-user-password.mjs",
+    "lint:js": "eslint",
+    "lint:css": "stylelint \"src/**/*.css\"",
+    "format": "node scripts/format-styles.mjs --write",
+    "format:check": "node scripts/format-styles.mjs"
   },
   "dependencies": {
     "@next/env": "^16.2.12",
@@ -53,6 +57,10 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.12",
+    "prettier": "3.6.2",
+    "prettier-plugin-tailwindcss": "0.6.14",
+    "stylelint": "16.26.1",
+    "stylelint-config-standard": "38.0.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vite": "^6.4.3",
