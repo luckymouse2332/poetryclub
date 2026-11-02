@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import nextEnv from "@next/env";
 import { hashPassword } from "better-auth/crypto";
 import postgres from "postgres";
@@ -70,9 +72,23 @@ try {
     }
 
     await tx`delete from session where user_id = ${userId}`;
+
+    // break-glass 恢复与密码更新同事务写入只读审计：admin_id 记录恢复对象
+    // 本身，来源通过 metadata 标明为服务器终端 CLI，与 bootstrap-admin 对称。
+    await tx`
+      insert into admin_audit_log (
+        id, admin_id, action, target_type, target_id, reason, metadata
+      ) values (
+        ${randomUUID()}, ${userId}, 'user_password_recovered', 'user', ${userId},
+        '服务器终端紧急密码恢复',
+        ${tx.json({ source: "password-recovery-cli" })}
+      )
+    `;
   });
 
-  console.log("Account password recovered and all existing sessions revoked.");
+  console.log(
+    "Account password recovered and all existing sessions revoked; recovery recorded in the audit log.",
+  );
 } finally {
   await sql.end();
 }

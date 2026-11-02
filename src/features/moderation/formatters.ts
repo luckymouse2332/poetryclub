@@ -64,6 +64,7 @@ export const AUDIT_ACTION_LABELS = {
   comment_restored: "恢复评论",
   collection_hidden: "隐藏特辑",
   collection_restored: "恢复特辑",
+  user_password_recovered: "终端密码恢复",
 } as const;
 
 export const AUDIT_TARGET_LABELS = {

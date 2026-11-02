@@ -2,13 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import { sanitizeAuthResponse } from "@/server/auth/sanitize-response";
 
-const SENSITIVE_KEYS = [
-  "token",
-  "accessToken",
-  "refreshToken",
-  "idToken",
-  "password",
-] as const;
+const SENSITIVE_KEY_PATTERN = /token$|password/i;
+
+function isSensitiveKey(key: string): boolean {
+  return SENSITIVE_KEY_PATTERN.test(key);
+}
 
 function collectSensitiveKeys(value: unknown, prefix = ""): string[] {
   if (Array.isArray(value)) {
@@ -20,9 +18,7 @@ function collectSensitiveKeys(value: unknown, prefix = ""): string[] {
   if (value !== null && typeof value === "object") {
     return Object.entries(value).flatMap(([key, nested]) => {
       const path = prefix ? `${prefix}.${key}` : key;
-      const found = (SENSITIVE_KEYS as readonly string[]).includes(key)
-        ? [path]
-        : [];
+      const found = isSensitiveKey(key) ? [path] : [];
       return [...found, ...collectSensitiveKeys(nested, path)];
     });
   }
@@ -61,6 +57,23 @@ describe("sanitizeAuthResponse", () => {
       provider: {},
     });
     expect(sanitized.headers.get("set-cookie")).toContain("HttpOnly");
+  });
+
+  it("strips any key whose name contains token or password, not just a fixed list", async () => {
+    const response = jsonResponse({
+      resetToken: "reset-secret",
+      verificationToken: "verify-secret",
+      sessionToken: "session-secret",
+      passwordHash: "hash-secret",
+      data: { id: "user-1", tokenCount: 2, tokensMinted: "kept-as-is" },
+    });
+
+    const sanitized = await sanitizeAuthResponse(response);
+    const body = await sanitized.json();
+
+    expect(body).toEqual({
+      data: { id: "user-1", tokenCount: 2, tokensMinted: "kept-as-is" },
+    });
   });
 
   it("leaves non-JSON responses unchanged", async () => {

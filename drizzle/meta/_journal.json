@@ -64,6 +64,13 @@
       "when": 1790306850183,
       "tag": "0008_grandfather-existing-email",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793625862441,
+      "tag": "0009_mean_boom_boom",
+      "breakpoints": true
     }
   ]
 }

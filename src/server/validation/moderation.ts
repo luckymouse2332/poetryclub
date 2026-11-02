@@ -1,12 +1,26 @@
 import { z } from "zod";
 
-export const MODERATION_PAGE_SIZE = 20;
-export const MODERATION_MAX_PAGE = 10000;
-export const MODERATION_REASON_MAX_LENGTH = 500;
-export const INVITATION_CODE_MIN_LENGTH = 32;
-export const INVITATION_CODE_MAX_LENGTH = 128;
-export const INVITATION_MAX_USES_LIMIT = 100;
-export const INVITATION_MAX_DAYS_AHEAD = 365;
+import {
+  INVITATION_CODE_MAX_LENGTH,
+  INVITATION_CODE_MIN_LENGTH,
+  INVITATION_MAX_DAYS_AHEAD,
+  INVITATION_MAX_USES_LIMIT,
+  MODERATION_MAX_PAGE,
+  MODERATION_PAGE_SIZE,
+  MODERATION_REASON_MAX_LENGTH,
+} from "@/lib/moderation-limits";
+
+// 共享边界常量定义在 `src/lib/moderation-limits.ts`；此处 re-export 保持
+// 服务端既有导入路径不变，Client Component 应从 `@/lib/moderation-limits` 导入。
+export {
+  INVITATION_CODE_MAX_LENGTH,
+  INVITATION_CODE_MIN_LENGTH,
+  INVITATION_MAX_DAYS_AHEAD,
+  INVITATION_MAX_USES_LIMIT,
+  MODERATION_MAX_PAGE,
+  MODERATION_PAGE_SIZE,
+  MODERATION_REASON_MAX_LENGTH,
+};
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -48,6 +62,7 @@ export const adminAuditActionSchema = z.enum([
   "comment_restored",
   "collection_hidden",
   "collection_restored",
+  "user_password_recovered",
 ]);
 
 export const userRoleSchema = z.enum(["member", "admin"]);

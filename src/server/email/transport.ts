@@ -12,6 +12,9 @@ function createDevelopmentTransport(): EmailTransport {
   return {
     name: "development",
     async send(message) {
+      // 有意行为：开发环境把含验证码/重置链接的完整邮件写到服务端控制台，
+      // 方便本地调试。生产环境由 src/server/validation/env.ts 强制要求
+      // resend transport，此路径无法被选到，日志不会进入生产。
       console.info(`[仅限开发环境的事务邮件] 收件人：${message.to}\n${message.text}`);
     },
   };

@@ -9,7 +9,7 @@ import {
   createCommentAction,
   type CommentActionState,
 } from "@/features/comments/actions";
-import { COMMENT_BODY_MAX_LENGTH } from "@/server/validation/comments";
+import { COMMENT_BODY_MAX_LENGTH } from "@/lib/comment-limits";
 const INITIAL_STATE: CommentActionState = { status: "idle" };
 
 export function CommentForm({

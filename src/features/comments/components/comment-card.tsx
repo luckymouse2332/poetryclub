@@ -33,7 +33,7 @@ import {
   type CommentActionState,
 } from "@/features/comments/actions";
 import type { CommentDto } from "@/server/services/comments/types";
-import { COMMENT_BODY_MAX_LENGTH } from "@/server/validation/comments";
+import { COMMENT_BODY_MAX_LENGTH } from "@/lib/comment-limits";
 
 const INITIAL_STATE: CommentActionState = { status: "idle" };
 

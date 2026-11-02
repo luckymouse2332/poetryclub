@@ -14,6 +14,7 @@ import {
   updateOwnComment,
 } from "@/server/services/comments";
 import {
+  commentIdSchema,
   createCommentInputSchema,
   deleteCommentInputSchema,
   updateCommentInputSchema,
@@ -25,6 +26,15 @@ export type CommentActionState = Readonly<{
   fieldError?: string;
   revision?: number;
 }>;
+
+/**
+ * 登录重定向的返回路径必须只包含服务端校验过的诗作编号。`poemId` 由客户端
+ * 传入，在 Zod 校验前不得直接拼进 `returnTo`，否则可能把任意字符串带进
+ * `/login?next=` 链路。
+ */
+function safePoemReturnPath(poemId: string): string {
+  return commentIdSchema.safeParse(poemId).success ? `/poems/${poemId}` : "/poems";
+}
 
 function accessError(error: unknown): CommentActionState | null {
   if (!(error instanceof AccessControlError)) return null;
@@ -75,7 +85,7 @@ export async function createCommentAction(
 ): Promise<CommentActionState> {
   let currentUser;
   try {
-    currentUser = await requireActiveUser(`/poems/${poemId}`);
+    currentUser = await requireActiveUser(safePoemReturnPath(poemId));
   } catch (error) {
     const known = accessError(error);
     if (known) return known;
@@ -117,7 +127,7 @@ export async function updateCommentAction(
   void _previousState;
   let currentUser;
   try {
-    currentUser = await requireActiveUser(`/poems/${poemId}`);
+    currentUser = await requireActiveUser(safePoemReturnPath(poemId));
   } catch (error) {
     const known = accessError(error);
     if (known) return known;
@@ -156,7 +166,7 @@ export async function deleteCommentAction(
   void _formData;
   let currentUser;
   try {
-    currentUser = await requireActiveUser(`/poems/${poemId}`);
+    currentUser = await requireActiveUser(safePoemReturnPath(poemId));
   } catch (error) {
     const known = accessError(error);
     if (known) return known;
