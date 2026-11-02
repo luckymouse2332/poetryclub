@@ -20,7 +20,8 @@ export type AdminAuditAction =
   | "comment_hidden"
   | "comment_restored"
   | "collection_hidden"
-  | "collection_restored";
+  | "collection_restored"
+  | "user_password_recovered";
 
 export type AdminAuditTarget =
   | "poem"

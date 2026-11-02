@@ -74,6 +74,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (createdUserIds.length > 0) {
+    await sql`delete from admin_audit_log where admin_id in ${sql(createdUserIds)} or target_id in ${sql(createdUserIds)}`;
     await sql`delete from "user" where id in ${sql(createdUserIds)}`;
   }
   await sql.end();
@@ -109,6 +110,17 @@ describe("server-terminal password recovery", () => {
       select id from session where user_id = ${fixture.userId}
     `;
     expect(sessions).toHaveLength(0);
+
+    const auditRows = await sql`
+      select action, target_id, metadata from admin_audit_log
+      where target_id = ${fixture.userId}
+        and action = 'user_password_recovered'
+    `;
+    expect(auditRows).toHaveLength(1);
+    expect(String(auditRows[0]?.action)).toBe("user_password_recovered");
+    expect((auditRows[0]?.metadata as { source?: string }).source).toBe(
+      "password-recovery-cli",
+    );
   });
 
   it("aborts without changing credentials or sessions when duplicate credential rows exist", async () => {
@@ -142,5 +154,9 @@ describe("server-terminal password recovery", () => {
     expect(sessions.map((row) => String(row.token))).toEqual(
       [...fixture.sessionTokens].sort(),
     );
+    const auditRows = await sql`
+      select id from admin_audit_log where target_id = ${fixture.userId}
+    `;
+    expect(auditRows).toHaveLength(0);
   });
 });

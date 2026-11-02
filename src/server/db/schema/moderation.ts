@@ -29,6 +29,7 @@ export const adminAuditAction = pgEnum("admin_audit_action", [
   "comment_restored",
   "collection_hidden",
   "collection_restored",
+  "user_password_recovered",
 ]);
 
 export const adminTargetType = pgEnum("admin_target_type", [
