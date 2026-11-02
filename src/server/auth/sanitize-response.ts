@@ -1,10 +1,13 @@
-const sensitiveFields = new Set([
-  "token",
-  "accessToken",
-  "refreshToken",
-  "idToken",
-  "password",
-]);
+// 不维护易遗漏的固定字段黑名单，改为模式匹配：
+// - 键名以 token 结尾（token、accessToken、resetToken、verificationToken、
+//   sessionToken、csrf_token 等，大小写不敏感）一律剥离；
+// - 键名含 password（password、passwordHash、newPassword 等）一律剥离。
+// 该模式刻意保留 tokenCount 之类与凭据无关的计数字段。
+const SENSITIVE_KEY_PATTERN = /token$|password/i;
+
+function isSensitiveKey(key: string): boolean {
+  return SENSITIVE_KEY_PATTERN.test(key);
+}
 
 function omitSensitiveFields(value: unknown): unknown {
   if (Array.isArray(value)) {
@@ -17,7 +20,7 @@ function omitSensitiveFields(value: unknown): unknown {
 
   return Object.fromEntries(
     Object.entries(value)
-      .filter(([key]) => !sensitiveFields.has(key))
+      .filter(([key]) => !isSensitiveKey(key))
       .map(([key, nestedValue]) => [key, omitSensitiveFields(nestedValue)]),
   );
 }
