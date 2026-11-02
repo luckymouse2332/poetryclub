@@ -12,7 +12,7 @@ import type { AdminActionState } from "@/features/moderation/actions";
 import {
   INVITATION_MAX_DAYS_AHEAD,
   INVITATION_MAX_USES_LIMIT,
-} from "@/server/validation/moderation";
+} from "@/lib/moderation-limits";
 
 const INITIAL_STATE: AdminActionState = { status: "idle" };
 

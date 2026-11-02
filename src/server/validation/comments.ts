@@ -1,12 +1,23 @@
 import { z } from "zod";
 
+import {
+  COMMENT_BODY_MAX_LENGTH,
+  COMMENT_PUBLISH_COOLDOWN_SECONDS,
+  COMMENT_REPLY_PAGE_SIZE,
+  COMMENT_REPLY_PREVIEW_SIZE,
+  COMMENT_ROOT_PAGE_SIZE,
+} from "@/lib/comment-limits";
 import { moderationPageSchema, moderationReasonSchema } from "./moderation";
 
-export const COMMENT_BODY_MAX_LENGTH = 2000;
-export const COMMENT_ROOT_PAGE_SIZE = 10;
-export const COMMENT_REPLY_PREVIEW_SIZE = 3;
-export const COMMENT_REPLY_PAGE_SIZE = 20;
-export const COMMENT_PUBLISH_COOLDOWN_SECONDS = 10;
+// 共享边界常量定义在 `src/lib/comment-limits.ts`；此处 re-export 保持
+// 服务端既有导入路径不变，Client Component 应从 `@/lib/comment-limits` 导入。
+export {
+  COMMENT_BODY_MAX_LENGTH,
+  COMMENT_PUBLISH_COOLDOWN_SECONDS,
+  COMMENT_REPLY_PAGE_SIZE,
+  COMMENT_REPLY_PREVIEW_SIZE,
+  COMMENT_ROOT_PAGE_SIZE,
+};
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;

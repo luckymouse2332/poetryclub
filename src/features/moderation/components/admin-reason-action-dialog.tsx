@@ -18,7 +18,7 @@ import { Button, type ButtonProps } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Textarea } from "@/components/ui/textarea";
 import { type AdminActionState } from "@/features/moderation/actions";
-import { MODERATION_REASON_MAX_LENGTH } from "@/server/validation/moderation";
+import { MODERATION_REASON_MAX_LENGTH } from "@/lib/moderation-limits";
 
 export type AdminReasonAction = (
   state: AdminActionState,
