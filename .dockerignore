@@ -7,9 +7,10 @@ node_modules
 coverage
 playwright-report
 test-results
+output
+.codex-overnight
 .env
 .env.*
 !.env.example
 deploy/.env.production
 *.log
-temp.md
