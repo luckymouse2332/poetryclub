@@ -1,6 +1,6 @@
 # 架构文档：回中诗社
 
-技术栈由 `temp.md` 固定，除非有明确且书面记录的理由，否则不替换、不增加功能重叠的库：
+技术栈由本文件与 [`docs/development-workflow.md`](development-workflow.md) 中的 CHORE-1 约定共同固定，除非有明确且书面记录的理由，否则不替换、不增加功能重叠的库：
 
 - Next.js App Router、React、TypeScript strict mode、pnpm
 - PostgreSQL、Drizzle ORM + 版本化 SQL migration
@@ -22,13 +22,15 @@ src/
 │   └── ui/          # shadcn 组件
 ├── features/        # 按功能组织的领域模块
 │   ├── auth/
-│   ├── users/
-│   ├── communities/
+│   ├── about/
 │   ├── posts/
 │   ├── comments/
-│   ├── reactions/
+│   ├── collections/
 │   ├── notifications/
-│   └── moderation/
+│   ├── moderation/
+│   ├── users/       # 预留空壳
+│   ├── communities/ # 预留空壳
+│   └── reactions/   # 预留空壳
 ├── server/          # 仅服务端
 │   ├── auth/
 │   ├── db/

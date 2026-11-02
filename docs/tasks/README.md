@@ -81,10 +81,13 @@
 | BUG-17 | 管理列表重复分隔线移除 | 已完成 | [BUG-17-admin-list-internal-rules.md](./BUG-17-admin-list-internal-rules.md) |
 | BUG-18 | 账户登出菜单项高度修复 | 已完成 | [BUG-18-account-logout-menu-sizing.md](./BUG-18-account-logout-menu-sizing.md) |
 | M6.8 | 纸刊界面一致性与留白收尾 | 已完成 | [M6.8-paper-journal-consistency.md](./M6.8-paper-journal-consistency.md) |
-
 | M6.9 | 背景与纸面层次增强 | 已完成 | [M6.9-paper-surface-contrast.md](./M6.9-paper-surface-contrast.md) |
 | M6.10 | 导航跳转动画 | 已完成 | [M6.10-navigation-transitions.md](./M6.10-navigation-transitions.md) |
 | M6.11 | 深色模式切换 | 已完成 | [M6.11-dark-mode.md](./M6.11-dark-mode.md) |
+| BUG-13 | 仓库安全与可靠性审查 | 进行中 | [BUG-13-repository-safety-audit.md](./BUG-13-repository-safety-audit.md) |
+| CHORE-5 | 仓库卫生与文档一致性清扫 | 进行中 | [CHORE-5-repository-hygiene-sweep.md](./CHORE-5-repository-hygiene-sweep.md) |
+| BUG-19 | 扫描发现的安全加固项 | 进行中 | [BUG-19-scan-findings-hardening.md](./BUG-19-scan-findings-hardening.md) |
+| CHORE-6 | 依赖安全升级 | 进行中 | [CHORE-6-dependency-security-upgrade.md](./CHORE-6-dependency-security-upgrade.md) |
 
 ## 约定
 
@@ -92,4 +95,3 @@
 - 每个任务一个文件，命名为 `<编号>-<英文短名>.md`。已有历史文件名保留，新文件的短名只使用小写英文字母、数字和连字符。
 - 状态取值：`待办` / `进行中` / `已完成` / `已阻塞`。
 - 任务模板见 [template.md](./template.md)。
-`n| BUG-13 | 仓库安全与可靠性审查 | 进行中 | [BUG-13-repository-safety-audit.md](./BUG-13-repository-safety-audit.md) |
